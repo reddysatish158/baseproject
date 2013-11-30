@@ -1,9 +1,12 @@
 package org.mifosplatform.billing.uploadstatus.service;
 
+import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,7 +47,9 @@ import org.mifosplatform.billing.importfile.data.MRNErrorData;
 import org.mifosplatform.billing.inventory.api.InventoryItemDetailsApiResource;
 import org.mifosplatform.billing.inventory.command.ItemDetailsCommand;
 import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
+import org.mifosplatform.billing.inventory.exception.OrderQuantityExceedsException;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
+import org.mifosplatform.billing.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.billing.payments.api.PaymentsApiResource;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
@@ -149,7 +154,121 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		filePath=uploadStatus.getUploadFilePath();
 		String fileLocation = uploadStatus.getUploadFilePath();	
 		
-		if(uploadProcess.equalsIgnoreCase("Mrn")){
+
+		if(uploadProcess.equalsIgnoreCase("Hardware Items") && new File(fileLocation).getName().contains(".csv")){
+			//ArrayList<ItemDetailsCSVData> CSVData = new ArrayList<ItemDetailsCSVData>();
+			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
+			BufferedReader csvFileBufferedReader = null;
+			String line = null;
+			String splitLineRegX = ",";
+			int initialindex=8,i=1;
+			Long processRecordCount=0L;
+			Long totalRecordCount=0L;
+			JSONObject jsonObject = new JSONObject();
+			UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+			try{
+				csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
+				line = csvFileBufferedReader.readLine();
+				while((line = csvFileBufferedReader.readLine()) != null){
+					try{
+					String[] currentLineData = line.split(splitLineRegX);
+					
+					if(currentLineData.length>=8){
+						jsonObject.put("itemMasterId",currentLineData[0]);
+						jsonObject.put("serialNumber",currentLineData[1]);
+						jsonObject.put("grnId",currentLineData[2]);
+						jsonObject.put("provisioningSerialNumber",currentLineData[3]);
+						jsonObject.put("quality", currentLineData[4]);
+						jsonObject.put("status",currentLineData[5]);
+						jsonObject.put("warranty", currentLineData[6]);
+						jsonObject.put("remarks", currentLineData[7]);
+						jsonObject.put("locale", "en");
+						//jsonObject.put("clientId", 1);
+						//jsonObject.put("officeId", 1);
+						totalRecordCount++;
+						final CommandWrapper commandRequest = new CommandWrapperBuilder().createInventoryItem(null).withJson(jsonObject.toString().toString()).build();
+						final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+						 if(result!=null){
+						    	//Long rsId = result.resourceId();
+						    	processRecordCount++;
+						    	errorData.add(new MRNErrorData((long)i, "Success."));
+						 }
+					}else{
+						errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
+					}
+					
+					}catch(OrderQuantityExceedsException e){
+						errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+					}catch(NoGrnIdFoundException e){
+						errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+					}catch (PlatformApiDataValidationException e) {
+						errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
+						//unprocessRecords++;
+					}catch (PlatformDataIntegrityException e) {
+						errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
+						//unprocessRecords++;
+					}catch (NullPointerException e) {
+						errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
+						//unprocessRecords++;
+					}catch (IllegalStateException e) {
+						errorData.add(new MRNErrorData((long)i,e.getMessage()));
+						//unprocessRecords++;
+					}catch (Exception e) {
+						errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
+						//unprocessRecords++;
+					}
+					i++;
+				}
+				
+				uploadStatusForMrn.setProcessRecords(processRecordCount);
+				uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
+				uploadStatusForMrn.setTotalRecords(totalRecordCount);
+				writeCSVData(fileLocation, errorData,uploadStatusForMrn);
+				processRecordCount=0L;totalRecordCount=0L;
+				uploadStatusForMrn=null;
+				
+			}catch (Exception e) {
+				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
+				//unprocessRecords++;
+			}finally{
+				if(csvFileBufferedReader!=null){
+					try{
+						csvFileBufferedReader.close();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			
+			FileWriter fw = null;
+			try{
+				File f = new File(fileLocation.replace(".csv", ".log"));
+				if(!f.exists()){
+					f.createNewFile();
+				}
+				fw = new FileWriter(f,true);
+				for(int k=0;k<errorData.size();k++){
+					if(!errorData.get(k).getErrorMessage().equalsIgnoreCase("Success.")){
+						fw.append("Data at row: "+errorData.get(k).getRowNumber()+", Message: "+errorData.get(k).getErrorMessage()+"\n");
+					}
+				}
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				try{
+					if(fw!=null){
+						fw.flush();
+						fw.close();
+					}
+					
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+			
+		}if(uploadProcess.equalsIgnoreCase("Mrn")){
 			Integer cellNumber = 2;
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			Workbook wb = null;
@@ -1092,6 +1211,15 @@ public synchronized void writeXLSXFileMediaEpgMrn(final String excelFileName, fi
 		 uploadStatus.setProcessDate(new LocalDate().toDate());
 		 this.uploadStatusRepository.save(uploadStatus);
 		 uploadStatus = null;
+	}
+
+private void writeCSVData(String fileLocation,
+		ArrayList<MRNErrorData> errorData, UploadStatus uploadStatusForMrn) {
+		uploadStatusForMrn.setProcessStatus((uploadStatusForMrn.getUnprocessedRecords()>0)?"ERROR":"COMPLETED");
+		uploadStatusForMrn.setErrorMessage((uploadStatusForMrn.getUnprocessedRecords()>0)?"ERROR":"SUCCESS");
+		uploadStatusForMrn.setProcessDate(new LocalDate().toDate());
+		this.uploadStatusRepository.save(uploadStatusForMrn);
+		uploadStatusForMrn = null;
 	}
 
 }
