@@ -104,8 +104,6 @@ public class AssociationApiResource {
 		return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 	}
 	
-	
-	
 	@POST
 	@Path("{clientId}")
 	@Consumes({ MediaType.APPLICATION_JSON })
@@ -122,8 +120,18 @@ public class AssociationApiResource {
 	@Path("{associationId}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String updatePlan(@PathParam("associationId") final Long associationId,final String apiRequestBodyAsJson) {
+	public String updateAssociation(@PathParam("associationId") final Long associationId,final String apiRequestBodyAsJson) {
 		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateAssociation(associationId).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@PUT
+	@Path("deassociation/{associationId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String deAssoicationHardware(@PathParam("associationId") final Long associationId,final String apiRequestBodyAsJson) {
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateDeAssociation(associationId).withJson(apiRequestBodyAsJson).build();
 		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		  return this.toApiJsonSerializer.serialize(result);
 	}

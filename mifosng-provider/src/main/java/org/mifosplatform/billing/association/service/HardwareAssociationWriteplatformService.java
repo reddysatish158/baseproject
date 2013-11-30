@@ -11,6 +11,6 @@ public interface HardwareAssociationWriteplatformService {
 
 	CommandProcessingResult updateAssociation(JsonCommand command);
 
-	void deAssociationHardware(Long orderId);
+	CommandProcessingResult deAssociationHardware(Long orderId);
 
 }

@@ -863,4 +863,8 @@ public class CommandWrapper {
 		public boolean isUpdateAssociation() {
 			return this.actionName.equalsIgnoreCase("UPDATE");
 		}
+
+		public boolean isUpdateDeAssociation() {
+			return this.actionName.equalsIgnoreCase("DEASSOCIATION");
+		}
 }

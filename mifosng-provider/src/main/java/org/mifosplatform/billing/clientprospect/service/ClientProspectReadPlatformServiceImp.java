@@ -56,8 +56,7 @@ public class ClientProspectReadPlatformServiceImp implements
 	}
 	
 	@Override
-	public Page<ClientProspectData> retriveClientProspect(Long limit,
-			Long offset) {
+	public Page<ClientProspectData> retriveClientProspect(Long limit,Long offset) {
 		ClientProspectMapperForNewClient rowMapper = new ClientProspectMapperForNewClient();
 		String sql = "select "+rowMapper.query()+" from b_prospect p limit ? offset ?";
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,

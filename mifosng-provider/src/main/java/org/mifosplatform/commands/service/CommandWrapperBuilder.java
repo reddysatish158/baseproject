@@ -1812,4 +1812,13 @@ public CommandWrapperBuilder createHardwarePlan() {
 	this.href = "/hardwareplans/template";
 	return this;
 }
+
+public CommandWrapperBuilder updateDeAssociation(Long associationId) {
+	
+	this.actionName="DEASSOCIATION";
+	this.entityName="ASSOCIATION";
+	this.entityId=associationId;
+	this.href="associations/deassociations/"+associationId;
+	return this;
+}
 }

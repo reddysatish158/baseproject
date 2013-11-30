@@ -8,7 +8,10 @@ import java.util.List;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
+import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.domain.PlanHardwareMapping;
+import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
+import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
 import org.mifosplatform.billing.billingorder.service.ReverseInvoice;
 import org.mifosplatform.billing.contract.domain.Contract;
@@ -57,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -83,6 +87,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final PlanHardwareMappingRepository hardwareMappingRepository;
     private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
     private final ProcessRequestRepository processRequestRepository;
+    private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
+    
     
     
     public final static String CONFIG_PROPERTY="Implicit Association";
@@ -98,7 +104,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final  GlobalConfigurationRepository configurationRepository,final AllocationReadPlatformService allocationReadPlatformService,
 			final HardwareAssociationWriteplatformService associationWriteplatformService,final PlanHardwareMappingRepository hardwareMappingRepository,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
-		    final ProcessRequestRepository processRequestRepository) {
+		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -120,6 +126,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
 		this.processRequestRepository=processRequestRepository;
 		this.orderReadPlatformService = orderReadPlatformService;
+		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
 
 	}
 	
@@ -378,7 +385,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			}
 	         
 	         this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),new LocalDate());
-	         this.associationWriteplatformService.deAssociationHardware(orderId);
+	      
 			order.update(command,orderStatus);
 			order.setuerAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
 			this.orderRepository.save(order);
@@ -466,8 +473,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 	
 	}
-
-	@Override
+    @Transactional
+    @Override
 	public CommandProcessingResult reconnectOrder(Long orderId) {
 	  try{
 		  this.context.authenticatedUser();
@@ -475,6 +482,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		  if(order == null){
 			  throw new NoOrdersFoundException(orderId);
 		  }
+		  
+		 
+		  
 		  final LocalDate startDate=new LocalDate();
 		  
 		  Long contractId=order.getContarctPeriod();
@@ -489,7 +499,14 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		      if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 					
 		    	  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
-				}else{
+				 
+		      }else{
+					 
+					 //Check For HardwareAssociation
+					  AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(orderId);
+					  if(associationData ==null){
+						  throw new HardwareDetailsNotFoundException(orderId.toString());
+					  }
 				
 					  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 				}

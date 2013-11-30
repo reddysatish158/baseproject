@@ -24,6 +24,7 @@ public class InventoryItemDetailsData {
 	private String itemDescription;
 	private String supplier;
 	private String officeName;
+	private String accountNumber;
 	
 	public InventoryItemDetailsData(Long id,Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long warranty,String remarks){
 		
@@ -39,7 +40,7 @@ public class InventoryItemDetailsData {
 		
 	}
 	
-	public InventoryItemDetailsData(Long id,Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long warranty,String remarks, String itemDescription, final String supplier, final Long clientId, final String officeName){
+	public InventoryItemDetailsData(Long id,Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long warranty,String remarks, String itemDescription, final String supplier, final Long clientId, final String officeName, final String accountNumber){
 		
 		this.id=id;
 		this.itemMasterId=itemMasterId;
@@ -54,6 +55,7 @@ public class InventoryItemDetailsData {
 		this.supplier = supplier;
 		this.clientId = clientId;
 		this.officeName = officeName;
+		this.accountNumber = accountNumber;
 		
 	}
 	

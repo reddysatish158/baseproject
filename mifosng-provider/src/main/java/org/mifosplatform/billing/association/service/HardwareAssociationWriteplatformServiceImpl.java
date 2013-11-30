@@ -92,24 +92,28 @@ public class HardwareAssociationWriteplatformServiceImpl implements HardwareAsso
 	}
 	
 	@Override
-	public void deAssociationHardware(Long orderId) {
+	public CommandProcessingResult deAssociationHardware(Long associationId) {
 		
 		try {
 			
-			AssociationData associationData=this.associationReadplatformService.retrieveSingleDetails(orderId);
+//			AssociationData associationData=this.associationReadplatformService.retrieveSingleDetails(orderId);
 			
-			if(associationData == null){
-				
-				throw new HardwareDetailsNotFoundException(orderId);
-			}
-		      HardwareAssociation association=this.associationRepository.findOne(associationData.getId());
+		      HardwareAssociation association=this.associationRepository.findOne(associationId);
+
+		      if(association == null){
+					throw new HardwareDetailsNotFoundException(associationId);
+				}
+		
     		   association.delete();
     		   
     		   this.associationRepository.save(association);
+    		   return new CommandProcessingResult(association.getId());
     		   
 		} catch (DataIntegrityViolationException dve) {
-			
+			handleCodeDataIntegrityIssues(null, dve);
+			return new CommandProcessingResult(Long.valueOf(-1));
 		}
+	
 	}
 
 }

@@ -809,6 +809,9 @@ public class SynchronousCommandProcessingService implements
 				         handler = applicationContext.getBean("createAssociationCommandHandler",NewCommandSourceHandler.class);
 				     }else if (wrapper.isUpdateAssociation()) {
         	             handler = this.applicationContext.getBean("updateAssociationCommandhandler", NewCommandSourceHandler.class);
+				     }else if (wrapper.isUpdateDeAssociation()) {
+        	             handler = this.applicationContext.getBean("updateDeAssociationCommandhandler", NewCommandSourceHandler.class);
+				     
 				     }else {
 					     throw new UnsupportedCommandException(wrapper.commandName());
 					}                

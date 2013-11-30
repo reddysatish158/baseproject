@@ -62,11 +62,8 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				String serialNo = rs.getString("serialNo");
 				
 				HardwareAssociationData associationData=new HardwareAssociationData(id,serialNo,null,null);
-
 				return associationData; 
-
 			}
-
 		}
 		@Override
 		public List<HardwareAssociationData> retrieveClientUnallocatePlanDetails(Long clientId) {
@@ -138,10 +135,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				
 				return  new AssociationData(orderId,id,planCode,itemCode,serialNum,null);
 
-				 
-
 			}
-
 		}
 		
 		@Override
@@ -172,9 +166,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				String serialNum = rs.getString("serialNum");				
 				String provisionNumber = rs.getString("provisionNum");
 				return new AssociationData(serialNum,provisionNumber); 
-
 			}
-
 		}
 		@Override
 		public List<AssociationData> retrieveplanData(Long clientId) {
@@ -194,7 +186,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 
 			public String schema() {
 				return "p.plan_code as planCode,p.id as id,o.id as orderId from b_orders o,b_plan_master p" +
-						" where o.plan_id=p.id and NOT EXISTS(Select * from  b_association a WHERE   a.order_id =o.id) and o.client_id=? ";
+						" where o.plan_id=p.id and NOT EXISTS(Select * from  b_association a WHERE   a.order_id =o.id and a.is_deleted='N') and o.client_id=? ";
 			}
 
 			@Override
@@ -205,9 +197,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				String planCode = rs.getString("planCode");
 			    Long id=rs.getLong("orderId");
 				return new AssociationData(planId,planCode,id);
-
 			}
-
 		}
 		@Override
 		public AssociationData retrieveSingleDetails(Long id) {
@@ -220,7 +210,6 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			    }catch(EmptyResultDataAccessException accessException){
 				return null;
 			  }
-			
 		}
 		
 		private static final class Mapper implements RowMapper<AssociationData> {

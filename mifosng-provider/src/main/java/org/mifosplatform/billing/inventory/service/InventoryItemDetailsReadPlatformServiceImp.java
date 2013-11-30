@@ -50,12 +50,13 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 			String supplier = rs.getString("supplier");
 			Long clientId = rs.getLong("clientId");
 			String officeName = rs.getString("officeName");
-			return new InventoryItemDetailsData(id,itemMasterId,serialNumber,grnId,provisioningSerialNumber,quality,status,warranty,remarks,itemDescription,supplier,clientId,officeName);
+			String accountNumber = rs.getString("accountNumber");
+			return new InventoryItemDetailsData(id,itemMasterId,serialNumber,grnId,provisioningSerialNumber,quality,status,warranty,remarks,itemDescription,supplier,clientId,officeName,accountNumber);
 		}
 		
 		public String schema(){
 			//String sql = "item.id as id,item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id";
-			String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, item.client_id as clientId from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id=office.id limit ? offset ?";
+			String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, item.client_id as clientId, (select account_no from m_client where id = client_id) as accountNumber from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id=office.id limit ? offset ?";
 			return sql;
 		}
 		

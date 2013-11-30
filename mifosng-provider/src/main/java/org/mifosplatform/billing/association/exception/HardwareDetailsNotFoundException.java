@@ -13,5 +13,9 @@ public class HardwareDetailsNotFoundException extends AbstractPlatformDomainRule
     public HardwareDetailsNotFoundException(Long orderId) {
         super("error.msg.hardware.details.not.found", "Hardware details are not found", orderId);
     }
+    
+    public HardwareDetailsNotFoundException(String orderId) {
+        super("error.msg.associate.hardware.for.reconnect", "Pleass associate the hardware in order to reconnect", orderId);
+    }
 
 }
