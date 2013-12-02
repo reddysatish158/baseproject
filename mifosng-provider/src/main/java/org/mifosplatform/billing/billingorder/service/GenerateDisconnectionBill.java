@@ -242,25 +242,30 @@ public class GenerateDisconnectionBill {
 			System.out.println(numberOfWeeks);
 
 			if (billingOrderData.getBillingAlign().equalsIgnoreCase("N")) {
-				
-				LocalDate tempBillEndDate = invoiceTillDate.minusWeeks(numberOfWeeks);
+		     	LocalDate tempBillEndDate = invoiceTillDate.minusWeeks(numberOfWeeks);
 				numberOfDays = Days.daysBetween(disconnectionDate, tempBillEndDate).getDays();
 				System.out.println(	numberOfDays);
 				
 			} else if (billingOrderData.getBillingAlign().equalsIgnoreCase("Y")) {
-
 				LocalDate tempBillEndDate = invoiceTillDate.minusWeeks(numberOfWeeks).dayOfWeek().withMaximumValue();
 				numberOfDays = Days.daysBetween(disconnectionDate, tempBillEndDate).getDays();
 				System.out.println(	numberOfDays);
 			}
 
 			if (numberOfWeeks != 0) {
-				
-				disconnectionCreditForWeeks = price.multiply(new BigDecimal(numberOfWeeks));
+				 if(billingOrderData.getChargeDuration() == 2) {
+					BigDecimal p=price.divide(new BigDecimal(2), 2,RoundingMode.HALF_UP);
+					disconnectionCreditForWeeks = p.multiply(new BigDecimal(numberOfWeeks));
+				}else{
+				disconnectionCreditForWeeks = price.multiply(new BigDecimal(numberOfWeeks));	
 			}
-
+			}
+			if (billingOrderData.getChargeDuration() == 2){
+		
+			disconnectionCreditPerday = price.divide(new BigDecimal(14), 2,RoundingMode.HALF_UP);
+			}else{
 			disconnectionCreditPerday = price.divide(new BigDecimal(7), 2,RoundingMode.HALF_UP);
-
+			}
 			if (numberOfDays != 0) {
 				disconnectionCreditForDays = disconnectionCreditPerday.multiply(new BigDecimal(numberOfDays));
 			}
@@ -292,7 +297,7 @@ public class GenerateDisconnectionBill {
 	private BigDecimal getDisconnectionCredit(LocalDate startDate,
 			LocalDate endDate, BigDecimal amount, String durationType) {
 
-		int currentDay = startDate.getDayOfMonth();
+	/*	int currentDay = startDate.getDayOfMonth();*/
 
 		int totalDays = 0;
 		if (startDate.isEqual(endDate)) {
