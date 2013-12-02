@@ -3,6 +3,7 @@ package org.mifosplatform.billing.inventory.service;
 import java.util.Collection;
 import java.util.List;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.AllocationHardwareData;
 import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
 import org.mifosplatform.billing.inventory.data.InventoryItemSerialNumberData;
@@ -32,8 +33,7 @@ public interface InventoryItemDetailsReadPlatformService {
 
 	List<String> retriveSerialNumbers();
 
-	public Page<InventoryItemDetailsData> retriveAllItemDetails(Long limit,
-			Long offset);
+	public Page<InventoryItemDetailsData> retriveAllItemDetails(SearchSqlQuery searchItemDetails);
 
 	public InventoryItemDetailsData retriveSingleItemDetail(Long itemId);
 }

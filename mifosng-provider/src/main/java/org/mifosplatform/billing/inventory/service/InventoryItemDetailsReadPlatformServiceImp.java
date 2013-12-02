@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
 import org.mifosplatform.billing.inventory.data.InventoryItemSerialNumberData;
 import org.mifosplatform.billing.inventory.data.ItemMasterIdData;
@@ -56,7 +58,24 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 		
 		public String schema(){
 			//String sql = "item.id as id,item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id";
-			String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, item.client_id as clientId, (select account_no from m_client where id = client_id) as accountNumber from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id=office.id limit ? offset ?";
+			String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, "
+					+ "item.serial_no as serialNumber, item.grn_id as grnId, "
+					+ "(select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,"
+					+ "item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, "
+					+ "item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, "
+					+ "item.client_id as clientId, "
+					+ "(select account_no from m_client where id = client_id) as accountNumber "
+					+ "from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id=office.id ";
+			
+			/*String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, "
+					+ "item.serial_no as serialNumber, item.grn_id as grnId, "
+					+ "(select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,"
+					+ "item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, "
+					+ "item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, "
+					+ "item.client_id as clientId from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id "
+					+ "left outer join m_office office on item.office_id=office.id ";
+*/
+			
 			return sql;
 		}
 		
@@ -72,7 +91,7 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 		return this.jdbcTemplate.query(sql, itemDetails, new Object[] {});
 	}*/
 
-	@Override
+	/*@Override
 	public Page<InventoryItemDetailsData> retriveAllItemDetails(final Long limit, final Long offset) {	
 		// TODO Auto-generated method stub
 		context.authenticatedUser();
@@ -80,6 +99,43 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 		String sql = "select "+itemDetails.schema();
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
                 new Object[] {limit,offset}, itemDetails);
+	}*/
+
+	public Page<InventoryItemDetailsData> retriveAllItemDetails(SearchSqlQuery searchItemDetails) {	
+		// TODO Auto-generated method stub
+		context.authenticatedUser();
+		ItemDetailsMapper itemDetails = new ItemDetailsMapper();
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(itemDetails.schema());
+        sqlBuilder.append(" where item.office_id = office.id ");
+        
+        final String sqlSearch = searchItemDetails.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and master.item_description like '%"+sqlSearch+"%' OR" 
+	    			+ " item.serial_no like '%"+sqlSearch+"%' OR"
+	    			+ " office.name like '%"+sqlSearch+"%' OR"
+	    			+ " item.quality like '%"+sqlSearch+"%' OR"
+	    			+ " item.status like '%"+sqlSearch+"%' ";
+	    			//+ " (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) like '%"+sqlSearch+"%' ";
+	    }
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
+
+
+        if (searchItemDetails.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchItemDetails.getLimit());
+        }
+
+        if (searchItemDetails.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchItemDetails.getOffset());
+        }
+
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+                new Object[] {}, itemDetails);
 	}
 
 	/*

@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.item.data.ChargesData;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.item.data.ItemTypeData;
@@ -98,10 +100,13 @@ private static final class SalesDataMapper implements
 		RowMapper<ItemData> {
 
 	public String schema() {
-		return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,i.item_class as itemClass,i.units AS units, "
+		/*return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,i.item_class as itemClass,i.units AS units, "
 			+" i.charge_code as chargeCode,i.unit_price as unitPrice,i.warranty as warranty FROM b_item_master i ";
-
-
+*/
+		return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,"
+		+ "i.item_class as itemClass,i.units AS units, "
+	+" i.charge_code as chargeCode,i.unit_price as unitPrice,i.warranty as warranty "
+	+ "FROM b_item_master i ";
 
 	}
 
@@ -119,9 +124,7 @@ private static final class SalesDataMapper implements
 		int warranty = rs.getInt("warranty");
 		
 		return new ItemData(id,itemCode,itemDescription,itemClass,units,chargeCode,warranty,unitPrice);
-	
 
-		
 
 	}
 	}
@@ -139,15 +142,40 @@ public ItemData retrieveSingleItemDetails(Long itemId) {
 }
 
 @Override
-public Page<ItemData> retrieveAllItems(Long limit, Long offset) {
+public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
 	context.authenticatedUser();
-
 	SalesDataMapper mapper = new SalesDataMapper();
+	//String sql = "select " + mapper.schema()+" where  i.is_deleted='n' limit ? offset ?";
 
-	String sql = "select " + mapper.schema()+" where  i.is_deleted='n' limit ? offset ?";
+	
+	StringBuilder sqlBuilder = new StringBuilder(200);
+    sqlBuilder.append("select ");
+    sqlBuilder.append(mapper.schema());
+    sqlBuilder.append(" where i.is_deleted='n' ");
+    
+    final String sqlSearch = searchItems.getSqlSearch();
+    String extraCriteria = "";
+    if (sqlSearch != null) {
+    	extraCriteria = " and i.item_description like '%"+sqlSearch+"%' OR" 
+    			+ " i.item_code like '%"+sqlSearch+"%' ";
+    			
+    			
+    }
+    if (StringUtils.isNotBlank(extraCriteria)) {
+        sqlBuilder.append(extraCriteria);
+    }
 
-	return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
-            new Object[] {limit,offset}, mapper);
+
+    if (searchItems.isLimited()) {
+        sqlBuilder.append(" limit ").append(searchItems.getLimit());
+    }
+
+    if (searchItems.isOffset()) {
+        sqlBuilder.append(" offset ").append(searchItems.getOffset());
+    }
+
+	return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+            new Object[] {}, mapper);
 }
 }
 

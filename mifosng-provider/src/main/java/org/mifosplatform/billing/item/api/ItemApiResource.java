@@ -18,6 +18,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.item.data.ChargesData;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.item.service.ItemReadPlatformService;
@@ -109,11 +110,12 @@ public class ItemApiResource {
 	@GET
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String retrieveAllItems(@Context final UriInfo uriInfo, @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset) {
-
+	public String retrieveAllItems(@Context final UriInfo uriInfo,  @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+
+		final SearchSqlQuery searchItems =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-		Page<ItemData> itemData=this.itemReadPlatformService.retrieveAllItems(limit,offset);
+		Page<ItemData> itemData=this.itemReadPlatformService.retrieveAllItems(searchItems);
 		return this.toApiJsonSerializer.serialize(itemData);
 	}
 

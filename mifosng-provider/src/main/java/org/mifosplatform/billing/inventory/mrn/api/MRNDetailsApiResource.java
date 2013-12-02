@@ -17,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.mrn.data.InventoryTransactionHistoryData;
 import org.mifosplatform.billing.inventory.mrn.data.MRNDetailsData;
 import org.mifosplatform.billing.inventory.mrn.service.MRNDetailsReadPlatformService;
@@ -86,10 +87,11 @@ public class MRNDetailsApiResource {
 	@Path("/view")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retriveMRNDetails(@Context final UriInfo uriInfo , @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset){
+	public String retriveMRNDetails(@Context final UriInfo uriInfo , @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
 		context.authenticatedUser().validateHasReadPermission(resourceType);
-		final Page<MRNDetailsData> mrnDetailsDatas = mrnDetailsReadPlatformService.retriveMRNDetails(limit,offset);
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		final Page<MRNDetailsData> mrnDetailsDatas = mrnDetailsReadPlatformService.retriveMRNDetails(searchItemDetails);
+	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return apiJsonSerializer.serialize(mrnDetailsDatas);
 	}
 	
@@ -151,11 +153,12 @@ public class MRNDetailsApiResource {
 	@Path("/history")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retriveMMRNHistory(@Context final UriInfo uriInfo,@QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset){
-		
+	public String retriveMMRNHistory(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
 		context.authenticatedUser().validateHasReadPermission(resourceType);
-		final Page<InventoryTransactionHistoryData> mrnDetailsDatas = mrnDetailsReadPlatformService.retriveHistory(limit,offset);
-		return apiJsonSerializerForData.serialize(mrnDetailsDatas);
+
+		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		final Page<InventoryTransactionHistoryData> mrnDetailsDatas = mrnDetailsReadPlatformService.retriveHistory(searchItemDetails);
+	return apiJsonSerializerForData.serialize(mrnDetailsDatas);
 	
 	}
 	

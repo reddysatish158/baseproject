@@ -27,6 +27,7 @@ import org.mifosplatform.billing.clientprospect.data.ProspectDetailData;
 import org.mifosplatform.billing.clientprospect.data.ProspectPlanCodeData;
 import org.mifosplatform.billing.clientprospect.data.ProspectStatusRemarkData;
 import org.mifosplatform.billing.clientprospect.service.ClientProspectReadPlatformService;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -106,11 +107,13 @@ public class ClientProspectApiResource {
 	@Path("allprospects")
 	@Produces({MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_JSON})
-	public String retriveProspectsForNewClient(@Context final UriInfo uriInfo, @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset){
+	public String retriveProspectsForNewClient(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
 		context.authenticatedUser().validateHasReadPermission(resourceType);
+		
+		final SearchSqlQuery searchClientProspect =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		Page<ClientProspectData> clientProspectData = null;	
 		//Collection<MCodeData> sourceOfPublicityData = codeReadPlatformService.getCodeValue("Source Type");
-		clientProspectData = this.clientProspectReadPlatformService.retriveClientProspect(limit,offset);
+		clientProspectData = this.clientProspectReadPlatformService.retriveClientProspect(searchClientProspect);
 		//clientProspectData.setSourceOfPublicityData(sourceOfPublicityData);
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.apiJsonSerializer.serialize(clientProspectData);

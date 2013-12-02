@@ -2,6 +2,7 @@ package org.mifosplatform.billing.item.service;
 
 import java.util.List;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.item.data.ChargesData;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
@@ -19,6 +20,6 @@ public interface ItemReadPlatformService {
 
 	ItemData retrieveSingleItemDetails(Long itemId);
 
-	Page<ItemData> retrieveAllItems(Long limit, Long offset);
+	Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems);
 
 }

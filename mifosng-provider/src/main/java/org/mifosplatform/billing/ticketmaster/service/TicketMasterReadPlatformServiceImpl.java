@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.ticketmaster.data.ClientTicketData;
 import org.mifosplatform.billing.ticketmaster.data.ProblemsData;
 import org.mifosplatform.billing.ticketmaster.data.TicketMasterData;
@@ -147,15 +149,41 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 	}
 	
 	@Override
-	public Page<ClientTicketData> retrieveAssignedTicketsForNewClient(final Long limit, final Long offset) {
+	public Page<ClientTicketData> retrieveAssignedTicketsForNewClient(SearchSqlQuery searchTicketMaster) {
 		AppUser user = this.context.authenticatedUser();
 		
 		final UserTicketsMapperForNewClient mapper = new UserTicketsMapperForNewClient();
+		//final String sql = "select " + mapper.userTicketSchema();
 
-		final String sql = "select " + mapper.userTicketSchema();
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(mapper.userTicketSchema());
+        sqlBuilder.append(" where tckt.id IS NOT NULL ");
+        
+        final String sqlSearch = searchTicketMaster.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and (select display_name from m_client where id = tckt.client_id) like '%"+sqlSearch+"%' OR" 
+	    			+ " (select mcv.code_value from m_code_value mcv where mcv.id = tckt.problem_code) like '%"+sqlSearch+"%' OR"
+	    			+ " tckt.status like '%"+sqlSearch+"%' OR"
+	    			+ " (select user.username from m_appuser user where tckt.assigned_to = user.id) like '%"+sqlSearch+"%'";
+	    }
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
 
-		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
-	            new Object[] {limit,offset}, mapper);
+
+        if (searchTicketMaster.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchTicketMaster.getLimit());
+        }
+
+        if (searchTicketMaster.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchTicketMaster.getOffset());
+        }
+		
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+	            new Object[] {}, mapper);
 		
 	}
 	
@@ -324,12 +352,12 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 private static final class UserTicketsMapperForNewClient implements RowMapper<ClientTicketData> {
 				
 				public String userTicketSchema() {
-					return "SQL_CALC_FOUND_ROWS tckt.id as id, tckt.client_id as clientId,(select display_name from m_client where id = tckt.client_id) as clientName, tckt.priority as priority, tckt.status as status, tckt.ticket_date as ticketDate, tckt.assigned_to as userId,"+
+					return " SQL_CALC_FOUND_ROWS tckt.id as id, tckt.client_id as clientId,(select display_name from m_client where id = tckt.client_id) as clientName, tckt.priority as priority, tckt.status as status, tckt.ticket_date as ticketDate, tckt.assigned_to as userId,"+
 							""+"(Select comments from b_ticket_details x where tckt.id=x.ticket_id and x.id=(select max(id) from b_ticket_details y where tckt.id=y.ticket_id)) as LastComment,"+
 							""+"(select mcv.code_value from m_code_value mcv where mcv.id = tckt.problem_code) as problemDescription,"+
 							""+"(select user.username from m_appuser user where tckt.assigned_to = user.id) as assignedTo,"+
 							""+"CONCAT(TIMESTAMPDIFF(day,tckt.ticket_date,Now()) , ' d ',MOD(TIMESTAMPDIFF(hour,tckt.ticket_date,Now()), 24), ' hr ',MOD( TIMESTAMPDIFF(minute,tckt.ticket_date,Now()), 60), ' min ')as timeElapsed,"+
-							""+"tckt.client_id as clientId from b_ticket_master tckt limit ? offset ?";
+							""+"tckt.client_id as clientId from b_ticket_master tckt ";
 					}
 
 				@Override

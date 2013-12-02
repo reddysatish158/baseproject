@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.InventoryGrnData;
 import org.mifosplatform.billing.inventory.domain.InventoryGrnRepository;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
@@ -54,13 +56,57 @@ public class InventoryGrnReadPlatformServiceImp implements InventoryGrnReadPlatf
 		}
 	}
 
-	@Override
+	/*@Override
 	public Page<InventoryGrnData> retriveGrnDetails(Long limit, Long offset) {
 		GrnMapperForDetails grn = new GrnMapperForDetails();
 		String sql = "select SQL_CALC_FOUND_ROWS g.id as id, f.name as officeName, g.purchase_date as purchaseDate, g.supplier_id as supplierId, g.item_master_id as itemMasterId, g.orderd_quantity as orderdQuantity, g.received_quantity as receivedQuantity, im.item_description as itemDescription, s.supplier_description as supplierDescription from b_grn g left outer join m_office f on g.office_id=f.id left outer join b_item_master im on g.item_master_id = im.id left outer join b_supplier s on g.supplier_id=s.id limit ? offset ?";
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
 	            new Object[] {limit,offset}, grn);
-	}
+	}*/
+	
+	
+public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
+		
+		GrnMapperForDetails grn = new GrnMapperForDetails();
+		String sql = "SQL_CALC_FOUND_ROWS g.id as id, f.name as officeName, g.purchase_date as purchaseDate, "
+				+ "g.supplier_id as supplierId, g.item_master_id as itemMasterId, g.orderd_quantity as orderdQuantity, "
+				+ "g.received_quantity as receivedQuantity, im.item_description as itemDescription, "
+				+ "s.supplier_description as supplierDescription "
+				+ "from b_grn g left outer join m_office f on g.office_id=f.id "
+				+ "left outer join b_item_master im on g.item_master_id = im.id left outer join b_supplier s on g.supplier_id=s.id ";
+		
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(sql);
+        sqlBuilder.append(" where g.id IS NOT NULL ");
+        
+        final String sqlSearch = searchGrn.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and f.name like '%"+sqlSearch+"%' OR" 
+	    			+ " g.id like '%"+sqlSearch+"%' OR"
+	    			+ " g.purchase_date like '%"+sqlSearch+"%' OR"
+	    			+ " s.supplier_description like '%"+sqlSearch+"%' OR"
+	    			+ " im.item_description like '%"+sqlSearch+"%'";
+	    }
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
+        
+        sqlBuilder.append(" ORDER BY g.id ");
+
+        if (searchGrn.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchGrn.getLimit());
+        }
+
+        if (searchGrn.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchGrn.getOffset());
+        }
+	
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+	            new Object[] {}, grn);
+}
 	
 	@Override
 	public InventoryGrnData retriveGrnDetailTemplate(final Long grnId){
