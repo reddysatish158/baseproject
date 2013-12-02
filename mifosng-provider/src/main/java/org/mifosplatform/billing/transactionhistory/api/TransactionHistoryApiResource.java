@@ -11,10 +11,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.transactionhistory.data.TransactionHistoryData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryReadPlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
@@ -24,7 +26,7 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
+import org.mifosplatform.infrastructure.core.service.Page;
 
 
 @Path("transactionhistory")
@@ -68,18 +70,22 @@ public class TransactionHistoryApiResource {
 		return this.apiJsonSerializer.serialize(settings, transactionHistory, supportedResponseParameters);
 		
 	}
-	
+		
+
 	@GET
 	@Path("template/{clientId}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_JSON})
-	public String retriveTransactionHistoryById(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo){
+	public String retriveTransactionHistoryById(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo,
+			@QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
 		context.authenticatedUser().validateHasReadPermission(resourceType);
-		List<TransactionHistoryData> transactionHistory = transactionHistoryReadPlatformService.retriveTransactionHistoryById(clientId);
+		
+		final SearchSqlQuery searchTransactionHistory =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		Page<TransactionHistoryData> transactionHistory = transactionHistoryReadPlatformService.retriveTransactionHistoryById(searchTransactionHistory,clientId);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-		return apiJsonSerializer.serialize(settings,transactionHistory,supportedResponseParameters);
+		return apiJsonSerializer.serialize(transactionHistory);
+
+	
 	}
-	
-	
 	
 }

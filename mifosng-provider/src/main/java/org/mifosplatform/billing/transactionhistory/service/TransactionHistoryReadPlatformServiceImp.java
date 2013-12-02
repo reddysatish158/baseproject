@@ -5,9 +5,13 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.transactionhistory.data.TransactionHistoryData;
 import org.mifosplatform.billing.transactionhistory.domain.TransactionHistoryRepository;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
+import org.mifosplatform.infrastructure.core.service.Page;
+import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ public class TransactionHistoryReadPlatformServiceImp implements TransactionHist
 	
 	private JdbcTemplate jdbcTemplate;
 	private PlatformSecurityContext context;
+	private final PaginationHelper<TransactionHistoryData> paginationHelper = new PaginationHelper<TransactionHistoryData>();
 	
 	@Autowired
 	public TransactionHistoryReadPlatformServiceImp(final TenantAwareRoutingDataSource dataSource, final TransactionHistoryRepository transactionHistoryRepository,final PlatformSecurityContext context) {
@@ -38,25 +43,56 @@ public class TransactionHistoryReadPlatformServiceImp implements TransactionHist
 		
 	}
 	
-	@Override
-	public List<TransactionHistoryData> retriveTransactionHistoryById(final Long clientId) {
+	public Page<TransactionHistoryData> retriveTransactionHistoryById(SearchSqlQuery searchTransactionHistory,final Long clientId) {
 		
-		return retriveById(clientId);
+		return  retriveById(searchTransactionHistory,clientId);
 	}
-	
 	
 	private String query(){
 		
-		return " th.id AS id,th.client_id AS clientId,th.transaction_type AS transactionType,th.transaction_date AS transactionDate,th.history AS history," +
+		return " SQL_CALC_FOUND_ROWS th.id AS id,th.client_id AS clientId,th.transaction_type AS transactionType,th.transaction_date AS transactionDate,th.history AS history," +
 				" a.username as userName  FROM b_transaction_history th,m_appuser a WHERE a.id = th.createdby_id ";
 	}
 	
-	private List<TransactionHistoryData> retriveById(Long id){
+	private Page<TransactionHistoryData> retriveById(SearchSqlQuery searchTransactionHistory,Long id){
 		try{
 			context.authenticatedUser();
 			String sql = "select "+query()+" and  th.client_id = ?  ";
 			TransactionHistoryMapper rowMapper = new TransactionHistoryMapper();
-			return jdbcTemplate.query(sql, rowMapper,new Object[]{id});
+			StringBuilder sqlBuilder = new StringBuilder(200);
+		     //   sqlBuilder.append("select ");
+		        sqlBuilder.append(sql);
+		     //   sqlBuilder.append(" where a.id = th.createdby_id ");
+		        
+		        final String sqlSearch = searchTransactionHistory.getSqlSearch();
+		        String extraCriteria = "";
+			    if (sqlSearch != null) {
+			    	extraCriteria = " and th.transaction_type like '%"+sqlSearch+"%' OR "
+			    				+ " th.transaction_date like '%"+sqlSearch+"%' OR "
+			    				+ " a.username like '%"+sqlSearch+"%' OR "
+			    				+ " th.history like '%"+sqlSearch+"%' " ;
+			    }
+		        if (StringUtils.isNotBlank(extraCriteria)) {
+		            sqlBuilder.append(extraCriteria);
+		        }
+
+
+		        if (searchTransactionHistory.isLimited()) {
+		            sqlBuilder.append(" limit ").append(searchTransactionHistory.getLimit());
+		        }
+
+		        if (searchTransactionHistory.isOffset()) {
+		            sqlBuilder.append(" offset ").append(searchTransactionHistory.getOffset());
+		        }
+				
+				
+				
+				
+
+				//	return jdbcTemplate.query(sql, rowMapper,new Object[]{id});
+				return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+			            new Object[] {id}, rowMapper);
+				
 		}catch(DataIntegrityViolationException dve){
 			throw new PlatformDataIntegrityException("", "", "");
 		}

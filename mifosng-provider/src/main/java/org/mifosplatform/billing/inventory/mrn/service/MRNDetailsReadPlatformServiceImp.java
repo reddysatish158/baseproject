@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.ItemMasterIdData;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
 import org.mifosplatform.billing.inventory.mrn.data.InventoryTransactionHistoryData;
@@ -144,13 +146,44 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	}
 	
 	@Override
-	public Page<MRNDetailsData> retriveMRNDetails(final Long limit, final Long offset) {
-		final String sql = "select SQL_CALC_FOUND_ROWS mrn.id as mrnId, mrn.requested_date as requestedDate, (select item_description from b_item_master where id=mrn.item_master_id) as item,(select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice, mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn limit ? offset ?";
+	public Page<MRNDetailsData> retriveMRNDetails(SearchSqlQuery searchMRNDetails) {
+		final String sql = "SQL_CALC_FOUND_ROWS mrn.id as mrnId, mrn.requested_date as requestedDate, "
+				+ "(select item_description from b_item_master where id=mrn.item_master_id) as item,"
+				+ "(select name from m_office where id=mrn.from_office) as fromOffice, "
+				+ "(select name from m_office where id = mrn.to_office) as toOffice, "
+				+ "mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, "
+				+ "mrn.status as status from b_mrn mrn ";
 		MRNDetailsMapper rowMapper = new MRNDetailsMapper();
 		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(sql);
+        sqlBuilder.append(" where mrn.status = 'Completed' | 'New' | 'Pending' ");
+        
+        final String sqlSearch = searchMRNDetails.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and (select item_description from b_item_master where id=mrn.item_master_id) like '%"+sqlSearch+"%' OR "
+	    				+ " (select name from m_office where id=mrn.from_office) like '%"+sqlSearch+"%' OR "
+	    				+ " (select name from m_office where id = mrn.to_office) like '%"+sqlSearch+"%' OR "
+	    				+ " mrn.status like '%"+sqlSearch+"%' " ;
+	    }
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
 
-		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
-	            new Object[] {limit,offset}, rowMapper);
+
+        if (searchMRNDetails.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchMRNDetails.getLimit());
+        }
+
+        if (searchMRNDetails.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchMRNDetails.getOffset());
+        }
+		
+
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+	            new Object[] {}, rowMapper);
 	}
 	
 	@Override
@@ -221,10 +254,10 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	}
 	
 	@Override
-	public Page<InventoryTransactionHistoryData> retriveHistory(final Long limit, final Long offset) {
+	public Page<InventoryTransactionHistoryData> retriveHistory(SearchSqlQuery searchItemHistory) {
 		//final String sql = "select id as id, ref_id as mrnId, ref_type as refType, (select item_description from b_item_master where id=item_master_id) as itemDescription, serial_number as serialNumber, transaction_date as transactionDate, (select name from m_office where id=from_office) as fromOffice, (select name from m_office where id=to_office) as toOffice from b_item_history";
 		
-		final String sql = "select SQL_CALC_FOUND_ROWS id as id, ref_id as mrnId, ref_type as refType,"+ 
+		final String sql = " SQL_CALC_FOUND_ROWS * from (select id as id, ref_id as mrnId, ref_type as refType,"+ 
 ""+" (select item_description from b_item_master where id=item_master_id) as itemDescription,"+ 
 ""+" serial_number as serialNumber, transaction_date as transactionDate, 'From Office to To Office' movement,"+
 ""+" (select name from m_office where id=from_office) as source,"+
@@ -241,10 +274,41 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 ""+" serial_number as serialNumber, transaction_date as transactionDate, 'From Office to To Client' movement,"+
 ""+" (select name from m_office where id=from_office) as source,"+ 
 ""+" (Select concat(id,' - ', display_name)  from m_client where id=to_office) as destination"+ 
-""+" from b_item_history where ref_type='Allocation' limit ? offset ?";
+""+" from b_item_history where ref_type='Allocation' ) a  where id is not null ";
+		
 		MRNDetailsHistoryMapper detailsHistoryMapper = new MRNDetailsHistoryMapper();
-		return this.paginationHelper2.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
-	            new Object[] {limit,offset}, detailsHistoryMapper);
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(sql);
+      //  sqlBuilder.append(" where item.office_id = office.id ");
+        
+        final String sqlSearch = searchItemHistory.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and itemDescription like '%"+sqlSearch+"%' OR "
+    				+ " source like '%"+sqlSearch+"%' OR "
+    				+ " destination like '%"+sqlSearch+"%' OR "
+    				+ " movement like '%"+sqlSearch+"%' OR "
+    				+ " serialNumber like '%"+sqlSearch+"%' " ;
+	    }
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
+
+
+        if (searchItemHistory.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchItemHistory.getLimit());
+        }
+
+        if (searchItemHistory.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchItemHistory.getOffset());
+        }
+
+		
+		
+		return this.paginationHelper2.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+	            new Object[] {}, detailsHistoryMapper);
 	}
 	@Override
 	public MRNDetailsData retriveSingleMrnDetail(Long mrnId) {

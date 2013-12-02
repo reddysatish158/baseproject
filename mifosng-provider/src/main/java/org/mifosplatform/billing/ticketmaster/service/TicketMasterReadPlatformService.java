@@ -2,6 +2,7 @@ package org.mifosplatform.billing.ticketmaster.service;
 
 import java.util.List;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.ticketmaster.data.ClientTicketData;
 import org.mifosplatform.billing.ticketmaster.data.ProblemsData;
 import org.mifosplatform.billing.ticketmaster.data.TicketMasterData;
@@ -37,10 +38,7 @@ public interface TicketMasterReadPlatformService {
 	List<ClientTicketData> retrieveAssignedTickets();
 
 	TicketMasterData retrieveTicket(Long clientId, Long ticketId);
-
-	Page<ClientTicketData> retrieveAssignedTicketsForNewClient(Long limit,
-			Long offset);
-
+	Page<ClientTicketData> retrieveAssignedTicketsForNewClient(SearchSqlQuery searchTicketMaster);
 	
 	
 }

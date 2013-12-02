@@ -6,10 +6,15 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.billingorder.data.BillDetailsData;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.financialtransaction.data.FinancialTransactionsData;
+import org.mifosplatform.billing.transactionhistory.data.TransactionHistoryData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
+import org.mifosplatform.infrastructure.core.service.Page;
+import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +28,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 
 	private final PlatformSecurityContext context;
 	private final JdbcTemplate jdbcTemplate;
+	private final PaginationHelper<FinancialTransactionsData> paginationHelper = new PaginationHelper<FinancialTransactionsData>();
 
 	@Autowired
 	public BillMasterReadPlatformServiceImplementation(
@@ -92,12 +98,40 @@ public class BillMasterReadPlatformServiceImplementation implements
 	}
 
 	@Override
-	public List<FinancialTransactionsData> retrieveInvoiceFinancialData(
-			Long clientId) {
+	public Page<FinancialTransactionsData> retrieveInvoiceFinancialData(
+			SearchSqlQuery searchTransactionHistory,Long clientId) {
 		FinancialInvoiceTransactionsMapper financialTransactionsMapper = new FinancialInvoiceTransactionsMapper();
-		String sql = "select " + financialTransactionsMapper.financialTransactionsSchema();
-		return this.jdbcTemplate.query(sql, financialTransactionsMapper,
-				new Object[] { clientId });
+	//	String sql = "select " + financialTransactionsMapper.financialTransactionsSchema();
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+	        sqlBuilder.append("select ");
+	        sqlBuilder.append(financialTransactionsMapper.financialTransactionsSchema());
+	    
+	        
+	        final String sqlSearch = searchTransactionHistory.getSqlSearch();
+	        String extraCriteria = "";
+		    if (sqlSearch != null) {
+		    	extraCriteria = " and v.transType like '%"+sqlSearch+"%' OR "
+		    				+ " v.transDate like '%"+sqlSearch+"%' " ;
+		    }
+	        if (StringUtils.isNotBlank(extraCriteria)) {
+	            sqlBuilder.append(extraCriteria);
+	        }
+
+
+	        if (searchTransactionHistory.isLimited()) {
+	            sqlBuilder.append(" limit ").append(searchTransactionHistory.getLimit());
+	        }
+
+	        if (searchTransactionHistory.isOffset()) {
+	            sqlBuilder.append(" offset ").append(searchTransactionHistory.getOffset());
+	        }
+		
+
+			//	return jdbcTemplate.query(sql, rowMapper,new Object[]{id});
+			return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+		            new Object[] {clientId}, financialTransactionsMapper);
+			
 
 	}
 
@@ -128,9 +162,9 @@ public class BillMasterReadPlatformServiceImplementation implements
 					+" END  AS amount FROM b_adjustments WHERE adjustment_date <= NOW() AND client_id = ? UNION ALL SELECT pa.id AS transId,"
 					+"Date_format(pa.payment_date, '%Y-%m-%d') transDate,'PAYMENT' AS transType,-pa.amount_paid AS amount FROM b_payments pa"
 					+" WHERE payment_date <= NOW()  AND client_id =?   ORDER BY 2";*/
-			return "v.* from  fin_trans_vw  v where v.client_id=?";
+			return " SQL_CALC_FOUND_ROWS v.* from  fin_trans_vw  v where v.client_id=? ";
 
-
+			
 		}
 	}
 

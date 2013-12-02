@@ -2,6 +2,7 @@ package org.mifosplatform.billing.inventory.service;
 
 import java.util.Collection;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.InventoryGrnData;
 import org.mifosplatform.infrastructure.core.service.Page;
 
@@ -13,6 +14,6 @@ public interface InventoryGrnReadPlatformService {
 	
 	public boolean validateForExist(final Long grnId);
 	public Collection<InventoryGrnData> retriveGrnIds();
-	public Page<InventoryGrnData> retriveGrnDetails(Long limit, Long offset);
+	public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn);
 	
 }

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.mrn.data.MRNDetailsData;
 import org.mifosplatform.billing.supplier.data.SupplierData;
 import org.mifosplatform.billing.supplier.service.SupplierReadPlatformService;
@@ -71,14 +72,15 @@ public class SupplierApiResource {
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return apiJsonSerializer.serialize(settings,mrnDetailsDatas,RESPONSE_PARAMETERS);
 	}*/
-	
+
 
 	@GET
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retriveSupplierDetails(@Context final UriInfo uriInfo , @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset){
+	public String retriveSupplierDetails(@Context final UriInfo uriInfo , @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
 		context.authenticatedUser().validateHasReadPermission(resourceType);
-		final Page<SupplierData> mrnDetailsDatas = supplierReadPlatformService.retrieveSupplier(limit,offset);
+		final SearchSqlQuery searchSupplier =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		final Page<SupplierData> mrnDetailsDatas = supplierReadPlatformService.retrieveSupplier(searchSupplier);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return apiJsonSerializer.serialize(mrnDetailsDatas);
 	}
