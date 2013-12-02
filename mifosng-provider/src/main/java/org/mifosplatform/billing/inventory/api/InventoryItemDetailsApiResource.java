@@ -18,6 +18,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.InventoryGrnData;
 import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
 import org.mifosplatform.billing.inventory.data.InventoryItemSerialNumberData;
@@ -151,10 +152,10 @@ public class InventoryItemDetailsApiResource {
 	@GET
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String retriveItemDetails(@Context final UriInfo uriInfo, @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset) {
-		
+	public String retriveItemDetails(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		final Page<InventoryItemDetailsData> clientDatafinal = this.itemDetailsReadPlatformService.retriveAllItemDetails(limit,offset);
+		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		final Page<InventoryItemDetailsData> clientDatafinal = this.itemDetailsReadPlatformService.retriveAllItemDetails(searchItemDetails);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializerForItem.serialize(clientDatafinal);
 		
@@ -270,10 +271,12 @@ public class InventoryItemDetailsApiResource {
 	@Path("grn")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String retriveGrnDetailsPaginate(@Context final UriInfo uriInfo, @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset) {
-
+	public String retriveGrnDetailsPaginate(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions); 
-		Page<InventoryGrnData> inventoryGrnData  = this.inventoryGrnReadPlatformService.retriveGrnDetails(limit,offset);
+		final SearchSqlQuery searchGrn =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		Page<InventoryGrnData> inventoryGrnData  = this.inventoryGrnReadPlatformService.retriveGrnDetails(searchGrn);
+
+
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializerForGrn.serialize(inventoryGrnData);
 	

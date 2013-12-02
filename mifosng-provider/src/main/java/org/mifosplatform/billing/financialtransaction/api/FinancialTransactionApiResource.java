@@ -10,16 +10,19 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.billmaster.service.BillMasterReadPlatformService;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -56,11 +59,14 @@ public class FinancialTransactionApiResource {
 	@Path("{clientId}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retrieveTransactionalData(@PathParam("clientId") final Long clientId,@Context final UriInfo uriInfo) {
+	public String retrieveTransactionalData(@PathParam("clientId") final Long clientId,@Context final UriInfo uriInfo, 
+	@QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset)	{
 	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	List<FinancialTransactionsData> transactionData = this.billMasterReadPlatformService.retrieveInvoiceFinancialData(clientId);
+	
+	final SearchSqlQuery searchFinancialTransaction =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+	Page<FinancialTransactionsData> transactionData = this.billMasterReadPlatformService.retrieveInvoiceFinancialData(searchFinancialTransaction,clientId);
 	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-	return this.toApiJsonSerializer.serialize(settings, transactionData, RESPONSE_DATA_PARAMETERS);    
+	return this.toApiJsonSerializer.serialize(transactionData);    
 	}
 	
 	@GET

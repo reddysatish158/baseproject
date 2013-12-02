@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.ticketmaster.data.ClientTicketData;
 import org.mifosplatform.billing.ticketmaster.data.ProblemsData;
 import org.mifosplatform.billing.ticketmaster.data.TicketMasterData;
@@ -102,10 +103,12 @@ public class TicketMasterApiResource {
 		@Path("alltickets")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public String assignedTicketsForUserNewClient(@Context final UriInfo uriInfo, @QueryParam("limit") final Long limit, @QueryParam("offset") final Long offset){
+		public String assignedTicketsForUserNewClient(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
+			
+			final SearchSqlQuery searchTicketMaster =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		    final Page<ClientTicketData> data = this.ticketMasterReadPlatformService.retrieveAssignedTicketsForNewClient(searchTicketMaster);
 		
-		    final Page<ClientTicketData> data = this.ticketMasterReadPlatformService.retrieveAssignedTicketsForNewClient(limit,offset);
-		    //final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		//final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.clientToApiJsonSerializer.serialize(data);
 		}
 		

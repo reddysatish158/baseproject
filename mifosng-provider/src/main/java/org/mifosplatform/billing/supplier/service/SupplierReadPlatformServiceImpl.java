@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.supplier.data.SupplierData;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
@@ -36,8 +38,9 @@ public class SupplierReadPlatformServiceImpl implements
 		}
 		
 		public String schema() {
-			String sql = " SQL_CALC_FOUND_ROWS id as id, supplier_code as supplierCode, supplier_description as supplierDescription, supplier_address as supplierAddress "
-						 + " from b_supplier limit ? offset ?";
+			String sql = " SQL_CALC_FOUND_ROWS id as id, supplier_code as supplierCode, "
+					+ "supplier_description as supplierDescription, supplier_address as supplierAddress "
+						 + " from b_supplier ";
 			return sql;
 		}
 	}
@@ -51,11 +54,37 @@ public class SupplierReadPlatformServiceImpl implements
 	}
 	
 	@Override
-	public Page<SupplierData> retrieveSupplier(final Long limit, final Long offset) {
+	public Page<SupplierData> retrieveSupplier(SearchSqlQuery searchSupplier) {
 		SupplierMapper supplierMapper = new SupplierMapper();
-		String sql = " Select " + supplierMapper.schema();
-		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
-		        new Object[] {limit,offset}, supplierMapper);
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(supplierMapper.schema());
+        sqlBuilder.append(" where id IS NOT NULL ");
+        
+        final String sqlSearch = searchSupplier.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and id like '%"+sqlSearch+"%' OR" 
+	    			+ " supplier_code like '%"+sqlSearch+"%' OR"
+	    			+ " supplier_description like '%"+sqlSearch+"%' OR"
+	    			+ " supplier_address like '%"+sqlSearch+"%'";
+	    }
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
+
+
+        if (searchSupplier.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchSupplier.getLimit());
+        }
+
+        if (searchSupplier.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchSupplier.getOffset());
+        }
+		
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+		        new Object[] {}, supplierMapper);
 	}	
 	
 	

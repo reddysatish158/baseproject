@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.billing.clientprospect.data.ClientProspectData;
 import org.mifosplatform.billing.clientprospect.data.ProspectDetailAssignedToData;
 import org.mifosplatform.billing.clientprospect.data.ProspectDetailData;
@@ -54,15 +55,45 @@ public class ClientProspectReadPlatformServiceImp implements
 		String sql = "select "+rowMapper.query()+" from b_prospect p";
 		return jdbcTemplate.query(sql, rowMapper);
 	}
-	
-	@Override
-	public Page<ClientProspectData> retriveClientProspect(Long limit,Long offset) {
+
+
+	public Page<ClientProspectData> retriveClientProspect(SearchSqlQuery searchClientProspect) {
+
 		ClientProspectMapperForNewClient rowMapper = new ClientProspectMapperForNewClient();
-		String sql = "select "+rowMapper.query()+" from b_prospect p limit ? offset ?";
-		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
-	            new Object[] {limit,offset}, rowMapper);
+        StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(rowMapper.query());
+        sqlBuilder.append(" where p.is_deleted = 'N' | 'Y' ");
+
+        
+        final String sqlSearch = searchClientProspect.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	extraCriteria = " and p.mobile_number like '%"+sqlSearch+"%' OR" 
+	    			+ " p.email like '%"+sqlSearch+"%' OR"
+	    			+ " p.status like '%"+sqlSearch+"%' OR"
+	    			+ " p.address like '%"+sqlSearch+"%' OR"
+	    			+ " concat(ifnull(p.first_name, ''), if(p.first_name > '',' ', '') , ifnull(p.last_name, '')) like '%"+sqlSearch+"%' ";
+	    }
+      
+        if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }
+
+
+        if (searchClientProspect.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchClientProspect.getLimit());
+        }
+
+        if (searchClientProspect.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchClientProspect.getOffset());
+        }
+
+        final String sqlCountRows = "SELECT FOUND_ROWS()";
+        return this.paginationHelper.fetchPage(this.jdbcTemplate, sqlCountRows, sqlBuilder.toString(),
+                new Object[] {}, rowMapper);
+
 	}
-	
 	
 	@Override
 	public ProspectDetailData retriveClientProspect(Long clientProspectId) {	
@@ -166,7 +197,19 @@ public class ClientProspectReadPlatformServiceImp implements
 		}
 		
 		public String query(){
-			String sql = "p.id as id, p.prospect_type as prospectType, p.first_name as firstName, p.middle_name as middleName, p.last_name as lastName, p.home_phone_number as homePhoneNumber, p.work_phone_number as workPhoneNumber, p.mobile_number as mobileNumber, p.email as email, p.source_of_publicity as sourceOfPublicity, p.preferred_plan as preferredPlan, p.preferred_calling_time as preferredCallingTime, p.address as address, p.street_area as streetArea, p.city_district as cityDistrict, p.state as state, p.country as country, p.status as status, p.status_remark as statusRemark, p.is_deleted as isDeleted, (select notes FROM b_prospect_detail pd where pd.prospect_id =p.id and pd.id=(select max(id) from b_prospect_detail where b_prospect_detail.prospect_id = p.id)) as note";
+			//String sql = "p.id as id, p.prospect_type as prospectType, p.first_name as firstName, p.middle_name as middleName, p.last_name as lastName, p.home_phone_number as homePhoneNumber, p.work_phone_number as workPhoneNumber, p.mobile_number as mobileNumber, p.email as email, p.source_of_publicity as sourceOfPublicity, p.preferred_plan as preferredPlan, p.preferred_calling_time as preferredCallingTime, p.address as address, p.street_area as streetArea, p.city_district as cityDistrict, p.state as state, p.country as country, p.status as status, p.status_remark as statusRemark, p.is_deleted as isDeleted, (select notes FROM b_prospect_detail pd where pd.prospect_id =p.id and pd.id=(select max(id) from b_prospect_detail where b_prospect_detail.prospect_id = p.id)) as note";
+			String sql = "SQL_CALC_FOUND_ROWS p.id as id, p.prospect_type as prospectType, "
+					+ "p.first_name as firstName, p.middle_name as middleName, p.last_name as lastName, "
+					+ "p.home_phone_number as homePhoneNumber, p.work_phone_number as workPhoneNumber, "
+					+ "p.mobile_number as mobileNumber, p.email as email, p.source_of_publicity as sourceOfPublicity, "
+					+ "p.preferred_plan as preferredPlan, p.preferred_calling_time as preferredCallingTime, "
+					+ "p.address as address, p.street_area as streetArea, p.city_district as cityDistrict, "
+					+ "p.state as state, p.country as country, p.status as status, p.status_remark as statusRemark, "
+					+ "p.is_deleted as isDeleted, "
+					+ "(select notes FROM b_prospect_detail pd where pd.prospect_id =p.id and "
+					+ "pd.id=(select max(id) from b_prospect_detail where b_prospect_detail.prospect_id = p.id)) as note from b_prospect p ";
+			
+			
 			return sql;
 		}
 	}
@@ -201,7 +244,15 @@ public class ClientProspectMapperForNewClient implements RowMapper<ClientProspec
 		}
 		
 		public String query(){
-			String sql = "SQL_CALC_FOUND_ROWS p.id as id, p.prospect_type as prospectType, p.first_name as firstName, p.middle_name as middleName, p.last_name as lastName, p.home_phone_number as homePhoneNumber, p.work_phone_number as workPhoneNumber, p.mobile_number as mobileNumber, p.email as email, p.source_of_publicity as sourceOfPublicity, p.preferred_plan as preferredPlan, p.preferred_calling_time as preferredCallingTime, p.address as address, p.street_area as streetArea, p.city_district as cityDistrict, p.state as state, p.country as country, p.status as status, p.status_remark as statusRemark, p.is_deleted as isDeleted, (select notes FROM b_prospect_detail pd where pd.prospect_id =p.id and pd.id=(select max(id) from b_prospect_detail where b_prospect_detail.prospect_id = p.id)) as note";
+			String sql = "SQL_CALC_FOUND_ROWS p.id as id, p.prospect_type as prospectType, "
+					+ "p.first_name as firstName, p.middle_name as middleName, p.last_name as lastName, "
+					+ "p.home_phone_number as homePhoneNumber, p.work_phone_number as workPhoneNumber, "
+					+ "p.mobile_number as mobileNumber, p.email as email, p.source_of_publicity as sourceOfPublicity, "
+					+ "p.preferred_plan as preferredPlan, p.preferred_calling_time as preferredCallingTime, "
+					+ "p.address as address, p.street_area as streetArea, p.city_district as cityDistrict, "
+					+ "p.state as state, p.country as country, p.status as status, p.status_remark as statusRemark, "
+					+ "p.is_deleted as isDeleted, "
+					+ "(select notes FROM b_prospect_detail pd where pd.prospect_id =p.id and pd.id=(select max(id) from b_prospect_detail where b_prospect_detail.prospect_id = p.id)) as note from b_prospect p ";
 			return sql;
 		}
 	}

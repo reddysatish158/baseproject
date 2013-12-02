@@ -20,6 +20,5 @@ public interface ClientProspectReadPlatformService {
 	List<ProspectDetailAssignedToData> retrieveUsers();
 	public List<ProspectDetailData> retriveProspectDetailHistory(Long prospectdetailid);
 	public ClientProspectData retriveSingleClient(Long id);
-	public Page<ClientProspectData> retriveClientProspect(Long limit,
-			Long offset);
+	public Page<ClientProspectData> retriveClientProspect(SearchSqlQuery searchClientProspect);
 }
