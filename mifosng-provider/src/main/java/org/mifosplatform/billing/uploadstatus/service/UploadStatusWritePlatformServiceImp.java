@@ -118,7 +118,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 	@Autowired
 	private InventoryItemDetailsWritePlatformService inventoryItemDetailsWritePlatformService;
 	@Autowired
-	private  DefaultToApiJsonSerializer<ItemDetailsCommand> toApiJsonSerializer;
+	private  DefaultToApiJsonSerializer<ItemDetailsCommand> toApiJsonSerializer;	
 	
 	private InventoryItemDetailsApiResource inventoryItemDetailsApiResource;
 	
@@ -268,7 +268,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				}
 			}
 			
-		}if(uploadProcess.equalsIgnoreCase("Mrn")){
+		}else if(uploadProcess.equalsIgnoreCase("Mrn")){
 			Integer cellNumber = 2;
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			Workbook wb = null;

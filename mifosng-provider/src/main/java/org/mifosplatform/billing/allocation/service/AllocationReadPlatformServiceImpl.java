@@ -72,7 +72,7 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 					  
 					final HardwareMapper mapper = new HardwareMapper();
 					final String sql = "select " + mapper.schema();
-					return jdbcTemplate.query(sql, mapper, new Object[] {itemCode,clientId });
+					return jdbcTemplate.query(sql, mapper, new Object[] {clientId,itemCode});
 					} catch (EmptyResultDataAccessException e) {
 					return null;
 					}
@@ -82,9 +82,10 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 					private static final class HardwareMapper implements RowMapper<AllocationDetailsData> {
 
 					public String schema() {
-					return " id.id AS id,id.serial_no AS serialNo,i.item_description AS itemDescription FROM b_item_master i, b_item_detail id," +
-							" b_association a WHERE NOT EXISTS (SELECT * FROM b_association a WHERE a.hw_serial_no = id.serial_no and a.is_deleted ='N') AND id.item_master_id = i.id" +
-							"  AND i.item_code = ?  AND id.client_id = ? group by id.client_id";
+					return " id.id AS id,id.serial_no AS serialNo,i.item_description AS itemDescription  FROM b_item_master i, b_item_detail id, " +
+							"b_association a, b_hw_plan_mapping hm  WHERE NOT EXISTS (SELECT *FROM b_association a  WHERE a.hw_serial_no = id.serial_no " +
+							" AND a.is_deleted = 'N') AND id.item_master_id = i.id AND i.item_code =hm.item_code AND id.client_id =? and  " +
+							" hm.plan_code=?  GROUP BY id.client_id ";
 					}
 
 					@Override

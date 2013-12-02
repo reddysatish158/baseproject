@@ -237,20 +237,20 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				
 			    if(plan.isHardwareReq() == 'Y'){
 			    	
-			    	   PlanHardwareMapping hardwareMapping=this.hardwareMappingRepository.findOneByPlanCode(plan.getPlanCode());
+			    	 //  PlanHardwareMapping hardwareMapping=this.hardwareMappingRepository.findOneByPlanCode(plan.getPlanCode());
 			    	   
-			    	   if(hardwareMapping!=null){
+			    	//   if(hardwareMapping!=null){
 			    		   
-			    		   List<AllocationDetailsData> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetailsByItemCode(clientId,hardwareMapping.getItemCode());
+			    		   List<AllocationDetailsData> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetailsByItemCode(clientId,plan.getPlanCode());
 			    		   
 			    		   if(!allocationDetailsDatas.isEmpty())
 			    		   {
 			    				this.associationWriteplatformService.createNewHardwareAssociation(clientId,plan.getId(),allocationDetailsDatas.get(0).getSerialNo(),order.getId());
 			    				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Implicit Association", new Date(),"Serial No:"
-			    				+allocationDetailsDatas.get(0).getSerialNo(),"Item Code:"+hardwareMapping.getItemCode(),"Plan Code:"+plan.getPlanCode());
+			    				+allocationDetailsDatas.get(0).getSerialNo(),"Item:"+allocationDetailsDatas.get(0).getItemDescription(),"Plan Code:"+plan.getPlanCode());
 			    				
 			    		   }
-			    	   }
+			    	 //  }
 			    }
 		}
 			return new CommandProcessingResult(order.getId());	

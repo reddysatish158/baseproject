@@ -255,20 +255,20 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 							
 						         ItemMaster itemMaster=this.itemRepository.findOne(inventoryItemDetails.getItemMasterId());
 						    	
-						    	   PlanHardwareMapping hardwareMapping=this.hardwareMappingRepository.findOneByItemCode(itemMaster.getItemCode());
+						    	//   PlanHardwareMapping hardwareMapping=this.hardwareMappingRepository.findOneByItemCode(itemMaster.getItemCode());
 						    	   
-						    	   if(hardwareMapping!=null){
+						    	//   if(hardwareMapping!=null){
 						    		   
-						    		   List<HardwareAssociationData> allocationDetailsDatas=this.associationReadplatformService.retrieveClientUnallocatePlanDetails(ots.getClientId());						    		   
+						    		   List<HardwareAssociationData> allocationDetailsDatas=this.associationReadplatformService.retrieveClientAllocatedPlan(ots.getClientId(),itemMaster.getItemCode());						    		   
 						    		   if(!allocationDetailsDatas.isEmpty())
 						    		   {
 						    				this.associationWriteplatformService.createNewHardwareAssociation(ots.getClientId(),allocationDetailsDatas.get(0).getPlanId(),inventoryItemDetails.getSerialNumber(),allocationDetailsDatas.get(0).getorderId());
 						    				transactionHistoryWritePlatformService.saveTransactionHistory(ots.getClientId(), "Implicit Association", new Date(),"Serial No:"
-						    				+allocationDetailsDatas.get(0).getSerialNo(),"Item Code:"+hardwareMapping.getItemCode());
+						    				+allocationDetailsDatas.get(0).getSerialNo(),"Item Code:"+allocationDetailsDatas.get(0).getItemCode());
 						    				
 						    		   }
 						    		   
-						    	   }
+						    	//   }
 						    	
 						    }
 						
