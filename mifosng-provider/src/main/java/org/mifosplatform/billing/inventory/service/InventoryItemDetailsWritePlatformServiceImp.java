@@ -210,6 +210,11 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 			        	try{
 							inventoryItemDetails = inventoryItemDetailsReadPlatformService.retriveInventoryItemDetail(inventoryItemDetailsAllocation.getSerialNumber(),
 									inventoryItemDetailsAllocation.getItemMasterId());
+							
+							if(inventoryItemDetails == null){
+								throw new PlatformDataIntegrityException("invalid.serial.no", "invalid.serial.no","serialNumber");
+							}
+							
 							if(inventoryItemDetails.getClientId()!=null){
 								if(inventoryItemDetails.getClientId()<=0){
 								}else{
