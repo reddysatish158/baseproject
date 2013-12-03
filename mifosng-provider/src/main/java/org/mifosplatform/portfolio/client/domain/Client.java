@@ -115,8 +115,11 @@ public final class Client extends AbstractPersistable<Long> {
         final String fullname = command.stringValueOfParameterNamed(ClientApiConstants.fullnameParamName);
         final Long categoryType=command.longValueOfParameterNamed(ClientApiConstants.clientCategoryParamName);
         final String phone = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
-	    final String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
+	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
 
+	    if(email.isEmpty()){
+	    	email=null;
+	    }
         ClientStatus status =  ClientStatus.ACTIVE;
         boolean active = true;
        
