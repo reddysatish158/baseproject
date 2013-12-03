@@ -32,5 +32,10 @@ public class InventoryItemSerialNumberData {
 	
 	public InventoryItemSerialNumberData(final String serialNumbers){
 		this.serialNumbers = serialNumbers;
+	}
+
+
+	public InventoryItemSerialNumberData(List<String> itemSerialNumbers) {
+		this.serials = itemSerialNumbers;
 	}	
 }

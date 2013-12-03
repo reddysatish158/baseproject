@@ -203,7 +203,7 @@ public class InventoryItemDetailsApiResource {
 		
 	}
 
-	@GET
+	/*@GET
 	@Path("{oneTimeSaleId}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
@@ -219,6 +219,33 @@ public class InventoryItemDetailsApiResource {
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializerForAllocationHardware.serialize(settings, allocationData, RESPONSE_DATA_SERIAL_NUMBER_PARAMETERS);
 		//return "SYED MUJEEB RAHMAN";
+		
+	
+	}*/
+	
+	@GET
+	@Path("{oneTimeSaleId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retriveItemSerialNumbers(@PathParam("oneTimeSaleId") final Long oneTimeSaleId,@QueryParam("query") final String query, @Context final UriInfo uriInfo){
+		
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
+		
+		if(query != null && query.length()>0){
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
+			List<String> itemSerialNumbers = this.itemDetailsReadPlatformService.retriveSerialNumbersOnKeyStroke(oneTimeSaleId,query);
+			InventoryItemSerialNumberData allocationData = this.itemDetailsReadPlatformService.retriveAllocationData(itemSerialNumbers);
+			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+			return this.toApiJsonSerializerForAllocationHardware.serialize(settings, allocationData, RESPONSE_DATA_SERIAL_NUMBER_PARAMETERS);
+		}else{		
+		QuantityData quantityData = this.itemDetailsReadPlatformService.retriveQuantity(oneTimeSaleId);
+		ItemMasterIdData itemMasterIdData = this.itemDetailsReadPlatformService.retriveItemMasterId(oneTimeSaleId);
+		
+		InventoryItemSerialNumberData allocationData = this.itemDetailsReadPlatformService.retriveAllocationData(null,quantityData,itemMasterIdData);
+		
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializerForAllocationHardware.serialize(settings, allocationData, RESPONSE_DATA_SERIAL_NUMBER_PARAMETERS);
+		}
 		
 	
 	}
