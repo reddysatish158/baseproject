@@ -815,9 +815,11 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 					     throw new UnsupportedCommandException(wrapper.commandName());
 					}                
-				  }
-			       
-			       else {
+				  }else if(wrapper.isPaymentGatewayResource()){
+					     if(wrapper.isCreatePaymentGateway()) {
+					         handler = applicationContext.getBean("createPaymentGatewayCommandHandler",NewCommandSourceHandler.class);
+					     }               
+				   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       

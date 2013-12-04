@@ -14,6 +14,7 @@ import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
 import org.mifosplatform.billing.payments.paypal.service.PaypalReadPlatformService;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
+import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -42,6 +43,7 @@ public class PaymentWritePlatformServiceImpl implements
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	private final ChequePaymentRepository chequePaymentRepository;
 	private final PaypalReadPlatformService paypalReadPlatformService;
+	
 
 	@Autowired
 	public PaymentWritePlatformServiceImpl(final PlatformSecurityContext context,final PaymentRepository paymentRepository,
@@ -58,6 +60,7 @@ public class PaymentWritePlatformServiceImpl implements
 		 this.updateClientBalance= updateClientBalance;
 		 this.chequePaymentRepository=chequePaymentRepository;
 		 this.paypalReadPlatformService=paypalReadPlatformService;
+		
 	}
 
 	@Override

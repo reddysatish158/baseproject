@@ -8,8 +8,10 @@ package org.mifosplatform.infrastructure.core.service;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -145,6 +147,12 @@ public class TomcatJdbcDataSourcePerTenantService implements DataSourcePerTenant
 	@Override
 	public Connection getConnection(String username, String password)
 			throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
