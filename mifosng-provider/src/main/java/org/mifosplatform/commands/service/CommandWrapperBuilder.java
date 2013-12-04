@@ -1821,4 +1821,14 @@ public CommandWrapperBuilder updateDeAssociation(Long associationId) {
 	this.href="associations/deassociations/"+associationId;
 	return this;
 }
+
+public CommandWrapperBuilder createPaymentGateway() {
+	
+	this.actionName = "CREATE";
+	this.entityName = "PAYMENTGATEWAY";
+	this.entityId = null;
+	this.href = "/paymentgateways";
+	return this;
+}
+
 }
