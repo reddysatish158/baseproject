@@ -2,6 +2,7 @@ package com.journaldev.exceptions;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.*;
 
 public class ExceptionHandling {
 
