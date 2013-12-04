@@ -18,5 +18,7 @@ public interface PaymodeReadPlatformService {
 	Collection<McodeData> retrievemCodeDetails(String codeName);
 
 	List<PaymentData> retrivePaymentsData(Long clientId);
+	
+	Long getOnlinePaymode();
 
 }
