@@ -72,9 +72,12 @@ public class TransactionHistoryReadPlatformServiceImp implements TransactionHist
 			    				+ " a.username like '%"+sqlSearch+"%' OR "
 			    				+ " th.history like '%"+sqlSearch+"%' " ;
 			    }
-		        if (StringUtils.isNotBlank(extraCriteria)) {
+			    else{
 		            sqlBuilder.append(extraCriteria);
 		        }
+		        /*if (StringUtils.isNotBlank(extraCriteria)) {
+		            sqlBuilder.append(extraCriteria);
+		        }*/
 
 
 		        if (searchTransactionHistory.isLimited()) {

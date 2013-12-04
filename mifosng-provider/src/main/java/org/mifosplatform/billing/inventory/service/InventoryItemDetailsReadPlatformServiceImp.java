@@ -120,10 +120,12 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 	    			+ " item.quality like '%"+sqlSearch+"%' OR"
 	    			+ " item.status like '%"+sqlSearch+"%' ";
 	    			//+ " (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) like '%"+sqlSearch+"%' ";
-	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    }else{
             sqlBuilder.append(extraCriteria);
         }
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
 
 
         if (searchItemDetails.isLimited()) {

@@ -89,10 +89,12 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
 	    			+ " g.purchase_date like '%"+sqlSearch+"%' OR"
 	    			+ " s.supplier_description like '%"+sqlSearch+"%' OR"
 	    			+ " im.item_description like '%"+sqlSearch+"%'";
-	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    }else{
             sqlBuilder.append(extraCriteria);
         }
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
         
         sqlBuilder.append(" ORDER BY g.id ");
 
