@@ -100,9 +100,13 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
 	private void handleCodeDataIntegrityIssues(JsonCommand command,
 			DataIntegrityViolationException dve) {
 		 Throwable realCause = dve.getMostSpecificCause();
-	        if (realCause.getMessage().contains("plan_code_key")) {
-	            final String name = command.stringValueOfParameterNamed("serviceCode");
+	        if (realCause.getMessage().contains("uplan_code_key")) {
+	            final String name = command.stringValueOfParameterNamed("uplan_code_key");
 	            throw new PlatformDataIntegrityException("error.msg.code.duplicate.name", "A code with name '" + name + "' already exists");
+	        }
+	        if (realCause.getMessage().contains("plan_description")) {
+	            final String name = command.stringValueOfParameterNamed("plan_description");
+	            throw new PlatformDataIntegrityException("error.msg.description.duplicate.name", "A description with name '" + name + "' already exists");
 	        }
 
 	        logger.error(dve.getMessage(), dve);
