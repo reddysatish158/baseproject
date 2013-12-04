@@ -38,9 +38,8 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
               {
 
             	  HarderwareMapper mapper = new HarderwareMapper();
-
-			String sql = "select " + mapper.schema();
-			return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
+			      String sql = "select " + mapper.schema();
+			      return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
 
 		}catch(EmptyResultDataAccessException accessException){
 			return null;
@@ -61,19 +60,19 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				Long id = rs.getLong("id");
 				String serialNo = rs.getString("serialNo");
 				
-				HardwareAssociationData associationData=new HardwareAssociationData(id,serialNo,null,null);
+				HardwareAssociationData associationData=new HardwareAssociationData(id,serialNo,null,null,null);
 				return associationData; 
 			}
 		}
 		@Override
-		public List<HardwareAssociationData> retrieveClientUnallocatePlanDetails(Long clientId) {
+		public List<HardwareAssociationData> retrieveClientAllocatedPlan(Long clientId,String itemCode) {
             try
             {
 
           	  PlanMapper mapper = new PlanMapper();
 
 			String sql = "select " + mapper.schema();
-			return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
+			return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId,itemCode});
 
 		}catch(EmptyResultDataAccessException accessException){
 			return null;
@@ -82,8 +81,9 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 		private static final class PlanMapper implements RowMapper<HardwareAssociationData> {
 
 			public String schema() {
-				return " o.id AS id, o.plan_id as planId FROM  b_orders o    where  NOT EXISTS (SELECT * FROM b_association a	 WHERE  a.order_id =o.id and o.is_deleted='N' )" +
-						" and   o.client_id =? group by o.id ";
+				return " o.id AS id, o.plan_id AS planId,hm.item_code as itemCode  FROM b_orders o,b_hw_plan_mapping hm, b_plan_master p  WHERE NOT EXISTS  (SELECT *FROM b_association a" +
+						" WHERE  a.order_id=o.id  AND a.client_id = o.client_id  AND a.is_deleted = 'N') AND o.client_id =? AND hm.plan_code = p.plan_code" +
+						" AND o.plan_id = p.id and hm.item_code=?";
 
 			}
 
@@ -94,8 +94,8 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				Long id = rs.getLong("id");
 				Long planId = rs.getLong("planId");
 				Long orderId=rs.getLong("id");
-				
-				HardwareAssociationData associationData=new HardwareAssociationData(id,null,planId,orderId);
+				String itemCode = rs.getString("itemCode");
+				HardwareAssociationData associationData=new HardwareAssociationData(id,null,planId,orderId,itemCode);
 
 				return associationData; 
 

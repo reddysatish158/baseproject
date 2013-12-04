@@ -36,4 +36,10 @@ public interface InventoryItemDetailsReadPlatformService {
 	public Page<InventoryItemDetailsData> retriveAllItemDetails(SearchSqlQuery searchItemDetails);
 
 	public InventoryItemDetailsData retriveSingleItemDetail(Long itemId);
+
+	public List<String> retriveSerialNumbersOnKeyStroke(Long oneTimeSaleId,
+			String query);
+
+	public InventoryItemSerialNumberData retriveAllocationData(
+			List<String> itemSerialNumbers);
 }

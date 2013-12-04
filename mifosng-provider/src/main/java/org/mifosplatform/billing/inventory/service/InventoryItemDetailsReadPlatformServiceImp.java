@@ -279,6 +279,19 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 		}
 	}
 	
+	@Override
+	public List<String> retriveSerialNumbersOnKeyStroke(final Long oneTimeSaleId, final String query) {
+		
+		context.authenticatedUser();
+		SerialNumberMapper rowMapper = new SerialNumberMapper();
+		String sql = "select idt.serial_no as serialNumber from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id where ots.id = ? and idt.client_id is null and idt.serial_no like '%"+query+"%' order by idt.id limit 20";
+		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{oneTimeSaleId});
+	}
+	@Override
+	public InventoryItemSerialNumberData retriveAllocationData(List<String> itemSerialNumbers){
+		
+		return new InventoryItemSerialNumberData(itemSerialNumbers);
+	}
 	
 	
 
