@@ -74,11 +74,13 @@ public class ClientProspectReadPlatformServiceImp implements
 	    			+ " p.status like '%"+sqlSearch+"%' OR"
 	    			+ " p.address like '%"+sqlSearch+"%' OR"
 	    			+ " concat(ifnull(p.first_name, ''), if(p.first_name > '',' ', '') , ifnull(p.last_name, '')) like '%"+sqlSearch+"%' ";
-	    }
-      
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    }else{
             sqlBuilder.append(extraCriteria);
         }
+      
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
 
 
         if (searchClientProspect.isLimited()) {

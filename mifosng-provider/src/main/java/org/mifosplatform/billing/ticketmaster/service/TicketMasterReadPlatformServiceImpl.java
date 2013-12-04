@@ -168,10 +168,12 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 	    			+ " (select mcv.code_value from m_code_value mcv where mcv.id = tckt.problem_code) like '%"+sqlSearch+"%' OR"
 	    			+ " tckt.status like '%"+sqlSearch+"%' OR"
 	    			+ " (select user.username from m_appuser user where tckt.assigned_to = user.id) like '%"+sqlSearch+"%'";
+	    }else{
+	    	sqlBuilder.append(extraCriteria);
 	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
-        }
+        }*/
 
 
         if (searchTicketMaster.isLimited()) {

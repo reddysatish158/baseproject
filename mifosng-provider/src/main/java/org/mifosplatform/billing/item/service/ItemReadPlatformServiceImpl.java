@@ -160,10 +160,12 @@ public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
     			+ " i.item_code like '%"+sqlSearch+"%' ";
     			
     			
-    }
-    if (StringUtils.isNotBlank(extraCriteria)) {
+    }else{
         sqlBuilder.append(extraCriteria);
     }
+   /* if (StringUtils.isNotBlank(extraCriteria)) {
+        sqlBuilder.append(extraCriteria);
+    }*/
 
 
     if (searchItems.isLimited()) {

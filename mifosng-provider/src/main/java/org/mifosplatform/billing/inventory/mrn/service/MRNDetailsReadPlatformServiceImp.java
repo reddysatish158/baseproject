@@ -167,10 +167,12 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	    				+ " (select name from m_office where id=mrn.from_office) like '%"+sqlSearch+"%' OR "
 	    				+ " (select name from m_office where id = mrn.to_office) like '%"+sqlSearch+"%' OR "
 	    				+ " mrn.status like '%"+sqlSearch+"%' " ;
-	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    }else{
             sqlBuilder.append(extraCriteria);
         }
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
 
 
         if (searchMRNDetails.isLimited()) {
@@ -291,10 +293,12 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
     				+ " destination like '%"+sqlSearch+"%' OR "
     				+ " movement like '%"+sqlSearch+"%' OR "
     				+ " serialNumber like '%"+sqlSearch+"%' " ;
-	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    }else{
             sqlBuilder.append(extraCriteria);
         }
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
 
 
         if (searchItemHistory.isLimited()) {

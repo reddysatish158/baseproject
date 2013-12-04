@@ -69,10 +69,12 @@ public class SupplierReadPlatformServiceImpl implements
 	    			+ " supplier_code like '%"+sqlSearch+"%' OR"
 	    			+ " supplier_description like '%"+sqlSearch+"%' OR"
 	    			+ " supplier_address like '%"+sqlSearch+"%'";
-	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    }else{
             sqlBuilder.append(extraCriteria);
         }
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
 
 
         if (searchSupplier.isLimited()) {
