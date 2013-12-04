@@ -123,7 +123,15 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         String extraCriteria = "";
         if (sqlSearch != null) {
-            extraCriteria = " and (" + sqlSearch + ")";
+          //  extraCriteria = " and (" + sqlSearch + ")";
+            
+        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%'"
+        			+ " OR IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id),'No Hardware') LIKE '%"+sqlSearch+"%' )";
+            
+/*        	display_name like '%undefined%' OR c.account_no LIKE '%undefined%' 
+        	OR IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id),'No Hardware') LIKE '%undefined%'
+            */
+            
         }
 
         if (officeId != null) {

@@ -114,7 +114,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 		    	extraCriteria = " and v.transType like '%"+sqlSearch+"%' OR "
 		    				+ " v.transDate like '%"+sqlSearch+"%' " ;
 		    }
-	        if (StringUtils.isNotBlank(extraCriteria)) {
+		    else{
 	            sqlBuilder.append(extraCriteria);
 	        }
 
