@@ -3,18 +3,12 @@ package org.mifosplatform.billing.inventory.mrn.service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
-import org.mifosplatform.billing.inventory.data.ItemMasterIdData;
-import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
 import org.mifosplatform.billing.inventory.mrn.data.InventoryTransactionHistoryData;
 import org.mifosplatform.billing.inventory.mrn.data.MRNDetailsData;
-import org.mifosplatform.billing.inventory.mrn.domain.InventoryTransactionHistory;
-import org.mifosplatform.billing.inventory.mrn.domain.MRNDetails;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
@@ -160,16 +154,17 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
         sqlBuilder.append(sql);
         sqlBuilder.append(" where mrn.status = 'Completed' | 'New' | 'Pending' ");
         
-        final String sqlSearch = searchMRNDetails.getSqlSearch();
+         String sqlSearch = searchMRNDetails.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and (select item_description from b_item_master where id=mrn.item_master_id) like '%"+sqlSearch+"%' OR "
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and ((select item_description from b_item_master where id=mrn.item_master_id) like '%"+sqlSearch+"%' OR "
 	    				+ " (select name from m_office where id=mrn.from_office) like '%"+sqlSearch+"%' OR "
 	    				+ " (select name from m_office where id = mrn.to_office) like '%"+sqlSearch+"%' OR "
-	    				+ " mrn.status like '%"+sqlSearch+"%' " ;
-	    }else{
+	    				+ " mrn.status like '%"+sqlSearch+"%')" ;
+	    }
             sqlBuilder.append(extraCriteria);
-        }
+        
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
         }*/
@@ -285,17 +280,18 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
         sqlBuilder.append(sql);
       //  sqlBuilder.append(" where item.office_id = office.id ");
         
-        final String sqlSearch = searchItemHistory.getSqlSearch();
+        String sqlSearch = searchItemHistory.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and itemDescription like '%"+sqlSearch+"%' OR "
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and (itemDescription like '%"+sqlSearch+"%' OR "
     				+ " source like '%"+sqlSearch+"%' OR "
     				+ " destination like '%"+sqlSearch+"%' OR "
     				+ " movement like '%"+sqlSearch+"%' OR "
-    				+ " serialNumber like '%"+sqlSearch+"%' " ;
-	    }else{
+    				+ " serialNumber like '%"+sqlSearch+"%') " ;
+	    }
             sqlBuilder.append(extraCriteria);
-        }
+        
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
         }*/

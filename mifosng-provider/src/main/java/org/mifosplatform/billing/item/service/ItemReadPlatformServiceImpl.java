@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.item.data.ChargesData;
 import org.mifosplatform.billing.item.data.ItemData;
@@ -153,16 +152,17 @@ public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
     sqlBuilder.append(mapper.schema());
     sqlBuilder.append(" where i.is_deleted='n' ");
     
-    final String sqlSearch = searchItems.getSqlSearch();
+    String sqlSearch = searchItems.getSqlSearch();
     String extraCriteria = "";
     if (sqlSearch != null) {
-    	extraCriteria = " and i.item_description like '%"+sqlSearch+"%' OR" 
-    			+ " i.item_code like '%"+sqlSearch+"%' ";
+    	sqlSearch=sqlSearch.trim();
+    	extraCriteria = " and (i.item_description like '%"+sqlSearch+"%' OR" 
+    			+ " i.item_code like '%"+sqlSearch+"%' )";
     			
     			
-    }else{
-        sqlBuilder.append(extraCriteria);
     }
+        sqlBuilder.append(extraCriteria);
+    
    /* if (StringUtils.isNotBlank(extraCriteria)) {
         sqlBuilder.append(extraCriteria);
     }*/

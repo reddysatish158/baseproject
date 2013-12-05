@@ -62,16 +62,17 @@ public class SupplierReadPlatformServiceImpl implements
         sqlBuilder.append(supplierMapper.schema());
         sqlBuilder.append(" where id IS NOT NULL ");
         
-        final String sqlSearch = searchSupplier.getSqlSearch();
+        String sqlSearch = searchSupplier.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and id like '%"+sqlSearch+"%' OR" 
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and (id like '%"+sqlSearch+"%' OR" 
 	    			+ " supplier_code like '%"+sqlSearch+"%' OR"
 	    			+ " supplier_description like '%"+sqlSearch+"%' OR"
-	    			+ " supplier_address like '%"+sqlSearch+"%'";
-	    }else{
+	    			+ " supplier_address like '%"+sqlSearch+"%')";
+	    }
             sqlBuilder.append(extraCriteria);
-        }
+        
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
         }*/

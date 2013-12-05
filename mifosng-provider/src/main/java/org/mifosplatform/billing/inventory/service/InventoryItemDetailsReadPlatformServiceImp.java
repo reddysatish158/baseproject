@@ -111,18 +111,21 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
         sqlBuilder.append(itemDetails.schema());
         sqlBuilder.append(" where item.office_id = office.id ");
         
-        final String sqlSearch = searchItemDetails.getSqlSearch();
+        String sqlSearch = searchItemDetails.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and master.item_description like '%"+sqlSearch+"%' OR" 
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and (master.item_description like '%"+sqlSearch+"%' OR" 
 	    			+ " item.serial_no like '%"+sqlSearch+"%' OR"
 	    			+ " office.name like '%"+sqlSearch+"%' OR"
 	    			+ " item.quality like '%"+sqlSearch+"%' OR"
-	    			+ " item.status like '%"+sqlSearch+"%' ";
+	    			+ " item.status like '%"+sqlSearch+"%' )";
 	    			//+ " (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) like '%"+sqlSearch+"%' ";
-	    }else{
+	    }
+	   
+	 
             sqlBuilder.append(extraCriteria);
-        }
+        
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
         }*/

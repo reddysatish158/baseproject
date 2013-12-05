@@ -64,17 +64,18 @@ public class TransactionHistoryReadPlatformServiceImp implements TransactionHist
 		        sqlBuilder.append(sql);
 		     //   sqlBuilder.append(" where a.id = th.createdby_id ");
 		        
-		        final String sqlSearch = searchTransactionHistory.getSqlSearch();
+		        String sqlSearch = searchTransactionHistory.getSqlSearch();
 		        String extraCriteria = "";
 			    if (sqlSearch != null) {
-			    	extraCriteria = " and th.transaction_type like '%"+sqlSearch+"%' OR "
+			    	sqlSearch=sqlSearch.trim();
+			    	extraCriteria = " and (th.transaction_type like '%"+sqlSearch+"%' OR "
 			    				+ " th.transaction_date like '%"+sqlSearch+"%' OR "
 			    				+ " a.username like '%"+sqlSearch+"%' OR "
-			    				+ " th.history like '%"+sqlSearch+"%' " ;
+			    				+ " th.history like '%"+sqlSearch+"%') " ;
 			    }
-			    else{
+			   
 		            sqlBuilder.append(extraCriteria);
-		        }
+		        
 		        /*if (StringUtils.isNotBlank(extraCriteria)) {
 		            sqlBuilder.append(extraCriteria);
 		        }*/

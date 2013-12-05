@@ -66,17 +66,18 @@ public class ClientProspectReadPlatformServiceImp implements
         sqlBuilder.append(" where p.is_deleted = 'N' | 'Y' ");
 
         
-        final String sqlSearch = searchClientProspect.getSqlSearch();
+        String sqlSearch = searchClientProspect.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and p.mobile_number like '%"+sqlSearch+"%' OR" 
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and (p.mobile_number like '%"+sqlSearch+"%' OR" 
 	    			+ " p.email like '%"+sqlSearch+"%' OR"
 	    			+ " p.status like '%"+sqlSearch+"%' OR"
 	    			+ " p.address like '%"+sqlSearch+"%' OR"
-	    			+ " concat(ifnull(p.first_name, ''), if(p.first_name > '',' ', '') , ifnull(p.last_name, '')) like '%"+sqlSearch+"%' ";
-	    }else{
+	    			+ " concat(ifnull(p.first_name, ''), if(p.first_name > '',' ', '') , ifnull(p.last_name, '')) like '%"+sqlSearch+"%') ";
+	    }
             sqlBuilder.append(extraCriteria);
-        }
+        
       
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);

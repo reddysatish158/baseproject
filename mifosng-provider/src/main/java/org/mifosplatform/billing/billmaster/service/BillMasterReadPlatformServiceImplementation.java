@@ -108,15 +108,16 @@ public class BillMasterReadPlatformServiceImplementation implements
 	        sqlBuilder.append(financialTransactionsMapper.financialTransactionsSchema());
 	    
 	        
-	        final String sqlSearch = searchTransactionHistory.getSqlSearch();
+	        String sqlSearch = searchTransactionHistory.getSqlSearch();
 	        String extraCriteria = "";
 		    if (sqlSearch != null) {
-		    	extraCriteria = " and v.transType like '%"+sqlSearch+"%' OR "
-		    				+ " v.transDate like '%"+sqlSearch+"%' " ;
+		    	sqlSearch=sqlSearch.trim();
+		    	extraCriteria = "and (v.transType like '%"+sqlSearch+"%' OR "
+		    				+ " v.transDate like '%"+sqlSearch+"%')" ;
 		    }
-		    else{
+		    
 	            sqlBuilder.append(extraCriteria);
-	        }
+	        
 
 
 	        if (searchTransactionHistory.isLimited()) {

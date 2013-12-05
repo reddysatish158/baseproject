@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.mifosplatform.billing.action.service.EventActionReadPlatformService;
+import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.hardwareplanmapping.data.HardwarePlanData;
 import org.mifosplatform.billing.hardwareplanmapping.domain.HardwarePlanMapper;
 import org.mifosplatform.billing.hardwareplanmapping.domain.HardwarePlanMapperRepository;
@@ -54,7 +55,14 @@ public class HardwarePlanWritePlatformServiceImpl implements HardwarePlanWritePl
 			 this.context.authenticatedUser();
 		     this.fromApiJsonDeserializer.validateForCreate(command.json());
 		     HardwarePlanMapper harwarePlan=HardwarePlanMapper.fromJson(command);
-              List<HardwarePlanData> datas=this.hardwarePlanReadPlatformService.retrieveItems(harwarePlan.getItemCode()); 
+              List<HardwarePlanData> datas=this.hardwarePlanReadPlatformService.retrieveItems(harwarePlan.getItemCode());
+              for(HardwarePlanData data:datas){
+            	  
+            	   if(data.getplanCode().equalsIgnoreCase(harwarePlan.getPlanCode())){
+            		  throw new ItemCodeDuplicateException(harwarePlan.getPlanCode());   
+            	   }
+            	  
+              }
 			 this.hardwarePlanMapperRepository.save(harwarePlan);
 			return new CommandProcessingResult(Long.valueOf(harwarePlan.getId()));
 
