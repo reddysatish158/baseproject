@@ -22,7 +22,7 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 
 @Entity
-@Table(name = "b_plan_master", uniqueConstraints = @UniqueConstraint(name = "plan_code_key", columnNames = { "plan_code" }))
+@Table(name = "b_plan_master", uniqueConstraints = {@UniqueConstraint(name = "uplan_code_key", columnNames = { "plan_code" }),@UniqueConstraint(name = "plan_description", columnNames = { "plan_description" })})
 public class Plan{
 
 

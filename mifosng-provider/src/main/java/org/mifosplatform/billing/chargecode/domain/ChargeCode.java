@@ -14,7 +14,7 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 
 
 @Entity
-@Table(name = "b_charge_codes", uniqueConstraints = @UniqueConstraint(name = "chargecode", columnNames = { "charge_code" }))
+@Table(name = "b_charge_codes", uniqueConstraints = {@UniqueConstraint(name = "chargecode", columnNames = { "charge_code" }),@UniqueConstraint(name = "charge_description", columnNames = { "charge_description" })})
 public class ChargeCode extends AbstractPersistable<Long>  {
 	/**
 	 * 

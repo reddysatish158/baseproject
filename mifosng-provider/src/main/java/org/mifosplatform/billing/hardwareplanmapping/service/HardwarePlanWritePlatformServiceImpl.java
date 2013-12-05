@@ -55,16 +55,6 @@ public class HardwarePlanWritePlatformServiceImpl implements HardwarePlanWritePl
 		     this.fromApiJsonDeserializer.validateForCreate(command.json());
 		     HardwarePlanMapper harwarePlan=HardwarePlanMapper.fromJson(command);
               List<HardwarePlanData> datas=this.hardwarePlanReadPlatformService.retrieveItems(harwarePlan.getItemCode()); 
-              
-              for(HardwarePlanData hardwarePlanData:datas){
-            	  
-            	  if(hardwarePlanData.getItemCode().equalsIgnoreCase(harwarePlan.getItemCode())){
-            		  
-            		  throw new ItemCodeDuplicateException(harwarePlan.getItemCode());
-            	  }
-              }
-                 
-		     
 			 this.hardwarePlanMapperRepository.save(harwarePlan);
 			return new CommandProcessingResult(Long.valueOf(harwarePlan.getId()));
 
