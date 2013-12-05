@@ -30,10 +30,11 @@ import org.mifosplatform.useradministration.domain.RoleRepository;
 import org.mifosplatform.useradministration.domain.UserDomainService;
 import org.mifosplatform.useradministration.exception.RoleNotFoundException;
 import org.mifosplatform.useradministration.exception.UserNotFoundException;
-import org.mifosplatform.useradministration.serialization.UserCommandFromApiJsonDeserializerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,12 +51,12 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
     private final AppUserRepository appUserRepository;
     private final OfficeRepository officeRepository;
     private final RoleRepository roleRepository;
-    private final UserCommandFromApiJsonDeserializerHelper fromApiJsonDeserializer;
+    private final UserDataValidator fromApiJsonDeserializer;
 
     @Autowired
     public AppUserWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context, final AppUserRepository appUserRepository,
             final UserDomainService userDomainService, final OfficeRepository officeRepository, final RoleRepository roleRepository,
-            final PlatformPasswordEncoder platformPasswordEncoder, final UserCommandFromApiJsonDeserializerHelper fromApiJsonDeserializer) {
+            final PlatformPasswordEncoder platformPasswordEncoder, final UserDataValidator fromApiJsonDeserializer) {
         this.context = context;
         this.appUserRepository = appUserRepository;
         this.userDomainService = userDomainService;
@@ -67,10 +68,13 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "users", allEntries = true),
+            @CacheEvict(value = "usersByUsername", allEntries = true)})
     public CommandProcessingResult createUser(final JsonCommand command) {
 
         try {
-            context.authenticatedUser();
+            this.context.authenticatedUser();
 
             this.fromApiJsonDeserializer.validateForCreate(command.json());
 
@@ -84,22 +88,23 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
             final Set<Role> allRoles = assembleSetOfRoles(roles);
 
             final AppUser appUser = AppUser.fromJson(userOffice, allRoles, command);
-            this.userDomainService.create(appUser);
+            final Boolean sendPasswordToEmail = command.booleanObjectValueOfParameterNamed("sendPasswordToEmail");
+            this.userDomainService.create(appUser, sendPasswordToEmail);
 
             return new CommandProcessingResultBuilder() //
                     .withCommandId(command.commandId()) //
                     .withEntityId(appUser.getId()) //
                     .withOfficeId(userOffice.getId()) //
                     .build();
-        } catch (DataIntegrityViolationException dve) {
+        } catch (final DataIntegrityViolationException dve) {
             handleDataIntegrityIssues(command, dve);
             return CommandProcessingResult.empty();
-        } catch (PlatformEmailSendException e) {
+        } catch (final PlatformEmailSendException e) {
             final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
 
             final String email = command.stringValueOfParameterNamed("email");
-            ApiParameterError error = ApiParameterError.parameterError("error.msg.user.email.invalid", "The parameter email is invalid.",
-                    "email", email);
+            final ApiParameterError error = ApiParameterError.parameterError("error.msg.user.email.invalid",
+                    "The parameter email is invalid.", "email", email);
             dataValidationErrors.add(error);
 
             throw new PlatformApiDataValidationException("validation.msg.validation.errors.exist", "Validation errors exist.",
@@ -109,10 +114,13 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "users", allEntries = true),
+            @CacheEvict(value = "usersByUsername", allEntries = true)})
     public CommandProcessingResult updateUser(final Long userId, final JsonCommand command) {
 
         try {
-            context.authenticatedUser();
+            this.context.authenticatedUser();
 
             this.fromApiJsonDeserializer.validateForUpdate(command.json());
 
@@ -145,7 +153,7 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
                     .withOfficeId(userToUpdate.getOffice().getId()) //
                     .with(changes) //
                     .build();
-        } catch (DataIntegrityViolationException dve) {
+        } catch (final DataIntegrityViolationException dve) {
             handleDataIntegrityIssues(command, dve);
             return CommandProcessingResult.empty();
         }
@@ -156,7 +164,7 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
         final Set<Role> allRoles = new HashSet<Role>();
 
         if (!ObjectUtils.isEmpty(rolesArray)) {
-            for (String roleId : rolesArray) {
+            for (final String roleId : rolesArray) {
                 final Long id = Long.valueOf(roleId);
                 final Role role = this.roleRepository.findOne(id);
                 if (role == null) { throw new RoleNotFoundException(id); }
@@ -169,6 +177,9 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "users", allEntries = true),
+            @CacheEvict(value = "usersByUsername", allEntries = true)})
     public CommandProcessingResult deleteUser(final Long userId) {
 
         final AppUser user = this.appUserRepository.findOne(userId);
@@ -186,10 +197,11 @@ public class AppUserWritePlatformServiceJpaRepositoryImpl implements AppUserWrit
      */
     private void handleDataIntegrityIssues(final JsonCommand command, final DataIntegrityViolationException dve) {
 
-        Throwable realCause = dve.getMostSpecificCause();
+        final Throwable realCause = dve.getMostSpecificCause();
         if (realCause.getMessage().contains("username_org")) {
             final String username = command.stringValueOfParameterNamed("username");
-            StringBuilder defaultMessageBuilder = new StringBuilder("User with username ").append(username).append(" already exists.");
+            final StringBuilder defaultMessageBuilder = new StringBuilder("User with username ").append(username)
+                    .append(" already exists.");
             throw new PlatformDataIntegrityException("error.msg.user.duplicate.username", defaultMessageBuilder.toString(), "username",
                     username);
         }

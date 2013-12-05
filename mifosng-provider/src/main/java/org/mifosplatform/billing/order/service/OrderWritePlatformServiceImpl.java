@@ -9,7 +9,6 @@ import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.billing.association.data.AssociationData;
-import org.mifosplatform.billing.association.domain.PlanHardwareMapping;
 import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
