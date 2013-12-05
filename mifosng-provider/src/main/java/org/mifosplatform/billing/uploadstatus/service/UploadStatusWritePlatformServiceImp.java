@@ -394,14 +394,12 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						final CommandWrapper commandRequest = new CommandWrapperBuilder().createEpgXsls(1L).withJson(jsonObject.toString().toString()).build();
 						final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 					    if(result!=null){
-					    	//Long rsId = result.resourceId();
-					    	//errorData.add(new MRNErrorData((long)i, row.getCell(2).getStringCellValue(), (long)row.getCell(1).getNumericCellValue(), row.getCell(0).getDateCellValue()));
-						    errorData.add(new MRNErrorData((long)i,"Success"));
+					    	errorData.add(new MRNErrorData((long)i,"Success"));
 						    processRecordCount++;
 					    }
-						
-						//System.out.println(i);
-					} catch (PlatformApiDataValidationException e) {
+					} catch(PlatformDataIntegrityException e){
+						errorData.add(new MRNErrorData((long)i, e.getParameterName()+" : "+e.getDefaultUserMessage()));
+					}catch (PlatformApiDataValidationException e) {
 						errorData.add(new MRNErrorData((long)i, e.getErrors().get(0).getParameterName()+" : "+e.getDefaultUserMessage()));
 					}catch (NullPointerException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
@@ -411,11 +409,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					}catch (IllegalStateException e) {
 						errorData.add(new MRNErrorData((long)i,e.getMessage()));
 					}catch (Exception e) {
-						if(e.getMessage().equalsIgnoreCase("null") || e.getMessage() == null){
-							errorData.add(new MRNErrorData((long)i, "Error: Foreign Key Constraint"));
-						}else{
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
-						}
 						
 					}
 				}
@@ -512,7 +506,9 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					    }
 						
 						
-					} catch (PlatformApiDataValidationException e) {
+					}catch(PlatformDataIntegrityException e){
+						errorData.add(new MRNErrorData((long)i, e.getParameterName()+" : "+e.getDefaultUserMessage()));
+					}catch (PlatformApiDataValidationException e) {
 						errorData.add(new MRNErrorData((long)i, e.getErrors().get(0).getParameterName()+" : "+e.getDefaultUserMessage()));
 					}catch (NullPointerException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
@@ -591,7 +587,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 
 						}
 					
-						System.out.println(v.elementAt(0).toString());
+						//System.out.println(v.elementAt(0).toString());
 						if(v.elementAt(0).toString().equalsIgnoreCase("EOF"))
 						{
 							long unprocessedRecords=totalRecords-processRecords;
@@ -697,11 +693,11 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		catch (Exception e) {
 			//writeXLSXFile(filePath);
 			unprocessRecords++;
-			System.out.println("exceptuon"+e);
+			//System.out.println("exceptuon"+e);
 			errormessage=UploadStatusEnum.ERROR.toString();
 		 
 		   resultStatus="Failure";
-		System.out.println(e.toString());
+		   //System.out.println(e.toString());
 		  
 		   
 		
@@ -807,7 +803,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						
 					//	ItemDetailsCommand itemDetailsCommand=new ItemDetailsCommand();
 						
-						System.out.println(v.elementAt(0).toString());
+						//System.out.println(v.elementAt(0).toString());
 						if(v.elementAt(0).toString().equalsIgnoreCase("EOF"))
 						{
 							break;
@@ -903,13 +899,13 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		} 
 		catch (Exception e) {
 			//writeXLSXFile(filePath);
-			System.out.println("exceptuon"+e);
+			//System.out.println("exceptuon"+e);
 			processStatus=UploadStatusEnum.ERROR.toString();
 	       e.printStackTrace();
 	       resultStatus=UploadStatusEnum.ERROR.toString();
 	       
 			
-			System.out.println("exception method");
+			//System.out.println("exception method");
 			if(e.toString().contains("ClientNotFoundException"))
 			{
 			errormessage="Client with this id does not exist";
