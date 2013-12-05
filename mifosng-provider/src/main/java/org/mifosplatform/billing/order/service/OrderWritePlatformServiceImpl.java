@@ -425,6 +425,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if(orderDetails == null){
 				throw new NoOrdersFoundException(command.entityId());
 			}
+			
+			List<OrderPrice>  orderPrices=orderDetails.getPrice();
+			
 		    final Long contractPeriod = command.longValueOfParameterNamed("renewalPeriod");
 		    
 		    Contract contractDetails=this.subscriptionRepository.findOne(contractPeriod);
@@ -435,7 +438,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    LocalDate newStartdate=new LocalDate(orderDetails.getEndDate());
 		    LocalDate topUpDate=new LocalDate();
 		    newStartdate=newStartdate.plusDays(1);
-		    if(plan.isPrepaid() == 'Y'){
+		   /* if(plan.isPrepaid() == 'Y'){
 		    	  
 		    	  if(topUpDate.isAfter(newStartdate)){
 		    		  newStartdate=topUpDate;
@@ -444,11 +447,19 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    		  int days=Days.daysBetween(topUpDate, newStartdate).getDays();
 		    		   newStartdate=newStartdate.plusDays(days);
 		    	  }
-		    }
+		    }*/
 		    
 		 
 		    LocalDate renewalEndDate=calculateEndDate(newStartdate,contractDetails);
 		      orderDetails.setEndDate(renewalEndDate);
+		      
+		      
+                  for(OrderPrice orderprice:orderPrices){
+                	  orderprice.setBillEndDate(renewalEndDate);
+                	  this.OrderPriceRepository.save(orderprice);
+                       //OrderPrice price=this.OrderPriceRepository.findOne(orderprice.)
+                	  
+                  }
 		      
 		      this.orderRepository.save(orderDetails);
 		      

@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -62,7 +63,7 @@ public class OrderPrice extends AbstractAuditableCustom<AppUser, Long> {
 	@Column(name = "tax_inclusive")
 	private  boolean taxInclusive;
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "order_id", insertable = true, updatable = true, nullable = true, unique = true)
 	private Order orders;
  
@@ -235,6 +236,14 @@ public class OrderPrice extends AbstractAuditableCustom<AppUser, Long> {
 
 		this.orderDiscount=orderDiscount;
 	}
+
+	public void setBillEndDate(LocalDate newStartdate) {
+
+		 this.billEndDate=newStartdate.toDate();
+		
+	}
+
+
 
 
 }

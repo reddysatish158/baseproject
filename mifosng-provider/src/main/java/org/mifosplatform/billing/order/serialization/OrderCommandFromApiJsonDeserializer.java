@@ -31,7 +31,7 @@ public final class OrderCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode","contractPeriod",
-    		"billAlign","price","description","renewalPeriod","disconnectReason"));
+    		"billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired

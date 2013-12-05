@@ -81,8 +81,7 @@ public class ProcessRequestReadplatformServiceImpl implements ProcessRequestRead
 				try {
 					
 					  
-			        final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
-			        ThreadLocalContextUtil.setTenant(tenant);
+			     
 			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
 					final ClientOrderMapper mapper = new ClientOrderMapper();
 
