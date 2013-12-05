@@ -867,4 +867,13 @@ public class CommandWrapper {
 		public boolean isUpdateDeAssociation() {
 			return this.actionName.equalsIgnoreCase("DEASSOCIATION");
 		}
+		
+		public boolean isPaymentGatewayResource() {
+			return this.entityName.equalsIgnoreCase("PAYMENTGATEWAY");
+		}
+
+		public boolean isCreatePaymentGateway() {
+			return this.actionName.equalsIgnoreCase("CREATE");
+		}
+		
 }

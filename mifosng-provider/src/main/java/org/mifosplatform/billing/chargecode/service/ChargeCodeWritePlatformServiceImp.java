@@ -59,6 +59,11 @@ public class ChargeCodeWritePlatformServiceImp implements ChargeCodeWritePlatfor
 			 throw new PlatformDataIntegrityException("error.msg.chargecode.duplicate.name", "A code with name'"
 	                    + command.stringValueOfParameterNamed("chargecode") + "'already exists", "displayName", command.stringValueOfParameterNamed("chargecode"));
 		}
+		
+		if(realCause.getMessage().contains("charge_description")){
+			 throw new PlatformDataIntegrityException("error.msg.description.duplicate.name", "A description with name'"
+	                    + command.stringValueOfParameterNamed("charge_description") + "'already exists", "displayName", command.stringValueOfParameterNamed("charge_description"));
+		}
 		logger.error(dve.getMessage(), dve);
 	}
 

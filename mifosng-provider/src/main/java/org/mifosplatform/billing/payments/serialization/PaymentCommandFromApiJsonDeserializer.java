@@ -36,7 +36,7 @@ public class PaymentCommandFromApiJsonDeserializer {
 			Arrays.asList("id", "clientId", "paymentDate", "paymentCode",
 					"amountPaid", "statmentId", "externalId", "dateFormat",
 					"locale", "remarks","receiptNo","chequeNo","chequeDate","bankName","branchName",
-					"isChequeSelected"));
+					"isChequeSelected","txn_id"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 

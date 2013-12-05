@@ -161,17 +161,20 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
         sqlBuilder.append(mapper.userTicketSchema());
         sqlBuilder.append(" where tckt.id IS NOT NULL ");
         
-        final String sqlSearch = searchTicketMaster.getSqlSearch();
+        String sqlSearch = searchTicketMaster.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and (select display_name from m_client where id = tckt.client_id) like '%"+sqlSearch+"%' OR" 
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and ((select display_name from m_client where id = tckt.client_id) like '%"+sqlSearch+"%' OR" 
 	    			+ " (select mcv.code_value from m_code_value mcv where mcv.id = tckt.problem_code) like '%"+sqlSearch+"%' OR"
 	    			+ " tckt.status like '%"+sqlSearch+"%' OR"
-	    			+ " (select user.username from m_appuser user where tckt.assigned_to = user.id) like '%"+sqlSearch+"%'";
+	    			+ " (select user.username from m_appuser user where tckt.assigned_to = user.id) like '%"+sqlSearch+"%')";
 	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
+	    sqlBuilder.append(extraCriteria);
+	    
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
-        }
+        }*/
 
 
         if (searchTicketMaster.isLimited()) {

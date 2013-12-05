@@ -82,7 +82,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 			return " pr.id AS id,pr.client_id AS clientId,pr.order_id AS orderId,pr.provisioning_sys AS provisioningSystem,c.firstname AS userName," +
 					"p.is_hw_req as hwRequired,pw.plan_code AS planName,pr.request_type AS requestType FROM b_prepare_request pr,m_client c,b_hw_plan_mapping pw," +
 					" b_orders o, b_plan_master p WHERE pr.client_id = c.id AND o.plan_id =p.id and p.plan_code = pw.plan_code AND pr.order_id = o.id" +
-					" AND (pr.is_provisioning = 'N' OR pr.status = 'PENDING') group by pr.order_id";
+
+					" AND (pr.is_provisioning = 'N' OR pr.status = 'PENDING')  group by pr.order_id";
+
 			}
 
 			@Override

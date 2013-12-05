@@ -81,18 +81,21 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
         sqlBuilder.append(sql);
         sqlBuilder.append(" where g.id IS NOT NULL ");
         
-        final String sqlSearch = searchGrn.getSqlSearch();
+        String sqlSearch = searchGrn.getSqlSearch();
         String extraCriteria = "";
 	    if (sqlSearch != null) {
-	    	extraCriteria = " and f.name like '%"+sqlSearch+"%' OR" 
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and (f.name like '%"+sqlSearch+"%' OR" 
 	    			+ " g.id like '%"+sqlSearch+"%' OR"
 	    			+ " g.purchase_date like '%"+sqlSearch+"%' OR"
 	    			+ " s.supplier_description like '%"+sqlSearch+"%' OR"
-	    			+ " im.item_description like '%"+sqlSearch+"%'";
+	    			+ " im.item_description like '%"+sqlSearch+"%')";
 	    }
-        if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
-        }
+        
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
         
         sqlBuilder.append(" ORDER BY g.id ");
 

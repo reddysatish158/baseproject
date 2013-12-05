@@ -14,6 +14,7 @@ import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -103,4 +104,31 @@ private class PaymentsMapper implements RowMapper<PaymentData>{
 	   return new PaymentData(clientName,payMode,paymentDate,amountPaid,isDeleted,billNumber,receiptNumber);
 	  }
 	 }
+
+@Transactional
+@Override
+public Long getOnlinePaymode() {
+	try{
+		    context.authenticatedUser();
+			Mapper mapper = new Mapper();
+			String sql = "select id from m_code_value where code_value LIKE 'Online%payment'";
+			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {});
+			
+	}catch (final EmptyResultDataAccessException e) {
+		return null;
+	}
+}
+
+private static final class Mapper implements RowMapper<Long> {
+	
+	@Override
+	public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+		Long id = rs.getLong("id");
+		return id; 
+	}
+
+}
+
+
+
 }
