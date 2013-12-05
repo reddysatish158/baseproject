@@ -101,50 +101,34 @@ public class EpgProgramGuide extends AbstractAuditableCustom<AppUser, Long>{
 		
 		
 
-		
-		String programDateString = command.stringValueOfParameterNamed("programDate");
 		Date programDate = null;
-		
-		if(id<1){
-			DateFormat df0 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-			programDate = df0.parse(programDateString);
-		}else{
-			DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-			programDate = (Date)formatter.parse(programDateString);
-		}
-		
-		
 		Date startTime = null;
+		Date stopTime = null;
+		String programDateString = command.stringValueOfParameterNamed("programDate");
+		String stopProgramTime = command.stringValueOfParameterNamed("stopTime");
 		String startProgramTime = command.stringValueOfParameterNamed("startTime");
 		
-		if(id<1){
-				DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				startTime = df1.parse(startProgramTime);
+		if(id == null || id<1){
+			DateFormat df0 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			programDate = df0.parse(programDateString);
+			DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			startTime = df1.parse(startProgramTime);
+			DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			stopTime = df2.parse(stopProgramTime);
 		}else{
-				DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-				startTime = (Date) formatter.parse(startProgramTime);
+			DateFormat formatter1 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+			programDate = (Date)formatter1.parse(programDateString);
+			DateFormat formatter2 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+			startTime = (Date) formatter2.parse(startProgramTime);
+			DateFormat formatter3 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+			stopTime = (Date) formatter3.parse(stopProgramTime);
 		}
-		
-		
-		Date stopTime = null;
-		String stopProgramTime = command.stringValueOfParameterNamed("stopTime");
-		
-		if(id<1){
-				DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				stopTime = df2.parse(stopProgramTime);
-		}else{
-				DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-				stopTime = (Date) formatter.parse(stopProgramTime);
-		}
-		
 		
 		String programTitle = command.stringValueOfParameterNamed("programTitle");
 		String programDescription = command.stringValueOfParameterNamed("programDescription");
 		String type = command.stringValueOfParameterNamed("type");
 		String genre = command.stringValueOfParameterNamed("genre");
-		if(id>0){
-			
-		}
+		
 		return new EpgProgramGuide(channelName, channelIcon, programDate, startTime, stopTime, programTitle, programDescription, type, genre);
 		}catch(Exception e){
 			throw new PlatformDataIntegrityException(e.getMessage(), e.getMessage(), e.getMessage());
