@@ -59,9 +59,9 @@ public class ClientProspectApiResource {
 	final private AddressReadPlatformService addressReadPlatformService;
 	final private ToApiJsonSerializer<ClientProspectData> apiJsonSerializerString;
 	
-	final private Set<String> PROSPECT_RESPONSE_DATA_PARAMETER = new HashSet<String>(Arrays.asList("id","type","firstName","middleName","lastName","homePhoneNumber","workPhoneNumber","mobileNumber","email","sourceOfPublicity","preferredCallingTime","note","address","area","district","region","city","plan","status","callStatus","assignedTo","notes","zipCode"));
-	final private Set<String> PROSPECTDETAIL_RESPONSE_DATA_PARAMETER = new HashSet<String>(Arrays.asList("prospectId","callStatus","assignedTo","notes","locale"));
-	final private Set<String> PROSPECTDETAILREMARK_RESPONSE_DATA_PARAMETER = new HashSet<String>(Arrays.asList("statusRemark","statusRemarkId"));
+	final private Set<String> PROSPECT_RESPONSE_DATA_PARAMETER = new HashSet<String>(Arrays.asList("id","type","firstName","middleName","lastName","homePhoneNumber","workPhoneNumber","mobileNumber","email","address","area","district","city","region","zipCode","sourceOfPublicity","plan","preferredCallingTime","note","status","callStatus","assignedTo","notes"));
+	final private Set<String> PROSPECTDETAIL_RESPONSE_DATA_PARAMETER = new HashSet<String>(Arrays.asList("callStatus","preferredCallingTime","assignedTo","notes","locale","prospectId"));
+	final private Set<String> PROSPECTDETAILREMARK_RESPONSE_DATA_PARAMETER = new HashSet<String>(Arrays.asList("statusRemarkId","statusRemark"));
 	
 	final private ToApiJsonSerializer<ClientProspectData> apiJsonSerializer;
 	final private ToApiJsonSerializer<ProspectDetailData> apiJsonSerializerForProspectDetail;
@@ -137,7 +137,7 @@ public class ClientProspectApiResource {
 		clientProspectData.setCallStatusData(callStatusData);
 		clientProspectData.setAssignedToData(assignedToData);
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        return this.apiJsonSerializerForProspectDetail.serialize(settings, clientProspectData,PROSPECT_RESPONSE_DATA_PARAMETER);
+        return this.apiJsonSerializerForProspectDetail.serialize(settings, clientProspectData,PROSPECTDETAIL_RESPONSE_DATA_PARAMETER);
 	}
 		
 	@GET

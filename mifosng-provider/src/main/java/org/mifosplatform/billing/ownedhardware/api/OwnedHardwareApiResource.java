@@ -45,7 +45,7 @@ public class OwnedHardwareApiResource {
 
 	private String resourceType = "OWNEDHARDWARE";
 	
-	private static final Set<String> SUPPORTED_RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("id","clientId","serialNumber","provisioningSerialNumber","status","itemType","allocationDate","locale","dateFormat"));
+	private static final Set<String> SUPPORTED_RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("id","clientId","allocationDate","itemType","serialNumber","provisioningSerialNumber","status","locale","dateFormat"));
 	private static final Set<String> SUPPORTED_RESPONSE_PARAMETERS_ITEMCODE = new HashSet<String>(Arrays.asList("id","itemDescription"));
 	
 	private PlatformSecurityContext context; 
