@@ -47,7 +47,7 @@ public class EpgProgramGuideWritePlatformServiceImp implements
 
 		}catch(DataIntegrityViolationException dve){
 			handleDataIntegrityIssues(command, dve);
-			throw new PlatformDataIntegrityException("Data not saved-1","Data not saved-2","Data not saved-3");
+			throw new PlatformDataIntegrityException("data.integrity.violation.exception","data.integrity.violation.exception","data.integrity.violation.exception");
 		}
 		return new CommandProcessingResultBuilder().withCommandId(1L).withEntityId(epgProgramGuide.getId()).build();
 	}
@@ -55,9 +55,11 @@ public class EpgProgramGuideWritePlatformServiceImp implements
 	private void handleDataIntegrityIssues(final JsonCommand element, final DataIntegrityViolationException dve) {
 
         Throwable realCause = dve.getMostSpecificCause();
+        String var = realCause.getMessage();
        if (realCause.getMessage().contains("serial_no_constraint")){
        	throw new PlatformDataIntegrityException("validation.error.msg.inventory.item.duplicate.serialNumber", "validation.error.msg.inventory.item.duplicate.serialNumber", "validation.error.msg.inventory.item.duplicate.serialNumber","");
-       	
+       }else if(realCause.getMessage().contains("servicecodes")){
+    	   throw new PlatformDataIntegrityException("foreign.key.constraint.service.code", "Foreign Key Constraint", "channelName","");   	
        }
 
 

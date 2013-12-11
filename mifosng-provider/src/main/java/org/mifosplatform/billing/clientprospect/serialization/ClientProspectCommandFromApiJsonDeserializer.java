@@ -52,11 +52,25 @@ public class ClientProspectCommandFromApiJsonDeserializer {
 	        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("client.prospect");
 	        final JsonElement element = fromApiJsonHelper.parse(json);
 	        
+	        final Integer prospectType = fromApiJsonHelper.extractIntegerWithLocaleNamed("prospectType", element);
+		    baseDataValidator.reset().parameter("prospectType").value(prospectType).notBlank().integerGreaterThanZero();
+		     
 	        final String firstName = fromApiJsonHelper.extractStringNamed("firstName", element);
 	        baseDataValidator.reset().parameter("firstName").value(firstName).notBlank().notExceedingLengthOf(50);
 	        
 	        final String lastName = fromApiJsonHelper.extractStringNamed("lastName", element);
 	        baseDataValidator.reset().parameter("lastName").value(lastName).notBlank().notExceedingLengthOf(50);
+	        
+	        final String homePhoneNumber = fromApiJsonHelper.extractStringNamed("homePhoneNumber", element);
+	        baseDataValidator.reset().parameter("homePhoneNumber").value(homePhoneNumber).notBlank().notExceedingLengthOf(20);
+	        final String workPhoneNumber = fromApiJsonHelper.extractStringNamed("workPhoneNumber", element);
+	        baseDataValidator.reset().parameter("workPhoneNumber").value(workPhoneNumber).notBlank().notExceedingLengthOf(20);
+	        final String mobileNumber = fromApiJsonHelper.extractStringNamed("mobileNumber", element);
+	        baseDataValidator.reset().parameter("mobileNumber").value(mobileNumber).notBlank().notExceedingLengthOf(20);
+	        
+	        final String email = fromApiJsonHelper.extractStringNamed("email", element);
+	        baseDataValidator.reset().parameter("email").value(email).notBlank().notExceedingLengthOf(100);
+	        
 	        final String address = fromApiJsonHelper.extractStringNamed("address", element);
 	        baseDataValidator.reset().parameter("address").value(address).notBlank().notExceedingLengthOf(100);
 	        final String streetArea = fromApiJsonHelper.extractStringNamed("streetArea", element);
@@ -67,27 +81,23 @@ public class ClientProspectCommandFromApiJsonDeserializer {
 	        baseDataValidator.reset().parameter("state").value(state).notBlank().notExceedingLengthOf(100);
 	        final String country = fromApiJsonHelper.extractStringNamed("country", element);
 	        baseDataValidator.reset().parameter("country").value(country).notBlank().notExceedingLengthOf(100);
-	        final String note = fromApiJsonHelper.extractStringNamed("note", element);
-	        baseDataValidator.reset().parameter("note").value(note).notBlank().notExceedingLengthOf(255);
-	        final String email = fromApiJsonHelper.extractStringNamed("email", element);
-	        baseDataValidator.reset().parameter("email").value(email).notBlank().notExceedingLengthOf(100);
+	        
 	        final String zipCode = fromApiJsonHelper.extractStringNamed("zipCode", element);
 	        baseDataValidator.reset().parameter("zipCode").value(zipCode).notBlank().notExceedingLengthOf(45);
-	        final String mobileNumber = fromApiJsonHelper.extractStringNamed("mobileNumber", element);
-	        baseDataValidator.reset().parameter("mobileNumber").value(mobileNumber).notBlank().notExceedingLengthOf(20);
-	        final String homePhoneNumber = fromApiJsonHelper.extractStringNamed("homePhoneNumber", element);
-	        baseDataValidator.reset().parameter("homePhoneNumber").value(homePhoneNumber).notBlank().notExceedingLengthOf(20);
-	        final String workPhoneNumber = fromApiJsonHelper.extractStringNamed("workPhoneNumber", element);
-	        baseDataValidator.reset().parameter("workPhoneNumber").value(workPhoneNumber).notBlank().notExceedingLengthOf(20);
-	        final String middleName = fromApiJsonHelper.extractStringNamed("middleName", element);
-	        baseDataValidator.reset().parameter("middleName").value(middleName).notExceedingLengthOf(50);
+	        
 	        final String sourceOfPublicity = fromApiJsonHelper.extractStringNamed("sourceOfPublicity", element);
 	        baseDataValidator.reset().parameter("sourceOfPublicity").value(sourceOfPublicity).notExceedingLengthOf(50);
 	        final String preferredPlan = fromApiJsonHelper.extractStringNamed("preferredPlan", element);
 	        baseDataValidator.reset().parameter("preferredPlan").value(preferredPlan).notExceedingLengthOf(50);
 	        
-	        final Integer prospectType = fromApiJsonHelper.extractIntegerWithLocaleNamed("prospectType", element);
-		     baseDataValidator.reset().parameter("prospectType").value(prospectType).notBlank().integerGreaterThanZero();
+	        final String note = fromApiJsonHelper.extractStringNamed("note", element);
+	        baseDataValidator.reset().parameter("note").value(note).notBlank().notExceedingLengthOf(255);
+
+
+	        
+	        final String middleName = fromApiJsonHelper.extractStringNamed("middleName", element);
+	        baseDataValidator.reset().parameter("middleName").value(middleName).notExceedingLengthOf(50);
+
 
 			
 			
@@ -121,10 +131,10 @@ public class ClientProspectCommandFromApiJsonDeserializer {
 	        
 	        
 	        
-	        baseDataValidator.reset().parameter("assignedTo").value(assignedTo).notBlank();
 	        baseDataValidator.reset().parameter("callStatus").value(callStatus).notNull();
-	        baseDataValidator.reset().parameter("notes").value(notes).notBlank();
+	        baseDataValidator.reset().parameter("assignedTo").value(assignedTo).notBlank();
 	        baseDataValidator.reset().parameter("preferredCallingTime").value(preferredCallingTime).notBlank();
+	        baseDataValidator.reset().parameter("notes").value(notes).notBlank();
 			
 		
 			
