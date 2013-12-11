@@ -17,6 +17,10 @@ public interface SheduleJobWritePlatformService {
 	void processingMessages();
 
 	void processingAutoExipryOrders();
+	
+	void processNotify();
+
+	void processMiddleware();
 
 	//void newJob();
 

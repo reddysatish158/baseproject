@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.entitlements.data.EntitlementsData;
+import org.mifosplatform.billing.entitlements.data.StakerData;
 import org.mifosplatform.billing.entitlements.service.EntitlementReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
@@ -36,8 +37,8 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class EntitlementsApiResource {
 
-	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id,prepareReqId,product,requestType,hardwareId,provisioingSystem,serviceId"));
-    private final String resourceNameForPermissions = "CREATE_Entitlement";
+	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id,prepareReqId,product,requestType,hardwareId,provisioingSystem,serviceId,results,error,status"));
+    private final String resourceNameForPermissions = "CREATE_ENTITLEMENT";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<EntitlementsData> toApiJsonSerializer;
    private final ApiRequestParameterHelper apiRequestParameterHelper;
@@ -78,6 +79,25 @@ public class EntitlementsApiResource {
 		   return this.toApiJsonSerializer.serialize(result);
 		}
 
+	@GET
+	@Path("/staker")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+   public String retrieveDeviceData(@Context final UriInfo uriInfo)
+	{
+	        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	        StakerData data=this.entitlementReadPlatformService.getData();
+	        EntitlementsData datas=new EntitlementsData();
+	        if(data==null){
+	        	 datas.setStatus("ERROR");
+	        	 datas.setError("Does not have any orders");   
+	        }else{
+	        datas.setStatus("OK");
+	        datas.setResults(data);  
+	        }
+	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	        return this.toApiJsonSerializer.serialize(settings, datas, RESPONSE_DATA_PARAMETERS);
+	}
 	
 	
 	
