@@ -13,4 +13,7 @@ public interface MessagePlatformEmailService {
 
     void sendToUserEmail(BillingMessageDataForProcessing emailDetail);
 
+	void sendToUserMobile(String message, Long id);
+	
+
 }
