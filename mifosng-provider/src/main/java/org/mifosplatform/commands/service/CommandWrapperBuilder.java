@@ -1831,4 +1831,12 @@ public CommandWrapperBuilder createPaymentGateway() {
 	return this;
 }
 
+public CommandWrapperBuilder cancelOneTimeSale(Long saleId) {
+	this.actionName = "DELETE";
+	this.entityName = "ONETIMESALE";
+	this.entityId = saleId;
+	this.href = "/onetimesale/"+saleId;
+	return this;
+}
+
 }

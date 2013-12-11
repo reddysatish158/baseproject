@@ -120,4 +120,20 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 		
 
 }
+	@Override
+	public CommandProcessingResult deleteOneTimeSale(JsonCommand command, Long entityId) {
+		
+		OneTimeSale oneTimeSale = null;
+		try{
+			oneTimeSale = oneTimeSaleRepository.findOne(entityId);
+			oneTimeSale.setIsDeleted('Y');
+			oneTimeSaleRepository.save(oneTimeSale);
+			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Delete One Time Sale", oneTimeSale.getSaleDate(),
+					"TotalPrice:"+oneTimeSale.getTotalPrice(),"Quantity:"+oneTimeSale.getQuantity(),"Units:"+oneTimeSale.getUnits(),"OneTimeSaleID:"+oneTimeSale.getId());
+			
+		}catch(DataIntegrityViolationException dve){
+			handleCodeDataIntegrityIssues(null, dve);
+		}
+		return new CommandProcessingResult(Long.valueOf(oneTimeSale.getId()));
+	}
 }
