@@ -28,7 +28,7 @@ import com.google.gson.JsonElement;
 public class MRNDetailsCommandFromApiJsonDeserializer {
 
 	private FromJsonHelper fromJsonHelper;
-	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("requestedDate","requestedTime","itemDescription","fromOffice","toOffice","orderdQuantity","status","locale","dateFormat","mrnId","serialNumber","movedDate"));
+	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("requestedDate","requestedTime","fromOffice","toOffice","itemDescription","orderdQuantity","status","locale","dateFormat","mrnId","serialNumber","movedDate"));
 	@Autowired
 	public MRNDetailsCommandFromApiJsonDeserializer(final FromJsonHelper fromJsonHelper) {
 		this.fromJsonHelper = fromJsonHelper;
@@ -71,10 +71,10 @@ public class MRNDetailsCommandFromApiJsonDeserializer {
 		final BigDecimal orderdQuantity = fromJsonHelper.extractBigDecimalNamed("orderdQuantity", element, fromJsonHelper.extractLocaleParameter(element.getAsJsonObject()));
 		final LocalDate requestedDate = fromJsonHelper.extractLocalDateNamed("requestedDate", element); 
 		
-		baseValidatorBuilder.reset().parameter("itemDescription").value(itemDescription).notBlank().notExceedingLengthOf(10);
-		//baseValidatorBuilder.reset().parameter("fromOffice").value(fromOffice).notBlank().notExceedingLengthOf(10);
 		baseValidatorBuilder.reset().parameter("fromOffice").value(fromOffice).notBlank().notExceedingLengthOf(10).notSameAsParameter("toOffice", toOffice);	
 		baseValidatorBuilder.reset().parameter("toOffice").value(toOffice).notBlank().notExceedingLengthOf(10);
+		baseValidatorBuilder.reset().parameter("itemDescription").value(itemDescription).notBlank().notExceedingLengthOf(10);
+		//baseValidatorBuilder.reset().parameter("fromOffice").value(fromOffice).notBlank().notExceedingLengthOf(10);
 		baseValidatorBuilder.reset().parameter("orderdQuantity").value(orderdQuantity).notBlank().notExceedingLengthOf(10).positiveAmount();
 		
         throwExceptionIfValidationWarningsExist(dataValidationErrors);

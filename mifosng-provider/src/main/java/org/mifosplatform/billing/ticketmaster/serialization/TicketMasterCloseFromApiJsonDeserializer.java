@@ -44,8 +44,17 @@ private final Set<String> supportedParameters = new HashSet<String>(Arrays.asLis
         
         final JsonElement element = fromApiJsonHelper.parse(json);
         
-        final Integer status= Integer.parseInt( fromApiJsonHelper.extractStringNamed("status", element));
-        final String resolutionDescription = fromApiJsonHelper.extractStringNamed("resolutionDescription", element);
+        Integer status = null;
+        String resolutionDescription = null;
+        
+        if(fromApiJsonHelper.parameterExists("status", element)){
+        	status= Integer.parseInt( fromApiJsonHelper.extractStringNamed("status", element));
+        }
+        if(fromApiJsonHelper.parameterExists("resolutionDescription", element)){
+        	resolutionDescription = fromApiJsonHelper.extractStringNamed("resolutionDescription", element);
+        }
+        
+        
         
 
         baseDataValidator.reset().parameter("status").value(status).notBlank().notExceedingLengthOf(100);
