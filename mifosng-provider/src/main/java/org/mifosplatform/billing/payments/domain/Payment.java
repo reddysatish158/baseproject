@@ -13,7 +13,6 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.useradministration.domain.AppUser;
-import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @SuppressWarnings("serial")
 @Entity

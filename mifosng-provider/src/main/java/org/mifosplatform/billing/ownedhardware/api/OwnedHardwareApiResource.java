@@ -1,8 +1,6 @@
 package org.mifosplatform.billing.ownedhardware.api;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,11 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.batchjob.data.BatchJobData;
-import org.mifosplatform.billing.batchjob.service.BatchJobReadPlatformService;
-import org.mifosplatform.billing.clientprospect.data.ProspectStatusRemarkData;
 import org.mifosplatform.billing.item.data.ItemData;
-import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardwareData;
 import org.mifosplatform.billing.ownedhardware.service.OwnedHardwareReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;

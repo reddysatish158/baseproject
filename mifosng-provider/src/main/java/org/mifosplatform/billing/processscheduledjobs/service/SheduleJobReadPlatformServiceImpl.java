@@ -128,7 +128,7 @@ public class SheduleJobReadPlatformServiceImpl implements SheduleJobReadPlatform
 					
 					private static final class SheduleJobParametersMapper implements RowMapper<JobParameters> {
 						public String sheduleLookupSchema() {
-						return " p.id as id,p.job_id as jobId,p.param_name as paramName,p.param_type as paramType,p.param_default_value as defaultValue," +
+						return "p.id as id,p.job_id as jobId,p.param_name as paramName,p.param_type as paramType,p.param_default_value as defaultValue," +
 								"p.param_value as paramValue,p.is_dynamic as isDynamic,p.query_values as queryValue from job_parameters p, job j " +
 								"where j.id=p.job_id  and j.name=?";
 						}

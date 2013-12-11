@@ -72,7 +72,9 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
         task.start();
 
         try {
-
+        	
+                  System.out.println(request.getPathInfo());
+                if(!request.getPathInfo().contentEquals("/epgprogramguide")){
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 // ignore to allow 'preflight' requests from AJAX applications
                 // in different origin (domain name)
@@ -92,7 +94,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
                 ThreadLocalContextUtil.setTenant(tenant);
             }
-
+                }
             super.doFilter(req, res, chain);
         } catch (InvalidTenantIdentiferException e) {
             // deal with exception at low level

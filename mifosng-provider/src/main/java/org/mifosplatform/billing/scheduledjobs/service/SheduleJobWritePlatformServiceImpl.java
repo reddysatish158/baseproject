@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.scheduledjobs.service;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.codehaus.jettison.json.JSONObject;
@@ -12,6 +13,7 @@ import org.mifosplatform.billing.message.service.BillingMessageDataWritePlatform
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.billing.processrequest.data.ProcessingDetailsData;
@@ -103,8 +105,15 @@ public class SheduleJobWritePlatformServiceImpl implements	SheduleJobWritePlatfo
 		    	 			// Get the Client Ids
 		    	 			for (Long clientId : clientIds) {
 		    	 				try {
+		    	 					
+		    	 					if(data.isDynamic().equalsIgnoreCase("Y")){
+		    	 						
+		    	 						this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+		    	 					}else{
+		    	 						this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());	
+		    	 					}
 
-		    	 					this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());
+		    	 					
 
 		    	 				} catch (Exception dve) {
 		    	 					handleCodeDataIntegrityIssues(null, dve);
@@ -225,7 +234,13 @@ public class SheduleJobWritePlatformServiceImpl implements	SheduleJobWritePlatfo
 						 JSONObject jsonobject = new JSONObject();
 						
 							DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy");
-							String formattedDate = formatter.print(data.getDueDate());
+							String formattedDate ;
+							if(data.isDynamic().equalsIgnoreCase("Y")){
+								formattedDate = formatter.print(new LocalDate());	
+							}else{
+								formattedDate = formatter.print(data.getDueDate());
+							}
+							
 
 							// System.out.println(formattedDate);
 							jsonobject.put("dueDate",formattedDate);
@@ -289,10 +304,16 @@ public class SheduleJobWritePlatformServiceImpl implements	SheduleJobWritePlatfo
                  if(data!=null){
                 	 
 			List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-			
+			LocalDate exipirydate=null;
+			if(data.isDynamic().equalsIgnoreCase("Y")){
+				exipirydate=new LocalDate();
+			}else{
+				exipirydate=data.getExipiryDate();
+			}
 			for (ScheduleJobData scheduleJobData : sheduleDatas) 
 			{
 				List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+				
 				for(Long clientId:clientIds)
 				{
 					
@@ -300,12 +321,20 @@ public class SheduleJobWritePlatformServiceImpl implements	SheduleJobWritePlatfo
 				
       			for (OrderData orderData : orderDatas) 
       			  {
-      		
-				    if (orderData.getEndDate().equals(new LocalDate()))
+      				
+      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
+      				 {
+      					
+				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
 				     {
 
+				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+				  		//System.out.println(dateFormat.format(localDate.toDate()));
 					JSONObject jsonobject = new JSONObject();
 					jsonobject.put("disconnectReason","Date Expired");
+					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+					jsonobject.put("dateFormat","dd MMMM yyyy");
+					jsonobject.put("locale","en");
 					final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
 
 					final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
@@ -314,6 +343,7 @@ public class SheduleJobWritePlatformServiceImpl implements	SheduleJobWritePlatfo
 				     }
 				}
 			}
+				}
 				}
 		}
 		
@@ -332,3 +362,4 @@ public class SheduleJobWritePlatformServiceImpl implements	SheduleJobWritePlatfo
 		System.out.println("This is new Job");
 	  }	 */		
 }
+

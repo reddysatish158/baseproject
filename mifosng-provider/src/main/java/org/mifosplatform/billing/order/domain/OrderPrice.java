@@ -237,9 +237,18 @@ public class OrderPrice extends AbstractAuditableCustom<AppUser, Long> {
 		this.orderDiscount=orderDiscount;
 	}
 
-	public void setBillEndDate(LocalDate newStartdate) {
+	public void setBillEndDate(LocalDate endDate) {
 
-		 this.billEndDate=newStartdate.toDate();
+		if(endDate!=null){
+		 this.billEndDate=endDate.toDate();
+		}else{
+			this.billEndDate=null;
+		}
+	}
+
+	public void setBillStartDate(LocalDate startDate) {
+	    
+		 this.billStartDate=startDate.toDate();
 		
 	}
 
