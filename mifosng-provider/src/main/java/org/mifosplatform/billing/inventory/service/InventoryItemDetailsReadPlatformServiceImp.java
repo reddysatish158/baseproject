@@ -81,6 +81,50 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 		
 	}
  
+	private class ItemDetailsMapper2 implements RowMapper<InventoryItemDetailsData>{
+
+		@Override
+		public InventoryItemDetailsData mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Long id = rs.getLong("id");
+			Long itemMasterId = rs.getLong("itemMasterId");
+			String serialNumber = rs.getString("serialNumber");
+			Long grnId = rs.getLong("grnId");
+			String provisioningSerialNumber = rs.getString("provisioningSerialNumber");
+			String quality= rs.getString("quality");
+			String status = rs.getString("status");
+			Long warranty = rs.getLong("warranty");
+			String remarks = rs.getString("remarks");
+			String itemDescription = rs.getString("itemDescription");
+			String supplier = rs.getString("supplier");
+			Long clientId = rs.getLong("clientId");
+			String officeName = rs.getString("officeName");
+			return new InventoryItemDetailsData(id,itemMasterId,serialNumber,grnId,provisioningSerialNumber,quality,status,warranty,remarks,itemDescription,supplier,clientId,officeName);
+		}
+		
+		public String schema(){
+			//String sql = "item.id as id,item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id";
+			String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, "
+					+ "item.serial_no as serialNumber, item.grn_id as grnId, "
+					+ "(select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,"
+					+ "item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, "
+					+ "item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, "
+					+ "item.client_id as clientId, "
+					+ "(select account_no from m_client where id = client_id) as accountNumber "
+					+ "from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id=office.id ";
+			
+			/*String sql = "SQL_CALC_FOUND_ROWS item.id as id, office.name as officeName,item.item_master_id as itemMasterId, "
+					+ "item.serial_no as serialNumber, item.grn_id as grnId, "
+					+ "(select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,"
+					+ "item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, "
+					+ "item.warranty as warranty, item.remarks as remarks, master.item_description as itemDescription, "
+					+ "item.client_id as clientId from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id "
+					+ "left outer join m_office office on item.office_id=office.id ";
+*/
+			
+			return sql;
+		}
+		
+	}
 
 	/*@Override
 	public Collection<InventoryItemDetailsData> retriveAllItemDetails() {
@@ -100,6 +144,7 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,
                 new Object[] {limit,offset}, itemDetails);
 	}*/
+
 
 	public Page<InventoryItemDetailsData> retriveAllItemDetails(SearchSqlQuery searchItemDetails) {	
 		// TODO Auto-generated method stub
@@ -275,7 +320,7 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 	public InventoryItemDetailsData retriveSingleItemDetail(Long itemId) {
 		try{
 		String sql = "select item.id as id,office.name as officeName, item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, (select warranty from b_item_master where id = item.item_master_id) as warranty, item.remarks as remarks, master.item_description as itemDescription, item.client_id as clientId from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id = office.id where item.id=?";
-		ItemDetailsMapper rowMapper = new ItemDetailsMapper();
+		ItemDetailsMapper2 rowMapper = new ItemDetailsMapper2();
 		return jdbcTemplate.queryForObject(sql, rowMapper,new Object[]{itemId});
 		}catch(EmptyResultDataAccessException accessException){
 			throw new PlatformDataIntegrityException("validation.error.msg.inventory.item.invalid.item.id", "validation.error.msg.inventory.item.invalid.item.id", "validation.error.msg.inventory.item.invalid.item.id","");
@@ -287,7 +332,7 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 		
 		context.authenticatedUser();
 		SerialNumberMapper rowMapper = new SerialNumberMapper();
-		String sql = "select idt.serial_no as serialNumber from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id where ots.id = ? and idt.client_id is null and idt.serial_no like '%"+query+"%' order by idt.id limit 20";
+		String sql = "select idt.serial_no as serialNumber from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id where ots.id = ? and idt.client_id is null and idt.serial_no like '%"+query+"%' and quality='Good' order by idt.id limit 20";
 		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{oneTimeSaleId});
 	}
 	@Override
