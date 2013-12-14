@@ -344,4 +344,57 @@ public String discountOrderSchema() {
 		}
 
 	}
+	 @Override
+	 public List<BillingOrderData> getReconnectionBillingOrderData(Long clientId,LocalDate reconnectionDate, Long orderId) {
+
+	  ReconnectionBillingOrderMapper billingOrderMapper = new ReconnectionBillingOrderMapper();
+	  String sql = "select " + billingOrderMapper.reconnectionSchema();
+	  return this.jdbcTemplate.query(sql, billingOrderMapper,
+	    new Object[] { clientId,orderId,reconnectionDate });
+	 }
+
+	 private static final class ReconnectionBillingOrderMapper implements
+	   RowMapper<BillingOrderData> {
+
+	  @Override
+	  public BillingOrderData mapRow(ResultSet resultSet, 
+	    @SuppressWarnings("unused") int rowNum) throws SQLException {
+	   
+	   Long clientOderId = resultSet.getLong("clientOrderId");
+	   Long orderPriceId = resultSet.getLong("orderPriceId");
+	   Long planId = resultSet.getLong("planId");
+	   Long clientId = resultSet.getLong("clientId");
+	   Date startDate = resultSet.getDate("startDate");
+	   Date nextBillableDate = resultSet.getDate("nextBillableDate");
+	   Date endDate = resultSet.getDate("endDate");
+	   String billingFrequency = resultSet.getString("billingFrequency");
+	   String chargeCode = resultSet.getString("chargeCode");
+	   String chargeType = resultSet.getString("chargeType");
+	   Integer chargeDuration = resultSet.getInt("chargeDuration");
+	   String durationType = resultSet.getString("durationType");
+	   Date invoiceTillDate = resultSet.getDate("invoiceTillDate");
+	   BigDecimal price = resultSet.getBigDecimal("price");
+	   String billingAlign = resultSet.getString("billingAlign");
+	   Date billStartDate = resultSet.getDate("billStartDate");
+	   Date billEndDate = resultSet.getDate("billEndDate");
+	   Long orderStatus = resultSet.getLong("orderStatus");
+	   Integer taxInclusive = resultSet.getInt("taxInclusive");
+	   
+	   return new BillingOrderData(clientOderId,orderPriceId,planId, clientId, startDate,nextBillableDate, endDate, billingFrequency,
+	     chargeCode,chargeType, chargeDuration, durationType, invoiceTillDate,price, billingAlign,billStartDate,billEndDate,orderStatus,
+	     taxInclusive,null);
+	  }
+
+	  public String reconnectionSchema() {
+
+	   return " co.id as clientOrderId,op.id AS orderPriceId,co.plan_id as planId,co.client_id AS clientId,co.start_date AS startDate,IFNULL(op.next_billable_day, co.start_date) AS nextBillableDate,"
+	     + "co.end_date AS endDate,co.billing_frequency AS billingFrequency,op.charge_code AS chargeCode,op.charge_type AS chargeType,"
+	     + "op.charge_duration AS chargeDuration,op.duration_type AS durationType,op.invoice_tilldate AS invoiceTillDate,op.price AS price,co.order_status as orderStatus,op.tax_inclusive as taxInclusive,"
+	     + "co.billing_align AS billingAlign,op.bill_start_date as billStartDate,Date_format(IFNULL(op.bill_end_date,'3099-12-31'), '%Y-%m-%d') AS billEndDate "
+	     + "FROM b_orders co left JOIN b_order_price op ON co.id = op.order_id"
+	     + " WHERE co.client_id = ? AND co.id = ? AND Date_format(IFNULL(op.invoice_tilldate, now()),'%Y-%m-%d') >= ?";
+	     
+	  }
+
+	 }
 }

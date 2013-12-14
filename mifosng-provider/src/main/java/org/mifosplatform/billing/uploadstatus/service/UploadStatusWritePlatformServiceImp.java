@@ -491,7 +491,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						jsonObject.put("locale","en");
 						totalRecordCount++;
 						context.authenticatedUser().validateHasReadPermission(EPG_RESOURCE_TYPE);
-						final CommandWrapper commandRequest = new CommandWrapperBuilder().createEpgXsls(1L).withJson(jsonObject.toString().toString()).build();
+						final CommandWrapper commandRequest = new CommandWrapperBuilder().createEpgXsls(0L).withJson(jsonObject.toString().toString()).build();
 						final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 						 if(result!=null){
 						    	//Long rsId = result.resourceId();
