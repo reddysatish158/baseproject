@@ -189,7 +189,8 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 		Long grnId = command.longValueOfParameterNamed("grnId");
 		String serialNumber = command.stringValueOfParameterNamed("serialNumber");
 		String provisioningSerialNumber = command.stringValueOfParameterNamed("provisioningSerialNumber");
-		String quality = command.stringValueOfParameterNamed("quality");
+		String  q = command.stringValueOfParameterNamed("quality");
+		String quality = q.equalsIgnoreCase("Good")?"Good":"Defective";
 		String status = command.stringValueOfParameterNamed("status");
 		return new InventoryItemDetails(itemMasterId,serialNumber,grnId,provisioningSerialNumber,quality,status,null,remarks);
 	}

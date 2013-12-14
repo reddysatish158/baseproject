@@ -58,6 +58,23 @@ public class InventoryItemDetailsData {
 		this.accountNumber = accountNumber;
 		
 	}
+public InventoryItemDetailsData(Long id,Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long warranty,String remarks, String itemDescription, final String supplier, final Long clientId, final String officeName){
+		
+		this.id=id;
+		this.itemMasterId=itemMasterId;
+		this.serialNumber=serialNumber;
+		this.grnId=grnId;
+		this.provisioningSerialNumber=provisioningSerialNumber;
+		this.quality=quality;
+		this.status=status;
+		this.warranty=warranty;
+		this.remarks=remarks;
+		this.itemDescription = itemDescription;
+		this.supplier = supplier;
+		this.clientId = clientId;
+		this.officeName = officeName;
+		
+	}
 	
 	public InventoryItemDetailsData(Long id,Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long warranty,String remarks, String itemDescription){
 		

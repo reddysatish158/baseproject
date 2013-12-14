@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -180,6 +181,16 @@ public class OneTimeSalesApiResource {
 		salesData.setAllocationDetails(Data);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, salesData, RESPONSE_DATA_PARAMETERS);	
+	}
+	
+	@PUT
+	@Path("{saleId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String cancelSale(@PathParam("saleId") final Long saleId,final String apiRequestBodyAsJson) {
+	 final CommandWrapper commandRequest = new CommandWrapperBuilder().cancelOneTimeSale(saleId).withJson(apiRequestBodyAsJson).build();
+     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+     return this.toApiJsonSerializer.serialize(result);
 	}
 		
 	}

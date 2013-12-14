@@ -86,7 +86,7 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			final List<String> serialNumber = mrnDetailsReadPlatformService.retriveSerialNumbers(mrnDetails.getFromOffice(),mrnId);
 			
 			if(!serialNumber.contains(mrnMoveDetailsData.getSerialNumber())){
-				throw new PlatformDataIntegrityException("serialnumber.already.allocated", "serialnumber.already.allocated", "serialNumber","");
+				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation", "invalid.serialnumber.allocation", "serialNumber","");
 			}
 			
 			List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0));
