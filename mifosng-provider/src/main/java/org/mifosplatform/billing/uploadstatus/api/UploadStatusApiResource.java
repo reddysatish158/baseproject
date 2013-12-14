@@ -188,7 +188,7 @@ public class UploadStatusApiResource {
 	
 	@GET
 	@Path("{uploadfileId}/print")
-	 @Consumes({ MediaType.APPLICATION_JSON })
+	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_OCTET_STREAM })
 	public Response downloaedFile(@PathParam("uploadfileId") final Long id) {
 		UploadStatus uploadStatus = this.uploadStatusRepository.findOne(id);
@@ -198,6 +198,21 @@ public class UploadStatusApiResource {
 		response.header("Content-Disposition", "attachment; filename=\""+ printFileName + "\"");
 //		response.header("Content-Type", "application/vnd.ms-excel");
         response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		return response.build();
+	}
+
+	@GET
+	@Path("{logfileId}/printlog")
+	@Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_OCTET_STREAM })
+	public Response downloaedFile(@PathParam("logfileId") final Long id) {
+		UploadStatus uploadStatus = this.uploadStatusRepository.findOne(id);
+		String printFilePath = uploadStatus.getUploadFilePath();
+		String printFileName = printFilePath.replace("csv","log");
+		File file = new File(printFileName);
+		ResponseBuilder response = Response.ok(file);
+		response.header("Content-Disposition", "attachment; filename=\""+ printFileName + "\"");
+       		response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		return response.build();
 	}
 	
