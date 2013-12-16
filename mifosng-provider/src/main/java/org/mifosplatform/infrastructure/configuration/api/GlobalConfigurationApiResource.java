@@ -71,11 +71,10 @@ public class GlobalConfigurationApiResource {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 
         final GlobalConfigurationData configurationData = this.readPlatformService.retrieveGlobalConfiguration();
-
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, configurationData, RESPONSE_DATA_PARAMETERS);
     }
-
+    
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })

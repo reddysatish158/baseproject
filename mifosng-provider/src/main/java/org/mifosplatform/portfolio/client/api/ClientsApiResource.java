@@ -32,6 +32,8 @@ import org.mifosplatform.billing.allocation.service.AllocationReadPlatformServic
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
@@ -65,13 +67,14 @@ public class ClientsApiResource {
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
     private final AddressReadPlatformService addressReadPlatformService;
     private final AllocationReadPlatformService allocationReadPlatformService;
+    private final GlobalConfigurationRepository configurationRepository;
 
     @Autowired
     public ClientsApiResource(final PlatformSecurityContext context, final ClientReadPlatformService readPlatformService,
             final OfficeReadPlatformService officeReadPlatformService, final ToApiJsonSerializer<ClientData> toApiJsonSerializer,
             final ToApiJsonSerializer<ClientAccountSummaryCollectionData> clientAccountSummaryToApiJsonSerializer,
             final ApiRequestParameterHelper apiRequestParameterHelper,AddressReadPlatformService addressReadPlatformService,
-            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AllocationReadPlatformService allocationReadPlatformService) {
+            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AllocationReadPlatformService allocationReadPlatformService,final GlobalConfigurationRepository configurationRepository) {
         this.context = context;
         this.clientReadPlatformService = readPlatformService;
         this.officeReadPlatformService = officeReadPlatformService;
@@ -81,6 +84,7 @@ public class ClientsApiResource {
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
         this.addressReadPlatformService=addressReadPlatformService;
         this.allocationReadPlatformService=allocationReadPlatformService;
+        this.configurationRepository=configurationRepository;
     }
 
     @GET
@@ -90,7 +94,10 @@ public class ClientsApiResource {
     public String retrieveTemplate(@Context final UriInfo uriInfo) {
 
         context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
-         ClientData clientData = this.clientReadPlatformService.retrieveTemplate();
+        ClientData clientData = this.clientReadPlatformService.retrieveTemplate();
+        
+        GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName("LOGIN");
+        clientData.setConfigurationProperty(configurationProperty);
         clientData=handleAddressTemplateData(clientData);
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);

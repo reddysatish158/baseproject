@@ -151,11 +151,6 @@ public class TomcatJdbcDataSourcePerTenantService implements DataSourcePerTenant
 		return null;
 	}
 
-	@Override
-	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	
 }
