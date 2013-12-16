@@ -84,6 +84,12 @@ public class EventMasterData {
 		this.chargeCode = chargeData;
 	}
 	
+	public EventMasterData(Long id, String eventName, String eventDescription) {
+		this.id = id;
+		this.eventName = eventName;
+		this.eventDescription = eventDescription;
+	}
+
 	/**
 	 * @return the id
 	 */

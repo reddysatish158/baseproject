@@ -190,7 +190,7 @@ public class UploadStatusApiResource {
 	@Path("{uploadfileId}/print")
 	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response downloaedFile(@PathParam("uploadfileId") final Long id) {
+	public Response downloadFile(@PathParam("uploadfileId") final Long id) {
 		UploadStatus uploadStatus = this.uploadStatusRepository.findOne(id);
 		String printFileName = uploadStatus.getUploadFilePath();
 		File file = new File(printFileName);
@@ -205,7 +205,7 @@ public class UploadStatusApiResource {
 	@Path("{logfileId}/printlog")
 	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response downloaedFile(@PathParam("logfileId") final Long id) {
+	public Response downloadLogFile(@PathParam("logfileId") final Long id) {
 		UploadStatus uploadStatus = this.uploadStatusRepository.findOne(id);
 		String printFilePath = uploadStatus.getUploadFilePath();
 		String printFileName = printFilePath.replace("csv","log");
