@@ -190,7 +190,7 @@ public class UploadStatusApiResource {
 	@Path("{uploadfileId}/print")
 	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response downloaedFile(@PathParam("uploadfileId") final Long id) {
+	public Response downloadFile(@PathParam("uploadfileId") final Long id) {
 		UploadStatus uploadStatus = this.uploadStatusRepository.findOne(id);
 		String printFileName = uploadStatus.getUploadFilePath();
 		File file = new File(printFileName);

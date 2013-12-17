@@ -479,7 +479,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					if(currentLineData.length>=11){
 						jsonObject.put("channelName",currentLineData[0]);
 						jsonObject.put("channelIcon",currentLineData[1]);
-						jsonObject.put("programDate",new SimpleDateFormat("dd/MM/yyyy hh:mm:ss").parse(currentLineData[2]));
+						jsonObject.put("programDate",new SimpleDateFormat("dd/MM/yyyy").parse(currentLineData[2]));
 						jsonObject.put("startTime",currentLineData[3]);
 						jsonObject.put("stopTime",currentLineData[4]);
 						jsonObject.put("programTitle",currentLineData[5]);
