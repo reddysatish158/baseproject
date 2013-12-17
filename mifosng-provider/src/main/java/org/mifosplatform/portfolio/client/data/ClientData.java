@@ -15,6 +15,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.address.data.AddressData;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.organisation.office.data.OfficeData;
 import org.mifosplatform.portfolio.client.service.ClientCategoryData;
@@ -67,6 +68,7 @@ final public class ClientData implements Comparable<ClientData> {
 	private final Long categoryType;
 	private AddressData addressTemplateData;
     private final List<String> hardwareDetails;
+    private GlobalConfigurationProperty configurationProperty;
 	private  final String currency;
     public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions, Collection<ClientCategoryData> categoryDatas) {
         return new ClientData(null, null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
@@ -243,4 +245,14 @@ final public class ClientData implements Comparable<ClientData> {
 		this.addressTemplateData=data;
 		
 	}
+
+	public GlobalConfigurationProperty getConfigurationProperty() {
+		return configurationProperty;
+	}
+
+	public void setConfigurationProperty(GlobalConfigurationProperty configurationProperty) {
+		this.configurationProperty = configurationProperty;
+	}
+	
+	
 }

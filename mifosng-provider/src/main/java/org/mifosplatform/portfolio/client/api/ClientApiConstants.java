@@ -37,7 +37,9 @@ public class ClientApiConstants {
     public static final String streetParamName="street";
     public static final String zipCodeParamName="zipCode";
     public static final String balanceParamName="balanceAmount";
-    
+    public static final String loginParamName="login";
+    public static final String passwordParamName="password";
+    public static final String flagParamName="flag";
     // response parameters
     public static final String statusParamName = "status";
     public static final String hierarchyParamName = "hierarchy";
@@ -58,7 +60,7 @@ public class ClientApiConstants {
     public static final Set<String> CLIENT_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, groupIdParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,
             lastnameParamName, fullnameParamName, officeIdParamName, activeParamName, activationDateParamName,clientCategoryParamName,
-            addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,stateParamName,streetParamName,zipCodeParamName));
+            addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,stateParamName,streetParamName,zipCodeParamName,loginParamName,passwordParamName,flagParamName));
 
     public static final Set<String> CLIENT_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,clientCategoryParamName,

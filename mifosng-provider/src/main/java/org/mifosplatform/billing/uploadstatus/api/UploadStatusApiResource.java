@@ -205,7 +205,7 @@ public class UploadStatusApiResource {
 	@Path("{logfileId}/printlog")
 	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response downlogFile(@PathParam("logfileId") final Long id) {
+	public Response logFile(@PathParam("logfileId") final Long id) {
 		UploadStatus uploadStatus = this.uploadStatusRepository.findOne(id);
 		String printFilePath = uploadStatus.getUploadFilePath();
 		String printFileName = printFilePath.replace("csv","log");
