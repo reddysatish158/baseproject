@@ -93,6 +93,11 @@ public final class Client extends AbstractPersistable<Long> {
     
     @Column(name = "phone", length = 100)
     private String phone;
+    
+    @Column(name = "login", length = 100)
+    private String login;
+    @Column(name = "password", length = 100)
+    private String password;
 
     
     
@@ -116,6 +121,8 @@ public final class Client extends AbstractPersistable<Long> {
         final Long categoryType=command.longValueOfParameterNamed(ClientApiConstants.clientCategoryParamName);
         final String phone = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
+	    final String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -131,7 +138,7 @@ public final class Client extends AbstractPersistable<Long> {
         }
 
         return new Client(status, clientOffice, clientParentGroup, accountNo, firstname, middlename, lastname, fullname, activationDate,
-                externalId,categoryType,email,phone);
+                externalId,categoryType,email,phone,login,password);
     }
 
     protected Client() {
@@ -140,7 +147,7 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone) {
+            final String externalId, Long categoryType, String email, String phone, String login, String password) {
         if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
             this.accountNumberRequiresAutoGeneration = true;
@@ -152,6 +159,8 @@ public final class Client extends AbstractPersistable<Long> {
         this.categoryType=categoryType;
         this.email=email;
         this.phone=phone;
+        this.login=login;
+        this.password=password;
         if (StringUtils.isNotBlank(externalId)) {
             this.externalId = externalId.trim();
         } else {
@@ -325,6 +334,17 @@ public final class Client extends AbstractPersistable<Long> {
             final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
             actualChanges.put(ClientApiConstants.phoneParamName, newValue);
             this.phone= StringUtils.defaultIfEmpty(newValue, null);
+        }
+        
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.loginParamName, this.login)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+            actualChanges.put(ClientApiConstants.loginParamName, newValue);
+            this.login = StringUtils.defaultIfEmpty(newValue,null);
+        }
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.passwordParamName, this.password)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
+            actualChanges.put(ClientApiConstants.passwordParamName, newValue);
+            this.password = StringUtils.defaultIfEmpty(newValue,null);
         }
 
         validateNameParts();
