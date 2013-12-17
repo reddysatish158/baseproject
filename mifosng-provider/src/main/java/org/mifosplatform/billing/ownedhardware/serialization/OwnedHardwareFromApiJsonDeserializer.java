@@ -24,7 +24,7 @@ import com.google.gson.JsonElement;
 
 @Component
 public class OwnedHardwareFromApiJsonDeserializer {
-	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("serialNumber","provisioningSerialNumber","allocationDate","locale","dateFormat","status","itemType"));
+	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("allocationDate","itemType","serialNumber","provisioningSerialNumber","locale","dateFormat","status"));
 	private final FromJsonHelper fromJsonHelper;  
 	
 	
@@ -46,29 +46,23 @@ public class OwnedHardwareFromApiJsonDeserializer {
 		
 		final JsonElement element = fromJsonHelper.parse(json);
 		
+		final LocalDate allocationDate = fromJsonHelper.extractLocalDateNamed("allocationDate", element);
+		baseValidatorBuilder.reset().parameter("allocationDate").value(allocationDate).notBlank();
+		
+		Long itemType = null;
+		
+		if(fromJsonHelper.parameterExists("itemType", element)){
+			itemType = fromJsonHelper.extractLongNamed("itemType", element);
+		}	
+		
+		baseValidatorBuilder.reset().parameter("itemType").value(itemType).notBlank().integerGreaterThanZero();
+		
 		final String serialNumber= fromJsonHelper.extractStringNamed("serialNumber", element);
 		baseValidatorBuilder.reset().parameter("serialNumber").value(serialNumber).notBlank().notExceedingLengthOf(100);
 		
 		final String provisioningSerialNumber= fromJsonHelper.extractStringNamed("provisioningSerialNumber", element);
 		baseValidatorBuilder.reset().parameter("provisioningSerialNumber").value(provisioningSerialNumber).notBlank().notExceedingLengthOf(100);
-		
-		final LocalDate allocationDate = fromJsonHelper.extractLocalDateNamed("allocationDate", element);
-		baseValidatorBuilder.reset().parameter("allocationDate").value(allocationDate).notBlank();
-		
-		
-		
-		if(fromJsonHelper.parameterExists("itemType", element)){
-			final String itemType = fromJsonHelper.extractStringNamed("itemType", element);
-			if(itemType!=null){
-				if(itemType.equals("")){
-					baseValidatorBuilder.reset().parameter("itemType").value(itemType).notBlank().zeroOrPositiveAmount();
-				}else{
-					baseValidatorBuilder.reset().parameter("itemType").value(itemType).notBlank();
-				}
-			}else{
-				baseValidatorBuilder.reset().parameter("itemType").value(itemType).notBlank();
-			}
-		}	
+	
 			
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 		

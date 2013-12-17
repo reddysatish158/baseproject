@@ -821,10 +821,10 @@ public class CommandWrapper {
 		    }
 
 		public boolean isEntitlementResource() {
-			return this.entityName.equalsIgnoreCase("Entitlement");
+			return this.entityName.equalsIgnoreCase("ENTITLEMENT");
 		}
 		public boolean isCreateEntitlement() {
-			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("Entitlement");
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("ENTITLEMENT");
 			
 		}
 

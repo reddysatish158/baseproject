@@ -1714,7 +1714,7 @@ public CommandWrapperBuilder deleteJob(Long jobId) {
 public CommandWrapperBuilder createEntitlement(Long id) {
 	
 	 this.actionName = "CREATE";
-	 this.entityName = "Entitlement"; 
+	 this.entityName = "ENTITLEMENT"; 
 	 this.entityId = id;
 	 this.href = "/entitlements";
 	 return this;
@@ -1828,6 +1828,14 @@ public CommandWrapperBuilder createPaymentGateway() {
 	this.entityName = "PAYMENTGATEWAY";
 	this.entityId = null;
 	this.href = "/paymentgateways";
+	return this;
+}
+
+public CommandWrapperBuilder cancelOneTimeSale(Long saleId) {
+	this.actionName = "DELETE";
+	this.entityName = "ONETIMESALE";
+	this.entityId = saleId;
+	this.href = "/onetimesale/"+saleId;
 	return this;
 }
 

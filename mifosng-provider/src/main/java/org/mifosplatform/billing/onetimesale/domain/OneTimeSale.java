@@ -56,6 +56,10 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 	@Column(name = "discount_id")
 	private Long discountId;
 	
+	@Column(name = "is_deleted", nullable = false)
+	private char isDeleted = 'N';
+	
+	
 	public OneTimeSale(){}
 	
 	public OneTimeSale(Long clientId, Long itemId,String units,String quantity,
@@ -117,6 +121,15 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
         this.billId=billId;
        
     }
+	
+	public char getIsDeleted() {
+		return isDeleted;
+	}
+	
+	public void setIsDeleted(char isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+	
 	public static OneTimeSale fromJson(Long clientId, JsonCommand command, ItemMaster item) {
 		    final Long itemId=command.longValueOfParameterNamed("itemId");
 		    final String units = item.getUnits();

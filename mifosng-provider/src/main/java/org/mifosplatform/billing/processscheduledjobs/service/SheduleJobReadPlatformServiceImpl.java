@@ -17,31 +17,37 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SheduleJobReadPlatformServiceImpl implements SheduleJobReadPlatformService{
-	  private final TenantDetailsService tenantDetailsService;
-	  private final DataSourcePerTenantService dataSourcePerTenantService;
-	  private final ScheduledJobRepository scheduledJobDetailRepository;
-	
+public class SheduleJobReadPlatformServiceImpl implements
+		SheduleJobReadPlatformService {
+	private final TenantDetailsService tenantDetailsService;
+	private final DataSourcePerTenantService dataSourcePerTenantService;
+	private final ScheduledJobRepository scheduledJobDetailRepository;
 
-	    @Autowired
-	    public SheduleJobReadPlatformServiceImpl(final DataSourcePerTenantService dataSourcePerTenantService,final ScheduledJobRepository scheduledJobDetailRepository,
-	            final TenantDetailsService tenantDetailsService) {
-	            this.dataSourcePerTenantService = dataSourcePerTenantService;
-	            this.tenantDetailsService = tenantDetailsService;
-	            this.scheduledJobDetailRepository=scheduledJobDetailRepository;
-	    }
+	@Autowired
+	public SheduleJobReadPlatformServiceImpl(
+			final DataSourcePerTenantService dataSourcePerTenantService,
+			final ScheduledJobRepository scheduledJobDetailRepository,
+			final TenantDetailsService tenantDetailsService) {
+		this.dataSourcePerTenantService = dataSourcePerTenantService;
+		this.tenantDetailsService = tenantDetailsService;
+		this.scheduledJobDetailRepository = scheduledJobDetailRepository;
+	}
 
-			private static final class SheduleJobMapper implements RowMapper<ScheduleJobData> {
+	private static final class SheduleJobMapper implements
+			RowMapper<ScheduleJobData> {
 
-			public String sheduleLookupSchema() {
+		public String sheduleLookupSchema() {
 			return " sr.id as id,sr.report_name as reportName,sr.report_sql as query  from stretchy_report sr ";
-			}
+		}
 
-			@Override
-			public ScheduleJobData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
+		@Override
+		public ScheduleJobData mapRow(final ResultSet rs,
+				@SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
 			final Long id = rs.getLong("id");
 			final String batchName = rs.getString("reportName");
 			final String query = rs.getString("query");
+
 			return new ScheduleJobData(id, batchName,query);
 			}
 			}
@@ -160,7 +166,42 @@ public class SheduleJobReadPlatformServiceImpl implements SheduleJobReadPlatform
 
 									
 							}
-					}
+				
 
 
+
+	@Override
+	public String retrieveMessageData(Long id) {
+		// TODO Auto-generated method stub
+		try {
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(
+					dataSourcePerTenantService.retrieveDataSource());
+			final MessageMapper mapperdata = new MessageMapper();
+			String query = mapperdata.retrieveId(id);
+			return jdbcTemplate.queryForObject(query, mapperdata,
+					new Object[] {});
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	private static final class MessageMapper implements RowMapper<String> {
+		private Long id;
+
+		public String retrieveId(Long val) {
+			this.id = val;
+			return "SELECT sms_conf(" + val + ")";
+		}
+
+		@Override
+		public String mapRow(final ResultSet rs,
+				@SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
+			String prepare = "sms_conf(" + id + ")";
+			String message = rs.getString(prepare);
+			return message;
+
+		}
+	}
+}
 

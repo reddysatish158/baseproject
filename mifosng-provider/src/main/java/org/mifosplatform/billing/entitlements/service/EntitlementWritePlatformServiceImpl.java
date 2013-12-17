@@ -31,11 +31,14 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 	@Override
 	public CommandProcessingResult create(JsonCommand command) {
 		// TODO Auto-generated method stub
-		context.authenticatedUser();
+		//context.authenticatedUser();
 		ProcessRequest request=this.entitlementRepository.findOne(command.entityId());
-		
-		request.setProcessStatus();
-		
+		String receiveMessage = command.stringValueOfParameterNamed("receiveMessage");
+		if(receiveMessage.contains("failure :")){
+		request.setProcessFailureStatus();
+		}else{
+			request.setProcessStatus();
+		}
 		List<ProcessRequestDetails> details=request.getProcessRequestDetails();
 		
 		for(ProcessRequestDetails processRequestDetails:details){

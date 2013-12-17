@@ -22,4 +22,7 @@ public interface SheduleJobReadPlatformService {
 
 	List<ScheduleJobData> getJobQeryData();
 
+	String retrieveMessageData(Long id);
+	
+
 }
