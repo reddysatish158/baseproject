@@ -61,7 +61,7 @@ public class DiscountMasterData {
 		this.discountStartDate = discountStartDate;
 		this.discountEndDate = discountEndDate;
 		this.discounType = discountType;
-		this.discountValue = discountRate;
+		this.discountRate = discountRate;
 		this.isDeleted = isDeleted;
 		this.discountAmount = BigDecimal.ZERO;
 		this.discountedChargeAmount = BigDecimal.ZERO;

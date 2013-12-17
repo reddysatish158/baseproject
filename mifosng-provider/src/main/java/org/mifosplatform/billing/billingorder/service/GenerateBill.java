@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
-import org.joda.time.Months;
 import org.mifosplatform.billing.billingorder.commands.BillingOrderCommand;
 import org.mifosplatform.billing.billingorder.commands.InvoiceTaxCommand;
 import org.mifosplatform.billing.billingorder.data.BillingOrderData;
@@ -87,7 +86,8 @@ public class GenerateBill {
 			// price = billingOrderData.getPrice();
 			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));
 			if(billingOrderData.getChargeDuration()==12){
-				 pricePerDay = price.divide(new BigDecimal(365), Integer.parseInt(roundingDecimal()),RoundingMode.HALF_UP);
+			int maximumDaysInYear = new  LocalDate().dayOfYear().withMaximumValue().getDayOfYear();
+			 pricePerDay = price.divide(new BigDecimal(maximumDaysInYear), Integer.parseInt(roundingDecimal()),RoundingMode.HALF_UP);
 
 			}else{
 			 pricePerDay = price.divide(new BigDecimal(30), Integer.parseInt(roundingDecimal()),RoundingMode.HALF_UP);
@@ -477,7 +477,7 @@ public class GenerateBill {
 
 		if (discountMasterData != null) {
 
-			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate()) && this.getDiscountEndDateIfNull(discountMasterData).before(chargeStartDate.toDate())) {
+			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())) {
 				isDiscountApplicable = true;	
 			}
 		}
@@ -540,9 +540,10 @@ public class GenerateBill {
 		}
 		
 		if(isDiscountFlat(discountMasterData)){
-							
-			chargePrice = this.calculateDiscountFlat(discountMasterData.getdiscountRate(), chargePrice);
-			discountMasterData.setDiscountedChargeAmount(chargePrice);
+			BigDecimal p=this.calculateDiscountFlat(discountMasterData.getdiscountRate(), chargePrice);	
+			discountAmount= chargePrice.subtract(p);
+			discountMasterData.setDiscountAmount(discountAmount);
+			discountMasterData.setDiscountedChargeAmount(p);
 		}
 		return discountMasterData;
 	
