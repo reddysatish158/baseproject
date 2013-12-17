@@ -10,7 +10,9 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.eventmaster.data.EventMasterData;
 import org.mifosplatform.billing.eventorder.data.EventOrderData;
+import org.mifosplatform.billing.eventorder.data.EventOrderDeviceData;
 import org.mifosplatform.billing.onetimesale.data.OneTimeSaleData;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.billing.paymode.data.SavingCategoryEnumaration;
@@ -85,8 +87,49 @@ public class EventOrderReadplatformServieImpl implements EventOrderReadplatformS
 	     
 	}
 
-
-
+	@Override
+	public List<EventOrderDeviceData> getDevices(Long clientId) {
+		final String sql = "SELECT al.id as id, al.client_id as clientId, al.item_master_id as itemMasterId, al.serial_no as serialNumber, im.item_code as itemCode, im.item_description as itemDescription from b_allocation al inner join b_item_master im on im.id=al.item_master_id where al.client_id = ?";
+		EventOrderDeviceMapper rowMapper = new EventOrderDeviceMapper();
+		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{clientId});
+	}
+	
+	@SuppressWarnings("unused")
+	private final class EventOrderDeviceMapper implements RowMapper<EventOrderDeviceData>{
+		@Override
+		public EventOrderDeviceData mapRow(ResultSet rs, int rowNum) throws SQLException {
+			
+			final Long allocationId = rs.getLong("id");
+			final Long clientId = rs.getLong("clientId");
+			final Long itemMasterId = rs.getLong("itemMasterId");
+			final String serialNumber = rs.getString("serialNumber");
+			final String itemCode = rs.getString("itemCode");
+			final String itemDescription = rs.getString("itemDescription");
+			return new EventOrderDeviceData(allocationId, clientId, itemMasterId, serialNumber, itemCode, itemDescription);
+		}
+		
+	}
+	
+	
+	@Override
+	public List<EventMasterData> getEvents() {
+		
+		final String sql = "select id as id, event_name as eventName, event_description as eventDescription from b_event_master where status=1";
+		EventMasterDataMapper rowMapper = new EventMasterDataMapper();
+		return this.jdbcTemplate.query(sql,rowMapper);
+	}
+	
+	private final class EventMasterDataMapper implements RowMapper<EventMasterData>{
+		@Override
+		public EventMasterData mapRow(ResultSet rs, int rowNum) throws SQLException {
+			final Long id = rs.getLong("id");
+			final String eventName = rs.getString("eventName");
+			final String eventDescription = rs.getString("eventDescription");
+			return new EventMasterData(id,eventName,eventDescription);
+		}
+	}
+	
+	
 	@Override
 	public List<EventOrderData> getTheClientEventOrders(Long clientId) {
 		

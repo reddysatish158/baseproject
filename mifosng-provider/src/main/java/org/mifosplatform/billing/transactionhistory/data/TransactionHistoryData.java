@@ -2,6 +2,8 @@ package org.mifosplatform.billing.transactionhistory.data;
 
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+
 public class TransactionHistoryData {
 	
 		private Long id;

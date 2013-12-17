@@ -109,11 +109,11 @@ public class EpgProgramGuide extends AbstractAuditableCustom<AppUser, Long>{
 		String startProgramTime = command.stringValueOfParameterNamed("startTime");
 		
 		if(id == null || id<1){
-			DateFormat df0 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			DateFormat df0 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
 			programDate = df0.parse(programDateString);
-			DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormat df1 = new SimpleDateFormat("HH:mm:ss");
 			startTime = df1.parse(startProgramTime);
-			DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormat df2 = new SimpleDateFormat("HH:mm:ss");
 			stopTime = df2.parse(stopProgramTime);
 		}else{
 			DateFormat formatter1 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
