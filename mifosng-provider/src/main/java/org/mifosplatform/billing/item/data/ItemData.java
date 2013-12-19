@@ -53,7 +53,7 @@ public class ItemData {
 		this.unitPrice=itemData.getUnitPrice();
 		this.totalPrice=totalPrice;
 		this.quantity=quantity;
-		this.saleDate=new LocalDate();
+		
 		this.discountMasterDatas=discountdata;
 		
 	

@@ -39,7 +39,6 @@ public class OneTimeSaleData {
 		
 		this.chargesDatas=chargeDatas;
 		this.itemDatas=itemData;
-		this.saleDate=new LocalDate();
 		this.salesData=salesData;
 		this.discountMasterDatas=discountdata;
 		

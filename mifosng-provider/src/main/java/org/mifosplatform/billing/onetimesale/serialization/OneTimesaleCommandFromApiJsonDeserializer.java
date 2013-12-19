@@ -51,20 +51,23 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
 
         final JsonElement element = fromApiJsonHelper.parse(json);
 
+        final LocalDate saleDate = fromApiJsonHelper.extractLocalDateNamed("saleDate", element);
+        baseDataValidator.reset().parameter("saleDate").value(saleDate).notBlank();
         final Long itemId = fromApiJsonHelper.extractLongNamed("itemId", element);
         baseDataValidator.reset().parameter("itemId").value(itemId).notNull();
+        final String quantity = fromApiJsonHelper.extractStringNamed("quantity", element);
+        baseDataValidator.reset().parameter("quantity").value(quantity).notBlank().notExceedingLengthOf(50);        
         final Long discountId = fromApiJsonHelper.extractLongNamed("discountId", element);
         baseDataValidator.reset().parameter("discountId").value(discountId).notNull();
         final String chargeCode = fromApiJsonHelper.extractStringNamed("chargeCode", element);
         baseDataValidator.reset().parameter("chargeCode").value(chargeCode).notBlank();
-        final BigDecimal unitPrice=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("unitPrice", element);
-        baseDataValidator.reset().parameter("unitPrice").value(unitPrice).notNull();
         final BigDecimal totalPrice=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("totalPrice", element);
         baseDataValidator.reset().parameter("totalPrice").value(totalPrice).notNull();
-        final String quantity = fromApiJsonHelper.extractStringNamed("quantity", element);
-        baseDataValidator.reset().parameter("quantity").value(quantity).notBlank().notExceedingLengthOf(50);
-        final LocalDate saleDate = fromApiJsonHelper.extractLocalDateNamed("saleDate", element);
-        baseDataValidator.reset().parameter("saleDate").value(saleDate).notBlank();
+        final BigDecimal unitPrice=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("unitPrice", element);
+        baseDataValidator.reset().parameter("unitPrice").value(unitPrice).notNull();
+        
+        
+        
         
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
