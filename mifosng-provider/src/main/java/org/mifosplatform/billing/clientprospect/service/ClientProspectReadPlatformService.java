@@ -13,7 +13,7 @@ import org.mifosplatform.infrastructure.core.service.Page;
 
 public interface ClientProspectReadPlatformService {
 
-	public ClientProspectData retriveClientProspectTemplate();
+	
 	public Collection<ClientProspectData> retriveClientProspect();
 	public ProspectDetailData retriveClientProspect(Long clientProspectId);
 	public Collection<ProspectPlanCodeData> retrivePlans();
