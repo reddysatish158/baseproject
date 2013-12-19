@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -71,6 +72,7 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -203,19 +205,19 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 					}catch (PlatformApiDataValidationException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
-						//unprocessRecords++;
+						
 					}catch (PlatformDataIntegrityException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
-						//unprocessRecords++;
+						
 					}catch (NullPointerException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
-						//unprocessRecords++;
+						
 					}catch (IllegalStateException e) {
 						errorData.add(new MRNErrorData((long)i,e.getMessage()));
-						//unprocessRecords++;
+						
 					}catch (Exception e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
-						//unprocessRecords++;
+						
 					}
 					i++;
 				}
@@ -227,9 +229,11 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				processRecordCount=0L;totalRecordCount=0L;
 				uploadStatusForMrn=null;
 				
+			}catch (FileNotFoundException e) {
+				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
 			}catch (Exception e) {
 				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
-				//unprocessRecords++;
+				
 			}finally{
 				if(csvFileBufferedReader!=null){
 					try{
@@ -241,32 +245,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			}
 			
 			
-			FileWriter fw = null;
-			try{
-				File f = new File(fileLocation.replace(".csv", ".log"));
-				if(!f.exists()){
-					f.createNewFile();
-				}
-				fw = new FileWriter(f,true);
-				for(int k=0;k<errorData.size();k++){
-					if(!errorData.get(k).getErrorMessage().equalsIgnoreCase("Success.")){
-						fw.append("Data at row: "+errorData.get(k).getRowNumber()+", Message: "+errorData.get(k).getErrorMessage()+"\n");
-					}
-				}
-				
-			}catch(Exception e){
-				e.printStackTrace();
-			}finally{
-				try{
-					if(fw!=null){
-						fw.flush();
-						fw.close();
-					}
-					
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
+			writeToFile(fileLocation,errorData);
 			
 		}else if(uploadProcess.equalsIgnoreCase("Mrn") && new File(fileLocation).getName().contains(".csv")){
 			
@@ -310,19 +289,19 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 				}catch (PlatformApiDataValidationException e) {
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
-					//unprocessRecords++;
+					
 				}catch (PlatformDataIntegrityException e) {
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
-					//unprocessRecords++;
+					
 				}catch (NullPointerException e) {
 					errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
-					//unprocessRecords++;
+					
 				}catch (IllegalStateException e) {
 					errorData.add(new MRNErrorData((long)i,e.getMessage()));
-					//unprocessRecords++;
+					
 				}catch (Exception e) {
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
-					//unprocessRecords++;
+					
 				}
 				i++;
 			}
@@ -334,9 +313,11 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			processRecordCount=0L;totalRecordCount=0L;
 			uploadStatusForMrn=null;
 			
+		}catch (FileNotFoundException e) {
+			throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
 		}catch (Exception e) {
 			errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
-			//unprocessRecords++;
+			
 		}finally{
 			if(csvFileBufferedReader!=null){
 				try{
@@ -348,33 +329,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		}
 		
 		
-		FileWriter fw = null;
-		try{
-			File f = new File(fileLocation.replace(".csv", ".log"));
-			if(!f.exists()){
-				f.createNewFile();
-			}
-			fw = new FileWriter(f,true);
-			for(int k=0;k<errorData.size();k++){
-				if(!errorData.get(k).getErrorMessage().equalsIgnoreCase("Success.")){
-					fw.append("Data at row: "+errorData.get(k).getRowNumber()+", Message: "+errorData.get(k).getErrorMessage()+"\n");
-				}
-			}
-			
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			try{
-				if(fw!=null){
-					fw.flush();
-					fw.close();
-				}
-				
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
+		writeToFile(fileLocation,errorData);
 		
 		}else if(uploadProcess.equalsIgnoreCase("Mrn")){
 			Integer cellNumber = 2;
@@ -426,23 +381,23 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						//System.out.println(i);
 					}catch (PlatformApiDataValidationException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getDefaultUserMessage()));
-						//unprocessRecords++;
+						
 					}catch (PlatformDataIntegrityException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
-						//unprocessRecords++;
+						
 					}catch (NullPointerException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
-						//unprocessRecords++;
+						
 					}catch (EOFException e){
 						errorData.add(new MRNErrorData((long)i, "Completed: End Of Record"));
-						//unprocessRecords++;
+						
 						break;
 					}catch (IllegalStateException e) {
 						errorData.add(new MRNErrorData((long)i,e.getMessage()));
-						//unprocessRecords++;
+						
 					}catch (Exception e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
-						//unprocessRecords++;
+						
 					}
 				}
 				uploadStatusForMrn.setProcessRecords(processRecordCount);
@@ -508,19 +463,19 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 					}catch (PlatformApiDataValidationException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
-						//unprocessRecords++;
+						
 					}catch (PlatformDataIntegrityException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
-						//unprocessRecords++;
+						
 					}catch (NullPointerException e) {
 						errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
-						//unprocessRecords++;
+						
 					}catch (IllegalStateException e) {
 						errorData.add(new MRNErrorData((long)i,e.getMessage()));
-						//unprocessRecords++;
+						
 					}catch (Exception e) {
 						errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
-						//unprocessRecords++;
+						
 					}
 					i++;
 				}
@@ -532,9 +487,11 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				processRecordCount=0L;totalRecordCount=0L;
 				uploadStatusForMrn=null;
 				
+			}catch (FileNotFoundException e) {
+				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
 			}catch (Exception e) {
 				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
-				//unprocessRecords++;
+				
 			}finally{
 				if(csvFileBufferedReader!=null){
 					try{
@@ -546,34 +503,201 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			}
 			
 			
-			FileWriter fw = null;
-			try{
-				File f = new File(fileLocation.replace(".csv", ".log"));
-				if(!f.exists()){
-					f.createNewFile();
-				}
-				fw = new FileWriter(f,true);
-				for(int k=0;k<errorData.size();k++){
-					if(!errorData.get(k).getErrorMessage().equalsIgnoreCase("Success.")){
-						fw.append("Data at row: "+errorData.get(k).getRowNumber()+", Message: "+errorData.get(k).getErrorMessage()+"\n");
+			writeToFile(fileLocation,errorData);
+			
+			
+			}else if(uploadProcess.equalsIgnoreCase("Adjustments") && new File(fileLocation).getName().contains(".csv")){
+			
+				adjustmentDataList=this.adjustmentReadPlatformService.retrieveAllAdjustmentsCodes();
+				ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
+				BufferedReader csvFileBufferedReader = null;
+				String line = null;
+				String splitLineRegX = ",";
+				int initialindex=8,i=1;
+				Long processRecordCount=0L;
+				Long totalRecordCount=0L;
+				JSONObject jsonObject = new JSONObject();
+				UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+				try{
+					csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
+					line = csvFileBufferedReader.readLine();
+					while((line = csvFileBufferedReader.readLine()) != null){
+						try{
+						String[] currentLineData = line.split(splitLineRegX);
+						
+						
+						if(adjustmentDataList.size()>0)
+				        {
+				         for(AdjustmentData adjustmentData:adjustmentDataList)
+				         {
+				         if( adjustmentData.getAdjustment_code().equalsIgnoreCase(currentLineData[2].toString()));
+				          {          
+				        	  if(currentLineData.length>=6){
+				        		  jsonObject.put("adjustment_date", currentLineData[1]);
+					        	  jsonObject.put("adjustment_code", adjustmentData.getId());
+					        	  jsonObject.put("adjustment_type",currentLineData[3]);
+					        	  jsonObject.put("amount_paid",currentLineData[4]);
+					        	  jsonObject.put("Remarks",currentLineData[5]);
+					        	  jsonObject.put("locale", "en");
+					        	  jsonObject.put("dateFormat","dd MMMM yyyy");
+					        	  totalRecordCount++;
+					        	  final CommandWrapper commandRequest = new CommandWrapperBuilder().createAdjustment(Long.valueOf(currentLineData[0])).withJson(jsonObject.toString().toString()).build();
+					              final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+					              if(result!=null){
+								    	//Long rsId = result.resourceId();
+								    	processRecordCount++;
+								    	errorData.add(new MRNErrorData((long)i, "Success."));
+					              }
+					        
+								}else{
+									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
+								}
+				        	}
+				         }
+				        }
+						
+						
+						if(currentLineData.length>=8){
+							
+						}else{
+							errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
+						}
+						
+						}catch (DataIntegrityViolationException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));
+						}catch (PlatformApiDataValidationException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
+						}catch (PlatformDataIntegrityException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
+						}catch (NullPointerException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
+						}catch (IllegalStateException e) {
+							errorData.add(new MRNErrorData((long)i,e.getMessage()));
+						}catch (ClientNotFoundException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+						}catch (Exception e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
+						}
+						i++;
+					}
+					
+					uploadStatusForMrn.setProcessRecords(processRecordCount);
+					uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
+					uploadStatusForMrn.setTotalRecords(totalRecordCount);
+					writeCSVData(fileLocation, errorData,uploadStatusForMrn);
+					processRecordCount=0L;totalRecordCount=0L;
+					uploadStatusForMrn=null;
+					
+				}catch (FileNotFoundException e) {
+					throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
+				}catch (Exception e) {
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
+				}finally{
+					if(csvFileBufferedReader!=null){
+						try{
+							csvFileBufferedReader.close();
+						}catch(Exception e){
+							e.printStackTrace();
+						}
 					}
 				}
 				
-			}catch(Exception e){
-				e.printStackTrace();
-			}finally{
+				writeToFile(fileLocation,errorData);
+				
+			}else if(uploadProcess.equalsIgnoreCase("Payments") && new File(fileLocation).getName().contains(".csv")){
+			
+				adjustmentDataList=this.adjustmentReadPlatformService.retrieveAllAdjustmentsCodes();
+				ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
+				BufferedReader csvFileBufferedReader = null;
+				String line = null;
+				String splitLineRegX = ",";
+				int initialindex=8,i=1;
+				Long processRecordCount=0L;
+				Long totalRecordCount=0L;
+				JSONObject jsonObject = new JSONObject();
+				UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
 				try{
-					if(fw!=null){
-						fw.flush();
-						fw.close();
+					csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
+					line = csvFileBufferedReader.readLine();
+					while((line = csvFileBufferedReader.readLine()) != null){
+						try{
+						String[] currentLineData = line.split(splitLineRegX);
+											
+						if(currentLineData.length>=5){
+							paymodeDataList = this.paymodeReadPlatformService.retrievemCodeDetails("Payment Mode");
+						       
+				             if(paymodeDataList.size()>0)
+				                 {
+				                   for(McodeData paymodeData:paymodeDataList)
+				                      {
+					                    if(paymodeData.getPaymodeCode().equalsIgnoreCase(currentLineData[2].toString()))
+					                      {
+					        	              jsonObject.put("paymentCode",paymodeData.getId());
+					                      }
+				                    }
+				          
+				                 jsonObject.put("clientId", currentLineData[0]);
+				                 jsonObject.put("paymentDate",currentLineData[1]);
+				                 jsonObject.put("amountPaid", currentLineData[3]);
+				                 jsonObject.put("remarks",  currentLineData[4]);
+				                 jsonObject.put("locale", "en");
+				                 jsonObject.put("dateFormat","dd MMMM yyyy");
+				                 totalRecordCount++;
+				                 final CommandWrapper commandRequest = new CommandWrapperBuilder().createPayment(Long.valueOf(currentLineData[0])).withJson(jsonObject.toString().toString()).build();
+				                 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+				                 if(result!=null){
+								    	processRecordCount++;
+								    	errorData.add(new MRNErrorData((long)i, "Success."));
+					              }
+				               
+				        }
+						}else{
+							errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
+						}
+						
+						
+						}catch (DataIntegrityViolationException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));
+						}catch (PlatformApiDataValidationException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
+						}catch (PlatformDataIntegrityException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
+						}catch (NullPointerException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
+						}catch (IllegalStateException e) {
+							errorData.add(new MRNErrorData((long)i,e.getMessage()));
+						}catch (ClientNotFoundException e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));	
+						}catch (Exception e) {
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
+							
+						}
+						i++;
 					}
 					
-				}catch(Exception e){
-					e.printStackTrace();
+					uploadStatusForMrn.setProcessRecords(processRecordCount);
+					uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
+					uploadStatusForMrn.setTotalRecords(totalRecordCount);
+					writeCSVData(fileLocation, errorData,uploadStatusForMrn);
+					processRecordCount=0L;totalRecordCount=0L;
+					uploadStatusForMrn=null;
+					
+				}catch (FileNotFoundException e) {
+					throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
+				}catch (Exception e) {
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
+				}finally{
+					if(csvFileBufferedReader!=null){
+						try{
+							csvFileBufferedReader.close();
+						}catch(Exception e){
+							e.printStackTrace();
+						}
+					}
 				}
-			}
-
-			
+								
+				writeToFile(fileLocation,errorData);
+				
 			}else if(uploadProcess.equalsIgnoreCase("Epg")){
 			Integer cellNumber = 11;
 			UploadStatus uploadStatusForEpg = this.uploadStatusRepository.findOne(orderId);
@@ -862,8 +986,8 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
           // jsonobject.put("clientId", new Double(v.elementAt(2).toString()).longValue());
                  jsonobject.put("adjustment_date", v.elementAt(1).toString());
                  jsonobject.put("adjustment_code", adjustmentData.getId());
-                 jsonobject.put("amount_paid", v.elementAt(4).toString());
                  jsonobject.put("adjustment_type",v.elementAt(3).toString());
+                 jsonobject.put("amount_paid", v.elementAt(4).toString());
                  jsonobject.put("Remarks", v.elementAt(5).toString());
                  jsonobject.put("locale", "en");
                  jsonobject.put("dateFormat","dd MMMM yyyy");
@@ -1442,5 +1566,33 @@ private void writeCSVData(String fileLocation,
 		uploadStatusForMrn = null;
 	}
 
+	public void writeToFile(String fileLocation,ArrayList<MRNErrorData> errorData){
+		FileWriter fw = null;
+		try{
+			File f = new File(fileLocation.replace(".csv", ".log"));
+			if(!f.exists()){
+				f.createNewFile();
+			}
+			fw = new FileWriter(f,true);
+			for(int k=0;k<errorData.size();k++){
+				if(!errorData.get(k).getErrorMessage().equalsIgnoreCase("Success.")){
+					fw.append("Data at row: "+errorData.get(k).getRowNumber()+", Message: "+errorData.get(k).getErrorMessage()+"\n");
+				}
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try{
+				if(fw!=null){
+					fw.flush();
+					fw.close();
+				}
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
 }
 
