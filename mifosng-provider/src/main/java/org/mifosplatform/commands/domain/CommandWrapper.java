@@ -875,5 +875,13 @@ public class CommandWrapper {
 		public boolean isCreatePaymentGateway() {
 			return this.actionName.equalsIgnoreCase("CREATE");
 		}
+
+		public boolean isHardwareSwapping() {
+			return this.entityName.equalsIgnoreCase("HARDWARESWAPPING");
+		}
+
+		public boolean isDoSwapping() {
+			return this.actionName.equalsIgnoreCase("SWAPPING");
+		}
 		
 }

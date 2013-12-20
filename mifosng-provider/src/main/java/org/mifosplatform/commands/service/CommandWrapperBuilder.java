@@ -1839,4 +1839,12 @@ public CommandWrapperBuilder cancelOneTimeSale(Long saleId) {
 	return this;
 }
 
+public CommandWrapperBuilder hardwareSwapping(Long clientId) {
+	this.actionName = "SWAPPING";
+	this.entityName = "HARDWARESWAPPING";
+	this.entityId = clientId;
+	this.href = "/hardwaremapping/"+clientId;
+	return this;
+}
+
 }

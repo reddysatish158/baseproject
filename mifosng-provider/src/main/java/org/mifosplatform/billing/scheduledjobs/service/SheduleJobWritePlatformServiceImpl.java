@@ -188,19 +188,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 
 			System.out.println("Processing Request Details.......");
-
-			List<PrepareRequestData> data = this.prepareRequestReadplatformService
-					.retrieveDataForProcessing();
-
+			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
 			for (PrepareRequestData requestData : data) {
 
-				this.prepareRequestReadplatformService
-						.processingClientDetails(requestData);
+				this.prepareRequestReadplatformService.processingClientDetails(requestData);
 			}
-
-			System.out.println(" Requestor Job is Completed...."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-
+			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
 		}
@@ -214,16 +207,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Response Details.......");
 
-			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService
-					.retrieveProcessingDetails();
+			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
 
 			for (ProcessingDetailsData detailsData : processingDetails) {
 
-				this.processRequestWriteplatformService
-						.notifyProcessingDetails(detailsData);
+				this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
 			}
-			System.out.println("Responsor Job is Completed..."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+			System.out.println("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 
 		} catch (DataIntegrityViolationException exception) {
 

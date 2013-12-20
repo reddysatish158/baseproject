@@ -369,7 +369,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 				return  " * from (SELECT c.id as chargeId,c.charge_type AS chargeType,ch.charge_description AS chargeDescription, " +
 						" c.charge_start_date AS chargeStartDate, c.charge_end_date AS chargeEndDate,c.charge_amount AS chargeAmount,'' AS taxAmount,'' AS discountAmount, '' AS netChargeAmount "+
 						" FROM b_charge_codes ch,b_charge c WHERE c.charge_code = ch.charge_code AND c.invoice_id = ? union all" +
-                        " Select c.id,'DC' AS chargeType,c.discount_code AS discountDiscription,c.charge_start_date AS chargeStartDate,c.charge_end_date AS chargeEndDate,'' AS chargeAmount ,'' AS taxAmount,"+
+                        " Select c.id,'Discount' AS chargeType,c.discount_code AS discountDiscription,c.charge_start_date AS chargeStartDate,c.charge_end_date AS chargeEndDate,'' AS chargeAmount ,'' AS taxAmount,"+
 						" c.discount_amount AS discountAmount,c.netcharge_amount AS netChargeAmount from b_charge c WHERE c.invoice_id = ?  union all " +
                         " Select c.id,'Tax' AS chargeType,ct.tax_code  AS chargeDescription,c.charge_start_date AS chargeStartDate, c.charge_end_date AS chargeEndDate, " +
 						" '' AS chargeAmount,ct.tax_amount AS taxAmount,'' AS discountAmount,'' AS netChargeAmount from b_charge c,b_charge_tax ct " +
