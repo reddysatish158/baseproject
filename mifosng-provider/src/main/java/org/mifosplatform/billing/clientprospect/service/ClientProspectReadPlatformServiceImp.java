@@ -41,18 +41,12 @@ public class ClientProspectReadPlatformServiceImp implements
 	}
 	
 	
-	@Override
-	public ClientProspectData retriveClientProspectTemplate() {
-		context.authenticatedUser();
-		ClientProspectMapper rowMapper = new ClientProspectMapper();
-		String sql = "select "+rowMapper.query()+" from b_prospect cp limit 1";
-		return jdbcTemplate.queryForObject(sql, rowMapper);
-	}
+	
 	
 	public Collection<ClientProspectData> retriveClientProspect() {
 		context.authenticatedUser();
 		ClientProspectMapper rowMapper = new ClientProspectMapper();
-		String sql = "select "+rowMapper.query()+" from b_prospect p";
+		String sql = "select "+rowMapper.query();
 		return jdbcTemplate.query(sql, rowMapper);
 	}
 
