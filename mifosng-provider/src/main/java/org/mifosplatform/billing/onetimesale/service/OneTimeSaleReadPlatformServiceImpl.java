@@ -173,8 +173,9 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 	private static final class AllocationDataMapper implements	RowMapper<AllocationDetailsData> {
 
 		public String schema() {
-			return "  a.id as id, i.id as itemDetailId,i.item_description as itemDescription,a.serial_no as serialNo,a.allocation_date as allocationDate"
-				  +"  FROM b_allocation a, b_item_master i where a.item_master_id=i.id and  a.is_deleted='N'";
+			return "  a.id AS id,id.id AS itemDetailId,i.item_description AS itemDescription,a.serial_no AS serialNo,a.allocation_date AS allocationDate" +
+					" FROM b_allocation a, b_item_master i, b_item_detail id WHERE  a.item_master_id = i.id   AND a.is_deleted = 'N' and id.client_id = a.client_id " +
+					"  and id.serial_no = a.serial_no ";
 
 		}
 
