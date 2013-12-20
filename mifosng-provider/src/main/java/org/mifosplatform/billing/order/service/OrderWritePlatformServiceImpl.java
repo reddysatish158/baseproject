@@ -52,11 +52,13 @@ import org.mifosplatform.infrastructure.configuration.domain.GlobalConfiguration
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -546,6 +548,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	@Override
 	public CommandProcessingResult retrackOsdMessage(JsonCommand command) {
 		try {
+			
+			Long resultSet = orderReadPlatformService.checkRetrackInterval(command.entityId());
+			
 			String requstStatus = null;
 			String message = null;
 			
@@ -634,6 +639,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			return new CommandProcessingResult(order.getId());
 
+		} catch (EmptyResultDataAccessException dve) {
+			throw new PlatformDataIntegrityException("retrack.already.done", "retrack.already.done", "retrack.already.done");
 		} catch (DataIntegrityViolationException dve) {
 			handleCodeDataIntegrityIssues(null, dve);
 			return new CommandProcessingResult(Long.valueOf(-1));
