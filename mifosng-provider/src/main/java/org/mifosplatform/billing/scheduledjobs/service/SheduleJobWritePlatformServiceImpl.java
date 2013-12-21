@@ -79,7 +79,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final BillingMesssageReadPlatformService billingMesssageReadPlatformService;
 	private final MessagePlatformEmailService messagePlatformEmailService;
 	private final EntitlementReadPlatformService entitlementReadPlatformService;
-	
+
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private String ReceiveMessage;
 
@@ -430,139 +430,123 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@CronTarget(jobName = JobName.Middleware)
 	public void processMiddleware() {
 		// TODO Auto-generated method stub
-			try {
-				
-				System.out.println("Processing Middleware Details.......");
-				
-				JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.Middleware.toString());
-				String credentials=data.getUsername().trim() + ":" + data.getPassword().trim();
-	    		byte[] encoded = Base64.encodeBase64(credentials.getBytes());
-	    		HttpClient httpClient = new DefaultHttpClient(); 
-			
-				List<EntitlementsData> entitlementDataForProcessings=this.entitlementReadPlatformService.getProcessingData(new Long(100));
-				
-	    	    for(EntitlementsData entitlementsData : entitlementDataForProcessings){
-	    	    	  	
-	    	    	JsonObject object=new JsonObject();
-				    object.addProperty("serviceId", entitlementsData.getServiceId() );
-				    object.addProperty("receivedStatus",new Long(1));
-				    ReceiveMessage="Success";
-    	    		Long clientId=entitlementsData.getClientId();
-	    	    	ClientEntitlementData clientdata= this.entitlementReadPlatformService.getClientData(clientId);    	    
-    	    		String query="login= "+clientdata.getEmailId()+"&password=0000&full_name="+clientdata.getFullName()+"&account_number="+clientId+"&tariff_plan=1&status=1&&stb_mac="+entitlementsData.getHardwareId();
-    	    		StringEntity se = new StringEntity(query.trim());
-    	    		HttpPost postRequest = new HttpPost(data.getUrl()+"/accounts/");
-    	    		postRequest.setHeader("Authorization", "Basic " + new String(encoded));
-    	    		postRequest.setEntity(se);
-    	    		HttpResponse response = httpClient.execute(postRequest);
-    	    		if (response.getStatusLine().getStatusCode() != 200) {
-    	    			System.out.println("Failed : HTTP error code : "
-    	    					+ response.getStatusLine().getStatusCode());
-    	    			return;
-    	    		}
-    	    		BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
-    	    		String output;
-    	    		while ((output = br1.readLine()) != null) {    			
-                        System.out.println(output);
-                        final JsonElement ele = fromApiJsonHelper.parse(output);
-                        final String status = fromApiJsonHelper.extractStringNamed("status", ele);
-                        if(status.equalsIgnoreCase("ERROR")){
-                         final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-                         ReceiveMessage="failure :"+error;
-                        }
-    	    		}
-				 
-    	    		
-    	    		String query1=data.getUrl()+"account_subscription/"+clientId;
-    	    		String queryData="subscribed[]="+entitlementsData.getProduct();
-    	    		StringEntity se1 = new StringEntity(queryData.trim());
-    	    		
-    	    		HttpPut putRequest= new HttpPut(query1.trim());
-    	    		putRequest.setHeader("Authorization", "Basic " + new String(encoded));
-    	    		putRequest.setEntity(se1);
-    	    		HttpResponse response1 = httpClient.execute(putRequest);
-    	    		if (response1.getStatusLine().getStatusCode() != 200) {
-    	    			System.out.println("Failed : HTTP error code : "
-    	    					+ response1.getStatusLine().getStatusCode());
-    	    			return;
-    	    		}
-    	    		BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+		try {
 
-    	    		String output2;
-    	    		while ((output2 = br2.readLine()) != null) {
-                        System.out.println(output2);
-                        final JsonElement ele = fromApiJsonHelper.parse(output2);
-                        final String status = fromApiJsonHelper.extractStringNamed("status", ele);
-                        final String results = fromApiJsonHelper.extractStringNamed("results", ele);
-                        if(status.equalsIgnoreCase("ERROR")){
-                              final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-                              ReceiveMessage="failure :"+error;
-                        }   
-                        if(results.equalsIgnoreCase("false")){
-                        	if(ReceiveMessage.equalsIgnoreCase("Success")){
-                        		 ReceiveMessage="failure :";
-                        	}                    	 
-                        }
-                       
-    	    		}
-                    
-    	    		object.addProperty("receiveMessage", ReceiveMessage);
-				    String entityName="ENTITLEMENT";
-				    final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
-				    JsonCommand comm=new JsonCommand(null, object.toString(), element1, fromApiJsonHelper, entityName, entitlementsData.getId(), null, null, null,
-			                null, null, null, null, null, null);
-				    CommandProcessingResult result=this.entitlementWritePlatformService.create(comm);
-				    System.out.println(result);
-				     	    		
-	    	    }    
-	    	    httpClient.getConnectionManager().shutdown();
+			System.out.println("Processing Middleware Details.......");
+
+			JobParameterData data = this.sheduleJobReadPlatformService
+					.getJobParameters(JobName.Middleware.toString());
+			String credentials = data.getUsername().trim() + ":"
+					+ data.getPassword().trim();
+			byte[] encoded = Base64.encodeBase64(credentials.getBytes());
+			HttpClient httpClient = new DefaultHttpClient();
+
+			List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService
+					.getProcessingData(new Long(100));
+
+			for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
+				Long clientId = entitlementsData.getClientId();
+				ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
+				ReceiveMessage = "Success";
+				if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
+				    String status="";
+					String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
+							+ "&account_number="+ clientId + "&tariff_plan=1&status=1&&stb_mac="+ entitlementsData.getHardwareId();
+					StringEntity se = new StringEntity(query.trim());
+					HttpPost postRequest = new HttpPost(data.getUrl() + "accounts/");
+					postRequest.setHeader("Authorization", "Basic " + new String(encoded));
+					postRequest.setEntity(se);
+					HttpResponse response = httpClient.execute(postRequest);
+					if (response.getStatusLine().getStatusCode() != 200) {
+						System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+						return;
+					}
+					BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
+					String output;
+					while ((output = br1.readLine()) != null) {
+						System.out.println(output);
+						final JsonElement ele = fromApiJsonHelper.parse(output);
+						 status = fromApiJsonHelper.extractStringNamed("status", ele);
+						if (status.equalsIgnoreCase("ERROR")) {
+							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+							ReceiveMessage = "failure :" + error;
+						}
+					}
+					
+                    if(!(status.equalsIgnoreCase("ERROR") || status.equalsIgnoreCase(""))){
+					String query1 = data.getUrl() + "account_subscription/"+ clientId;
+					String queryData = "subscribed[]="+ entitlementsData.getProduct();
+					StringEntity se1 = new StringEntity(queryData.trim());
+
+					HttpPut putRequest = new HttpPut(query1.trim());
+					putRequest.setHeader("Authorization", "Basic " + new String(encoded));
+					putRequest.setEntity(se1);
+					HttpResponse response1 = httpClient.execute(putRequest);
+					if (response1.getStatusLine().getStatusCode() != 200) {
+						System.out.println("Failed : HTTP error code : " + response1.getStatusLine().getStatusCode());
+						return;
+					}
+					BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+
+					String output2;
+					while ((output2 = br2.readLine()) != null) {
+						System.out.println(output2);
+						final JsonElement ele = fromApiJsonHelper.parse(output2);
+						final String status1 = fromApiJsonHelper.extractStringNamed("status", ele);
+						if (status1.equalsIgnoreCase("ERROR")) {
+							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+							ReceiveMessage = "failure :" + error;
+						}
+					}
+                   }
+				  
+				}else if(entitlementsData.getRequestType().equalsIgnoreCase("DISCONNECTION")){
+					String query = "status= " + new Long(0);
+					StringEntity se = new StringEntity(query.trim());
+					String url=""+data.getUrl() + "accounts/123";
+					HttpPut putrequest = new HttpPut(url.trim());
+					putrequest.setHeader("Authorization", "Basic " + new String(encoded));
+					putrequest.setEntity(se);
+					HttpResponse putresponse = httpClient.execute(putrequest);
+					if (putresponse.getStatusLine().getStatusCode() != 200) {
+						System.out.println("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode());
+						return;
+					}
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader((putresponse.getEntity().getContent())));
+					String output="";
+					while ((output = br.readLine()) != null) {
+						System.out.println(output);
+						final JsonElement ele = fromApiJsonHelper.parse(output);
+						final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+						if (status.equalsIgnoreCase("ERROR")) {
+							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+							ReceiveMessage = "failure :" + error;
+						}
+					}
+				}
+					JsonObject object = new JsonObject();
+					object.addProperty("serviceId",entitlementsData.getServiceId());
+					object.addProperty("receivedStatus", new Long(1));
+					
+					object.addProperty("receiveMessage", ReceiveMessage);
+					String entityName = "ENTITLEMENT";
+					final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
+					JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
+							entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
+					CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
+					System.out.println(result);
+
+				}
+				httpClient.getConnectionManager().shutdown();
 				System.out.println("Middleware Job is Completed...");
-			} catch (DataIntegrityViolationException exception) {
+			
+		} catch (DataIntegrityViolationException exception) {
 
-			}catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
-	/*
-	 * @SuppressWarnings("deprecation") private static HttpClient
-	 * wrapClient(HttpClient base) {
-	 * 
-	 * try { SSLContext ctx = SSLContext.getInstance("TLS"); X509TrustManager tm
-	 * = new X509TrustManager() {
-	 * 
-	 * @SuppressWarnings("unused") public void
-	 * checkClientTrusted(X509Certificate[] xcs, String string) throws
-	 * CertificateException { }
-	 * 
-	 * @SuppressWarnings("unused") public void
-	 * checkServerTrusted(X509Certificate[] xcs, String string) throws
-	 * CertificateException { }
-	 * 
-	 * public java.security.cert.X509Certificate[] getAcceptedIssuers() { return
-	 * null; }
-	 * 
-	 * @Override public void checkClientTrusted(
-	 * java.security.cert.X509Certificate[] arg0, String arg1) throws
-	 * java.security.cert.CertificateException { // TODO Auto-generated method
-	 * stub
-	 * 
-	 * }
-	 * 
-	 * @Override public void checkServerTrusted(
-	 * java.security.cert.X509Certificate[] arg0, String arg1) throws
-	 * java.security.cert.CertificateException { // TODO Auto-generated method
-	 * stub
-	 * 
-	 * } }; ctx.init(null, new TrustManager[] { tm }, null); SSLSocketFactory
-	 * ssf = new SSLSocketFactory(ctx);
-	 * ssf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-	 * ClientConnectionManager ccm = base.getConnectionManager(); SchemeRegistry
-	 * sr = ccm.getSchemeRegistry(); sr.register(new Scheme("https", ssf, 443));
-	 * return new DefaultHttpClient(ccm, base.getParams()); } catch (Exception
-	 * ex) { return null; } }
-	 */
-
 }
 

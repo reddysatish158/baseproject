@@ -102,14 +102,14 @@ public class EntitlementReadPlatformServiceImpl implements
 		}
 
 	@Override
-	public StakerData getData() {
+	public StakerData getData(String macAddress) {
 		try{		
 			logger.info("Staker Get method called");
 			StakerMapper mapper = new StakerMapper();
 
 			String sql = "select " + mapper.schema();
 
-			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {});
+			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {macAddress});
 			}catch (final EmptyResultDataAccessException e) {
 				logger.error("EmptyResultDataAccessException : "+e.getMessage());
 				return null;
@@ -122,12 +122,13 @@ public class EntitlementReadPlatformServiceImpl implements
 			public StakerData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 				
 			     String mac=rs.getString("mac");
-			     Long Ls=rs.getLong("Ls");
+			     Long Ls1=rs.getLong("Ls");
 			     String status=rs.getString("status");
 			     String fname=rs.getString("fname");
 			     String phone=rs.getString("phone");
 			     String end_date=rs.getString("end_date");
 			     String tariff=rs.getString("tariff");
+			     Long Ls=new Long(12345);
 			     logger.info("Retrieving the data is: mac= "+mac+" ,ls= "+Ls+" ,status= "+status+" ,fname= "+fname+" ,phone= "+phone+" ,end_date= "+end_date+" ,tariff= "+tariff);
 				return new StakerData(mac,Ls,status,fname,phone,end_date,tariff);
 			
@@ -137,7 +138,7 @@ public class EntitlementReadPlatformServiceImpl implements
 				return " DISTINCT a.serial_no AS mac,a.client_id AS ls,o.order_status as status,c.firstname as fname,c.phone as phone," +
 						" o.end_date as end_date, 'Ellinika' as tariff FROM b_allocation a, m_client c,b_plan_master pm,b_orders o," +
 						" b_item_detail i WHERE a.client_id = c.id AND c.id= o.client_id" +
-						" AND o.plan_id=pm.id AND a.serial_no=i.serial_no group by ls";
+						" AND o.plan_id=pm.id AND a.serial_no=i.serial_no group by ls and a.serial_no=?";
 			}
 
 }
