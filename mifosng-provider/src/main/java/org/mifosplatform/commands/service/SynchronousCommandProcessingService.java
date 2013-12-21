@@ -811,15 +811,16 @@ public class SynchronousCommandProcessingService implements
         	             handler = this.applicationContext.getBean("updateAssociationCommandhandler", NewCommandSourceHandler.class);
 				     }else if (wrapper.isUpdateDeAssociation()) {
         	             handler = this.applicationContext.getBean("updateDeAssociationCommandhandler", NewCommandSourceHandler.class);
-				     
-				     }else {
-					     throw new UnsupportedCommandException(wrapper.commandName());
-					}                
-				  }else if(wrapper.isPaymentGatewayResource()){
+				     }
+				 }else if(wrapper.isPaymentGatewayResource()){
 					     if(wrapper.isCreatePaymentGateway()) {
 					         handler = applicationContext.getBean("createPaymentGatewayCommandHandler",NewCommandSourceHandler.class);
 					     }               
-				   }else {
+				}else if(wrapper.isHardwareSwapping()){
+					     if(wrapper.isDoSwapping()) {
+					         handler = applicationContext.getBean("hardwareSwappingCommandHandler",NewCommandSourceHandler.class);
+					     }               
+				}else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       

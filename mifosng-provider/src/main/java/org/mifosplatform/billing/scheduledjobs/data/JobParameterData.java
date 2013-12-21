@@ -12,7 +12,7 @@ public class JobParameterData {
 	private String batchName;
 	private String promotionalMessage;
 	private String messageTempalate;
-	private char isDynamic;
+	private String isDynamic;
 	private LocalDate dueDate;
 	private LocalDate processDate;
 	private LocalDate exipiryDate;
@@ -43,16 +43,19 @@ public class JobParameterData {
 				     this.messageTempalate=parameter.getParamValue();
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROCESSDATE) && parameter.getParamValue()!=null){
-				    this.processDate= DateTimeFormat.forPattern("dd MMMM yyyy")
-		                 .parseLocalDate(parameter.getParamValue());
+				    this.processDate= DateTimeFormat.forPattern("dd MMMM yyyy").parseLocalDate(parameter.getParamValue());
+				    this.isDynamic=parameter.isDynamic();
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_DUEDATE) && parameter.getParamValue()!=null){
 			    this.dueDate= DateTimeFormat.forPattern("dd MMMM yyyy")
 		                 .parseLocalDate(parameter.getParamValue());
+			    this.isDynamic=parameter.isDynamic();
 
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_EXIPIRYDATE) && parameter.getParamValue()!=null){
 			    this.exipiryDate= DateTimeFormat.forPattern("dd MMMM yyyy")
 		                 .parseLocalDate(parameter.getParamValue());
+
+			    this.isDynamic=parameter.isDynamic();
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_URL)){
 			     this.url=parameter.getParamValue();
 					
@@ -66,6 +69,7 @@ public class JobParameterData {
                  this.provSystem=parameter.getParamValue();
 	
             }else{
+
 				 this.batchName=parameter.getParamValue();
 			}
 			/*if(parameter.isDynamic() == "Y" && parameter.getParamValue() == null){
@@ -97,7 +101,7 @@ public class JobParameterData {
 		return messageTempalate;
 	}
 
-	public char isDynamic() {
+	public String isDynamic() {
 		return isDynamic;
 	}
 
@@ -109,7 +113,11 @@ public class JobParameterData {
 		return processDate;
 	}
 
-	public char getIsDynamic() {
+
+	
+
+	public String getIsDynamic() {
+
 		return isDynamic;
 	}
 
@@ -144,8 +152,7 @@ public class JobParameterData {
 	public String getProvSystem() {
 		return provSystem;
 	}
-	
-	
+
 	
 
 }

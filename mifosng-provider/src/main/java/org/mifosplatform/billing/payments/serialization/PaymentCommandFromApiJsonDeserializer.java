@@ -33,9 +33,8 @@ public class PaymentCommandFromApiJsonDeserializer {
 	 * The parameters supported for this command.
 	 */
 	private final Set<String> supportedParameters = new HashSet<String>(
-			Arrays.asList("id", "clientId", "paymentDate", "paymentCode",
-					"amountPaid", "statmentId", "externalId", "dateFormat",
-					"locale", "remarks","receiptNo","chequeNo","chequeDate","bankName","branchName",
+			Arrays.asList("id", "clientId", "paymentDate", "paymentCode","amountPaid", "statmentId", "externalId", "dateFormat",
+					"locale", "remarks","receiptNo","chequeNo","chequeDate","bankName","branchName","ispaymentEnable","renewalPeriod",
 					"isChequeSelected","txn_id"));
 	
 	private final FromJsonHelper fromApiJsonHelper;

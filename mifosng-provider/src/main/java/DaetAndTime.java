@@ -12,13 +12,14 @@ public class DaetAndTime {
    
 	public static void main(String[] args) {
        
-    
-		String pattern = "dd MMMMM yyyy";
-		SimpleDateFormat simpleDateFormat =
-		        new SimpleDateFormat("dd MMMMM yyyy", new Locale("en"));
-
-		String date = simpleDateFormat.format(new LocalDate().toDate());
-		System.out.println(date.toString());
- 
-}
+	/*	 Date date = new Date();
+		    SimpleDateFormat dateFormatCN = new SimpleDateFormat("dd MMMM yyyy",new Locale("fr"));
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+	 System.out.println(  dateFormatCN.format(date));
+	 System.out.println(  dateFormat.format(date));   */
+		
+		LocalDate localDate=new LocalDate();
+		   SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+		System.out.println(dateFormat.format(localDate.toDate()));
+	}
 }

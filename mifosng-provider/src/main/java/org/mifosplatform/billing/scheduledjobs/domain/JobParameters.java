@@ -1,9 +1,7 @@
 package org.mifosplatform.billing.scheduledjobs.domain;
 
 import java.text.SimpleDateFormat;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.jobs.api.SchedulerJobApiConstants;
@@ -134,6 +131,15 @@ public class JobParameters extends AbstractPersistable<Long>{
 	    
 	    	this.paramValue=reportName;
 	      }
+	    
+        final String isDynamicParamName = "isDynamic";
+	    final boolean isDynamic= command.booleanPrimitiveValueOfParameterNamed(isDynamicParamName);
+	    //if(this.isDynamic.equalsIgnoreCase(SchedulerJobApiConstants.jobIsDynamic) && reportName!=null){
+	    	if(isDynamic == true){
+	    	this.isDynamic="Y";
+	    	}else
+	    		this.isDynamic="N";
+	    //} 
 	    
 	    final String messageParamName = "promotionalMessage";
 	    final String promotionalMessage= command.stringValueOfParameterNamed(messageParamName);

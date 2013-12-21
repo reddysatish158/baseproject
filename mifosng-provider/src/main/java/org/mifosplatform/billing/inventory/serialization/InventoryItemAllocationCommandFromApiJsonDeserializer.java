@@ -25,7 +25,7 @@ import com.google.gson.reflect.TypeToken;
 @Component
 public class InventoryItemAllocationCommandFromApiJsonDeserializer {
 
-	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("orderId","clientId","itemMasterId","serialNumber","status","quantity"));
+	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("orderId","clientId","itemMasterId","serialNumber","status","quantity","swapHw"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 	
@@ -60,8 +60,8 @@ public class InventoryItemAllocationCommandFromApiJsonDeserializer {
 	        	baseDataValidator.reset().parameter("orderId").value(orderId).notNull();
 	        	final Long clientId = fromApiJsonHelper.extractLongNamed("clientId", j);
 	        	baseDataValidator.reset().parameter("clientId").value(clientId).notNull().notBlank();
-	        	final Long itemMasterId = fromApiJsonHelper.extractLongNamed("itemMasterId", j);
-	        	baseDataValidator.reset().parameter("itemMasterId").value(itemMasterId).notBlank();
+	        	/*final Long itemMasterId = fromApiJsonHelper.extractLongNamed("itemMasterId", j);
+	        	baseDataValidator.reset().parameter("itemMasterId").value(itemMasterId).notBlank();*/
 	        	final String serialNumber = fromApiJsonHelper.extractStringNamed("serialNumber", j);
 	        	baseDataValidator.reset().parameter(""+i).value(serialNumber).notBlankFoSerialNumber();
 		        final String status = fromApiJsonHelper.extractStringNamed("status", j);

@@ -76,11 +76,10 @@ public class GenerateDisconnectionBill {
 	public List<InvoiceTaxCommand> generateInvoiceTax(
 			List<TaxMappingRateData> taxMappingRateDatas, BigDecimal price,
 			BillingOrderData billingOrderData) {
-
 		BigDecimal taxPercentage = null;
 		String taxCode = null;
 		BigDecimal taxAmount = null;
-		BigDecimal taxFlat = BigDecimal.ZERO;
+		BigDecimal taxFlat = null;
 		List<InvoiceTaxCommand> invoiceTaxCommands = new ArrayList<InvoiceTaxCommand>();
 		InvoiceTaxCommand invoiceTaxCommand = null;
 		if (taxMappingRateDatas != null) {
@@ -91,40 +90,47 @@ public class GenerateDisconnectionBill {
 
 					taxPercentage = taxMappingRateData.getRate();
 					taxCode = taxMappingRateData.getTaxCode();
-					taxAmount = price.multiply(taxPercentage
-							.divide(new BigDecimal(100)));
-				} else if (taxMappingRateData.getTaxType().equalsIgnoreCase("Flat")) {
-					taxFlat = taxMappingRateData.getRate();
+					taxAmount = price.multiply(taxPercentage.divide(new BigDecimal(100)));
+				} else if(taxMappingRateData.getTaxType().equalsIgnoreCase("Flat")) {
 					
-					int numberOfMonths = Months.monthsBetween(new LocalDate(),new LocalDate(billingOrderData.getInvoiceTillDate())).getMonths();
+					taxFlat = taxMappingRateData.getRate();
 					BigDecimal numberOfMonthsPrice = BigDecimal.ZERO;
 					BigDecimal numberOfDaysPrice = BigDecimal.ZERO;
-					int maximumDayInMonth = new LocalDate().dayOfMonth().withMaximumValue().getDayOfMonth();
-					BigDecimal pricePerDay = taxFlat.divide(new BigDecimal(maximumDayInMonth), 2,RoundingMode.HALF_UP);
+				    int numberOfMonths = Months.monthsBetween(new LocalDate(),new LocalDate(billingOrderData.getInvoiceTillDate())).getMonths();
+				    int maximumDayInMonth = new LocalDate().dayOfMonth().withMaximumValue().getDayOfMonth();
+			        int  maximumDaysInYear = new LocalDate().dayOfYear().withMaximumValue().getDayOfYear();
 					int numberOfDays = 0;
 					if(numberOfMonths!=0){
 						LocalDate tempDate = new LocalDate(billingOrderData.getInvoiceTillDate()).minusMonths(numberOfMonths);
-						numberOfDays = Days.daysBetween(new LocalDate(), tempDate).getDays();
-						
-						
+						numberOfDays = Days.daysBetween(new LocalDate(), tempDate).getDays();	
 					}else{
 						numberOfDays = Days.daysBetween(new LocalDate(),new LocalDate(billingOrderData.getInvoiceTillDate())).getDays();
 					}
-					numberOfDaysPrice = pricePerDay.multiply(new BigDecimal(numberOfDays));
+					if(billingOrderData.getChargeDuration()==12){
+						 BigDecimal pricePerMonth = taxFlat.divide(new BigDecimal(12), 2,RoundingMode.HALF_UP);
+						 numberOfMonthsPrice = pricePerMonth.multiply(new BigDecimal(numberOfMonths));
+					  }else{
 					numberOfMonthsPrice = taxFlat.multiply(new BigDecimal(numberOfMonths));
-					
+					  }
+					 if(billingOrderData.getChargeDuration()==12){
+				    	   BigDecimal pricePerDay = taxFlat.divide(new BigDecimal(maximumDaysInYear), 2,RoundingMode.HALF_UP);
+				    	   numberOfDaysPrice = pricePerDay.multiply(new BigDecimal(numberOfDays));
+				       }else{
+						BigDecimal pricePerDay = taxFlat.divide(new BigDecimal(maximumDayInMonth), 2,RoundingMode.HALF_UP);
+						numberOfDaysPrice = pricePerDay.multiply(new BigDecimal(numberOfDays));
+				       }
+					 
 					taxAmount = numberOfDaysPrice.add(numberOfMonthsPrice);
-	
 					taxCode = taxMappingRateData.getTaxCode();
 					// taxAmount = taxFlat;
 				}
-
+			
 				invoiceTaxCommand = new InvoiceTaxCommand(billingOrderData.getClientId(), null, null,
 						taxCode, null, taxPercentage, taxAmount);
 				invoiceTaxCommands.add(invoiceTaxCommand);
 			}
 
-		}
+	    }
 		return invoiceTaxCommands;
 
 	}
@@ -168,11 +174,18 @@ public class GenerateDisconnectionBill {
 			}
 
 			if (numberOfMonths != 0) {
+			 if(billingOrderData.getChargeDuration()==12){
+				 BigDecimal p=price.divide(new BigDecimal(12), 2,RoundingMode.HALF_UP);
+				disconnectionCreditForMonths = p.multiply(new BigDecimal(numberOfMonths));
+				}else{
 				disconnectionCreditForMonths = price.multiply(new BigDecimal(numberOfMonths));
 			}
-
-			disconnectionCreditPerday = price.divide(new BigDecimal(30), 2,RoundingMode.HALF_UP);
-
+			}
+			 if(billingOrderData.getChargeDuration()==12){
+			disconnectionCreditPerday = price.divide(new BigDecimal(365), 2,RoundingMode.HALF_UP);
+			 }else{
+				 disconnectionCreditPerday = price.divide(new BigDecimal(30), 2,RoundingMode.HALF_UP);
+			 }
 			if (numberOfDays != 0) {
 				disconnectionCreditForDays = disconnectionCreditPerday
 						.multiply(new BigDecimal(numberOfDays));

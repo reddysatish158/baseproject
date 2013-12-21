@@ -18,5 +18,7 @@ public interface OneTimeSaleReadPlatformService {
 
 	List<AllocationDetailsData> retrieveAllocationDetails(Long orderId);
 
+	AllocationDetailsData retrieveAllocationDetailsBySerialNo(String serialNo);
+
 
 }

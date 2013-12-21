@@ -41,6 +41,8 @@ public class OrderData {
 	private String userAction;
 	private OrderData orderData;
 	private String provisioningSys;
+	private boolean ispaymentEnable;
+	private Collection<McodeData> paymodes;
 
 	public OrderData(List<PlanCodeData> allowedtypes,
 			List<PaytermData> paytermData,
@@ -101,12 +103,13 @@ public class OrderData {
 		this.orderPriceData = priceDatas;
 		this.orderHistory=historyDatas;
 		this.orderData=orderDetailsData;
-
+       
 	}
 
-	public OrderData(Collection<McodeData> disconnectDetails,List<SubscriptionData> subscriptionDatas) {
+	public OrderData(Collection<McodeData> disconnectDetails,List<SubscriptionData> subscriptionDatas, boolean isEnabled) {
 		this.disconnectDetails=disconnectDetails;
 		this.subscriptiondata=subscriptionDatas;
+		 this.ispaymentEnable=isEnabled;
 	}
 
 	public OrderData(Long clientId, List<OrderData> clientOrders) {
@@ -214,6 +217,11 @@ public class OrderData {
 
 	public void setplanType(String planType) {
 	this.isPrepaid=planType;
+		
+	}
+
+	public void setPaymodeData(Collection<McodeData> data) {
+		this.paymodes=data;
 		
 	}
 }

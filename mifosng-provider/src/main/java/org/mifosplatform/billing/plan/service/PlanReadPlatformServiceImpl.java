@@ -166,11 +166,8 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 	public List<SubscriptionData> retrieveSubscriptionData() {
 
 		context.authenticatedUser();
-
 		SubscriptionDataMapper mapper = new SubscriptionDataMapper();
-
 		String sql = "select " + mapper.schema();
-
 		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
 	}
 

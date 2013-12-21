@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
+import org.mifosplatform.billing.inventory.data.AllocationHardwareData;
 import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
 import org.mifosplatform.billing.inventory.data.InventoryItemSerialNumberData;
 import org.mifosplatform.billing.inventory.data.ItemMasterIdData;
@@ -227,15 +228,16 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 		}
 	}
 	
-	private final class ItemDetailMapper implements RowMapper<InventoryItemDetails>{
+	private final class ItemDetailMapper implements RowMapper<AllocationHardwareData>{
 		
 		@Override
-		public InventoryItemDetails mapRow(ResultSet rs, int rowNum)throws SQLException{
+		public AllocationHardwareData mapRow(ResultSet rs, int rowNum)throws SQLException{
 			
 			Long id = rs.getLong("id");
 			Long clientId = rs.getLong("clientId");
-			
-			return new InventoryItemDetails(id,clientId);
+			Long saleId = rs.getLong("id");
+			Long allocationId = rs.getLong("clientId");
+			return new AllocationHardwareData(id,clientId,saleId,allocationId);
 		}
 	}  
 	
@@ -269,7 +271,8 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 		
 		context.authenticatedUser();
 		SerialNumberMapper rowMapper = new SerialNumberMapper();
-		String sql = "select idt.serial_no as serialNumber from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id where ots.id = ? and idt.client_id is null";/*"select serial_no as serialNumber from b_item_detail where item_master_id=(select item_id from b_onetime_sale where id=?) and client_id is null";*/
+		String sql = "select idt.serial_no as serialNumber from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id" +
+				" where ots.id = ? and idt.client_id is null";/*"select serial_no as serialNumber from b_item_detail where item_master_id=(select item_id from b_onetime_sale where id=?) and client_id is null";*/
 		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{oneTimeSaleId});
 	}
 	
@@ -285,19 +288,21 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 	public ItemMasterIdData retriveItemMasterId(Long oneTimeSaleId){
 		context.authenticatedUser();
 		ItemMasterMapper rowMapper = new ItemMasterMapper();
-		String sql = "select idt.item_master_id as itemMasterId from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id where ots.id = ? limit 1";
+		String sql = "select idt.item_master_id as itemMasterId from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id " +
+				"where ots.id = ? limit 1";
 		return this.jdbcTemplate.queryForObject(sql, rowMapper,new Object[]{oneTimeSaleId});
 	}
 	
 	
-	public InventoryItemDetails retriveInventoryItemDetail(String serialNumber,Long itemMasterId){
+	public AllocationHardwareData retriveInventoryItemDetail(String serialNumber){
 		
 		try{
+			
 		context.authenticatedUser();
 		ItemDetailMapper rowMapper = new ItemDetailMapper();
-		String sql = "select id,client_id as clientId from b_item_detail i where i.serial_no=? and i.item_master_id=?";
-		return this.jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{serialNumber,itemMasterId});
-		}catch(EmptyResultDataAccessException accessException){
+		String sql = "SELECT i.id,i.client_id AS clientId FROM b_item_detail i WHERE  i.serial_no = ? and i.status='NEW'";
+		  return this.jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{serialNumber});
+		 }catch(EmptyResultDataAccessException accessException){
 			return null;
 		}
 	}
@@ -319,7 +324,12 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 	@Override
 	public InventoryItemDetailsData retriveSingleItemDetail(Long itemId) {
 		try{
-		String sql = "select item.id as id,office.name as officeName, item.item_master_id as itemMasterId, item.serial_no as serialNumber, item.grn_id as grnId, (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) as supplier,item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, (select warranty from b_item_master where id = item.item_master_id) as warranty, item.remarks as remarks, master.item_description as itemDescription, item.client_id as clientId from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join m_office office on item.office_id = office.id where item.id=?";
+		String sql = "select item.id as id,office.name as officeName, item.item_master_id as itemMasterId, item.serial_no as serialNumber, " +
+				"item.grn_id as grnId, (select supplier_description from b_supplier where id = (select supplier_id from b_grn where b_grn.id=item.grn_id)) " +
+				"as supplier,item.provisioning_serialno as provisioningSerialNumber, item.quality as quality, item.status as status, " +
+				"(select warranty from b_item_master where id = item.item_master_id) as warranty, item.remarks as remarks, master.item_description as itemDescription, " +
+				"item.client_id as clientId from b_item_detail item left outer join b_item_master master on item.item_master_id = master.id left outer join " +
+				"m_office office on item.office_id = office.id where item.id=?";
 		ItemDetailsMapper2 rowMapper = new ItemDetailsMapper2();
 		return jdbcTemplate.queryForObject(sql, rowMapper,new Object[]{itemId});
 		}catch(EmptyResultDataAccessException accessException){

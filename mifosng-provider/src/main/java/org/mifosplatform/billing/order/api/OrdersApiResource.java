@@ -35,6 +35,8 @@ import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
@@ -49,9 +51,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class OrdersApiResource {
+	private static final String CONFIG_PROPERTY = "renewal";
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","cancelledStatus","status","contractPeriod","nextBillDate","flag",
 	           "currentDate","plan_code","units","service_code","allowedtypes","data","servicedata","billing_frequency", "start_date", "contract_period",
-	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction"));
+	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes"));
 	  private final String resourceNameForPermissions = "ORDER";
 	  private final PlatformSecurityContext context;
 	  private final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer;
@@ -60,8 +63,10 @@ public class OrdersApiResource {
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	  private final PlanReadPlatformService planReadPlatformService;
 	  private final PaymodeReadPlatformService paymodeReadPlatformService;
+	  private final GlobalConfigurationRepository configurationRepository;
+	  
 	  @Autowired
-	    public OrdersApiResource(final PlatformSecurityContext context, 
+	    public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
 	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
@@ -72,6 +77,7 @@ public class OrdersApiResource {
 		        this.planReadPlatformService=planReadPlatformService;
 		        this.orderReadPlatformService=orderReadPlatformService;
 		        this.paymodeReadPlatformService=paymodeReadPlatformService;
+		        this.configurationRepository=configurationRepository;
 		    }	
 	  
 	@POST
@@ -187,9 +193,13 @@ public class OrdersApiResource {
     public String retrieveRenewalOrderDetails(@Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
     	List<SubscriptionData> contractPeriod=this.planReadPlatformService.retrieveSubscriptionData();
-    
+    	GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
     	contractPeriod.remove(0);
-    	OrderData orderData=new OrderData(null,contractPeriod);
+    	OrderData orderData=new OrderData(null,contractPeriod,configurationProperty.isEnabled());
+    	if(configurationProperty.isEnabled()){
+    		Collection<McodeData> data = this.paymodeReadPlatformService.retrievemCodeDetails("Payment Mode");
+    		orderData.setPaymodeData(data);
+    	}
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
     }
@@ -213,7 +223,7 @@ public class OrdersApiResource {
 	    public String retrieveOrderDisconnectDetails(@Context final UriInfo uriInfo) {
 	        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	        final Collection<McodeData> disconnectDetails = this.paymodeReadPlatformService.retrievemCodeDetails("Disconnect Reason");
-	        OrderData orderData=new OrderData(disconnectDetails,null);
+	        OrderData orderData=new OrderData(disconnectDetails,null, false);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
 	    }

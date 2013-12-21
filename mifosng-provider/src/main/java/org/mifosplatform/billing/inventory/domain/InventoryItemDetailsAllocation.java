@@ -44,6 +44,9 @@ public class InventoryItemDetailsAllocation extends AbstractAuditableCustom<AppU
 	@Column(name="status",nullable=true)
 	private String status;
 
+	@Column(name="is_deleted")
+	private String isDeleted="N";
+	
 	public InventoryItemDetailsAllocation(){}
 
 	public InventoryItemDetailsAllocation(final Long orderId,final Long clientId,final Long itemMasterId,final String serialNumber,Date allocationDate,String status){
@@ -117,6 +120,13 @@ public class InventoryItemDetailsAllocation extends AbstractAuditableCustom<AppU
 		final Date allocationDate = new Date();
 		final String status = fromJsonHelper.extractStringNamed("status", j);
 		return new InventoryItemDetailsAllocation(orderId,clientId,itemMasterId,serialNumber,allocationDate,status);
+	}
+
+	public void deAllocate() {
+  
+		  this.isDeleted="Y";
+		  this.status="unallocated";
+		
 	}
 	
 	
