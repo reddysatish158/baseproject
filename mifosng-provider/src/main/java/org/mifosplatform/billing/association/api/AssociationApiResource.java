@@ -36,7 +36,8 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class AssociationApiResource {
 
-	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "planCode", "OrderId","hardware","serialNo","planCode","itemCode"));
+	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "planCode", "OrderId","hardware","serialNo","planCode",
+			"itemCode","saleId"));
 	
 	 private final String resourceNameForPermissions = "PLAN";
 	  private final PlatformSecurityContext context;

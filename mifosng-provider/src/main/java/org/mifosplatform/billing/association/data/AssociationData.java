@@ -14,6 +14,7 @@ public class AssociationData {
 		private Long clientId;
 		
 		private String provisionNumber;
+		private Long saleId;
 		
 	
 	public AssociationData(Long orderId,Long id, String planCode, String itemCode,String serialNum,Long planId) {
@@ -34,8 +35,8 @@ public class AssociationData {
 		
 	}
 
-	public AssociationData(Long orderId, String planCode, String provisionNumber,Long id, Long planId, Long clientId, String serialNum, String itemCode) {
-		// TODO Auto-generated constructor stub
+	public AssociationData(Long orderId, String planCode, String provisionNumber,Long id, Long planId, Long clientId, 
+			String serialNum, String itemCode, Long saleId) {
 		this.orderId=orderId;
 		this.planCode=planCode;
 		this.serialNum=serialNum;
@@ -44,6 +45,7 @@ public class AssociationData {
 		this.clientId=clientId;
 		this.provisionNumber=provisionNumber;
 		this.itemCode=itemCode;
+		this.saleId=saleId;
 	}
 	
 	public AssociationData(Long planId, String planCode, Long id) {

@@ -2,8 +2,6 @@ package org.mifosplatform.billing.ownedhardware.service;
 
 import java.util.List;
 
-import org.mifosplatform.billing.batchjob.serialization.BatchJobFromApiJsonDeserializer;
-import org.mifosplatform.billing.batchjob.service.BatchJobWritePlatformServiceImp;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsReadPlatformService;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardwareData;

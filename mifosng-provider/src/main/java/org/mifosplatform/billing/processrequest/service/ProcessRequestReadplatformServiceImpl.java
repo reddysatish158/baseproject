@@ -45,7 +45,7 @@ public class ProcessRequestReadplatformServiceImpl implements ProcessRequestRead
 	        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
 			final ClientOrderMapper mapper = new ClientOrderMapper();
 
-			final String sql = "select " + mapper.processLookupSchema()+" where p.is_processed='Y' and p.is_notify='N'";
+			final String sql = "select " + mapper.processLookupSchema()+" where p.is_processed='Y' and p.is_notify='N' limit 50";
 
 			return jdbcTemplate.query(sql, mapper, new Object[] { });
 			} catch (EmptyResultDataAccessException e) {
@@ -81,8 +81,7 @@ public class ProcessRequestReadplatformServiceImpl implements ProcessRequestRead
 				try {
 					
 					  
-			        final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
-			        ThreadLocalContextUtil.setTenant(tenant);
+			     
 			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
 					final ClientOrderMapper mapper = new ClientOrderMapper();
 

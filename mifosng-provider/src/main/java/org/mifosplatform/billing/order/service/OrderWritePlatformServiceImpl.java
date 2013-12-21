@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.joda.time.Days;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.billing.association.data.AssociationData;
@@ -34,6 +35,8 @@ import org.mifosplatform.billing.order.domain.PlanHardwareMappingRepository;
 import org.mifosplatform.billing.order.exceptions.NoOrdersFoundException;
 import org.mifosplatform.billing.order.exceptions.NoRegionalPriceFound;
 import org.mifosplatform.billing.order.serialization.OrderCommandFromApiJsonDeserializer;
+import org.mifosplatform.billing.payments.api.PaymentsApiResource;
+import org.mifosplatform.billing.payments.service.PaymentWritePlatformService;
 import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.plan.domain.Plan;
 import org.mifosplatform.billing.plan.domain.PlanRepository;
@@ -46,6 +49,8 @@ import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.commands.domain.CommandWrapper;
+import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -89,7 +94,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
     private final ProcessRequestRepository processRequestRepository;
     private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
-    
+    private final PaymentWritePlatformService paymentWritePlatformService;
+    private final PaymentsApiResource paymentsApiResource;
     
     
     public final static String CONFIG_PROPERTY="Implicit Association";
@@ -105,7 +111,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final  GlobalConfigurationRepository configurationRepository,final AllocationReadPlatformService allocationReadPlatformService,
 			final HardwareAssociationWriteplatformService associationWriteplatformService,final PlanHardwareMappingRepository hardwareMappingRepository,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
-		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService) {
+		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
+		    final PaymentWritePlatformService paymentWritePlatformService,final PaymentsApiResource paymentsApiResource) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -128,6 +135,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.processRequestRepository=processRequestRepository;
 		this.orderReadPlatformService = orderReadPlatformService;
 		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
+		this.paymentWritePlatformService=paymentWritePlatformService;
+		this.paymentsApiResource=paymentsApiResource;
+		
 
 	}
 	
@@ -369,11 +379,13 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			this.fromApiJsonDeserializer.validateForDisconnectOrder(command.json());
 			Order order = this.orderRepository.findOne(orderId);
+			
+			LocalDate disconnectionDate=command.localDateValueOfParameterNamed("disconnectionDate");
 			LocalDate currentDate = new LocalDate();
 			currentDate.toDate();
 			List<OrderPrice> orderPrices=order.getPrice();
 			for(OrderPrice price:orderPrices){
-				price.updateDates(new LocalDate());
+				price.updateDates(disconnectionDate);
 			}
 			Plan plan=this.planRepository.findOne(order.getPlanId());
 			Long orderStatus=null;
@@ -385,10 +397,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
 			}
 	         
-	         this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),new LocalDate());
+	         this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),disconnectionDate);
 	      
 			order.update(command,orderStatus);
-			order.setuerAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
+			order.setuserAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
 			this.orderRepository.save(order);
 			
 			//for Prepare Request
@@ -427,17 +439,20 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if(orderDetails == null){
 				throw new NoOrdersFoundException(command.entityId());
 			}
+			
+			List<OrderPrice>  orderPrices=orderDetails.getPrice();
+			
 		    final Long contractPeriod = command.longValueOfParameterNamed("renewalPeriod");
 		    
 		    Contract contractDetails=this.subscriptionRepository.findOne(contractPeriod);
 		    
 		    //Get The Plan Details
-		    Plan plan=this.planRepository.findOne(orderDetails.getPlanId());
+		 Plan plan=this.planRepository.findOne(orderDetails.getPlanId());
 		    
 		    LocalDate newStartdate=new LocalDate(orderDetails.getEndDate());
-		    LocalDate topUpDate=new LocalDate();
+		//    LocalDate topUpDate=new LocalDate();
 		    newStartdate=newStartdate.plusDays(1);
-		    if(plan.isPrepaid() == 'Y'){
+		   /* if(plan.isPrepaid() == 'Y'){
 		    	  
 		    	  if(topUpDate.isAfter(newStartdate)){
 		    		  newStartdate=topUpDate;
@@ -446,14 +461,49 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    		  int days=Days.daysBetween(topUpDate, newStartdate).getDays();
 		    		   newStartdate=newStartdate.plusDays(days);
 		    	  }
-		    }
+		    }*/
 		    
 		 
 		    LocalDate renewalEndDate=calculateEndDate(newStartdate,contractDetails);
 		      orderDetails.setEndDate(renewalEndDate);
+                  for(OrderPrice orderprice:orderPrices){
+                	  orderprice.setBillEndDate(renewalEndDate);
+                	  this.OrderPriceRepository.save(orderprice);
+                       //OrderPrice price=this.OrderPriceRepository.findOne(orderprice.)
+                	  
+                  }
+
+                  if(orderDetails.getStatus().equals(StatusTypeEnum.DISCONNECTED.getValue()) && (!plan.getProvisionSystem().equalsIgnoreCase("None"))){
+      			
+                	String requstStatus =UserActionStatusTypeEnum.ACTIVATION.toString();
+          			this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,requstStatus);
+          			orderDetails.setStatus(StatusTypeEnum.PENDING.getValue().longValue());
+          			orderDetails.setuserAction(UserActionStatusTypeEnum.ACTIVATION.toString());
+      			}else{
+      				orderDetails.setStatus(StatusTypeEnum.ACTIVE.getValue().longValue());
+      			}
+      			
 		      
 		      this.orderRepository.save(orderDetails);
+		    
+		      final boolean ispaymentEnable = command.booleanPrimitiveValueOfParameterNamed("ispaymentEnable");
 		      
+		      if(ispaymentEnable){
+		    	   JSONObject jsonobject = new JSONObject();
+		    	
+                   
+	                 jsonobject.put("paymentDate",command.localDateValueOfParameterNamed("paymentDate").toString());
+	                 jsonobject.put("amountPaid", command.bigDecimalValueOfParameterNamed("amountPaid"));
+	                 jsonobject.put("remarks", command.stringValueOfParameterNamed("remarks"));
+	                 jsonobject.put("locale", "en");
+	                 jsonobject.put("dateFormat","yyyy-MM-dd");
+	                 jsonobject.put("paymentCode",command.longValueOfParameterNamed("paymentCode"));
+	                 jsonobject.put("recieptNo",command.longValueOfParameterNamed("recieptNo"));
+	                 paymentsApiResource.createPayment(orderDetails.getClientId(), jsonobject.toString());
+		  	
+
+		    	    //this.paymentWritePlatformService.createPayment(command);
+		      }
 				//For Order History
      		      AppUser appUser=this.context.authenticatedUser();
 	   			  Long userId=appUser.getId();
@@ -467,12 +517,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		}catch (DataIntegrityViolationException dve) {
 			handleCodeDataIntegrityIssues(null,dve);
 			return new CommandProcessingResult(Long.valueOf(-1));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			return new CommandProcessingResult(Long.valueOf(-1));
 		}
 		
-	
-		
-		
-	
 	}
     @Transactional
     @Override
@@ -484,18 +533,22 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			  throw new NoOrdersFoundException(orderId);
 		  }
 		  
-		 
-		  
 		  final LocalDate startDate=new LocalDate();
-		  
 		  Long contractId=order.getContarctPeriod();
-		  
-			  Contract contractPeriod=this.subscriptionRepository.findOne(contractId);
-		
+		  Contract contractPeriod=this.subscriptionRepository.findOne(contractId);
 		  LocalDate EndDate=calculateEndDate(startDate,contractPeriod);
 		   order.setStartDate(startDate);
 		   order.setEndDate(EndDate);
+		   List<OrderPrice> orderPrices=order.getPrice();
 		   
+		   for(OrderPrice price:orderPrices){
+			   
+			   price.setBillStartDate(startDate);
+			   price.setBillEndDate(EndDate);
+			   price.setNextBillableDay(null);
+			   this.OrderPriceRepository.saveAndFlush(price);
+			   
+		   }
 		   Plan plan=this.planRepository.findOne(order.getPlanId());
 		      if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 					
@@ -514,7 +567,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		   
 		 
 		 //  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
-		        order.setuerAction(UserActionStatusTypeEnum.RECONNECTION.toString());
+		        order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
 		      this.orderRepository.save(order);
 		   
 		 
@@ -559,7 +612,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if (order == null) {
 				throw new NoOrdersFoundException(command.entityId());
 			}
-			
 			int i = command.subentityId().intValue();
 			 if (i == 1) {
 				 

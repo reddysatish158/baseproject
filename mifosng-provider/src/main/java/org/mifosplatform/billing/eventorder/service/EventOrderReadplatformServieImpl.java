@@ -15,7 +15,6 @@ import org.mifosplatform.billing.eventorder.data.EventOrderData;
 import org.mifosplatform.billing.eventorder.data.EventOrderDeviceData;
 import org.mifosplatform.billing.onetimesale.data.OneTimeSaleData;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
-import org.mifosplatform.billing.paymode.data.SavingCategoryEnumaration;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;

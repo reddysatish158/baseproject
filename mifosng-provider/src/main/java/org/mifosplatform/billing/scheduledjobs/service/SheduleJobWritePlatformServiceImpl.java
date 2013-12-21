@@ -1,8 +1,10 @@
 package org.mifosplatform.billing.scheduledjobs.service;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
@@ -29,6 +31,7 @@ import org.mifosplatform.billing.message.service.MessagePlatformEmailService;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.billing.processrequest.data.ProcessingDetailsData;
@@ -123,49 +126,52 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@CronTarget(jobName = JobName.INVOICE)
 	public void processInvoice() {
 
-		try {
 
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.INVOICE.toString());
+	try
+	{
+		
+		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
+		
+		if(data!=null){
+			
+		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	    	 
+		    	    	 for (ScheduleJobData scheduleJobData : sheduleDatas) {
 
-			if (data != null) {
+		    	 			List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+		    	 			
+		    	 			// Get the Client Ids
+		    	 			for (Long clientId : clientIds) {
+		    	 				try {
+		    	 					
+		    	 					if(data.isDynamic().equalsIgnoreCase("Y")){
+		    	 						
+		    	 						this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+		    	 					}else{
+		    	 						this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());	
+		    	 					}
 
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	 					
 
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	 				} catch (Exception dve) {
+		    	 					handleCodeDataIntegrityIssues(null, dve);
+		    	 				}
+		    	 			}
+		    	 			/*ScheduleJobs scheduleJob = this.scheduledJobRepository
+		    	 					.findOne(scheduleJobData.getId());
+		    	 			scheduleJob.setStatus('Y');
+		    	 			this.scheduledJobRepository.save(scheduleJob);*/
+		    	 		}
 
-					List<Long> clientIds = this.sheduleJobReadPlatformService
-							.getClientIds(scheduleJobData.getQuery());
-
-					// Get the Client Ids
-					for (Long clientId : clientIds) {
-						try {
-
-							this.invoiceClient.invoicingSingleClient(clientId,
-									data.getProcessDate());
-
-						} catch (Exception dve) {
-							handleCodeDataIntegrityIssues(null, dve);
-						}
-					}
-					/*
-					 * ScheduleJobs scheduleJob = this.scheduledJobRepository
-					 * .findOne(scheduleJobData.getId());
-					 * scheduleJob.setStatus('Y');
-					 * this.scheduledJobRepository.save(scheduleJob);
-					 */
-				}
-
-				System.out.println("Invoices are Generated....."
-						+ ThreadLocalContextUtil.getTenant()
-								.getTenantIdentifier());
-
-			}
-
-		} catch (DataIntegrityViolationException exception) {
-			exception.printStackTrace();
-		}
+		    	 		System.out.println("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+		    	
+		    }
+	
+	}catch(DataIntegrityViolationException exception)
+	{
+		exception.printStackTrace();
+	}
+	
 
 	}
 
@@ -182,19 +188,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 
 			System.out.println("Processing Request Details.......");
-
-			List<PrepareRequestData> data = this.prepareRequestReadplatformService
-					.retrieveDataForProcessing();
-
+			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
 			for (PrepareRequestData requestData : data) {
 
-				this.prepareRequestReadplatformService
-						.processingClientDetails(requestData);
+				this.prepareRequestReadplatformService.processingClientDetails(requestData);
 			}
-
-			System.out.println(" Requestor Job is Completed...."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-
+			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
 		}
@@ -208,16 +207,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Response Details.......");
 
-			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService
-					.retrieveProcessingDetails();
+			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
 
 			for (ProcessingDetailsData detailsData : processingDetails) {
 
-				this.processRequestWriteplatformService
-						.notifyProcessingDetails(detailsData);
+				this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
 			}
-			System.out.println("Responsor Job is Completed..."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+			System.out.println("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 
 		} catch (DataIntegrityViolationException exception) {
 
@@ -257,34 +253,38 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		try {
 			System.out.println("Processing statement Details.......");
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.GENERATE_STATMENT.toString());
-			if (data != null) {
 
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
+		    if(data!=null){
+		    	 
+		    	 List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	 
+		    	for(ScheduleJobData scheduleJobData:sheduleDatas)
+				{
+					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+					  
+					 for(Long clientId:clientIds)
+					 {
+						
+						 JSONObject jsonobject = new JSONObject();
+						
+							DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy");
+							String formattedDate ;
+							if(data.isDynamic().equalsIgnoreCase("Y")){
+								formattedDate = formatter.print(new LocalDate());	
+							}else{
+								formattedDate = formatter.print(data.getDueDate());
+							}
+							
 
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
-					List<Long> clientIds = this.sheduleJobReadPlatformService
-							.getClientIds(scheduleJobData.getQuery());
+							// System.out.println(formattedDate);
+							jsonobject.put("dueDate",formattedDate);
+							jsonobject.put("locale", "en");
+							jsonobject.put("dateFormat", "dd MMMM YYYY");
+							jsonobject.put("message", data.getPromotionalMessage());
+							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
+					 }
 
-					for (Long clientId : clientIds) {
-
-						JSONObject jsonobject = new JSONObject();
-
-						DateTimeFormatter formatter = DateTimeFormat
-								.forPattern("dd MMMM yyyy");
-						String formattedDate = formatter.print(data
-								.getDueDate());
-
-						// System.out.println(formattedDate);
-						jsonobject.put("dueDate", formattedDate);
-						jsonobject.put("locale", "en");
-						jsonobject.put("dateFormat", "dd MMMM YYYY");
-						jsonobject.put("message", data.getPromotionalMessage());
-						this.billingMasterApiResourse.retrieveBillingProducts(
-								clientId, jsonobject.toString());
-					}
 				}
 
 			}
@@ -337,48 +337,63 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Auto Exipiry Details.......");
 
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.AUTO_EXIPIRY.toString());
+			
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
+         
+                 if(data!=null){
+                	 
+			List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+			LocalDate exipirydate=null;
+			if(data.isDynamic().equalsIgnoreCase("Y")){
+				exipirydate=new LocalDate();
+			}else{
+				exipirydate=data.getExipiryDate();
+			}
+			for (ScheduleJobData scheduleJobData : sheduleDatas) 
+			{
+				List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+				
+				for(Long clientId:clientIds)
+				{
+					
+				List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+				
+      			for (OrderData orderData : orderDatas) 
+      			  {
+      				
+      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
+      				 {
+      					
+				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
+				     {
 
-			if (data != null) {
+				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+				  		//System.out.println(dateFormat.format(localDate.toDate()));
+					JSONObject jsonobject = new JSONObject();
+					jsonobject.put("disconnectReason","Date Expired");
+					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+					jsonobject.put("dateFormat","dd MMMM yyyy");
+					jsonobject.put("locale","en");
+					final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
 
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
-
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
-					List<Long> clientIds = this.sheduleJobReadPlatformService
-							.getClientIds(scheduleJobData.getQuery());
-					for (Long clientId : clientIds) {
-
-						List<OrderData> orderDatas = this.orderReadPlatformService
-								.retrieveClientOrderDetails(clientId);
-
-						for (OrderData orderData : orderDatas) {
-
-							if (orderData.getEndDate().equals(new LocalDate())) {
-
-								JSONObject jsonobject = new JSONObject();
-								jsonobject.put("disconnectReason",
-										"Date Expired");
-								final JsonElement parsedCommand = this.fromApiJsonHelper
-										.parse(jsonobject.toString());
-
-								final JsonCommand command = JsonCommand.from(
-										jsonobject.toString(), parsedCommand,
-										this.fromApiJsonHelper,
-										"DissconnectOrder", clientId, null,
-										null, clientId, null, null, null, null,
-										null, null);
-								this.orderWritePlatformService.disconnectOrder(
-										command, orderData.getId());
-							}
-						}
-					}
+					final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
+							null,clientId, null, null, null,null, null, null);
+					this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+				     }
 				}
 			}
+				}
+				}
+		}
+		
+		   
+
+
+		
 
 		} catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
+
 		}
 	}
 
@@ -534,3 +549,4 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	}
 }
+

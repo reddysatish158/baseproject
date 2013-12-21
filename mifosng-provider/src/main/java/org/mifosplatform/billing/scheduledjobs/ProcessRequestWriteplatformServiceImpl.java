@@ -60,18 +60,14 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	        
 	        final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
 	        ThreadLocalContextUtil.setTenant(tenant);
-	        
-	    
             List<PrepareRequestData> data=this.prepareRequestReadplatformService.retrieveDataForProcessing();
-            
-       
+
             for(PrepareRequestData requestData:data){
             	
                        //Get the Order details
                      final List<Long> clientOrderIds = this.prepareRequestReadplatformService.retrieveRequestClientOrderDetails(requestData.getClientId());
 
                      //Processing the request
-                     
                      if(clientOrderIds!=null){
                                      this.processingClientDetails(clientOrderIds,requestData);
                                     //Update RequestData
@@ -82,28 +78,14 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
             }
 	    }
                     
-                    
-          
-
-		
-
 		private void processingClientDetails(List<Long> clientOrderIds,PrepareRequestData requestData) {
 			
-			
-			
 			for(Long orderId:clientOrderIds){
-				
-				 final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
+
+				final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
 			        ThreadLocalContextUtil.setTenant(tenant);
 			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
-			        
-				
-				
 			}
-              
-			
-			
-			
 		}
 
 		@Override
@@ -114,8 +96,10 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 				 Order order=this.orderRepository.findOne(detailsData.getOrderId());
 				 if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.ACTIVATION.toString())){
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
+					 
 				 }else if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DISCONNECTION.toString())){
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId());
+					 
 				 }else{
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
 				 }

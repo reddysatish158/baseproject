@@ -6,13 +6,16 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsAllocation;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.billing.onetimesale.data.OneTimeSaleData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.pentaho.reporting.engine.classic.core.EmptyReportException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -170,8 +173,9 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 	private static final class AllocationDataMapper implements	RowMapper<AllocationDetailsData> {
 
 		public String schema() {
-			return "  a.id as id,i.item_description as itemDescription,a.serial_no as serialNo,a.allocation_date as allocationDate"
-				  +"  FROM b_allocation a, b_item_master i where a.item_master_id=i.id ";
+			return "  a.id AS id,id.id AS itemDetailId,i.item_description AS itemDescription,a.serial_no AS serialNo,a.allocation_date AS allocationDate" +
+					" FROM b_allocation a, b_item_master i, b_item_detail id WHERE  a.item_master_id = i.id   AND a.is_deleted = 'N' and id.client_id = a.client_id " +
+					"  and id.serial_no = a.serial_no ";
 
 		}
 
@@ -180,12 +184,29 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 				throws SQLException {
 
 			Long id = rs.getLong("id");
+			Long itemDetailId = rs.getLong("itemDetailId");
 			String itemDescription = rs.getString("itemDescription");
 			String serialNo = rs.getString("serialNo");
 			LocalDate allocationDate=JdbcSupport.getLocalDate(rs,"allocationDate");
-			return new AllocationDetailsData(id,itemDescription,serialNo,allocationDate);
+			return new AllocationDetailsData(id,itemDescription,serialNo,allocationDate,itemDetailId);
 
 		}
+	}
+
+	@Override
+	public AllocationDetailsData retrieveAllocationDetailsBySerialNo(String serialNo) {
+ 
+		try{
+		AllocationDataMapper mapper = new AllocationDataMapper();
+
+		String sql = "select " + mapper.schema()+ " and a.serial_no=?";
+
+		return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { serialNo });
+		
+		}catch(EmptyResultDataAccessException accessException){
+			return null;
+		}
+	
 	}
 	}
 

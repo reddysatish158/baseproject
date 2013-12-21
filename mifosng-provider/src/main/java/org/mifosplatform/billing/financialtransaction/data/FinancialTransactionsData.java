@@ -22,6 +22,8 @@ public class FinancialTransactionsData {
 	private String chargeDescription;
 	private BigDecimal chargeAmount;
 	private BigDecimal taxAmount;
+	private BigDecimal discountAmount;
+	private BigDecimal netChargeAmount;
 	private LocalDate chargeStartDate;
 	private LocalDate chargeEndDate;
 	private List<FinancialTransactionsData> transactionsDatas;
@@ -70,12 +72,14 @@ public class FinancialTransactionsData {
 
 	public FinancialTransactionsData(Long chargeId, String chargeType,
 			String chargeDescription, BigDecimal chargeAmount,
-			BigDecimal taxAmount, LocalDate chargeStartDate, LocalDate chargeEndDate) {
+			BigDecimal taxAmount,BigDecimal discountAmount, BigDecimal netChargeAmount,LocalDate chargeStartDate, LocalDate chargeEndDate) {
 		this.chargeId=chargeId;
 		this.chargeType=chargeType;
 		this.chargeDescription=chargeDescription;
 		this.chargeAmount=chargeAmount;
 		this.taxAmount=taxAmount;
+		this.discountAmount=discountAmount;
+		this.netChargeAmount=netChargeAmount;
 		this.chargeStartDate=chargeStartDate;
 		this.chargeEndDate=chargeEndDate;
 	}
@@ -172,6 +176,22 @@ public class FinancialTransactionsData {
 		return taxAmount;
 	}
 
+	/**
+	 * @return the discountAmount
+	 */
+	public BigDecimal getdiscountAmount() {
+		return discountAmount;
+	}
+	/**
+	 * @return the netChargeAmount
+	 */
+	public BigDecimal getNetChargeAmount() {
+		return netChargeAmount;
+	}
+
+	
+	
+	
 	/**
 	 * @return the chargeStartDate
 	 */

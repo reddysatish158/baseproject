@@ -215,9 +215,10 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 		private static final class Mapper implements RowMapper<AssociationData> {
 
 			public String schema() {
-				return "a.id AS id,a.client_id AS clientId,a.order_id AS orderId,a.hw_serial_no AS serialNo,p.plan_code AS planCode,id.serial_no AS serialNum," +
-				      "p.id AS planId,i.item_code as itemCode  FROM b_association a, b_plan_master p, b_item_detail id, b_item_master i   WHERE p.id = a.plan_id " +
-				      " AND a.order_id =? AND id.serial_no = a.hw_serial_no and id.item_master_id=i.id and a.is_deleted='N'";
+				return "  a.id AS id,a.client_id AS clientId,a.order_id AS orderId,a.hw_serial_no AS serialNo,p.plan_code AS planCode,id.serial_no AS serialNum," +
+					   " p.id AS planId,i.item_code AS itemCode,os.id as saleId FROM b_association a,b_plan_master p,b_item_detail id,b_item_master i, b_onetime_sale os" +
+					   "  WHERE p.id = a.plan_id AND a.order_id = ? AND id.serial_no = a.hw_serial_no AND id.item_master_id = i.id   AND a.is_deleted = 'N' and " +
+					   "  os.item_id =i.id and os.client_id = a.client_id group by id";
 
 			}
 
@@ -231,8 +232,9 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				String itemCode = rs.getString("itemCode");
 				String provNum = rs.getString("serialNo");
 				String serialNum = rs.getString("serialNum");
-				Long planId=rs.getLong("planId");		
-				return  new AssociationData(orderId,planCode,provNum,id,planId,clientId,serialNum,itemCode);
+				Long planId=rs.getLong("planId");
+				Long saleId=rs.getLong("saleId");		
+				return  new AssociationData(orderId,planCode,provNum,id,planId,clientId,serialNum,itemCode,saleId);
 
 			}
 

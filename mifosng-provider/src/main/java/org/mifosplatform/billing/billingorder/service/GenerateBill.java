@@ -75,12 +75,9 @@ public class GenerateBill {
 	public BillingOrderCommand getProrataMonthlyFirstBill(
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
+		BigDecimal  pricePerDay=BigDecimal.ZERO;
 		startDate = new LocalDate(billingOrderData.getBillStartDate());
-
 		endDate = startDate.dayOfMonth().withMaximumValue();
-		
-		 
-
 		if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
 			int currentDay = startDate.getDayOfMonth();
 			int endOfMonth = startDate.dayOfMonth().withMaximumValue()
@@ -88,7 +85,13 @@ public class GenerateBill {
 			int totalDays = endOfMonth - currentDay + 1;
 			// price = billingOrderData.getPrice();
 			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));
-			BigDecimal pricePerDay = price.divide(new BigDecimal(30), Integer.parseInt(roundingDecimal()),RoundingMode.HALF_UP);
+			if(billingOrderData.getChargeDuration()==12){
+			int maximumDaysInYear = new  LocalDate().dayOfYear().withMaximumValue().getDayOfYear();
+			 pricePerDay = price.divide(new BigDecimal(maximumDaysInYear), Integer.parseInt(roundingDecimal()),RoundingMode.HALF_UP);
+
+			}else{
+			 pricePerDay = price.divide(new BigDecimal(30), Integer.parseInt(roundingDecimal()),RoundingMode.HALF_UP);
+			}
 
 			if (totalDays < endOfMonth) {
 				price = pricePerDay.multiply(new BigDecimal(totalDays));
@@ -147,34 +150,6 @@ public class GenerateBill {
 		return this.createBillingOrderCommand(billingOrderData, startDate, endDate, invoiceTillDate, nextbillDate, price, listOfTaxes,discountMasterData);
 
 	}
-
-	// Generate Invoice Tax
-	public List<InvoiceTaxCommand> generateInvoiceTax(List<TaxMappingRateData> taxMappingRateDatas, BigDecimal price,Long clientId) {
-
-		BigDecimal taxPercentage = null;
-		String taxCode = null;
-		BigDecimal taxAmount = null;
-		List<InvoiceTaxCommand> invoiceTaxCommands = new ArrayList<InvoiceTaxCommand>();
-		InvoiceTaxCommand invoiceTaxCommand = null;
-		if (taxMappingRateDatas != null) {
-
-			for (TaxMappingRateData taxMappingRateData : taxMappingRateDatas) {
-
-				taxPercentage = taxMappingRateData.getRate();
-				taxCode = taxMappingRateData.getTaxCode();
-				taxAmount = price.multiply(taxPercentage.divide(new BigDecimal(
-						100)));
-
-				invoiceTaxCommand = new InvoiceTaxCommand(clientId, null, null,
-						taxCode, null, taxPercentage, taxAmount);
-				invoiceTaxCommands.add(invoiceTaxCommand);
-			}
-
-		}
-		return invoiceTaxCommands;
-
-	}
-
 	// Monthly Bill
 	public BillingOrderCommand getMonthyBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO.setScale(Integer.parseInt(roundingDecimal()));;
@@ -237,9 +212,6 @@ public class GenerateBill {
 		BigDecimal weeklyPricePerDay = getWeeklyPricePerDay(billingOrderData);
 
 		Integer billingDays = 7 * billingOrderData.getChargeDuration();
-		
-		
-		System.out.println(billingDays);
 
 		if (totalDays < billingDays) {
 			price = weeklyPricePerDay.multiply(new BigDecimal(totalDays));
@@ -266,11 +238,12 @@ public class GenerateBill {
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
 		startDate = new LocalDate(billingOrderData.getNextBillableDate());
-
-		endDate = startDate.dayOfWeek().withMaximumValue();
-		if (billingOrderData.getChargeDuration() == 2) {
-			endDate = endDate.plusWeeks(1);
-		}
+		endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
+	/*  if (billingOrderData.getChargeDuration() == 2) {
+			endDate = startDate.plusWeeks(2).minusDays(1);
+		}else{
+			endDate = startDate.dayOfWeek().withMaximumValue();
+		}*/
 
 		if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
 			price = billingOrderData.getPrice();
@@ -303,18 +276,22 @@ public class GenerateBill {
 
 			// please consider the contract start date over here
 			startDate = new LocalDate(billingOrderData.getBillStartDate());
-			endDate = startDate.plusWeeks(1).minusDays(1);
-			if(billingOrderData.getChargeDuration()==2){
+			endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
+			/*if(billingOrderData.getChargeDuration()==2){
 				endDate = startDate.plusWeeks(2).minusDays(1);
-			}
+			}else {
+				endDate = startDate.plusWeeks(1).minusDays(1);
+			}*/
 			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));;
 		} else if (billingOrderData.getInvoiceTillDate() != null) {
 
 			startDate = new LocalDate(billingOrderData.getNextBillableDate());
-			endDate = startDate.plusWeeks(1).minusDays(1);
-			if(billingOrderData.getChargeDuration()==2){
+			endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
+			/*if(billingOrderData.getChargeDuration()==2){
 				endDate = startDate.plusWeeks(2).minusDays(1);
-			}
+			}else{
+				endDate = startDate.plusWeeks(1).minusDays(1);
+			}*/
 			if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
 				price = billingOrderData.getPrice();
 			} else if (endDate.toDate()
@@ -456,6 +433,43 @@ public class GenerateBill {
 		//List<InvoiceTax> listOfTaxes = invoiceTaxPlatformService.createInvoiceTax(invoiceTaxCommand);
 		return invoiceTaxCommand;
 	}
+	// Generate Invoice Tax
+	public List<InvoiceTaxCommand> generateInvoiceTax(List<TaxMappingRateData> taxMappingRateDatas, BigDecimal price, long clientId) {
+
+		BigDecimal taxPercentage = null;
+		String taxCode = null;
+		BigDecimal taxAmount = null;
+		BigDecimal taxFlat=null;
+		List<InvoiceTaxCommand> invoiceTaxCommands = new ArrayList<InvoiceTaxCommand>();
+		InvoiceTaxCommand invoiceTaxCommand = null;
+	
+			if (taxMappingRateDatas != null) {
+
+				for (TaxMappingRateData taxMappingRateData : taxMappingRateDatas) {
+
+					if (taxMappingRateData.getTaxType().equalsIgnoreCase("Percentage")) {
+					      taxPercentage = taxMappingRateData.getRate();
+					      taxCode = taxMappingRateData.getTaxCode();
+					      taxAmount = price.multiply(taxPercentage.divide(new BigDecimal(100)));
+					     } else if (taxMappingRateData.getTaxType().equalsIgnoreCase("Flat")) {
+					      taxFlat = taxMappingRateData.getRate();
+					      taxCode = taxMappingRateData.getTaxCode();
+					      taxAmount =taxFlat;
+					     }
+					
+					/*taxPercentage = taxMappingRateData.getRate();
+					taxCode = taxMappingRateData.getTaxCode();
+					taxAmount = price.multiply(taxPercentage.divide(new BigDecimal(100)));*/	
+
+					invoiceTaxCommand = new InvoiceTaxCommand(clientId, null, null,
+							taxCode, null, taxPercentage, taxAmount);
+					invoiceTaxCommands.add(invoiceTaxCommand);
+			}
+
+			}
+			return invoiceTaxCommands;
+
+		}
 
 	// Discount Applicable Logic
 	public Boolean isDiscountApplicable(LocalDate chargeStartDate,DiscountMasterData discountMasterData,LocalDate chargeEndDate) {
@@ -463,7 +477,7 @@ public class GenerateBill {
 
 		if (discountMasterData != null) {
 
-			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate()) && this.getDiscountEndDateIfNull(discountMasterData).before(chargeStartDate.toDate())) {
+			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())) {
 				isDiscountApplicable = true;	
 			}
 		}
@@ -506,7 +520,7 @@ public class GenerateBill {
 	// if is discount
 	public boolean isDiscountFlat(DiscountMasterData discountMasterData){
 		boolean isDiscountFlat = false;
-		if(discountMasterData.getDiscounType().equalsIgnoreCase("flat")){
+		if(discountMasterData.getDiscounType().equalsIgnoreCase("Flat")){
 			isDiscountFlat = true;
 		}
 		return isDiscountFlat;
@@ -526,9 +540,10 @@ public class GenerateBill {
 		}
 		
 		if(isDiscountFlat(discountMasterData)){
-							
-			chargePrice = this.calculateDiscountFlat(discountMasterData.getdiscountRate(), chargePrice);
-			discountMasterData.setDiscountedChargeAmount(chargePrice);
+			BigDecimal p=this.calculateDiscountFlat(discountMasterData.getdiscountRate(), chargePrice);	
+			discountAmount= chargePrice.subtract(p);
+			discountMasterData.setDiscountAmount(discountAmount);
+			discountMasterData.setDiscountedChargeAmount(p);
 		}
 		return discountMasterData;
 	

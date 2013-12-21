@@ -36,7 +36,8 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class FinancialTransactionApiResource {
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("transactionId","transactionDate","transactionType","amount",
-			"invoiceId","chrageAmount","taxAmount","chargeType","amount","billDate","dueDate","id","transaction","chargeStartDate","chargeEndDate"));
+			"invoiceId","chrageAmount","taxAmount","discountAmount","snetChargeAmount","chargeType","amount","billDate","dueDate","id","transaction",
+			"chargeStartDate","chargeEndDate"));
 	private BillMasterReadPlatformService billMasterReadPlatformService;
 	private PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<FinancialTransactionsData> toApiJsonSerializer;

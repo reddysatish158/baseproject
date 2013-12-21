@@ -180,9 +180,8 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 	public void update(JsonCommand command, Long orderStatus) {
 
 		if (this.status != 3) {
-			this.endDate = new LocalDate().toDate();
+			this.endDate = command.localDateValueOfParameterNamed("disconnectionDate").toDate();
 			this.disconnectReason=command.stringValueOfParameterNamed("disconnectReason");
-
 			this.status =orderStatus;
 		}
 
@@ -237,7 +236,7 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 	}
 
 
-	public void setuerAction(String actionType) {
+	public void setuserAction(String actionType) {
 		this.userAction=actionType;
 	}
 
