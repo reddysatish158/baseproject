@@ -933,9 +933,10 @@ return null;
 					 
 					 @Override
 					public Long checkRetrackInterval(Long entityId) {
-						 final String sql = "select id FROM b_orders_history WHERE DATE_ADD((select created_date from b_orders_history where order_id = ? order by id desc limit 1), INTERVAL 1 HOUR) <= NOW() AND order_id = 114 limit 1";
-						 OSDMapper rowMapper = new OSDMapper();
-						 return jdbcTemplate.queryForObject(sql, rowMapper, new Object[]{entityId});
+						 final String sql = "select id FROM b_orders_history WHERE DATE_ADD((select created_date from b_orders_history where order_id = ? order by id desc limit 1), INTERVAL 1 HOUR) <= NOW() AND order_id = ? limit 1";
+						 /*OSDMapper rowMapper = new OSDMapper();*/
+						 //return jdbcTemplate.queryForObject(sql, rowMapper, new Object[]{entityId});
+						 return jdbcTemplate.queryForLong(sql, new Object[]{entityId,entityId});
 					}
 			
 	}
