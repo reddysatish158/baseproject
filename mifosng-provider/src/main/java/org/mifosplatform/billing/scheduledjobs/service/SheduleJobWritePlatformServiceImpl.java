@@ -1,11 +1,17 @@
 package org.mifosplatform.billing.scheduledjobs.service;
 
-
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+
+import javax.persistence.Column;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -31,7 +37,6 @@ import org.mifosplatform.billing.message.service.MessagePlatformEmailService;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
-import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.billing.processrequest.data.ProcessingDetailsData;
@@ -44,13 +49,18 @@ import org.mifosplatform.billing.scheduledjobs.ProcessRequestWriteplatformServic
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
+import org.mifosplatform.billing.servicemaster.service.ServiceMasterWritePlatformServiceImpl;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobDetailRepository;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
+import org.mifosplatform.infrastructure.jobs.service.SchedulerJobListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -62,7 +72,8 @@ import com.google.gson.JsonObject;
 @Service
 public class SheduleJobWritePlatformServiceImpl implements
 		SheduleJobWritePlatformService {
-
+	
+	//private final static Logger logger = LoggerFactory.getLogger(ServiceMasterWritePlatformServiceImpl.class);
 	private final SheduleJobReadPlatformService sheduleJobReadPlatformService;
 	private final InvoiceClient invoiceClient;
 	private final ScheduledJobRepository scheduledJobRepository;
@@ -82,7 +93,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 	
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private String ReceiveMessage;
-
+	public File file=null;
+	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(
 			final InvoiceClient invoiceClient,
@@ -122,62 +134,131 @@ public class SheduleJobWritePlatformServiceImpl implements
 	}
 
 	// @Transactional
+	@SuppressWarnings("unused")
 	@Override
 	@CronTarget(jobName = JobName.INVOICE)
 	public void processInvoice() {
-
-
-	try
-	{
 		
-		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
-		
-		if(data!=null){
+		try {
 			
-		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-		    	    	 
-		    	    	 for (ScheduleJobData scheduleJobData : sheduleDatas) {
+			JobParameterData data = this.sheduleJobReadPlatformService
+					.getJobParameters(JobName.INVOICE.toString());
 
-		    	 			List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
-		    	 			
-		    	 			// Get the Client Ids
-		    	 			for (Long clientId : clientIds) {
-		    	 				try {
-		    	 					
-		    	 					if(data.isDynamic().equalsIgnoreCase("Y")){
-		    	 						
-		    	 						this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
-		    	 					}else{
-		    	 						this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());	
-		    	 					}
+			if (data != null) {
 
-		    	 					
+				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
+						.retrieveSheduleJobParameterDetails(data.getBatchName());
 
-		    	 				} catch (Exception dve) {
-		    	 					handleCodeDataIntegrityIssues(null, dve);
-		    	 				}
-		    	 			}
-		    	 			/*ScheduleJobs scheduleJob = this.scheduledJobRepository
-		    	 					.findOne(scheduleJobData.getId());
-		    	 			scheduleJob.setStatus('Y');
-		    	 			this.scheduledJobRepository.save(scheduleJob);*/
-		    	 		}
+				for (ScheduleJobData scheduleJobData : sheduleDatas) {
+					
+				        file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+				                + File.separator + "SheduleLogFile"+ File.separator +"ScheduleLog-"+new Date().toString().replace(" ", "-").trim()+".log");
+				        
+				        FileUtils.BILLING_JOB_INVOICE_PATH=file.getAbsolutePath();
+				        
+				        if(!file.exists()){
+				        	try {
+								file.createNewFile();
+							} catch (IOException e) {
+								try {
+									FileWriter fw = new FileWriter(file);
+									fw.append(e.toString());
+									fw.close();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								e.printStackTrace();
+							}
+				        }
 
-		    	 		System.out.println("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-		    	
-		    }
-	
-	}catch(DataIntegrityViolationException exception)
-	{
-		exception.printStackTrace();
-	}
-	
+					List<Long> clientIds = this.sheduleJobReadPlatformService
+							.getClientIds(scheduleJobData.getQuery());
+
+					// Get the Client Idsid,job_id,version,start_time,end_time,status,error_message,trigger_type,error_log,file_pathid,job_id,version,start_time,end_time,status,error_message,trigger_type,error_log,file_pathid,job_id,version,start_time,end_time,status,error_message,trigger_type,error_log,file_pathid,job_id,version,start_time,end_time,status,error_message,trigger_type,error_log,file_path @Column(name = "error_log")
+				    
+					for (Long clientId : clientIds) {
+						try {
+
+						BigDecimal amount=	this.invoiceClient.invoicingSingleClient(clientId,
+									data.getProcessDate());
+							
+						/*
+						FileHandler fh = new FileHandler("/home/rakesh/workspace/Git/billing/obsplatform/build/tmp/tomcatRunWar/logs/MyLogFile.log");  
+			            //logger.addHandler(fh);  
+			            //logger.setLevel(Level.ALL);  
+			            SimpleFormatter formatter = new SimpleFormatter();  
+			            fh.setFormatter(formatter);  
+			              
+			            // the following statement is used to log any messages  
+			            logger.info("My first log");  */
+						
+						
+						//logger.info(amount.toString());
+						
+							if(amount!=null){
+								
+								FileWriter fw = new FileWriter(file);
+								fw.append("ClientId:"+clientId+"\t"+"Amount:"+amount.toString()+" Success\n");
+								fw.close();
+								}
+							else{
+								FileWriter fw = new FileWriter(file);
+								fw.append("Amount null");
+								fw.close();
+							}
+							
+							
+		
+
+						} catch (Exception dve) {
+								
+							try {
+								FileWriter fw = new FileWriter(file);
+								fw.append(dve.toString());
+								fw.close();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							// TODO Auto-generated catch block
+							handleCodeDataIntegrityIssues(null, dve);
+						}
+					}
+					/*
+					 * ScheduleJobs scheduleJob = this.scheduledJobRepository
+					 * .findOne(scheduleJobData.getId());
+					 * scheduleJob.setStatus('Y');
+					 * this.scheduledJobRepository.save(scheduleJob);
+					 */
+				
+				}
+
+				System.out.println("Invoices are Generated....."
+						+ ThreadLocalContextUtil.getTenant()
+								.getTenantIdentifier());
+
+			}
+
+		} catch (DataIntegrityViolationException exception) {
+				
+			try {
+				FileWriter fw = new FileWriter(file);
+				fw.append(exception.toString());
+				fw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// TODO Auto-generated catch block
+			exception.printStackTrace();
+		}
 
 	}
 
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Transactional
@@ -188,12 +269,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 
 			System.out.println("Processing Request Details.......");
-			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
+
+			List<PrepareRequestData> data = this.prepareRequestReadplatformService
+					.retrieveDataForProcessing();
+
 			for (PrepareRequestData requestData : data) {
 
-				this.prepareRequestReadplatformService.processingClientDetails(requestData);
+				this.prepareRequestReadplatformService
+						.processingClientDetails(requestData);
 			}
-			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+
+			System.out.println(" Requestor Job is Completed...."
+					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+
 		} catch (DataIntegrityViolationException exception) {
 
 		}
@@ -207,13 +295,16 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Response Details.......");
 
-			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
+			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService
+					.retrieveProcessingDetails();
 
 			for (ProcessingDetailsData detailsData : processingDetails) {
 
-				this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
+				this.processRequestWriteplatformService
+						.notifyProcessingDetails(detailsData);
 			}
-			System.out.println("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+			System.out.println("Responsor Job is Completed..."
+					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 
 		} catch (DataIntegrityViolationException exception) {
 
@@ -253,38 +344,34 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		try {
 			System.out.println("Processing statement Details.......");
+			JobParameterData data = this.sheduleJobReadPlatformService
+					.getJobParameters(JobName.GENERATE_STATMENT.toString());
+			if (data != null) {
 
-			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
-		    if(data!=null){
-		    	 
-		    	 List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-		    	 
-		    	for(ScheduleJobData scheduleJobData:sheduleDatas)
-				{
-					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
-					  
-					 for(Long clientId:clientIds)
-					 {
-						
-						 JSONObject jsonobject = new JSONObject();
-						
-							DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy");
-							String formattedDate ;
-							if(data.isDynamic().equalsIgnoreCase("Y")){
-								formattedDate = formatter.print(new LocalDate());	
-							}else{
-								formattedDate = formatter.print(data.getDueDate());
-							}
-							
+				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
+						.retrieveSheduleJobParameterDetails(data.getBatchName());
 
-							// System.out.println(formattedDate);
-							jsonobject.put("dueDate",formattedDate);
-							jsonobject.put("locale", "en");
-							jsonobject.put("dateFormat", "dd MMMM YYYY");
-							jsonobject.put("message", data.getPromotionalMessage());
-							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
-					 }
+				for (ScheduleJobData scheduleJobData : sheduleDatas) {
+					List<Long> clientIds = this.sheduleJobReadPlatformService
+							.getClientIds(scheduleJobData.getQuery());
 
+					for (Long clientId : clientIds) {
+
+						JSONObject jsonobject = new JSONObject();
+
+						DateTimeFormatter formatter = DateTimeFormat
+								.forPattern("dd MMMM yyyy");
+						String formattedDate = formatter.print(data
+								.getDueDate());
+
+						// System.out.println(formattedDate);
+						jsonobject.put("dueDate", formattedDate);
+						jsonobject.put("locale", "en");
+						jsonobject.put("dateFormat", "dd MMMM YYYY");
+						jsonobject.put("message", data.getPromotionalMessage());
+						this.billingMasterApiResourse.retrieveBillingProducts(
+								clientId, jsonobject.toString());
+					}
 				}
 
 			}
@@ -337,63 +424,48 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Auto Exipiry Details.......");
 
-			
-			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
-         
-                 if(data!=null){
-                	 
-			List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-			LocalDate exipirydate=null;
-			if(data.isDynamic().equalsIgnoreCase("Y")){
-				exipirydate=new LocalDate();
-			}else{
-				exipirydate=data.getExipiryDate();
-			}
-			for (ScheduleJobData scheduleJobData : sheduleDatas) 
-			{
-				List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
-				
-				for(Long clientId:clientIds)
-				{
-					
-				List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
-				
-      			for (OrderData orderData : orderDatas) 
-      			  {
-      				
-      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
-      				 {
-      					
-				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
-				     {
+			JobParameterData data = this.sheduleJobReadPlatformService
+					.getJobParameters(JobName.AUTO_EXIPIRY.toString());
 
-				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-				  		//System.out.println(dateFormat.format(localDate.toDate()));
-					JSONObject jsonobject = new JSONObject();
-					jsonobject.put("disconnectReason","Date Expired");
-					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
-					jsonobject.put("dateFormat","dd MMMM yyyy");
-					jsonobject.put("locale","en");
-					final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+			if (data != null) {
 
-					final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
-							null,clientId, null, null, null,null, null, null);
-					this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
-				     }
+				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
+						.retrieveSheduleJobParameterDetails(data.getBatchName());
+
+				for (ScheduleJobData scheduleJobData : sheduleDatas) {
+					List<Long> clientIds = this.sheduleJobReadPlatformService
+							.getClientIds(scheduleJobData.getQuery());
+					for (Long clientId : clientIds) {
+
+						List<OrderData> orderDatas = this.orderReadPlatformService
+								.retrieveClientOrderDetails(clientId);
+
+						for (OrderData orderData : orderDatas) {
+
+							if (orderData.getEndDate().equals(new LocalDate())) {
+
+								JSONObject jsonobject = new JSONObject();
+								jsonobject.put("disconnectReason",
+										"Date Expired");
+								final JsonElement parsedCommand = this.fromApiJsonHelper
+										.parse(jsonobject.toString());
+
+								final JsonCommand command = JsonCommand.from(
+										jsonobject.toString(), parsedCommand,
+										this.fromApiJsonHelper,
+										"DissconnectOrder", clientId, null,
+										null, clientId, null, null, null, null,
+										null, null);
+								this.orderWritePlatformService.disconnectOrder(
+										command, orderData.getId());
+							}
+						}
+					}
 				}
 			}
-				}
-				}
-		}
-		
-		   
-
-
-		
 
 		} catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
-
 		}
 	}
 
@@ -456,8 +528,8 @@ public class SheduleJobWritePlatformServiceImpl implements
     	    		postRequest.setEntity(se);
     	    		HttpResponse response = httpClient.execute(postRequest);
     	    		if (response.getStatusLine().getStatusCode() != 200) {
-    	    			System.out.println("Failed : HTTP error code : "
-    	    					+ response.getStatusLine().getStatusCode());
+    	    			System.out.println("Failed : HTTP error code : 444" +
+    	    					 response.getStatusLine().getStatusCode());
     	    			return;
     	    		}
     	    		BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
@@ -565,4 +637,3 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 */
 
 }
-

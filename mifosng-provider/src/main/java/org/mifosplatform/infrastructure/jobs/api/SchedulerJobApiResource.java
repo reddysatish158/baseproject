@@ -1,5 +1,6 @@
 package org.mifosplatform.infrastructure.jobs.api;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.billing.message.data.BillingMessageData;
@@ -23,6 +25,8 @@ import org.mifosplatform.billing.message.service.BillingMesssageReadPlatformServ
 import org.mifosplatform.billing.processscheduledjobs.service.SheduleJobReadPlatformService;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
+import org.mifosplatform.billing.uploadstatus.domain.UploadStatus;
+import org.mifosplatform.billing.uploadstatus.domain.UploadStatusRepository;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -31,9 +35,12 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.UnrecognizedQueryParamException;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.jobs.data.JobDetailData;
 import org.mifosplatform.infrastructure.jobs.data.JobDetailHistoryData;
+import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistory;
+import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistoryRepository;
 import org.mifosplatform.infrastructure.jobs.service.JobRegisterService;
 import org.mifosplatform.infrastructure.jobs.service.SchedulerJobRunnerReadService;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
@@ -70,6 +77,8 @@ public class SchedulerJobApiResource {
         this.sheduleJobReadPlatformService=sheduleJobReadPlatformService;
         this.billingMesssageReadPlatformService=billingMesssageReadPlatformService;
     }
+    @Autowired
+	private ScheduledJobRunHistoryRepository scheduledJobRunHistoryRepository;
     
     
     @POST
@@ -135,6 +144,13 @@ public class SchedulerJobApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
     public Response executeJob(@PathParam(SchedulerJobApiConstants.JOB_ID) final Long jobId,
             @QueryParam(SchedulerJobApiConstants.COMMAND) final String commandParam) {
+    	File file = null;
+		String fileUploadLocation = FileUtils.generateLogFileDirectory();
+		file = new File(fileUploadLocation);
+		
+		if(!file.isDirectory()){
+			file.mkdirs();
+		}
         Response response = Response.status(400).build();
         if (is(commandParam, SchedulerJobApiConstants.COMMAND_EXECUTE_JOB)) {
             this.jobRegisterService.executeJob(jobId);
@@ -227,5 +243,19 @@ public class SchedulerJobApiResource {
      return this.toApiJsonSerializer.serialize(result);
 
 	} 
+    
+    @GET
+	@Path("printlog")
+	@Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_OCTET_STREAM })
+	public Response logFile(@QueryParam("path") final String path) {
+    	//ScheduledJobRunHistory scheduledJobRunHistory = this.scheduledJobRunHistoryRepository.findOne(id);
+		//String printFilePath = scheduledJobRunHistory.getFilePath();
+		File file = new File(path);
+		ResponseBuilder response = Response.ok(file);
+		response.header("Content-Disposition", "attachment; filename=\""+ path + "\"");
+       		response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		return response.build();
+	}
 
 }
