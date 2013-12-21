@@ -602,7 +602,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	public CommandProcessingResult retrackOsdMessage(JsonCommand command) {
 		try {
 			
-			Long resultSet = orderReadPlatformService.checkRetrackInterval(command.entityId());
+			orderReadPlatformService.checkRetrackInterval(command.entityId());
 			
 			String requstStatus = null;
 			String message = null;
@@ -612,8 +612,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if (order == null) {
 				throw new NoOrdersFoundException(command.entityId());
 			}
-
-			Plan plan = this.planRepository.findOne(order.getPlanId());
 			int i = command.subentityId().intValue();
 			 if (i == 1) {
 				 
@@ -637,8 +635,14 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
 				message = command.stringValueOfParameterNamed("message");
 			}
+			 
+			Plan plan = this.planRepository.findOne(order.getPlanId());
+			
+			if (plan == null) {
+				throw new NoOrdersFoundException(command.entityId());
+			}
 
-			if (plan.getProvisionSystem().equalsIgnoreCase("Comvenient") && requstStatus != null) {
+			if (requstStatus != null && plan!=null) {
 				
 				  AllocationDetailsData detailsData = this.allocationReadPlatformService
 						.getTheHardwareItemDetails(command.entityId());
@@ -671,25 +675,26 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					}
 				}
 				this.processRequestRepository.save(processRequest);
+				
+				this.orderRepository.save(order);
+				AppUser appUser = this.context.authenticatedUser();
+				Long userId = appUser.getId();
+				OrderHistory orderHistory = new OrderHistory(order.getId(),
+						new LocalDate(), new LocalDate(), command.entityId(),
+						requstStatus, userId);
+				this.orderHistoryRepository.save(orderHistory);
+				transactionHistoryWritePlatformService.saveTransactionHistory(
+						order.getClientId(), "ORDER_"+ requstStatus,
+						order.getStartDate(), "Price:" + order.getPrice(),
+						"PlanId:" + order.getPlanId(),
+						"contarctPeriod:" + order.getContarctPeriod(), "services"
+								+ order.getServices(), "OrderID:" + order.getId(),
+						"BillingAlign:" + order.getbillAlign());
+				return new CommandProcessingResult(order.getId());
+			}else{
+				throw new PlatformDataIntegrityException("transaction_type miss match error", "transaction_type miss match error", "transaction_type miss match error");		
 			}
-
-			this.orderRepository.save(order);
-			AppUser appUser = this.context.authenticatedUser();
-			Long userId = appUser.getId();
-			OrderHistory orderHistory = new OrderHistory(order.getId(),
-					new LocalDate(), new LocalDate(), command.entityId(),
-					requstStatus, userId);
-			this.orderHistoryRepository.save(orderHistory);
-			transactionHistoryWritePlatformService.saveTransactionHistory(
-					order.getClientId(), "ORDER_"
-							+ requstStatus,
-					order.getStartDate(), "Price:" + order.getPrice(),
-					"PlanId:" + order.getPlanId(),
-					"contarctPeriod:" + order.getContarctPeriod(), "services"
-							+ order.getServices(), "OrderID:" + order.getId(),
-					"BillingAlign:" + order.getbillAlign());
 			
-			return new CommandProcessingResult(order.getId());
 
 		} catch (EmptyResultDataAccessException dve) {
 			throw new PlatformDataIntegrityException("retrack.already.done", "retrack.already.done", "retrack.already.done");
