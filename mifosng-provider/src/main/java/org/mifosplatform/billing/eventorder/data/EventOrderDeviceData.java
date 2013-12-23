@@ -23,6 +23,12 @@ public class EventOrderDeviceData {
 	
 	
 	
+	public EventOrderDeviceData(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+
+
+
 	public Long getAllocationId() {
 		return allocationId;
 	}
