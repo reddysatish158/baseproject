@@ -73,13 +73,14 @@ public final class InventoryItemCommandFromApiJsonDeserializer {
         
         final String quality = command.stringValueOfParameterNamed("quality");
         
+        baseDataValidator.reset().parameter("grnId").value(grnId).notBlank();
 		baseDataValidator.reset().parameter("itemMasterId").value(itemMasterId).notNull();
 		
 		baseDataValidator.reset().parameter("serialNumber").value(serialNumber).notBlank().notNull();
 		baseDataValidator.reset().parameter("provisioningSerialNumber").value(provisioningSerialNumber).notBlank().notNull();
 		baseDataValidator.reset().parameter("status").value(status).notNull();
 		baseDataValidator.reset().parameter("quality").value(quality).notNull();
-		baseDataValidator.reset().parameter("grnId").value(grnId).notBlank();
+		
 		
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);

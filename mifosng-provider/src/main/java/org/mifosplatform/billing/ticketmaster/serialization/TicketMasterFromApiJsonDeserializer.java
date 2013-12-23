@@ -48,10 +48,11 @@ public class TicketMasterFromApiJsonDeserializer {
 	        final String description = fromApiJsonHelper.extractStringNamed("description", element);
 	        final String assignedTo = fromApiJsonHelper.extractStringNamed("assignedTo", element);
 	        
-	        baseDataValidator.reset().parameter("priority").value(priority).notBlank().notExceedingLengthOf(100);
 	        baseDataValidator.reset().parameter("problemCode").value(problemCode).notBlank().notExceedingLengthOf(100);
-	        baseDataValidator.reset().parameter("description").value(description).notBlank().notExceedingLengthOf(100);
+	        baseDataValidator.reset().parameter("priority").value(priority).notBlank().notExceedingLengthOf(100);
 	        baseDataValidator.reset().parameter("assignedTo").value(assignedTo).notBlank().notExceedingLengthOf(100);
+	        baseDataValidator.reset().parameter("description").value(description).notBlank().notExceedingLengthOf(100);
+	        
 	        
 	        throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	 }

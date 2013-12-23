@@ -78,7 +78,7 @@ public class UploadStatusReadPlatformServiceImpl implements UploadStatusReadPlat
         context.authenticatedUser();
 
         final UploadStatusMapper rm = new UploadStatusMapper();
-        final String sql = "select " + rm.schema() + " order by u.id";
+        final String sql = "select " + rm.schema() + " order by u.id desc";
 
         return this.jdbcTemplate.query(sql, rm, new Object[] {});
     }
