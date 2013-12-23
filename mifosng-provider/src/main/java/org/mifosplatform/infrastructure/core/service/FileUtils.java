@@ -33,6 +33,7 @@ public class FileUtils {
     public static final String MIFOSX_BASE_DIR = System.getProperty("user.home") + File.separator + ".mifosx";
     public static final String BILLING_BASE_DIR = System.getProperty("user.home") + File.separator + "billing";
 
+
     public static enum IMAGE_MIME_TYPE {
         GIF("image/gif"), JPEG("image/jpeg"), PNG("image/png");
 

@@ -47,6 +47,7 @@ import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobDetailRepository;
@@ -186,7 +187,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	public void processRequest() {
 
 		try {
-
+			
 			System.out.println("Processing Request Details.......");
 			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
 			for (PrepareRequestData requestData : data) {

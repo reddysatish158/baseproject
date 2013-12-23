@@ -2,6 +2,7 @@ package org.mifosplatform.infrastructure.jobs.service;
 
 import java.util.Date;
 
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobDetail;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistory;
@@ -83,7 +84,7 @@ public class SchedulerJobListener implements JobListener {
                 && trigger.getNextFireTime().after(scheduledJobDetails.getNextRunTime())) {
             scheduledJobDetails.updateNextRunTime(trigger.getNextFireTime());
         }
-
+            
         scheduledJobDetails.updatePreviousRunStartTime(context.getFireTime());
         scheduledJobDetails.updateCurrentlyRunningStatus(false);
 
