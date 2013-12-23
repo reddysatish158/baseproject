@@ -89,9 +89,9 @@ public class EventOrderReadplatformServieImpl implements EventOrderReadplatformS
 
 	@Override
 	public List<EventOrderDeviceData> getDevices(Long clientId) {
-		final String sql = "SELECT al.id as id, al.client_id as clientId, al.item_master_id as itemMasterId, al.serial_no as serialNumber, im.item_code as itemCode, im.item_description as itemDescription from b_allocation al inner join b_item_master im on im.id=al.item_master_id where al.client_id = ?";
+		final String sql = "select al.serial_no as serialNumber from b_allocation al where client_id=? union select oh.serial_number as serialNumber from b_owned_hardware oh where client_id=?";
 		EventOrderDeviceMapper rowMapper = new EventOrderDeviceMapper();
-		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{clientId});
+		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{clientId,clientId});
 	}
 	
 	@SuppressWarnings("unused")
@@ -99,13 +99,8 @@ public class EventOrderReadplatformServieImpl implements EventOrderReadplatformS
 		@Override
 		public EventOrderDeviceData mapRow(ResultSet rs, int rowNum) throws SQLException {
 			
-			final Long allocationId = rs.getLong("id");
-			final Long clientId = rs.getLong("clientId");
-			final Long itemMasterId = rs.getLong("itemMasterId");
 			final String serialNumber = rs.getString("serialNumber");
-			final String itemCode = rs.getString("itemCode");
-			final String itemDescription = rs.getString("itemDescription");
-			return new EventOrderDeviceData(allocationId, clientId, itemMasterId, serialNumber, itemCode, itemDescription);
+			return new EventOrderDeviceData(serialNumber);
 		}
 		
 	}
