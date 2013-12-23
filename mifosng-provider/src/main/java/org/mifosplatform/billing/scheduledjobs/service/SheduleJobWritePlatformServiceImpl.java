@@ -303,7 +303,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Message Details.......");
 			JobParameterData data = this.sheduleJobReadPlatformService
 					.getJobParameters(JobName.MESSANGER.toString());
-
+            
 			if (data != null) {
 
 				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
@@ -316,7 +316,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 					this.billingMessageDataWritePlatformService
 							.createMessageData(messageId,
-									scheduleJobData.getQuery());
+									scheduleJobData.getQuery(),null);
 
 				}
 			}
