@@ -2,9 +2,13 @@ package org.mifosplatform.billing.scheduledjobs.service;
 
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
@@ -47,6 +51,7 @@ import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobDetailRepository;
@@ -82,7 +87,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private String ReceiveMessage;
-
+	private File file=null;
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(
 			final InvoiceClient invoiceClient,
@@ -137,6 +142,28 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
 		    	    	 
 		    	    	 for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	    		 
+		    	    		 file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+						                + File.separator + "SheduleLogFile"+ File.separator +"ScheduleLog-"+new Date().toString().replace(" ", "-").trim()+".log");
+						        
+						        FileUtils.BILLING_JOB_INVOICE_PATH=file.getAbsolutePath();
+						        
+						        if(!file.exists()){
+						        	try {
+										file.createNewFile();
+									} catch (IOException e) {
+										try {
+											FileWriter fw = new FileWriter(file);
+											fw.append(e.toString());
+											fw.close();
+										} catch (IOException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+										e.printStackTrace();
+									}
+						        }
+
 
 		    	 			List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
 		    	 			
@@ -146,14 +173,21 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	 					
 		    	 					if(data.isDynamic().equalsIgnoreCase("Y")){
 		    	 						
-		    	 						this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+		    	 						FileWriter fw = new FileWriter(file);
+										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString());
+										fw.close();
 		    	 					}else{
-		    	 						this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());	
+		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());
+		    	 						FileWriter fw = new FileWriter(file);
+										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString());
+										fw.close();
 		    	 					}
 
 		    	 					
 
 		    	 				} catch (Exception dve) {
+		    	 					
 		    	 					handleCodeDataIntegrityIssues(null, dve);
 		    	 				}
 		    	 			}
@@ -610,3 +644,4 @@ public class SheduleJobWritePlatformServiceImpl implements
 	}
 }
 
+	

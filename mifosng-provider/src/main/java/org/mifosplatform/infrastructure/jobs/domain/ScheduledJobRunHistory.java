@@ -42,13 +42,15 @@ public class ScheduledJobRunHistory extends AbstractPersistable<Long> {
 
     @Column(name = "error_log")
     private String errorLog;
-
+    
+    @Column(name = "file_path")
+    private String filePath;
     public ScheduledJobRunHistory() {
 
     }
 
     public ScheduledJobRunHistory(final ScheduledJobDetail scheduledJobDetail, final Long version, final Date startTime,
-            final Date endTime, final String status, final String errorMessage, final String triggerType, final String errorLog) {
+            final Date endTime, final String status, final String errorMessage, final String triggerType, final String errorLog, final String filePath) {
         this.scheduledJobDetail = scheduledJobDetail;
         this.version = version;
         this.startTime = startTime;
@@ -57,6 +59,15 @@ public class ScheduledJobRunHistory extends AbstractPersistable<Long> {
         this.errorMessage = errorMessage;
         this.triggerType = triggerType;
         this.errorLog = errorLog;
+        this.filePath=filePath;
     }
+    
+    public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+    public String getFilePath() {
+		return filePath;
+	}
+
 
 }
