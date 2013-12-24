@@ -126,6 +126,18 @@ public class EventOrderReadplatformServieImpl implements EventOrderReadplatformS
 	
 	
 	@Override
+	public BigDecimal retriveEventPrice(String fType, String oType, Long clientId) {
+		final String sql = "select price from b_event_pricing where format_type=? and Opt_type=? and client_typeid=(select category_type from m_client where m_client.id = ?) and is_deleted='n' limit 1";
+		return jdbcTemplate.queryForObject(sql, new Object[]{fType,oType,clientId},BigDecimal.class);
+	}
+	
+	@Override
+	public Long getCurrentRow(String fType, String oType, Long clientId){
+		final String sql = "select id from b_event_pricing where format_type=? and Opt_type=? and client_typeid=(select category_type from m_client where m_client.id = ?) and is_deleted='n' limit 1";
+		return jdbcTemplate.queryForLong(sql, new Object[]{fType,oType,clientId});
+	}
+	
+	@Override
 	public List<EventOrderData> getTheClientEventOrders(Long clientId) {
 		
 		try{

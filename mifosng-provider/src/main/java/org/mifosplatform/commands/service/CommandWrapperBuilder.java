@@ -1839,4 +1839,12 @@ public CommandWrapperBuilder cancelOneTimeSale(Long saleId) {
 	return this;
 }
 
+public CommandWrapperBuilder updateEventOrderPrice() {
+	this.actionName="UPDATE";
+	this.entityName="EVENTORDER";
+	this.entityId=clientId;
+	this.href="eventorder";
+	return this;
+}
+
 }

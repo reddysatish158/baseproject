@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.eventorder.api;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,9 +10,11 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -22,8 +25,11 @@ import org.mifosplatform.billing.eventorder.data.EventOrderData;
 import org.mifosplatform.billing.eventorder.data.EventOrderDeviceData;
 import org.mifosplatform.billing.eventorder.service.EventOrderReadplatformServie;
 import org.mifosplatform.billing.eventorder.service.EventOrderReadplatformServieImpl;
+import org.mifosplatform.billing.eventpricing.data.ClientTypeData;
+import org.mifosplatform.billing.eventpricing.service.EventPricingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
+import org.mifosplatform.billing.media.exceptions.NoEventPriceFoundException;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -36,6 +42,7 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 @Path("/eventorder")
@@ -53,8 +60,8 @@ public class EventOrderApiResource {
 			private final EventOrderReadplatformServie eventOrderReadplatformServie; 
 			private final EventMasterReadPlatformService eventMasterReadPlatformService;
 			private final MCodeReadPlatformService codeReadPlatformService;
-			
-			
+			private final EventPricingReadPlatformService eventPricingReadService;
+				
 			@Autowired
 			public EventOrderApiResource(
 					final PlatformSecurityContext context,
@@ -64,7 +71,8 @@ public class EventOrderApiResource {
 					final FromJsonHelper fromJsonHelper,
 					final EventOrderReadplatformServie eventOrderReadplatformServie,
 					final EventMasterReadPlatformService eventMasterReadPlatformService,
-					final MCodeReadPlatformService codeReadPlatformService) {
+					final MCodeReadPlatformService codeReadPlatformService,
+					final EventPricingReadPlatformService eventPricingReadService) {
 				this.context = context;
 				this.toApiJsonSerializer = toApiJsonSerializer;
 				this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -73,6 +81,7 @@ public class EventOrderApiResource {
 				this.eventOrderReadplatformServie = eventOrderReadplatformServie;
 				this.eventMasterReadPlatformService = eventMasterReadPlatformService;
 				this.codeReadPlatformService = codeReadPlatformService;
+				this.eventPricingReadService = eventPricingReadService;
 			}
 
 		@POST
@@ -97,9 +106,41 @@ public class EventOrderApiResource {
 			final List<EventMasterData> events = eventOrderReadplatformServie.getEvents();
 			final List<EnumOptionData> optType = this.eventMasterReadPlatformService.retrieveOptTypeData();
 			final Collection<MCodeData> codes = this.codeReadPlatformService.getCodeValue("MediaFormat");
-			final EventOrderData data = new EventOrderData(devices,events,optType,codes);
+			final List<ClientTypeData> clientType = this.eventPricingReadService.clientType();
+			final EventOrderData data = new EventOrderData(devices,events,optType,codes,clientType);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 		}
-
+		
+		@GET
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType, @QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
+			context.authenticatedUser();
+			EventOrderData data = null;
+			try{
+				
+				final BigDecimal eventPrice = eventOrderReadplatformServie.retriveEventPrice(fType, oType, clientId);
+				data = new EventOrderData(eventPrice);
+				
+			}catch(EmptyResultDataAccessException accessException){
+				throw new NoEventPriceFoundException();
+			}
+			
+			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+			return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+		}
+		
+		@PUT
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String updatePrice(final String apiRequestBodyAsJson){
+			
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().updateEventOrderPrice().withJson(apiRequestBodyAsJson).build();
+		    final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		    return this.toApiJsonSerializer.serialize(result);
+		    
+		    
+		}
+		
 }

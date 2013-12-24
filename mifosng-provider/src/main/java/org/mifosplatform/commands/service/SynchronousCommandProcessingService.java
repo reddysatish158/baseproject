@@ -663,7 +663,9 @@ public class SynchronousCommandProcessingService implements
 			          handler = applicationContext.getBean("createEventOrderCommandHandler",NewCommandSourceHandler.class);
 		           } else if(wrapper.isUpdateEventPrice()) {
 			           handler = applicationContext.getBean("updateEventPriceCommandHandler",NewCommandSourceHandler.class);
-			       } else if(wrapper.isCloseEventPrice()) {
+			       } else if(wrapper.isUpdateEventOrderPrice()){
+			           handler = applicationContext.getBean("updateEventOrderPriceCommandHandler",NewCommandSourceHandler.class);
+			       }else if(wrapper.isCloseEventPrice()) {
 			          handler = applicationContext.getBean("closeEventPriceCommandHandler",NewCommandSourceHandler.class);
 			       } else {
 			           throw new UnsupportedCommandException(wrapper.commandName());

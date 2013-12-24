@@ -875,5 +875,8 @@ public class CommandWrapper {
 		public boolean isCreatePaymentGateway() {
 			return this.actionName.equalsIgnoreCase("CREATE");
 		}
+		public boolean isUpdateEventOrderPrice() {
+			  return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("EVENTORDER");
+		} 
 		
 }
