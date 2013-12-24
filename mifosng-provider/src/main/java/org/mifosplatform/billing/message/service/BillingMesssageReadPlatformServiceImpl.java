@@ -241,16 +241,19 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				for (int i = 0; i < MessageColumndata.size(); i++) {
 					data.add(i, MessageColumndata.get(i).toString());
 				}
-				
-				if (n > 0 && data.size() >0 && n==data.size()) {	
-					for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
-						String name = param.get(i).getParameter();
-						String value = data.get(k).toString();
-						header = header.replaceAll(name, value);
-						body = body.replaceAll(name, value);
-					}
-					
-					if (org.apache.commons.lang.StringUtils.isBlank(messagingType)) {
+				if (org.apache.commons.lang.StringUtils.isBlank(messagingType)) {
+						if (n > 0 && data.size() >0 && n==data.size()-1) {	
+							for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
+								String name = param.get(i).getParameter();
+								String value = data.get(k).toString();
+								body = body.replaceAll(name, value);
+								if(!org.apache.commons.lang.StringUtils.isBlank(header)){
+									header = header.replaceAll(name, value);
+								}
+								if(!org.apache.commons.lang.StringUtils.isBlank(footer)){
+									footer = footer.replaceAll(name, value);
+								}
+							}						
 						     String messageTo = data.get(0).toString();
 							 BillingMessageTemplate billingMessageTemplate = messageTemplateRepository
 									.findOne(messageId);
@@ -258,33 +261,40 @@ public class BillingMesssageReadPlatformServiceImpl implements
 									body, footer, messageFrom, messageTo, subject,
 									status, billingMessageTemplate, messgeType);
 							 messageDataRepository.save(billingMessage);
-		            }else {
-		            	String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
-		            	Long clientId=Long.parseLong(data.get(1).toString());
-		            	 ProcessRequest processRequest = new ProcessRequest(clientId,
-		 						new Long(0),"Comvenient", 'N', null, requstStatus,new Long(0));
-		 				
-		 				  processRequest.setNotify();
-		 				  Long id=new Long(0);
-		 				 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
-		 						id, id,
-		 						body, "Recieved", data.get(0).toString(),
-									new Date(), null, null,
-									null, 'N');
-							processRequest.add(processRequestDetails);
-							processRequestRepository.save(processRequest);
-					}
-					
-					rowdata.removeAll(rowdata);
-					columndata.removeAll(columndata);
-
-				}// if
-				else{
-					handleCodeDataIntegrityIssues(); 
+					    }else{
+							handleCodeDataIntegrityIssues(); 
+						}					    
+		            
+				}else{
+					    if (n > 0 && data.size() >0 && n==data.size()) {
+			            	for (int i = 0, k = 0; i < n & k < data.size(); i++, k++) {
+								String name = param.get(i).getParameter();
+								String value = data.get(k).toString();							
+								body = body.replaceAll(name, value);
+							}	
+					    }
+			            	String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();		            	
+			            	Long clientId=Long.parseLong(data.get(1).toString());
+			            	 ProcessRequest processRequest = new ProcessRequest(clientId,
+			 						new Long(0),"Comvenient", 'N', null, requstStatus,new Long(0));
+			 				
+			 				  processRequest.setNotify();
+			 				  Long id=new Long(0);
+			 				 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
+			 						id, id,
+			 						body, "Recieved", data.get(0).toString(),
+										new Date(), null, null,
+										null, 'N');
+								processRequest.add(processRequestDetails);
+								processRequestRepository.save(processRequest);
 				}
+				
+				rowdata.removeAll(rowdata);
+				columndata.removeAll(columndata);
+				
 			}// for Rows
 			return new BillingMessageData(messageId);
-
+			
 		}
 	}
 
