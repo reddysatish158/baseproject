@@ -13,7 +13,7 @@ public class BillingMessageData {
 	private String body;
 	private String footer;
 	private String parameter;
-	private ArrayList<String> arraydata;
+	private ArrayList<String> messageColumndata;
 	private Long clientId;
 	private Long id;
 	private String messageParameters;
@@ -47,9 +47,6 @@ public class BillingMessageData {
 		return id;
 	}
 
-	public ArrayList<String> getArraydata() {
-		return arraydata;
-	}
 
 	public BillingMessageData(Long messageTemplateId,String parameterName) {
 		this.deleteButtonId=messageTemplateId;
@@ -59,7 +56,11 @@ public class BillingMessageData {
 
 	public BillingMessageData(ArrayList<String> rowdata) {
 		// TODO Auto-generated constructor stub
-		this.arraydata=rowdata;
+		this.messageColumndata=rowdata;
+	}
+
+	public ArrayList<String> getMessageColumndata() {
+		return messageColumndata;
 	}
 
 	public BillingMessageData(Long commandId) {

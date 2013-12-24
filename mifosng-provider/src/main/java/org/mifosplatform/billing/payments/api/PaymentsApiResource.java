@@ -111,36 +111,29 @@ public class PaymentsApiResource {
 	 @Path("paypal")
 	 @Consumes("application/x-www-form-urlencoded")
 	 //@Consumes({ MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED,MediaType.APPLICATION_JSON ,MediaType.APPLICATION_OCTET_STREAM,MediaType.TEXT_PLAIN,MediaType.WILDCARD })
-	    @Produces({ MediaType.APPLICATION_JSON })
-	 public String Checkout(@FormParam("txn_id") String txnId,@FormParam("payment_date") Date Date,@FormParam("mc_gross") BigDecimal amount,@FormParam("address_name") String name,@FormParam("payer_email") String payerEmail){
+	 @Produces({ MediaType.APPLICATION_JSON })
+	 public String Checkout(@FormParam("txn_id") String txnId,@FormParam("payment_date") Date Date,@FormParam("mc_gross") BigDecimal amount,@FormParam("address_name") String name,@FormParam("payer_email") String payerEmail,@FormParam("transaction_subject") String clientStringId){
 	   try {
-	     // ResourceBundle bundle = ResourceBundle.getBundle("usercredentials",Locale.getDefault());
-	      
-	     
-	     
-	
-	  SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
-	  String date=daformat.format(Date);
-	  JsonObject object=new JsonObject();
-	  object.addProperty("txn_id", txnId);
-	  object.addProperty("dateFormat","dd MMMM yyyy");
-	  object.addProperty("locale","en");
-	  object.addProperty("paymentDate",date);
-	  object.addProperty("amountPaid",amount);
-	  object.addProperty("isChequeSelected","no");
-	  object.addProperty("receiptNo","1234");
-	  object.addProperty("paypalemail", payerEmail);
-	  object.addProperty("remarks",payerEmail);
-	  object.addProperty("paymentCode",27);
-	  
-	  final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaypal(payerEmail).withJson(object.toString()).build();
-	  final CommandProcessingResult result1 = this.writePlatformService.logCommandSource(commandRequest);
-	  return this.toApiJsonSerializer.serialize(result1); 
+		   
+		  Long clientId= Long.parseLong(clientStringId);
+		  SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
+		  String date=daformat.format(Date);
+		  JsonObject object=new JsonObject();
+		  object.addProperty("txn_id", txnId);
+		  object.addProperty("dateFormat","dd MMMM yyyy");
+		  object.addProperty("locale","en");
+		  object.addProperty("paymentDate",date);
+		  object.addProperty("amountPaid",amount);
+		  object.addProperty("isChequeSelected","no");
+		  object.addProperty("receiptNo","1234");
+		  object.addProperty("remarks",payerEmail);
+		  object.addProperty("paymentCode",27);
+		  
+		  final CommandWrapper commandRequest = new CommandWrapperBuilder().createPayment(clientId).withJson(object.toString()).build();
+		  final CommandProcessingResult result1 = this.writePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializer.serialize(result1); 
 	        
-	  } /*catch (PayPalException e) {
-	    // TODO Auto-generated catch block   
-	   return e.getMessage();
-	       }*/
+	  } 
 	   catch(Exception e){
 	    return e.getMessage();
 	   }

@@ -12,7 +12,6 @@ import org.mifosplatform.billing.payments.domain.ChequePayment;
 import org.mifosplatform.billing.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
-import org.mifosplatform.billing.payments.paypal.service.PaypalReadPlatformService;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -42,14 +41,13 @@ public class PaymentWritePlatformServiceImpl implements
 	private final UpdateClientBalance updateClientBalance;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	private final ChequePaymentRepository chequePaymentRepository;
-	private final PaypalReadPlatformService paypalReadPlatformService;
 	
 
 	@Autowired
 	public PaymentWritePlatformServiceImpl(final PlatformSecurityContext context,final PaymentRepository paymentRepository,
 			final PaymentCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ClientBalanceReadPlatformService clientBalanceReadPlatformService,
 			final ClientBalanceRepository clientBalanceRepository,final ChequePaymentRepository chequePaymentRepository,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final PaypalReadPlatformService paypalReadPlatformService,
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
 			final UpdateClientBalance updateClientBalance) {
 		this.context = context;
 		this.paymentRepository = paymentRepository;
@@ -59,7 +57,6 @@ public class PaymentWritePlatformServiceImpl implements
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 		 this.updateClientBalance= updateClientBalance;
 		 this.chequePaymentRepository=chequePaymentRepository;
-		 this.paypalReadPlatformService=paypalReadPlatformService;
 		
 	}
 
@@ -133,7 +130,7 @@ public class PaymentWritePlatformServiceImpl implements
 		}
 	}
 
-	@Override
+/*	@Override
 	public CommandProcessingResult createPaypalPayment(JsonCommand command) {
 
 		
@@ -152,7 +149,7 @@ public class PaymentWritePlatformServiceImpl implements
 		}
 		
 	
-	}
+	}*/
 
 
 }

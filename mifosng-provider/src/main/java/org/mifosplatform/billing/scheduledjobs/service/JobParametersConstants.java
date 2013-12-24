@@ -13,6 +13,7 @@ public class JobParametersConstants {
 	public static final String PARAM_USERNAME="Username";
 	public static final String PARAM_PASSWORD="Password";
 	public static final String PARAM_Prov_System="Stalker";
-	
+	public static final String PARAM_OSDMESSAGE="OSDMessage";
+	public static final String PARAM_SENDEMAIL="SendEmail";
 	
 }
