@@ -46,6 +46,10 @@ public class MediaTypeEnumaration {
 		case Message:
 			optionData = new MediaEnumoptionData(EnumMessageType.Message.getValue(), EnumMessageType.Message.getCode(), "MESSAGE");
 			break;
+		
+		case OSDMESSAGE:
+			optionData = new MediaEnumoptionData(EnumMessageType.OSDMESSAGE.getValue(), EnumMessageType.OSDMESSAGE.getCode(), "OSDMESSAGE");
+			break;	
 
 		default:
 			optionData = new MediaEnumoptionData(MediaEnum.INVALID.getValue(),  MediaEnum.INVALID.getCode(), "INVALID");
