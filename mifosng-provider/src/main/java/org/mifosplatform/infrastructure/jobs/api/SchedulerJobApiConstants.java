@@ -37,7 +37,7 @@ public class SchedulerJobApiConstants {
     public static final String jobProcessdate = "processDate";
     public static final String jobDueDate = "dueDate";
     public static final String jobPromotionalMessage = "promotionalMessage";
-    public static final String jobMessageTemplate= "messageTemplate";
+    public static final String jobMessageTemplate= "SendMessage";
     public static final String jobExipiryDate= "exipiryDate";
     
     
@@ -55,8 +55,8 @@ public class SchedulerJobApiConstants {
     public static final Set<String> JOB_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(displayNameParamName,
             jobActiveStatusParamName, cronExpressionParamName,schedulerJobParamName,cronDescriptionParamName));
     
-    public static final Set<String> CREATE_REQUEST_JOB_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobReportName,jobProcessdate,
-    		jobDueDate,jobPromotionalMessage,jobMessageTemplate,jobExipiryDate,schedulerJobParamName,"locale","dateFormat","isDynamic"));
+    public static final Set<String> CREATE_REQUEST_JOB_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobProcessdate,
+    		jobDueDate,jobPromotionalMessage,jobMessageTemplate,jobExipiryDate,"locale","dateFormat","isDynamic","messageTempalate","jobName","reportName"));
 
     public static final Set<String> SCHEDULER_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(schedulerStatusParamName));
 

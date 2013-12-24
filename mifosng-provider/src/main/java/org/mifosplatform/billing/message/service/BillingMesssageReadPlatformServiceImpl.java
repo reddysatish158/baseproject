@@ -176,13 +176,12 @@ public class BillingMesssageReadPlatformServiceImpl implements
 	@Override
 	public List<BillingMessageData> retrieveData(Long id, String query,
 			BillingMessageData templateData,
-			List<BillingMessageData> messageparam,String messagingType) {
+			List<BillingMessageData> messageparam) {
 		// TODO Auto-generated method stub
 		// context.authenticatedUser();
 		this.messageparam = messageparam;
 		this.templateData = templateData;
 		this.messageId = id;
-		this.messagingType= messagingType;
 
 		BillingMessageDataMapper mapper = new BillingMessageDataMapper();
 
@@ -241,52 +240,44 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				for (int i = 0; i < MessageColumndata.size(); i++) {
 					data.add(i, MessageColumndata.get(i).toString());
 				}
-				if (org.apache.commons.lang.StringUtils.isBlank(messagingType)) {
-						if (n > 0 && data.size() >0 && n==data.size()-1) {	
-							for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
-								String name = param.get(i).getParameter();
-								String value = data.get(k).toString();
-								body = body.replaceAll(name, value);
-								if(!org.apache.commons.lang.StringUtils.isBlank(header)){
-									header = header.replaceAll(name, value);
-								}
-								if(!org.apache.commons.lang.StringUtils.isBlank(footer)){
-									footer = footer.replaceAll(name, value);
-								}
-							}						
-						     String messageTo = data.get(0).toString();
-							 BillingMessageTemplate billingMessageTemplate = messageTemplateRepository
-									.findOne(messageId);
-							 BillingMessage billingMessage = new BillingMessage(header,
-									body, footer, messageFrom, messageTo, subject,
-									status, billingMessageTemplate, messgeType);
-							 messageDataRepository.save(billingMessage);
-					    }else{
-							handleCodeDataIntegrityIssues(); 
-						}					    
-		            
+				if (n > 0 && data.size() >0 && n==data.size()-1) {	
+					for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
+						String name = param.get(i).getParameter();
+						String value = data.get(k).toString();
+						if(!org.apache.commons.lang.StringUtils.isBlank(body)){
+							body = body.replaceAll(name, value);
+						}				
+						if(!org.apache.commons.lang.StringUtils.isBlank(header)){
+							header = header.replaceAll(name, value);
+						}
+						if(!org.apache.commons.lang.StringUtils.isBlank(footer)){
+							footer = footer.replaceAll(name, value);
+						}
+					}
 				}else{
-					    if (n > 0 && data.size() >0 && n==data.size()) {
-			            	for (int i = 0, k = 0; i < n & k < data.size(); i++, k++) {
-								String name = param.get(i).getParameter();
-								String value = data.get(k).toString();							
-								body = body.replaceAll(name, value);
-							}	
-					    }
-			            	String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();		            	
-			            	Long clientId=Long.parseLong(data.get(1).toString());
-			            	 ProcessRequest processRequest = new ProcessRequest(clientId,
+					handleCodeDataIntegrityIssues(); 
+				}
+				if (messgeType=='E' || messgeType=='M') {					
+						 String messageTo = data.get(0).toString();
+						 BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
+						 BillingMessage billingMessage = new BillingMessage(header,body, footer, messageFrom,
+								 messageTo, subject,status, billingMessageTemplate, messgeType);
+						 messageDataRepository.save(billingMessage);
+				}					    
+		            
+				if (messgeType=='O') {	
+			             String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();		            	
+			             Long clientId=Long.parseLong(data.get(1).toString());
+			             ProcessRequest processRequest = new ProcessRequest(clientId,
 			 						new Long(0),"Comvenient", 'N', null, requstStatus,new Long(0));
 			 				
-			 				  processRequest.setNotify();
-			 				  Long id=new Long(0);
-			 				 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
-			 						id, id,
-			 						body, "Recieved", data.get(0).toString(),
-										new Date(), null, null,
-										null, 'N');
-								processRequest.add(processRequestDetails);
-								processRequestRepository.save(processRequest);
+			 			 processRequest.setNotify();
+			 			 Long id=new Long(0);
+			 			 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
+			 						id, id,body, "Recieved", data.get(0).toString(),
+									new Date(), null, null,null, 'N');
+						 processRequest.add(processRequestDetails);
+						 processRequestRepository.save(processRequest);
 				}
 				
 				rowdata.removeAll(rowdata);
@@ -383,7 +374,9 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				.enummessageData(EnumMessageType.EMAIL);
 		MediaEnumoptionData message = MediaTypeEnumaration
 				.enummessageData(EnumMessageType.Message);
-		List<MediaEnumoptionData> categotyType = Arrays.asList(email, message);
+		MediaEnumoptionData osdMessage = MediaTypeEnumaration
+				.enummessageData(EnumMessageType.OSDMESSAGE);
+		List<MediaEnumoptionData> categotyType = Arrays.asList(email, message,osdMessage);
 		BillingMessageData messagedata = new BillingMessageData();
 		messagedata.setMessageType(categotyType);
 		return messagedata;

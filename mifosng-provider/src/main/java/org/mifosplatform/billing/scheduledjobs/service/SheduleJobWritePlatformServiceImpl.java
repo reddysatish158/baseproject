@@ -328,41 +328,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		}
 	}
-
-	/*@Transactional
-	@Override
-	@CronTarget(jobName = JobName.MESSANGER)
-	public void processingMessages() {
-		try {
-			System.out.println("Processing Message Details.......");
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.MESSANGER.toString());
-            
-			if (data != null) {
-
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
-
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
-
-					Long messageId = this.sheduleJobReadPlatformService
-							.getMessageId(data.getMessageTempalate());
-
-					this.billingMessageDataWritePlatformService
-							.createMessageData(messageId,
-									scheduleJobData.getQuery(),null);
-
-				}
-			}
-
-			System.out.println("Messanger job is completed"
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-		}
-
-		catch (Exception dve) {
-			handleCodeDataIntegrityIssues(null, dve);
-		}
-	}*/
 	
 	@Transactional
 	@Override
@@ -375,48 +340,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 	         
           if(data!=null){
       			
-		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendEmail());
+		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
 		
 		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
 
-					Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getEmailMessageTemplateName());
+					Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getDefaultValue());
 					
 					if(messageId!=null){
 						
-					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),null);
+					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery());
 					
 					}
-				}
-		
-		   List<ScheduleJobData> sheduleData = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendMessage());
-		
-		   for (ScheduleJobData scheduleJobData : sheduleData) {
-			
-			Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getSendMessageTemplateName());
-			
-			if(messageId!=null){
-				
-			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),null);
-			
-			}
-			
-		  }
-		   
-		   List<ScheduleJobData> osdData = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getOsdMessage());
-		   
-
-		   for (ScheduleJobData scheduleJobData : osdData) {
-			
-			Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getOSDMessageTemplate());
-			
-			if(messageId!=null){
-				
-			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),"OSDMessage");
-			
-			}
-			
-		  }
-		   
+				}	   
 	     }
     	   
 		}

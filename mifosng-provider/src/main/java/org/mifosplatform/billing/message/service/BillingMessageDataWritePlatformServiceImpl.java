@@ -35,12 +35,12 @@ public class BillingMessageDataWritePlatformServiceImpl implements BillingMessag
     
     
 	@Override
-	public CommandProcessingResult createMessageData(Long id,String json,String MessageType) {
+	public CommandProcessingResult createMessageData(Long id,String json) {
 
 		//	context.authenticatedUser();
 		BillingMessageData templateData=this.billingMesssageReadPlatformService.retrieveMessageTemplate(id);
 		List<BillingMessageData> messageparam=this.billingMesssageReadPlatformService.retrieveMessageParams(id);
-		List<BillingMessageData> clientData=this.billingMesssageReadPlatformService.retrieveData(id,json,templateData,messageparam,MessageType);
+		List<BillingMessageData> clientData=this.billingMesssageReadPlatformService.retrieveData(id,json,templateData,messageparam);
 		
 		return new CommandProcessingResultBuilder().withCommandId(id).withEntityId(id).build();
 

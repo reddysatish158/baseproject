@@ -17,7 +17,7 @@ List<BillingMessageData> retrieveAllMessageTemplateParams();
 
 List<BillingMessageData> retrieveMessageParams(Long entityId);
 
-List<BillingMessageData> retrieveData(Long command,String json, BillingMessageData templateData, List<BillingMessageData> messageparam, String messageType);
+List<BillingMessageData> retrieveData(Long command,String json, BillingMessageData templateData, List<BillingMessageData> messageparam);
 
 List<BillingMessageDataForProcessing> retrieveMessageDataForProcessing();
 
