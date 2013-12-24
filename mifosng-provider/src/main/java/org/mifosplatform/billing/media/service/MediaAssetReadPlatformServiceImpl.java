@@ -43,11 +43,8 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 	@Override
 	public List<MediaAssetData> retrievemediaAssetdata(Long pageNo) {
 		
-		
-		
-		
 		MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-		String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+" GROUP BY m.id  having  count( ed.media_id) = 1  LIMIT ?, 10" ;
+		String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+"  LIMIT ?, 10" ;
 		return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] {"", pageNo });
 
 	}
@@ -68,18 +65,18 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 
 			return new MediaAssetData(mediaId,mediaTitle,mediaImage,rating,eventId,assetTag);
 		}
-		public String mediaAssestDataSchemaforCommingMovice() {
+		public String mediaAssestDataSchema() {
 
-			return "m.id AS mediaId, m.title AS title,m.image AS image,m.rating AS rating,0 as eventId,'C' as assetTag  FROM b_media_asset m ";
+			return " *,? as assetTag from mvAll_vw m  ";
+		}
+		/*public String mediaAssestDataSchemaforCommingMovice() {
+
+			return "m.id AS mediaId, m.title AS title,m.image AS image,m.rating AS rating,0 as eventId,assetTag  FROM b_media_asset m ";
 
 
 		}
 		
-		public String mediaAssestDataSchema() {
-
-			return " m.id AS mediaId,m.title AS title, m.image AS image, m.rating AS rating,? as assetTag,ed.event_id as eventId, count(ed.media_id)"
-				  +" FROM b_media_asset m inner join b_event_detail ed on ed.media_id = m.id  inner join b_event_master em on em.id = ed.event_id";
-		}
+		
 		public String mediaAssestDataSchemaforWatchedMovies() {
 
 			return "  m.id AS mediaId,m.title AS title,m.image AS image, m.rating AS rating,'W' as assetTag,m.release_date,ed.event_Id as eventId, COUNT(eo.id) FROM b_media_asset m"
@@ -91,14 +88,13 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 			return " ed.event_id,ma.id AS mediaId,ma.title AS title,ma.image AS image, ed.event_Id as eventId,ma.rating AS rating,? as assetTag FROM b_media_asset ma inner join b_event_detail ed"
 				+"  on ed.media_id = ma.id  Where ed.event_id in (Select event_id  from b_event_master em  inner join b_event_detail ed on em.id=ed.event_id"
 				+"  group by ed.event_id  having count(ed.event_id)>1) LIMIT ?, 10";
-		}
+		}*/
 	}
 
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabyNewRealease(Long pageNo) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+"  where m.release_date <= adddate(now(),INTERVAL -3 MONTH)"
-					+"  group by m.id  having count(distinct ed.event_id) >=1 LIMIT ?, 10" ;
+			String sql = "select *, ? as assetTag from mvNewRelease_vw  LIMIT ?, 10" ;
 			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] { "N",pageNo });
      }
 		 
@@ -106,8 +102,7 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabyRating(Long pageNo) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+"    where m.rating >=4.5 group by m.id  having count(distinct ed.event_id) >=1 "
-					+" LIMIT ?, 10" ;
+			String sql = "select *,? as assetTag from mvHighRate_vw  LIMIT ?, 10" ;
 			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] { "R",pageNo });
 		}
 
@@ -152,8 +147,7 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabyDiscountedMovies(Long pageNo) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+" inner join  b_event_pricing ep on em.id=ep.event_id"
-					+" where discount_id>=1  group by m.id  having count(distinct ed.event_id) >=1 LIMIT ?, 10 ";
+			String sql = "select *, ? as assetTag from mvDiscount_vw  LIMIT ?, 10 ";
 			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] { "D",pageNo });
 }
 
@@ -161,7 +155,7 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabyPromotionalMovies(Long pageNo) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchemaforPromotionalMovies();
+			String sql = "select *,? as assetTag from mvPromotion_vw LIMIT ?, 10"; 
 			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] {"P", pageNo });
 }
 
@@ -169,22 +163,22 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabyComingSoonMovies(Long pageNo) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchemaforCommingMovice()+"   where category_id=19 LIMIT ?, 10;";
-			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] { pageNo });
+			String sql = "select  *,? as assetTag from mvComing_vw LIMIT ?, 10;";
+			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] {"C",pageNo });
 		}
 
 
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabyMostWatchedMovies(Long pageNo) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchemaforWatchedMovies();
-			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] { pageNo });
+			String sql = "select *,? as assetTag  from mvWatched_vw Limit ?,10 "; 
+			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] { "W",pageNo });
 		}
 
 		@Override
 		public List<MediaAssetData> retrievemediaAssetdatabySearching(Long pageNo, String filterType) {
 			MediaAssestDataMapper mediaAssestDataMapper = new MediaAssestDataMapper();
-			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+"  where upper(m.title) like upper('%"+filterType+"%')  GROUP BY m.id  having  count( ed.media_id) = 1  LIMIT ?, 10" ;
+			String sql = "select " + mediaAssestDataMapper.mediaAssestDataSchema()+"  where upper(m.title) like upper('%"+filterType+"%')  GROUP BY m.mediaId  having  media_count = 1  LIMIT ?, 10" ;
 			return this.jdbcTemplate.query(sql, mediaAssestDataMapper,new Object[] {"A", pageNo });
 
 		}

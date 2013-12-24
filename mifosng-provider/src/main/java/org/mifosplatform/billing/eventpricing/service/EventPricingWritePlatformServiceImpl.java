@@ -70,6 +70,7 @@ public class EventPricingWritePlatformServiceImpl implements
 			final EventPricing eventPricing = EventPricing.fromJson(command,eventMaster);
 			List<EventPricingData> eventDetails  = this.eventPricingReadPlatformService.retrieventPriceData(command.entityId());
 				for (EventPricingData eventDetail:eventDetails){
+					
 					if(eventPricing.getFormatType().equalsIgnoreCase(eventDetail.getFormatType()) &&
 				   	   eventPricing.getClientType() == eventDetail.getClientType() &&
 					   eventPricing.getOptType().equalsIgnoreCase(eventDetail.getOptType())) {
