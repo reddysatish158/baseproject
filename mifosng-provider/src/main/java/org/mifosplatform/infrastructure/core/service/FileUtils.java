@@ -32,7 +32,7 @@ public class FileUtils {
 
     public static final String MIFOSX_BASE_DIR = System.getProperty("user.home") + File.separator + ".mifosx";
     public static final String BILLING_BASE_DIR = System.getProperty("user.home") + File.separator + "billing";
-
+    public static String BILLING_JOB_INVOICE_PATH=null;
     public static enum IMAGE_MIME_TYPE {
         GIF("image/gif"), JPEG("image/jpeg"), PNG("image/png");
 
@@ -238,4 +238,8 @@ public class FileUtils {
                 + File.separator + "XlsFile"+ File.separator
                 + FileUtils.generateRandomString();
     }
+	 public static String generateLogFileDirectory() {
+	        return FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+	                + File.separator + "SheduleLogFile"+ File.separator;
+	 }
 }

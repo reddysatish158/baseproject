@@ -31,7 +31,7 @@ public class HardwareAssociationCommandFromApiJsonDeserializer {
 	 * The parameters supported for this command.
 	 */
 	private final Set<String> supportedParameters = new HashSet<String>(
-			Arrays.asList("planId", "orderId", "serialNo","provisionNum"));
+			Arrays.asList("planId", "orderId", "serialNo","provisionNum","associationId","serialNo","provisionNum"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 

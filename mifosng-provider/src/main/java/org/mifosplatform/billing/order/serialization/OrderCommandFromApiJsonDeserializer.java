@@ -30,8 +30,9 @@ public final class OrderCommandFromApiJsonDeserializer {
     /**
      * The parameters supported for this command.
      */
-    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode","contractPeriod",
-    		"billAlign","price","description","renewalPeriod","disconnectReason"));
+    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode",
+    		"contractPeriod","billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid","disconnectionDate","ispaymentEnable",
+    		"paymentCode","amountPaid","paymentDate","receiptNo"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -110,7 +111,9 @@ public final class OrderCommandFromApiJsonDeserializer {
 	        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("order");
 
 	        final JsonElement element = fromApiJsonHelper.parse(json);
-
+	        final LocalDate disconnectionDate = fromApiJsonHelper.extractLocalDateNamed("disconnectionDate", element);
+	        baseDataValidator.reset().parameter("disconnectionDate").value(disconnectionDate).notBlank();
+	        
 	        final String disconnectReason = fromApiJsonHelper.extractStringNamed("disconnectReason", element);
 	        baseDataValidator.reset().parameter("disconnectReason").value(disconnectReason).notBlank();
 	        throwExceptionIfValidationWarningsExist(dataValidationErrors);

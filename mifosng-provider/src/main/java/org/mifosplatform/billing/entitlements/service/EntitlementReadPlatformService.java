@@ -14,11 +14,8 @@ public interface EntitlementReadPlatformService {
 
 	ClientEntitlementData getClientData(Long clientId);
 
-	StakerData getData();
-	//List<StakerData> getData(String deviceId);
+	StakerData getData(String mac);
 	
 	
-	
-
 	
 }

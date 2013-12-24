@@ -24,7 +24,6 @@ import org.mifosplatform.billing.eventmaster.service.EventMasterReadPlatformServ
 import org.mifosplatform.billing.eventorder.data.EventOrderData;
 import org.mifosplatform.billing.eventorder.data.EventOrderDeviceData;
 import org.mifosplatform.billing.eventorder.service.EventOrderReadplatformServie;
-import org.mifosplatform.billing.eventorder.service.EventOrderReadplatformServieImpl;
 import org.mifosplatform.billing.eventpricing.data.ClientTypeData;
 import org.mifosplatform.billing.eventpricing.service.EventPricingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;

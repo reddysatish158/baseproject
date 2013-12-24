@@ -12,17 +12,22 @@ public class JobParameterData {
 	private String batchName;
 	private String promotionalMessage;
 	private String messageTempalate;
-	private char isDynamic;
+	private String isDynamic;
 	private LocalDate dueDate;
 	private LocalDate processDate;
 	private LocalDate exipiryDate;
 	private String defaultValue;
-	private String MessageName;
-	private String Value;
+	private String SendMessage;
+	private String SendMessageTemplateName;
 	private String url;
 	private String username;
 	private String password;
 	private String provSystem;
+	private String OsdMessage;
+	private String OSDMessageTemplate;
+	private String SendEmail;
+	private String EmailMessageTemplateName;
+	
 
 	public JobParameterData(List<JobParameters> jobParameters) {
               
@@ -32,9 +37,17 @@ public class JobParameterData {
 				   this.batchName=parameter.getParamValue();
 				   this.defaultValue=parameter.getParamDefaultValue();
 				   
+			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDEMAIL)){
+				   this.SendEmail=parameter.getParamValue();
+				   this.EmailMessageTemplateName=parameter.getParamDefaultValue();	
+			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDMESSAGE)){
-				   this.MessageName=parameter.getParamValue();
-				   this.Value=parameter.getParamDefaultValue();	
+				   this.SendMessage=parameter.getParamValue();
+				   this.SendMessageTemplateName=parameter.getParamDefaultValue();	
+			
+			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_OSDMESSAGE)){
+				   this.OsdMessage=parameter.getParamValue();
+				   this.OSDMessageTemplate=parameter.getParamDefaultValue();	
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
 			          this.promotionalMessage=parameter.getParamValue();	
@@ -43,16 +56,19 @@ public class JobParameterData {
 				     this.messageTempalate=parameter.getParamValue();
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROCESSDATE) && parameter.getParamValue()!=null){
-				    this.processDate= DateTimeFormat.forPattern("dd MMMM yyyy")
-		                 .parseLocalDate(parameter.getParamValue());
+				    this.processDate= DateTimeFormat.forPattern("dd MMMM yyyy").parseLocalDate(parameter.getParamValue());
+				    this.isDynamic=parameter.isDynamic();
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_DUEDATE) && parameter.getParamValue()!=null){
 			    this.dueDate= DateTimeFormat.forPattern("dd MMMM yyyy")
 		                 .parseLocalDate(parameter.getParamValue());
+			    this.isDynamic=parameter.isDynamic();
 
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_EXIPIRYDATE) && parameter.getParamValue()!=null){
 			    this.exipiryDate= DateTimeFormat.forPattern("dd MMMM yyyy")
 		                 .parseLocalDate(parameter.getParamValue());
+
+			    this.isDynamic=parameter.isDynamic();
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_URL)){
 			     this.url=parameter.getParamValue();
 					
@@ -66,6 +82,7 @@ public class JobParameterData {
                  this.provSystem=parameter.getParamValue();
 	
             }else{
+
 				 this.batchName=parameter.getParamValue();
 			}
 			/*if(parameter.isDynamic() == "Y" && parameter.getParamValue() == null){
@@ -97,7 +114,7 @@ public class JobParameterData {
 		return messageTempalate;
 	}
 
-	public char isDynamic() {
+	public String isDynamic() {
 		return isDynamic;
 	}
 
@@ -109,7 +126,11 @@ public class JobParameterData {
 		return processDate;
 	}
 
-	public char getIsDynamic() {
+
+	
+
+	public String getIsDynamic() {
+
 		return isDynamic;
 	}
 
@@ -119,14 +140,6 @@ public class JobParameterData {
 
 	public String getDefaultValue() {
 		return defaultValue;
-	}
-
-	public String getMessageName() {
-		return MessageName;
-	}
-
-	public String getValue() {
-		return Value;
 	}
 
 	public String getUrl() {
@@ -144,8 +157,37 @@ public class JobParameterData {
 	public String getProvSystem() {
 		return provSystem;
 	}
+
+	public String getSendMessage() {
+		return SendMessage;
+	}
+
+	
+	public String getSendMessageTemplateName() {
+		return SendMessageTemplateName;
+	}
+
+	public String getOsdMessage() {
+		return OsdMessage;
+	}
+
+	public String getOSDMessageTemplate() {
+		return OSDMessageTemplate;
+	}
+
+	public String getSendEmail() {
+		return SendEmail;
+	}
+
+	public String getEmailMessageTemplateName() {
+		return EmailMessageTemplateName;
+	}
+
 	
 	
+	
+	
+
 	
 
 }

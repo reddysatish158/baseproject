@@ -55,7 +55,8 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 	public InventoryItemDetails(){}
 	
 	
-	public InventoryItemDetails(Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long warranty,String remarks){
+	public InventoryItemDetails(Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,
+			String status,Long warranty,String remarks){
 		this.itemMasterId=itemMasterId;
 		this.serialNumber=serialNumber;
 		this.grnId=grnId;
@@ -64,12 +65,10 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 		this.status=status;
 		this.warranty=warranty;
 		this.remarks=remarks;
-		
-		
 	}
 	
-	
-	public InventoryItemDetails(Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,String status,Long officeId,Long clientId,Long warranty,String remarks){
+	public InventoryItemDetails(Long itemMasterId,String serialNumber,Long grnId,String provisioningSerialNumber,String quality,
+			String status,Long officeId,Long clientId,Long warranty,String remarks){
 		this.itemMasterId=itemMasterId;
 		this.serialNumber=serialNumber;
 		this.grnId=grnId;
@@ -80,10 +79,7 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 		this.clientId=clientId;
 		this.warranty=warranty;
 		this.remarks=remarks;
-		
-		
 	}
-	
 	
 	
 	public InventoryItemDetails(Long id) {
@@ -193,6 +189,14 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 		String quality = q.equalsIgnoreCase("Good")?"Good":"Defective";
 		String status = command.stringValueOfParameterNamed("status");
 		return new InventoryItemDetails(itemMasterId,serialNumber,grnId,provisioningSerialNumber,quality,status,null,remarks);
+	}
+
+
+	public void delete() {
+		
+		this.clientId=null;
+		this.status="NEW";
+		
 	}
 	
 }

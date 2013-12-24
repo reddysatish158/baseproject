@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.DataBindingException;
@@ -19,6 +20,10 @@ import org.mifosplatform.billing.message.domain.BillingMessage;
 import org.mifosplatform.billing.message.domain.BillingMessageTemplate;
 import org.mifosplatform.billing.message.domain.BillingMessageTemplateRepository;
 import org.mifosplatform.billing.message.domain.MessageDataRepository;
+import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -43,19 +48,22 @@ public class BillingMesssageReadPlatformServiceImpl implements
 	private static BillingMessageData templateData;
 	private static MessageDataRepository messageDataRepository;
 	private static BillingMessageTemplateRepository messageTemplateRepository;
+	private static ProcessRequestRepository processRequestRepository;
 	private static Long messageId;
+	private static String messagingType;
 
 	@Autowired
 	public BillingMesssageReadPlatformServiceImpl(
 			final PlatformSecurityContext context,
 			final TenantAwareRoutingDataSource dataSource,
 			MessageDataRepository messageDataRepository,
-			final FromJsonHelper fromApiJsonHelper,
+			final FromJsonHelper fromApiJsonHelper,final ProcessRequestRepository processRequestRepository,
 			BillingMessageTemplateRepository messageTemplateRepository) {
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.fromApiJsonHelper = fromApiJsonHelper;
 		this.messageDataRepository = messageDataRepository;
+		this.processRequestRepository=processRequestRepository;
 		this.messageTemplateRepository = messageTemplateRepository;
 	}
 
@@ -166,21 +174,19 @@ public class BillingMesssageReadPlatformServiceImpl implements
 
 	// for messageData
 	@Override
-	public List<BillingMessageData> retrieveData(Long id, String jsondata,
+	public List<BillingMessageData> retrieveData(Long id, String query,
 			BillingMessageData templateData,
-			List<BillingMessageData> messageparam) {
+			List<BillingMessageData> messageparam,String messagingType) {
 		// TODO Auto-generated method stub
 		// context.authenticatedUser();
 		this.messageparam = messageparam;
 		this.templateData = templateData;
 		this.messageId = id;
-		String json = jsondata;
+		this.messagingType= messagingType;
 
 		BillingMessageDataMapper mapper = new BillingMessageDataMapper();
 
-		String sql = "select " + json;
-
-		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
+		return this.jdbcTemplate.query(query, mapper, new Object[] {});
 
 	}
 
@@ -192,36 +198,37 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				throws SQLException {
 			ArrayList<String> rowdata = new ArrayList<String>();
 			ArrayList<String> columndata = new ArrayList<String>();
+			
 			rs.last();
 			int Rows = rs.getRow();
 			rs.beforeFirst();
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int columnCount = rsmd.getColumnCount();
 
-			// System.out.println(rsmd.getColumnName(0));
 			for (int j = 1; j <= Rows; j++) {
 				rs.next();
 
 				for (int i = 1; i <= columnCount; i++) {
-					// String columnname = rsmd.getColumnName(i);
+
 					String name = rs.getString(i);
 					columndata.add(name);
+					
 				}
 
 				rowdata.addAll(columndata);
-				// columndata.removeAll(columndata);
+				
+				//Assign rowdata to BillingMessageData bean class 
+				BillingMessageData MessageRowdata = new BillingMessageData(rowdata);
+				ArrayList<String> MessageColumndata = new ArrayList<String>();
+				MessageColumndata = MessageRowdata.getMessageColumndata();
 
-				// my new data 13/06/2013
-
-				BillingMessageData clientdata = new BillingMessageData(rowdata);
-				// for retrieving the no.of parameters
+				// For Retrieving no.of params for the MessageTemplate
 				ArrayList<BillingMessageData> param = new ArrayList<BillingMessageData>();
 				for (BillingMessageData params : messageparam) {
 					param.add(params);
 				}
-				ArrayList<String> client1 = new ArrayList<String>();
-				client1 = clientdata.getArraydata();
-
+				
+				//getting the MessageTemplate data
 				String header = templateData.getHeader();
 				String footer = templateData.getFooter();
 				String body = templateData.getBody();
@@ -231,25 +238,43 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				String messageFrom = "OBS";
 				int n = param.size();
 				ArrayList<String> data = new ArrayList<String>();
-				for (int i = 0; i < client1.size(); i++) {
-					data.add(i, client1.get(i).toString());
+				for (int i = 0; i < MessageColumndata.size(); i++) {
+					data.add(i, MessageColumndata.get(i).toString());
 				}
-				int datasize = data.size();	
 				
-				if (n > 0 && datasize >0 && n==datasize) {	
-					for (int i = 0, k = 0; i < n-1 & k < datasize - 1; i++, k++) {
+				if (n > 0 && data.size() >0 && n==data.size()) {	
+					for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
 						String name = param.get(i).getParameter();
 						String value = data.get(k).toString();
 						header = header.replaceAll(name, value);
 						body = body.replaceAll(name, value);
 					}
-					String messageTo = data.get(datasize - 1).toString();
-					BillingMessageTemplate billingMessageTemplate = messageTemplateRepository
-							.findOne(messageId);
-					BillingMessage billingMessage = new BillingMessage(header,
-							body, footer, messageFrom, messageTo, subject,
-							status, billingMessageTemplate, messgeType);
-					messageDataRepository.save(billingMessage);
+					
+					if (org.apache.commons.lang.StringUtils.isBlank(messagingType)) {
+						     String messageTo = data.get(0).toString();
+							 BillingMessageTemplate billingMessageTemplate = messageTemplateRepository
+									.findOne(messageId);
+							 BillingMessage billingMessage = new BillingMessage(header,
+									body, footer, messageFrom, messageTo, subject,
+									status, billingMessageTemplate, messgeType);
+							 messageDataRepository.save(billingMessage);
+		            }else {
+		            	String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
+		            	Long clientId=Long.parseLong(data.get(1).toString());
+		            	 ProcessRequest processRequest = new ProcessRequest(clientId,
+		 						new Long(0),"Comvenient", 'N', null, requstStatus,new Long(0));
+		 				
+		 				  processRequest.setNotify();
+		 				  Long id=new Long(0);
+		 				 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
+		 						id, id,
+		 						body, "Recieved", data.get(0).toString(),
+									new Date(), null, null,
+									null, 'N');
+							processRequest.add(processRequestDetails);
+							processRequestRepository.save(processRequest);
+					}
+					
 					rowdata.removeAll(rowdata);
 					columndata.removeAll(columndata);
 

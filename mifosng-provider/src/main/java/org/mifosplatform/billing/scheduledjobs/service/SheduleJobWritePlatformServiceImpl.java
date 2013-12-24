@@ -1,8 +1,14 @@
 package org.mifosplatform.billing.scheduledjobs.service;
 
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
@@ -29,6 +35,7 @@ import org.mifosplatform.billing.message.service.MessagePlatformEmailService;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.billing.processrequest.data.ProcessingDetailsData;
@@ -44,6 +51,7 @@ import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobDetailRepository;
@@ -76,10 +84,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final BillingMesssageReadPlatformService billingMesssageReadPlatformService;
 	private final MessagePlatformEmailService messagePlatformEmailService;
 	private final EntitlementReadPlatformService entitlementReadPlatformService;
-	
+
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private String ReceiveMessage;
-
+	private File file=null;
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(
 			final InvoiceClient invoiceClient,
@@ -123,49 +131,81 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@CronTarget(jobName = JobName.INVOICE)
 	public void processInvoice() {
 
-		try {
 
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.INVOICE.toString());
+	try
+	{
+		
+		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
+		
+		if(data!=null){
+			
+		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	    	 
+		    	    	 for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	    		 
+		    	    		 file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+						                + File.separator + "SheduleLogFile"+ File.separator +"ScheduleLog-"+new Date().toString().replace(" ", "-").trim()+".log");
+						        
+						        FileUtils.BILLING_JOB_INVOICE_PATH=file.getAbsolutePath();
+						        
+						        if(!file.exists()){
+						        	try {
+										file.createNewFile();
+									} catch (IOException e) {
+										try {
+											FileWriter fw = new FileWriter(file);
+											fw.append(e.toString());
+											fw.close();
+										} catch (IOException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+										e.printStackTrace();
+									}
+						        }
 
-			if (data != null) {
 
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	 			List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+		    	 			
+		    	 			// Get the Client Ids
+		    	 			for (Long clientId : clientIds) {
+		    	 				try {
+		    	 					
+		    	 					if(data.isDynamic().equalsIgnoreCase("Y")){
+		    	 						
+		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+		    	 						FileWriter fw = new FileWriter(file);
+										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString());
+										fw.close();
+		    	 					}else{
+		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());
+		    	 						FileWriter fw = new FileWriter(file);
+										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString());
+										fw.close();
+		    	 					}
 
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	 					
 
-					List<Long> clientIds = this.sheduleJobReadPlatformService
-							.getClientIds(scheduleJobData.getQuery());
+		    	 				} catch (Exception dve) {
+		    	 					
+		    	 					handleCodeDataIntegrityIssues(null, dve);
+		    	 				}
+		    	 			}
+		    	 			/*ScheduleJobs scheduleJob = this.scheduledJobRepository
+		    	 					.findOne(scheduleJobData.getId());
+		    	 			scheduleJob.setStatus('Y');
+		    	 			this.scheduledJobRepository.save(scheduleJob);*/
+		    	 		}
 
-					// Get the Client Ids
-					for (Long clientId : clientIds) {
-						try {
-
-							this.invoiceClient.invoicingSingleClient(clientId,
-									data.getProcessDate());
-
-						} catch (Exception dve) {
-							handleCodeDataIntegrityIssues(null, dve);
-						}
-					}
-					/*
-					 * ScheduleJobs scheduleJob = this.scheduledJobRepository
-					 * .findOne(scheduleJobData.getId());
-					 * scheduleJob.setStatus('Y');
-					 * this.scheduledJobRepository.save(scheduleJob);
-					 */
-				}
-
-				System.out.println("Invoices are Generated....."
-						+ ThreadLocalContextUtil.getTenant()
-								.getTenantIdentifier());
-
-			}
-
-		} catch (DataIntegrityViolationException exception) {
-			exception.printStackTrace();
-		}
+		    	 		System.out.println("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+		    	
+		    }
+	
+	}catch(DataIntegrityViolationException exception)
+	{
+		exception.printStackTrace();
+	}
+	
 
 	}
 
@@ -182,19 +222,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 
 			System.out.println("Processing Request Details.......");
-
-			List<PrepareRequestData> data = this.prepareRequestReadplatformService
-					.retrieveDataForProcessing();
-
+			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
 			for (PrepareRequestData requestData : data) {
 
-				this.prepareRequestReadplatformService
-						.processingClientDetails(requestData);
+				this.prepareRequestReadplatformService.processingClientDetails(requestData);
 			}
-
-			System.out.println(" Requestor Job is Completed...."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-
+			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
 		}
@@ -208,16 +241,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Response Details.......");
 
-			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService
-					.retrieveProcessingDetails();
+			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
 
 			for (ProcessingDetailsData detailsData : processingDetails) {
 
-				this.processRequestWriteplatformService
-						.notifyProcessingDetails(detailsData);
+				this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
 			}
-			System.out.println("Responsor Job is Completed..."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+			System.out.println("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 
 		} catch (DataIntegrityViolationException exception) {
 
@@ -257,34 +287,38 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		try {
 			System.out.println("Processing statement Details.......");
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.GENERATE_STATMENT.toString());
-			if (data != null) {
 
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
+		    if(data!=null){
+		    	 
+		    	 List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	 
+		    	for(ScheduleJobData scheduleJobData:sheduleDatas)
+				{
+					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+					  
+					 for(Long clientId:clientIds)
+					 {
+						
+						 JSONObject jsonobject = new JSONObject();
+						
+							DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy");
+							String formattedDate ;
+							if(data.isDynamic().equalsIgnoreCase("Y")){
+								formattedDate = formatter.print(new LocalDate());	
+							}else{
+								formattedDate = formatter.print(data.getDueDate());
+							}
+							
 
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
-					List<Long> clientIds = this.sheduleJobReadPlatformService
-							.getClientIds(scheduleJobData.getQuery());
+							// System.out.println(formattedDate);
+							jsonobject.put("dueDate",formattedDate);
+							jsonobject.put("locale", "en");
+							jsonobject.put("dateFormat", "dd MMMM YYYY");
+							jsonobject.put("message", data.getPromotionalMessage());
+							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
+					 }
 
-					for (Long clientId : clientIds) {
-
-						JSONObject jsonobject = new JSONObject();
-
-						DateTimeFormatter formatter = DateTimeFormat
-								.forPattern("dd MMMM yyyy");
-						String formattedDate = formatter.print(data
-								.getDueDate());
-
-						// System.out.println(formattedDate);
-						jsonobject.put("dueDate", formattedDate);
-						jsonobject.put("locale", "en");
-						jsonobject.put("dateFormat", "dd MMMM YYYY");
-						jsonobject.put("message", data.getPromotionalMessage());
-						this.billingMasterApiResourse.retrieveBillingProducts(
-								clientId, jsonobject.toString());
-					}
 				}
 
 			}
@@ -295,7 +329,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	}
 
-	@Transactional
+	/*@Transactional
 	@Override
 	@CronTarget(jobName = JobName.MESSANGER)
 	public void processingMessages() {
@@ -303,7 +337,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Message Details.......");
 			JobParameterData data = this.sheduleJobReadPlatformService
 					.getJobParameters(JobName.MESSANGER.toString());
-
+            
 			if (data != null) {
 
 				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
@@ -316,7 +350,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 					this.billingMessageDataWritePlatformService
 							.createMessageData(messageId,
-									scheduleJobData.getQuery());
+									scheduleJobData.getQuery(),null);
 
 				}
 			}
@@ -328,7 +362,70 @@ public class SheduleJobWritePlatformServiceImpl implements
 		catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
 		}
-	}
+	}*/
+	
+	@Transactional
+	@Override
+	@CronTarget(jobName = JobName.MESSAGE_MERGE)
+	public void processingMessages() 
+	  {
+		try 
+		{
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.MESSAGE_MERGE.toString());
+	         
+          if(data!=null){
+      			
+		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendEmail());
+		
+		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
+
+					Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getEmailMessageTemplateName());
+					
+					if(messageId!=null){
+						
+					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),null);
+					
+					}
+				}
+		
+		   List<ScheduleJobData> sheduleData = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendMessage());
+		
+		   for (ScheduleJobData scheduleJobData : sheduleData) {
+			
+			Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getSendMessageTemplateName());
+			
+			if(messageId!=null){
+				
+			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),null);
+			
+			}
+			
+		  }
+		   
+		   List<ScheduleJobData> osdData = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getOsdMessage());
+		   
+
+		   for (ScheduleJobData scheduleJobData : osdData) {
+			
+			Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getOSDMessageTemplate());
+			
+			if(messageId!=null){
+				
+			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),"OSDMessage");
+			
+			}
+			
+		  }
+		   
+	     }
+    	   
+		}
+		
+		catch (Exception dve) 
+		{
+			handleCodeDataIntegrityIssues(null, dve);
+		}
+	  }
 
 	@Transactional
 	@Override
@@ -337,48 +434,63 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Auto Exipiry Details.......");
 
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.AUTO_EXIPIRY.toString());
+			
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
+         
+                 if(data!=null){
+                	 
+			List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+			LocalDate exipirydate=null;
+			if(data.isDynamic().equalsIgnoreCase("Y")){
+				exipirydate=new LocalDate();
+			}else{
+				exipirydate=data.getExipiryDate();
+			}
+			for (ScheduleJobData scheduleJobData : sheduleDatas) 
+			{
+				List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+				
+				for(Long clientId:clientIds)
+				{
+					
+				List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+				
+      			for (OrderData orderData : orderDatas) 
+      			  {
+      				
+      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
+      				 {
+      					
+				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
+				     {
 
-			if (data != null) {
+				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+				  		//System.out.println(dateFormat.format(localDate.toDate()));
+					JSONObject jsonobject = new JSONObject();
+					jsonobject.put("disconnectReason","Date Expired");
+					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+					jsonobject.put("dateFormat","dd MMMM yyyy");
+					jsonobject.put("locale","en");
+					final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
 
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
-
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
-					List<Long> clientIds = this.sheduleJobReadPlatformService
-							.getClientIds(scheduleJobData.getQuery());
-					for (Long clientId : clientIds) {
-
-						List<OrderData> orderDatas = this.orderReadPlatformService
-								.retrieveClientOrderDetails(clientId);
-
-						for (OrderData orderData : orderDatas) {
-
-							if (orderData.getEndDate().equals(new LocalDate())) {
-
-								JSONObject jsonobject = new JSONObject();
-								jsonobject.put("disconnectReason",
-										"Date Expired");
-								final JsonElement parsedCommand = this.fromApiJsonHelper
-										.parse(jsonobject.toString());
-
-								final JsonCommand command = JsonCommand.from(
-										jsonobject.toString(), parsedCommand,
-										this.fromApiJsonHelper,
-										"DissconnectOrder", clientId, null,
-										null, clientId, null, null, null, null,
-										null, null);
-								this.orderWritePlatformService.disconnectOrder(
-										command, orderData.getId());
-							}
-						}
-					}
+					final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
+							null,clientId, null, null, null,null, null, null);
+					this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+				     }
 				}
 			}
+				}
+				}
+		}
+		
+		   
+
+
+		
 
 		} catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
+
 		}
 	}
 
@@ -386,24 +498,21 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@Override
 	@CronTarget(jobName = JobName.PUSH_NOTIFICATION)
 	public void processNotify() {
-		// TODO Auto-generated method stub
 		try {
 			System.out.println("Processing Notify Details.......");
-			List<BillingMessageDataForProcessing> billingMessageDataForProcessings = this.billingMesssageReadPlatformService
-					.retrieveMessageDataForProcessing();
-			for (BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings) {
-				if (emailDetail.getMessageType() == 'E') {
-					this.messagePlatformEmailService
-							.sendToUserEmail(emailDetail);
-				} else if (emailDetail.getMessageType() == 'M') {
-					String message = this.sheduleJobReadPlatformService
-							.retrieveMessageData(emailDetail.getId());
-					this.messagePlatformEmailService.sendToUserMobile(message,
-							emailDetail.getId());
-				} else {
-					return;
-				}
-			}
+			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
+    	    for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
+    	    	if(emailDetail.getMessageType()=='E'){
+    	    		 this.messagePlatformEmailService.sendToUserEmail(emailDetail);
+    	    	}
+    	    	else if(emailDetail.getMessageType()=='M'){
+    	    		String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
+    	    		this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());
+    	    	}
+    	    	else{
+    	    		return;
+    	    	}		                        
+           }
 			System.out.println("Notify Job is Completed...");
 		} catch (DataIntegrityViolationException exception) {
 
@@ -415,138 +524,124 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@CronTarget(jobName = JobName.Middleware)
 	public void processMiddleware() {
 		// TODO Auto-generated method stub
-			try {
-				
-				System.out.println("Processing Middleware Details.......");
-				
-				JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.Middleware.toString());
-				String credentials=data.getUsername().trim() + ":" + data.getPassword().trim();
-	    		byte[] encoded = Base64.encodeBase64(credentials.getBytes());
-	    		HttpClient httpClient = new DefaultHttpClient(); 
-			
-				List<EntitlementsData> entitlementDataForProcessings=this.entitlementReadPlatformService.getProcessingData(new Long(100));
-				
-	    	    for(EntitlementsData entitlementsData : entitlementDataForProcessings){
-	    	    	  	
-	    	    	JsonObject object=new JsonObject();
-				    object.addProperty("serviceId", entitlementsData.getServiceId() );
-				    object.addProperty("receivedStatus",new Long(1));
-				    ReceiveMessage="Success";
-    	    		Long clientId=entitlementsData.getClientId();
-	    	    	ClientEntitlementData clientdata= this.entitlementReadPlatformService.getClientData(clientId);    	    
-    	    		String query="login= "+clientdata.getEmailId()+"&password=0000&full_name="+clientdata.getFullName()+"&account_number="+clientId+"&tariff_plan=1&status=1&&stb_mac="+entitlementsData.getHardwareId();
-    	    		StringEntity se = new StringEntity(query.trim());
-    	    		HttpPost postRequest = new HttpPost(data.getUrl()+"/accounts/");
-    	    		postRequest.setHeader("Authorization", "Basic " + new String(encoded));
-    	    		postRequest.setEntity(se);
-    	    		HttpResponse response = httpClient.execute(postRequest);
-    	    		if (response.getStatusLine().getStatusCode() != 200) {
-    	    			System.out.println("Failed : HTTP error code : "
-    	    					+ response.getStatusLine().getStatusCode());
-    	    			return;
-    	    		}
-    	    		BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
-    	    		String output;
-    	    		while ((output = br1.readLine()) != null) {    			
-                        System.out.println(output);
-                        final JsonElement ele = fromApiJsonHelper.parse(output);
-                        final String status = fromApiJsonHelper.extractStringNamed("status", ele);
-                        if(status.equalsIgnoreCase("ERROR")){
-                         final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-                         ReceiveMessage="failure :"+error;
-                        }
-    	    		}
-				 
-    	    		
-    	    		String query1=data.getUrl()+"account_subscription/"+clientId;
-    	    		String queryData="subscribed[]="+entitlementsData.getProduct();
-    	    		StringEntity se1 = new StringEntity(queryData.trim());
-    	    		
-    	    		HttpPut putRequest= new HttpPut(query1.trim());
-    	    		putRequest.setHeader("Authorization", "Basic " + new String(encoded));
-    	    		putRequest.setEntity(se1);
-    	    		HttpResponse response1 = httpClient.execute(putRequest);
-    	    		if (response1.getStatusLine().getStatusCode() != 200) {
-    	    			System.out.println("Failed : HTTP error code : "
-    	    					+ response1.getStatusLine().getStatusCode());
-    	    			return;
-    	    		}
-    	    		BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+		try {
 
-    	    		String output2;
-    	    		while ((output2 = br2.readLine()) != null) {
-                        System.out.println(output2);
-                        final JsonElement ele = fromApiJsonHelper.parse(output2);
-                        final String status = fromApiJsonHelper.extractStringNamed("status", ele);
-                        final String results = fromApiJsonHelper.extractStringNamed("results", ele);
-                        if(status.equalsIgnoreCase("ERROR")){
-                              final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-                              ReceiveMessage="failure :"+error;
-                        }   
-                        if(results.equalsIgnoreCase("false")){
-                        	if(ReceiveMessage.equalsIgnoreCase("Success")){
-                        		 ReceiveMessage="failure :";
-                        	}                    	 
-                        }
-                       
-    	    		}
-                    
-    	    		object.addProperty("receiveMessage", ReceiveMessage);
-				    String entityName="ENTITLEMENT";
-				    final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
-				    JsonCommand comm=new JsonCommand(null, object.toString(), element1, fromApiJsonHelper, entityName, entitlementsData.getId(), null, null, null,
-			                null, null, null, null, null, null);
-				    CommandProcessingResult result=this.entitlementWritePlatformService.create(comm);
-				    System.out.println(result);
-				     	    		
-	    	    }    
-	    	    httpClient.getConnectionManager().shutdown();
+			System.out.println("Processing Middleware Details.......");
+
+			JobParameterData data = this.sheduleJobReadPlatformService
+					.getJobParameters(JobName.Middleware.toString());
+			String credentials = data.getUsername().trim() + ":"
+					+ data.getPassword().trim();
+			byte[] encoded = Base64.encodeBase64(credentials.getBytes());
+			HttpClient httpClient = new DefaultHttpClient();
+
+			List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService
+					.getProcessingData(new Long(100));
+
+			for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
+				Long clientId = entitlementsData.getClientId();
+				ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
+				ReceiveMessage = "Success";
+				if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
+				    String status="";
+					String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
+							+ "&account_number="+ clientId + "&tariff_plan=1&status=1&&stb_mac="+ entitlementsData.getHardwareId();
+					StringEntity se = new StringEntity(query.trim());
+					HttpPost postRequest = new HttpPost(data.getUrl() + "accounts/");
+					postRequest.setHeader("Authorization", "Basic " + new String(encoded));
+					postRequest.setEntity(se);
+					HttpResponse response = httpClient.execute(postRequest);
+					if (response.getStatusLine().getStatusCode() != 200) {
+						System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+						return;
+					}
+					BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
+					String output;
+					while ((output = br1.readLine()) != null) {
+						System.out.println(output);
+						final JsonElement ele = fromApiJsonHelper.parse(output);
+						 status = fromApiJsonHelper.extractStringNamed("status", ele);
+						if (status.equalsIgnoreCase("ERROR")) {
+							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+							ReceiveMessage = "failure :" + error;
+						}
+					}
+					
+                    if(!(status.equalsIgnoreCase("ERROR") || status.equalsIgnoreCase(""))){
+					String query1 = data.getUrl() + "account_subscription/"+ clientId;
+					String queryData = "subscribed[]="+ entitlementsData.getProduct();
+					StringEntity se1 = new StringEntity(queryData.trim());
+
+					HttpPut putRequest = new HttpPut(query1.trim());
+					putRequest.setHeader("Authorization", "Basic " + new String(encoded));
+					putRequest.setEntity(se1);
+					HttpResponse response1 = httpClient.execute(putRequest);
+					if (response1.getStatusLine().getStatusCode() != 200) {
+						System.out.println("Failed : HTTP error code : " + response1.getStatusLine().getStatusCode());
+						return;
+					}
+					BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+
+					String output2;
+					while ((output2 = br2.readLine()) != null) {
+						System.out.println(output2);
+						final JsonElement ele = fromApiJsonHelper.parse(output2);
+						final String status1 = fromApiJsonHelper.extractStringNamed("status", ele);
+						if (status1.equalsIgnoreCase("ERROR")) {
+							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+							ReceiveMessage = "failure :" + error;
+						}
+					}
+                   }
+				  
+				}else if(entitlementsData.getRequestType().equalsIgnoreCase("DISCONNECTION")){
+					String query = "status= " + new Long(0);
+					StringEntity se = new StringEntity(query.trim());
+					String url=""+data.getUrl() + "accounts/123";
+					HttpPut putrequest = new HttpPut(url.trim());
+					putrequest.setHeader("Authorization", "Basic " + new String(encoded));
+					putrequest.setEntity(se);
+					HttpResponse putresponse = httpClient.execute(putrequest);
+					if (putresponse.getStatusLine().getStatusCode() != 200) {
+						System.out.println("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode());
+						return;
+					}
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader((putresponse.getEntity().getContent())));
+					String output="";
+					while ((output = br.readLine()) != null) {
+						System.out.println(output);
+						final JsonElement ele = fromApiJsonHelper.parse(output);
+						final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+						if (status.equalsIgnoreCase("ERROR")) {
+							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+							ReceiveMessage = "failure :" + error;
+						}
+					}
+				}
+					JsonObject object = new JsonObject();
+					object.addProperty("serviceId",entitlementsData.getServiceId());
+					object.addProperty("receivedStatus", new Long(1));
+					
+					object.addProperty("receiveMessage", ReceiveMessage);
+					String entityName = "ENTITLEMENT";
+					final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
+					JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
+							entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
+					CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
+					System.out.println(result);
+
+				}
+				httpClient.getConnectionManager().shutdown();
 				System.out.println("Middleware Job is Completed...");
-			} catch (DataIntegrityViolationException exception) {
+			
+		} catch (DataIntegrityViolationException exception) {
 
-			}catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
-	/*
-	 * @SuppressWarnings("deprecation") private static HttpClient
-	 * wrapClient(HttpClient base) {
-	 * 
-	 * try { SSLContext ctx = SSLContext.getInstance("TLS"); X509TrustManager tm
-	 * = new X509TrustManager() {
-	 * 
-	 * @SuppressWarnings("unused") public void
-	 * checkClientTrusted(X509Certificate[] xcs, String string) throws
-	 * CertificateException { }
-	 * 
-	 * @SuppressWarnings("unused") public void
-	 * checkServerTrusted(X509Certificate[] xcs, String string) throws
-	 * CertificateException { }
-	 * 
-	 * public java.security.cert.X509Certificate[] getAcceptedIssuers() { return
-	 * null; }
-	 * 
-	 * @Override public void checkClientTrusted(
-	 * java.security.cert.X509Certificate[] arg0, String arg1) throws
-	 * java.security.cert.CertificateException { // TODO Auto-generated method
-	 * stub
-	 * 
-	 * }
-	 * 
-	 * @Override public void checkServerTrusted(
-	 * java.security.cert.X509Certificate[] arg0, String arg1) throws
-	 * java.security.cert.CertificateException { // TODO Auto-generated method
-	 * stub
-	 * 
-	 * } }; ctx.init(null, new TrustManager[] { tm }, null); SSLSocketFactory
-	 * ssf = new SSLSocketFactory(ctx);
-	 * ssf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-	 * ClientConnectionManager ccm = base.getConnectionManager(); SchemeRegistry
-	 * sr = ccm.getSchemeRegistry(); sr.register(new Scheme("https", ssf, 443));
-	 * return new DefaultHttpClient(ccm, base.getParams()); } catch (Exception
-	 * ex) { return null; } }
-	 */
-
 }
+
+	

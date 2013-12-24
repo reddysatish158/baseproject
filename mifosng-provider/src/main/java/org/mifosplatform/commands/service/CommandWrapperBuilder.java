@@ -1624,15 +1624,6 @@ public CommandWrapperBuilder deleteregion(Long regionId) {
 	return this;
 }
 
-public CommandWrapperBuilder createPaypal(String payerEmail) {
-	// TODO Auto-generated method stub
-		this.actionName = "CREATEPAYPAL";
-		this.entityName = "PAYMENT";	
-		this.supportedEntityType=payerEmail;
-		this.href = "/payments/paypal";
-		return this;
-}
-
 public CommandWrapperBuilder createDiscount() {
 	this.actionName = "CREATE";
 	this.entityName = "DISCOUNT";
@@ -1844,6 +1835,13 @@ public CommandWrapperBuilder updateEventOrderPrice() {
 	this.entityName="EVENTORDER";
 	this.entityId=clientId;
 	this.href="eventorder";
+	return this;
+}
+public CommandWrapperBuilder hardwareSwapping(Long clientId) {
+	this.actionName = "SWAPPING";
+	this.entityName = "HARDWARESWAPPING";
+	this.entityId = clientId;
+	this.href = "/hardwaremapping/"+clientId;
 	return this;
 }
 

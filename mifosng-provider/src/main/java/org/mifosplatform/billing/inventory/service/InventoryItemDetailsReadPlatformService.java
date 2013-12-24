@@ -1,6 +1,5 @@
 package org.mifosplatform.billing.inventory.service;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
@@ -9,7 +8,6 @@ import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
 import org.mifosplatform.billing.inventory.data.InventoryItemSerialNumberData;
 import org.mifosplatform.billing.inventory.data.ItemMasterIdData;
 import org.mifosplatform.billing.inventory.data.QuantityData;
-import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
 import org.mifosplatform.infrastructure.core.service.Page;
 
 public interface InventoryItemDetailsReadPlatformService {
@@ -29,7 +27,7 @@ public interface InventoryItemDetailsReadPlatformService {
 
 	public InventoryItemSerialNumberData retriveAllocationData(List<String> itemSerialNumbers,QuantityData quantityData, ItemMasterIdData itemMasterIdData);
 	
-	public InventoryItemDetails retriveInventoryItemDetail(String serialNumber,Long itemMasterId);
+	public AllocationHardwareData retriveInventoryItemDetail(String serialNumber);
 
 	List<String> retriveSerialNumbers();
 
@@ -37,8 +35,7 @@ public interface InventoryItemDetailsReadPlatformService {
 
 	public InventoryItemDetailsData retriveSingleItemDetail(Long itemId);
 
-	public List<String> retriveSerialNumbersOnKeyStroke(Long oneTimeSaleId,
-			String query);
+	public List<String> retriveSerialNumbersOnKeyStroke(Long oneTimeSaleId,String query);
 
 	public InventoryItemSerialNumberData retriveAllocationData(
 			List<String> itemSerialNumbers);

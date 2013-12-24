@@ -171,8 +171,8 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             }
             
             
-            List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails("Create Client");
-            this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,newClient.getId());
+            //List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails("Create Client");
+         //   this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,newClient.getId());
             
             transactionHistoryWritePlatformService.saveTransactionHistory(newClient.getId(), "New Client", newClient.getActivationDate(),
             		"Name:"+newClient.getName(),"ImageKey:"+newClient.imageKey(),"AccountNumber:"+newClient.getAccountNo());

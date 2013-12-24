@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.Page;
@@ -138,7 +137,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             JobDetailHistoryData lastRunHistory = null;
             if (version > 0) {
                 lastRunHistory = new JobDetailHistoryData(version, jobRunStartTime, jobRunEndTime, status, jobRunErrorMessage, triggerType,
-                        jobRunErrorLog);
+                        jobRunErrorLog,null);
             }
             JobDetailData jobDetail = new JobDetailData(id, name,displayName, nextRunTime, initializingError, cronExpression, active,
                     currentlyRunning, lastRunHistory,cronDescription);
@@ -150,7 +149,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
     private static final class JobHistoryMapper implements RowMapper<JobDetailHistoryData> {
 
         private StringBuilder sqlBuilder = new StringBuilder(200)
-                .append(" runHistory.version,runHistory.start_time as runStartTime,runHistory.end_time as runEndTime,runHistory.`status`,runHistory.error_message as jobRunErrorMessage,runHistory.trigger_type as triggerType,runHistory.error_log as jobRunErrorLog ")
+                .append(" runHistory.version,runHistory.file_path as runFilePath,runHistory.start_time as runStartTime,runHistory.end_time as runEndTime,runHistory.`status`,runHistory.error_message as jobRunErrorMessage,runHistory.trigger_type as triggerType,runHistory.error_log as jobRunErrorLog ")
                 .append(" from job job join job_run_history runHistory ON job.id=runHistory.job_id");
 
         public String schema() {
@@ -166,8 +165,9 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             String jobRunErrorMessage = rs.getString("jobRunErrorMessage");
             String triggerType = rs.getString("triggerType");
             String jobRunErrorLog = rs.getString("jobRunErrorLog");
+            String runFilePath=rs.getString("runFilePath");
             JobDetailHistoryData jobDetailHistory = new JobDetailHistoryData(version, jobRunStartTime, jobRunEndTime, status,
-                    jobRunErrorMessage, triggerType, jobRunErrorLog);
+                    jobRunErrorMessage, triggerType, jobRunErrorLog,runFilePath);
             return jobDetailHistory;
         }
 

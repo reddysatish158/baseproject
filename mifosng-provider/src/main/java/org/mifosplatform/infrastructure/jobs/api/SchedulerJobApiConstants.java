@@ -33,6 +33,7 @@ public class SchedulerJobApiConstants {
     public static final String JOB_MESSANGER = "Messanger";
     public static final String JOB_AUTO_EXIPIRY= "Auto Exipiry";
     public static final String jobReportName = "reportName";
+    public static final String jobIsDynamic = "isDynamic";
     public static final String jobProcessdate = "processDate";
     public static final String jobDueDate = "dueDate";
     public static final String jobPromotionalMessage = "promotionalMessage";
@@ -42,20 +43,20 @@ public class SchedulerJobApiConstants {
     
     public static final Set<String> JOB_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobIdentifierParamName,
             displayNameParamName, nextRunTimeParamName, initializingErrorParamName, cronExpressionParamName, jobActiveStatusParamName,
-            currentlyRunningParamName, lastRunHistoryObjParamName,schedulerJobParamName,cronDescriptionParamName));
+            currentlyRunningParamName, lastRunHistoryObjParamName,schedulerJobParamName,cronDescriptionParamName,jobIsDynamic));
 
     public static final Set<String> JOB_HISTORY_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(versionParamName,
             jobRunStartTimeParamName, jobRunEndTimeParamName, statusParamName, jobRunErrorMessageParamName, triggerTypeParamName,
             jobRunErrorLogParamName));
 
     public static final Set<String> JOB_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(displayNameParamName,
-            jobActiveStatusParamName, cronExpressionParamName,cronDescriptionParamName));
+            jobActiveStatusParamName, cronExpressionParamName,cronDescriptionParamName,jobIsDynamic));
     
     public static final Set<String> JOB_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(displayNameParamName,
             jobActiveStatusParamName, cronExpressionParamName,schedulerJobParamName,cronDescriptionParamName));
     
     public static final Set<String> CREATE_REQUEST_JOB_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobReportName,jobProcessdate,
-    		jobDueDate,jobPromotionalMessage,jobMessageTemplate,jobExipiryDate,schedulerJobParamName,"locale","dateFormat"));
+    		jobDueDate,jobPromotionalMessage,jobMessageTemplate,jobExipiryDate,schedulerJobParamName,"locale","dateFormat","isDynamic"));
 
     public static final Set<String> SCHEDULER_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(schedulerStatusParamName));
 
