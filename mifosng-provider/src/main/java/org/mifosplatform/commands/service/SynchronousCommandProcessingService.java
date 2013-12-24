@@ -575,9 +575,7 @@ public class SynchronousCommandProcessingService implements
 	        }else if (wrapper.isPaymentResource()) {
 	        	if (wrapper.isCreate()) {
 	                handler = applicationContext.getBean("createPaymentCommandHandler", NewCommandSourceHandler.class);
-	        	}else if (wrapper.isCreatePaypal()) {
-	                handler = applicationContext.getBean("createPaypalPaymentCommandHandler", NewCommandSourceHandler.class);
-	            }else {
+	        	}else {
 	                    throw new UnsupportedCommandException(wrapper.commandName());
 	                }
 			} else if (wrapper.isPaymodeResource()) {

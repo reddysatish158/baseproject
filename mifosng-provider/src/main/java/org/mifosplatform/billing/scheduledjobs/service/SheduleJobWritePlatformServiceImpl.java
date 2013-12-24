@@ -329,7 +329,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	}
 
-	@Transactional
+	/*@Transactional
 	@Override
 	@CronTarget(jobName = JobName.MESSANGER)
 	public void processingMessages() {
@@ -337,7 +337,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Message Details.......");
 			JobParameterData data = this.sheduleJobReadPlatformService
 					.getJobParameters(JobName.MESSANGER.toString());
-
+            
 			if (data != null) {
 
 				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
@@ -350,7 +350,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 					this.billingMessageDataWritePlatformService
 							.createMessageData(messageId,
-									scheduleJobData.getQuery());
+									scheduleJobData.getQuery(),null);
 
 				}
 			}
@@ -362,7 +362,70 @@ public class SheduleJobWritePlatformServiceImpl implements
 		catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
 		}
-	}
+	}*/
+	
+	@Transactional
+	@Override
+	@CronTarget(jobName = JobName.MESSAGE_MERGE)
+	public void processingMessages() 
+	  {
+		try 
+		{
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.MESSAGE_MERGE.toString());
+	         
+          if(data!=null){
+      			
+		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendEmail());
+		
+		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
+
+					Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getEmailMessageTemplateName());
+					
+					if(messageId!=null){
+						
+					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),null);
+					
+					}
+				}
+		
+		   List<ScheduleJobData> sheduleData = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendMessage());
+		
+		   for (ScheduleJobData scheduleJobData : sheduleData) {
+			
+			Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getSendMessageTemplateName());
+			
+			if(messageId!=null){
+				
+			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),null);
+			
+			}
+			
+		  }
+		   
+		   List<ScheduleJobData> osdData = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getOsdMessage());
+		   
+
+		   for (ScheduleJobData scheduleJobData : osdData) {
+			
+			Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getOSDMessageTemplate());
+			
+			if(messageId!=null){
+				
+			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),"OSDMessage");
+			
+			}
+			
+		  }
+		   
+	     }
+    	   
+		}
+		
+		catch (Exception dve) 
+		{
+			handleCodeDataIntegrityIssues(null, dve);
+		}
+	  }
 
 	@Transactional
 	@Override
@@ -435,24 +498,21 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@Override
 	@CronTarget(jobName = JobName.PUSH_NOTIFICATION)
 	public void processNotify() {
-		// TODO Auto-generated method stub
 		try {
 			System.out.println("Processing Notify Details.......");
-			List<BillingMessageDataForProcessing> billingMessageDataForProcessings = this.billingMesssageReadPlatformService
-					.retrieveMessageDataForProcessing();
-			for (BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings) {
-				if (emailDetail.getMessageType() == 'E') {
-					this.messagePlatformEmailService
-							.sendToUserEmail(emailDetail);
-				} else if (emailDetail.getMessageType() == 'M') {
-					String message = this.sheduleJobReadPlatformService
-							.retrieveMessageData(emailDetail.getId());
-					this.messagePlatformEmailService.sendToUserMobile(message,
-							emailDetail.getId());
-				} else {
-					return;
-				}
-			}
+			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
+    	    for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
+    	    	if(emailDetail.getMessageType()=='E'){
+    	    		 this.messagePlatformEmailService.sendToUserEmail(emailDetail);
+    	    	}
+    	    	else if(emailDetail.getMessageType()=='M'){
+    	    		String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
+    	    		this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());
+    	    	}
+    	    	else{
+    	    		return;
+    	    	}		                        
+           }
 			System.out.println("Notify Job is Completed...");
 		} catch (DataIntegrityViolationException exception) {
 
