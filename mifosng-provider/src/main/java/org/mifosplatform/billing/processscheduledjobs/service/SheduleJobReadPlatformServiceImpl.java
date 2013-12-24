@@ -8,7 +8,9 @@ import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.billing.scheduledjobs.domain.JobParameters;
 import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
+import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
+import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -203,5 +205,44 @@ public class SheduleJobReadPlatformServiceImpl implements
 
 		}
 	}
+	
+	@Override
+	public List<ScheduleJobData> retrieveSheduleJobDetails(String paramValue) {
+
+		try {
+
+			final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
+	        ThreadLocalContextUtil.setTenant(tenant);
+	        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+			final SheduleJobMapper1 mapper = new SheduleJobMapper1();
+
+			final String sql = "select " + mapper.sheduleLookupSchema();
+
+			return jdbcTemplate.query(sql, mapper, new Object[] { paramValue });
+			} catch (EmptyResultDataAccessException e) {
+			return null;
+			}
+
+			
+	}
+	
+	private static final class SheduleJobMapper1 implements RowMapper<ScheduleJobData> {
+
+		public String sheduleLookupSchema() {
+		return "  b.id as id,b.report_name as batchName,b.report_sql as query from stretchy_report b where b.report_name=?";
+
+		}
+
+		@Override
+		public ScheduleJobData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
+         
+		final Long id = rs.getLong("id");
+		final String batchName = rs.getString("batchName");
+		final String query = rs.getString("query");
+		
+		
+		return new ScheduleJobData(id, batchName,query);
+		}
+	 }
 }
 

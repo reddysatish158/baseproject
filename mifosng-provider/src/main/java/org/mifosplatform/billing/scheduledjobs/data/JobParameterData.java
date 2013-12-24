@@ -17,12 +17,17 @@ public class JobParameterData {
 	private LocalDate processDate;
 	private LocalDate exipiryDate;
 	private String defaultValue;
-	private String MessageName;
-	private String Value;
+	private String SendMessage;
+	private String SendMessageTemplateName;
 	private String url;
 	private String username;
 	private String password;
 	private String provSystem;
+	private String OsdMessage;
+	private String OSDMessageTemplate;
+	private String SendEmail;
+	private String EmailMessageTemplateName;
+	
 
 	public JobParameterData(List<JobParameters> jobParameters) {
               
@@ -32,9 +37,17 @@ public class JobParameterData {
 				   this.batchName=parameter.getParamValue();
 				   this.defaultValue=parameter.getParamDefaultValue();
 				   
+			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDEMAIL)){
+				   this.SendEmail=parameter.getParamValue();
+				   this.EmailMessageTemplateName=parameter.getParamDefaultValue();	
+			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDMESSAGE)){
-				   this.MessageName=parameter.getParamValue();
-				   this.Value=parameter.getParamDefaultValue();	
+				   this.SendMessage=parameter.getParamValue();
+				   this.SendMessageTemplateName=parameter.getParamDefaultValue();	
+			
+			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_OSDMESSAGE)){
+				   this.OsdMessage=parameter.getParamValue();
+				   this.OSDMessageTemplate=parameter.getParamDefaultValue();	
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
 			          this.promotionalMessage=parameter.getParamValue();	
@@ -129,14 +142,6 @@ public class JobParameterData {
 		return defaultValue;
 	}
 
-	public String getMessageName() {
-		return MessageName;
-	}
-
-	public String getValue() {
-		return Value;
-	}
-
 	public String getUrl() {
 		return url;
 	}
@@ -152,6 +157,36 @@ public class JobParameterData {
 	public String getProvSystem() {
 		return provSystem;
 	}
+
+	public String getSendMessage() {
+		return SendMessage;
+	}
+
+	
+	public String getSendMessageTemplateName() {
+		return SendMessageTemplateName;
+	}
+
+	public String getOsdMessage() {
+		return OsdMessage;
+	}
+
+	public String getOSDMessageTemplate() {
+		return OSDMessageTemplate;
+	}
+
+	public String getSendEmail() {
+		return SendEmail;
+	}
+
+	public String getEmailMessageTemplateName() {
+		return EmailMessageTemplateName;
+	}
+
+	
+	
+	
+	
 
 	
 
