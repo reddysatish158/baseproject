@@ -534,8 +534,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 					StringEntity se = new StringEntity(query.trim());
 					String url=""+data.getUrl() + "accounts/123";
 					HttpPut putrequest = new HttpPut(url.trim());
-					putrequest.setHeader("Authorization", "Basic " + new String(encoded));
 					putrequest.setEntity(se);
+					putrequest.setHeader("Authorization", "Basic " + new String(encoded));
+					
+					
 					HttpResponse putresponse = httpClient.execute(putrequest);
 					if (putresponse.getStatusLine().getStatusCode() != 200) {
 						System.out.println("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode());
