@@ -87,17 +87,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private String ReceiveMessage;
-	private File file=null;
+	
 	@Autowired
-	public SheduleJobWritePlatformServiceImpl(
-			final InvoiceClient invoiceClient,
-			final SheduleJobReadPlatformService sheduleJobReadPlatformService,
-			final ScheduledJobRepository scheduledJobRepository,
-			final BillingMasterApiResourse billingMasterApiResourse,
-			final ProcessRequestRepository processRequestRepository,
-			final OrderWritePlatformService orderWritePlatformService,
-			final FromJsonHelper fromApiJsonHelper,
-			final OrderReadPlatformService orderReadPlatformService,
+	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
+			final ScheduledJobRepository scheduledJobRepository,final BillingMasterApiResourse billingMasterApiResourse,
+			final ProcessRequestRepository processRequestRepository,final OrderWritePlatformService orderWritePlatformService,
+			final SheduleJobReadPlatformService sheduleJobReadPlatformService,final OrderReadPlatformService orderReadPlatformService,
 			final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
 			final PrepareRequestReadplatformService prepareRequestReadplatformService,
 			final ProcessRequestReadplatformService processRequestReadplatformService,
@@ -134,54 +129,44 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 	try
 	{
+		File file=null;
 		
 		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
 		
 		if(data!=null){
-			
-		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-		    	    	 
+			 file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+		                + File.separator + "SheduleLogFile"+ File.separator + "Invoice"+ File.separator +"Invoice-"+new Date().toString().replace(" ", "-").trim()+".log");
+ 		     file.createNewFile();
+		     FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+		     FileWriter fw = new FileWriter(file);
+		     List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+					    
+		    	         if(sheduleDatas.isEmpty()){
+				 				fw.append("ScheduleJobData Empty \r\n");
+				 		 }
 		    	    	 for (ScheduleJobData scheduleJobData : sheduleDatas) {
 		    	    		 
-		    	    		 file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
-						                + File.separator + "SheduleLogFile"+ File.separator +"ScheduleLog-"+new Date().toString().replace(" ", "-").trim()+".log");
-						        
-						        FileUtils.BILLING_JOB_INVOICE_PATH=file.getAbsolutePath();
-						        
-						        if(!file.exists()){
-						        	try {
-										file.createNewFile();
-									} catch (IOException e) {
-										try {
-											FileWriter fw = new FileWriter(file);
-											fw.append(e.toString());
-											fw.close();
-										} catch (IOException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
-										}
-										e.printStackTrace();
-									}
-						        }
-
-
+		    	    		fw.append("ScheduleJobData id: "+scheduleJobData.getId()+" ,BatchName: "+scheduleJobData.getBatchName()+
+		    	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
 		    	 			List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
-		    	 			
+		    	 			if(clientIds.isEmpty()){
+		    	 				fw.append("Invoicing clients are not found \r\n");
+		    	 			}
+		    	 			else{
+		    	 				fw.append("Invoicing the clients..... \r\n");
+		    	 			}
 		    	 			// Get the Client Ids
 		    	 			for (Long clientId : clientIds) {
 		    	 				try {
 		    	 					
 		    	 					if(data.isDynamic().equalsIgnoreCase("Y")){
 		    	 						
-		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
-		    	 						FileWriter fw = new FileWriter(file);
-										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString());
-										fw.close();
+		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());				
+										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString()+"\r\n");
+										
 		    	 					}else{
 		    	 						BigDecimal amount=this.invoiceClient.invoicingSingleClient(clientId,data.getProcessDate());
-		    	 						FileWriter fw = new FileWriter(file);
-										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString());
-										fw.close();
+										fw.append("ClientId: "+clientId+"\tAmount: "+amount.toString()+"\r\n");									
 		    	 					}
 
 		    	 					
@@ -196,13 +181,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	 			scheduleJob.setStatus('Y');
 		    	 			this.scheduledJobRepository.save(scheduleJob);*/
 		    	 		}
-
+		    	    	 fw.append("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier()+"\r\n");
+		    	    	 fw.flush();
+		    	    	 fw.close();
 		    	 		System.out.println("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		    	
 		    }
 	
 	}catch(DataIntegrityViolationException exception)
 	{
+		exception.printStackTrace();
+	} catch (IOException exception) {
+		
 		exception.printStackTrace();
 	}
 	
@@ -220,16 +210,36 @@ public class SheduleJobWritePlatformServiceImpl implements
 	public void processRequest() {
 
 		try {
-
 			System.out.println("Processing Request Details.......");
+			
+			File file=null;
 			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
-			for (PrepareRequestData requestData : data) {
-
-				this.prepareRequestReadplatformService.processingClientDetails(requestData);
+			
+			if(!data.isEmpty()){
+				
+				file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+			                + File.separator + "SheduleLogFile"+ File.separator + "Requester"+ File.separator +"Requester-"+new Date().toString().replace(" ", "-").trim()+".log");
+				file.createNewFile();
+				FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+			    FileWriter fw = new FileWriter(file);
+			    fw.append("Processing Request Details.......");
+				for (PrepareRequestData requestData : data) {
+					fw.append("Prepare Request id="+requestData.getRequestId()+" ,clientId="+requestData.getClientId()+" ,orderId="
+					+requestData.getOrderId()+" ,HardwareId="+requestData.getHardwareId()+" ,planName"+requestData.getPlanName()+
+					" ,Provisiong system="+requestData.getProvisioningSystem()+"\r\n");
+					this.prepareRequestReadplatformService.processingClientDetails(requestData);
+				}
+				fw.append(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+"\r\n");
+				fw.flush();
+				fw.close();
 			}
+			
 			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+			
 		} catch (DataIntegrityViolationException exception) {
 
+		} catch (IOException exception) {
+			exception.printStackTrace();
 		}
 	}
 
@@ -240,17 +250,33 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		try {
 			System.out.println("Processing Response Details.......");
-
+			
 			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
-
-			for (ProcessingDetailsData detailsData : processingDetails) {
-
-				this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
+			File file=null;
+			
+			if(!processingDetails.isEmpty()){
+				file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+			                + File.separator + "SheduleLogFile"+ File.separator + "Responser"+ File.separator +"Responser-"+new Date().toString().replace(" ", "-").trim()+".log");
+	 		    file.createNewFile();
+	 		    FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+			    FileWriter fw = new FileWriter(file);	
+			    fw.append("Processing Response Details.......");
+				for (ProcessingDetailsData detailsData : processingDetails) {
+	                fw.append("Process Response id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
+	                		+detailsData.getProvisionigSystem()+" ,RequestType"+detailsData.getRequestType()+"\r\n");
+					this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
+				}
+				fw.append("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
+				fw.flush();
+				fw.close();
 			}
 			System.out.println("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 
 		} catch (DataIntegrityViolationException exception) {
 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -261,23 +287,35 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		try {
 			System.out.println("Processing Simulator Details.......");
-
-			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService
-					.retrieveUnProcessingDetails();
-
-			for (ProcessingDetailsData detailsData : processingDetails) {
-
-				ProcessRequest processRequest = this.processRequestRepository
-						.findOne(detailsData.getId());
-
-				processRequest.setProcessStatus();
-				this.processRequestRepository.save(processRequest);
-
+			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveUnProcessingDetails();
+			if(!processingDetails.isEmpty()){
+				File file=null;
+				file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+			                + File.separator + "SheduleLogFile"+ File.separator + "Simulator"+ File.separator 
+			                +"Simulator-"+new Date().toString().replace(" ", "-").trim()+".log");
+	 		    file.createNewFile();
+	 		    FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+			    FileWriter fw = new FileWriter(file);
+			    fw.append("Processing Simulator Details.......");
+				for (ProcessingDetailsData detailsData : processingDetails) {
+	                
+					fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
+	                		+detailsData.getProvisionigSystem()+" ,RequestType"+detailsData.getRequestType()+"\r\n");
+					ProcessRequest processRequest = this.processRequestRepository.findOne(detailsData.getId());
+					processRequest.setProcessStatus();
+					this.processRequestRepository.save(processRequest);
+	
+				}
+				fw.append("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
+				fw.flush();
+				fw.close();
 			}
-			System.out.println("Simulator Job is Completed..."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+			System.out.println("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -287,20 +325,36 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		try {
 			System.out.println("Processing statement Details.......");
-
+			File file=null;
+		
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
 		    if(data!=null){
-		    	 
-		    	 List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-		    	 
+		    	file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+		                + File.separator + "SheduleLogFile"+ File.separator + "statement"+ File.separator +"statement-"+new Date().toString().replace(" ", "-").trim()+".log");
+ 		        file.createNewFile();
+ 		        FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+		        FileWriter fw = new FileWriter(file);
+		        fw.append("Processing statement Details....... \r\n");
+		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	if(sheduleDatas.isEmpty()){
+	 				fw.append("ScheduleJobData Empty \r\n");
+	 		    }
 		    	for(ScheduleJobData scheduleJobData:sheduleDatas)
 				{
+		    		fw.append("ScheduleJobData id: "+scheduleJobData.getId()+" ,BatchName: "+scheduleJobData.getBatchName()+
+    	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+		    		
 					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
-					  
+					if(clientIds.isEmpty()){
+    	 				fw.append("no records are available for statement generation \r\n");
+    	 			}
+    	 			else{
+    	 				fw.append("generate Statements for the clients..... \r\n");
+    	 			}
 					 for(Long clientId:clientIds)
 					 {
-						
-						 JSONObject jsonobject = new JSONObject();
+						    fw.append("processing clientId: "+clientId);
+						    JSONObject jsonobject = new JSONObject();
 						
 							DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy");
 							String formattedDate ;
@@ -316,16 +370,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 							jsonobject.put("locale", "en");
 							jsonobject.put("dateFormat", "dd MMMM YYYY");
 							jsonobject.put("message", data.getPromotionalMessage());
+							fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");
 							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
 					 }
 
 				}
-
+		    	fw.append("statement Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
+		    	fw.flush();
+				fw.close();
 			}
 			System.out.println("statement Job is Completed..."
 					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (Exception exception) {
-
+			exception.printStackTrace();
 		}
 	}
 	
@@ -336,24 +393,40 @@ public class SheduleJobWritePlatformServiceImpl implements
 	  {
 		try 
 		{
+			File file=null;
+	
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.MESSAGE_MERGE.toString());
 	         
           if(data!=null){
-      			
+        	  file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+		                + File.separator + "SheduleLogFile"+ File.separator + "Messanger"+ File.separator +"Messanger-"+new Date().toString().replace(" ", "-").trim()+".log");
+		      file.createNewFile();
+		      FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+		      FileWriter fw = new FileWriter(file);
+		      fw.append("Processing the Messanger....... \r\n");
+		      
 		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
-		
+		   
+		    if(sheduleDatas.isEmpty()){
+ 				fw.append("ScheduleJobData Empty \r\n");
+ 		    }
 		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
-
-					Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getDefaultValue());
-					
+		    	   fw.append("ScheduleJobData id: "+scheduleJobData.getId()+" ,BatchName: "+scheduleJobData.getBatchName()+
+	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+		    	   fw.append("Selected Message Template Name is :" +data.getDefaultValue()+" \r\n");
+				   Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getDefaultValue());
+				   fw.append("Selected Message Template id is :" +messageId+" \r\n");
 					if(messageId!=null){
-						
+					  fw.append("generating the message....... \r\n");
 					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery());
-					
 					}
 				}	   
+		    fw.append("Messanger Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
+	    	fw.flush();
+			fw.close();
 	     }
-    	   
+          System.out.println("Messanger Job is Completed..."
+					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		}
 		
 		catch (Exception dve) 
@@ -369,60 +442,82 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Auto Exipiry Details.......");
 
-			
+			File file=null;
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
          
-                 if(data!=null){
-                	 
-			List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-			LocalDate exipirydate=null;
-			if(data.isDynamic().equalsIgnoreCase("Y")){
-				exipirydate=new LocalDate();
-			}else{
-				exipirydate=data.getExipiryDate();
-			}
-			for (ScheduleJobData scheduleJobData : sheduleDatas) 
-			{
-				List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+            if(data!=null){
+            	
+	            file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+			                + File.separator + "SheduleLogFile"+ File.separator + "AutoExipiry"+ File.separator +"AutoExipiry-"+new Date().toString().replace(" ", "-").trim()+".log");
+	 		    file.createNewFile();
+	 		    FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+			    FileWriter fw = new FileWriter(file);
+			    fw.append("Processing Auto Exipiry Details....... \r\n");
+			      
+				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+				LocalDate exipirydate=null;
 				
-				for(Long clientId:clientIds)
+				if(sheduleDatas.isEmpty()){
+	 				fw.append("ScheduleJobData Empty \r\n");
+	 		    }
+				
+				if(data.isDynamic().equalsIgnoreCase("Y")){
+					exipirydate=new LocalDate();
+				}else{
+					exipirydate=data.getExipiryDate();
+				}
+				for (ScheduleJobData scheduleJobData : sheduleDatas) 
 				{
+					fw.append("ScheduleJobData id: "+scheduleJobData.getId()+" ,BatchName: "+scheduleJobData.getBatchName()+
+    	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
 					
-				List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+					if(clientIds.isEmpty()){
+    	 				fw.append("no records are available for Auto Expiry \r\n");
+    	 			}
+					
+					for(Long clientId:clientIds)
+					  {
+						fw.append("processing client id :"+clientId+"\r\n");
+						List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+						if(orderDatas.isEmpty()){
+							fw.append("No Orders are Found for :"+clientId+"\r\n");
+						}					    
+		      			for (OrderData orderData : orderDatas) 
+		      			  {
+		      				fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
+		      						+" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
+		      						orderData.getPrice()+" ,OrderEndDate"+orderData.getEndDate()+"\r\n");
+		      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
+		      				 {
+		      					
+		      					if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
+								 {
 				
-      			for (OrderData orderData : orderDatas) 
-      			  {
-      				
-      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
-      				 {
-      					
-				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
-				     {
-
-				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-				  		//System.out.println(dateFormat.format(localDate.toDate()));
-					JSONObject jsonobject = new JSONObject();
-					jsonobject.put("disconnectReason","Date Expired");
-					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
-					jsonobject.put("dateFormat","dd MMMM yyyy");
-					jsonobject.put("locale","en");
-					final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-
-					final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
-							null,clientId, null, null, null,null, null, null);
-					this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
-				     }
-				}
-			}
-				}
-				}
+								    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+								  		//System.out.println(dateFormat.format(localDate.toDate()));
+									JSONObject jsonobject = new JSONObject();
+									jsonobject.put("disconnectReason","Date Expired");
+									jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+									jsonobject.put("dateFormat","dd MMMM yyyy");
+									jsonobject.put("locale","en");
+									fw.append("sending json data for Disconnecting the Order is : "+jsonobject.toString()+"\r\n");
+									final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+				
+									final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
+											null,clientId, null, null, null,null, null, null);
+									this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+								 }
+		      				 }
+		      			  }
+						}
+					}
+		    	fw.append("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
+		    	fw.flush();
+				fw.close();
 		}
+            System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		
-		   
-
-
-		
-
 		} catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
 
@@ -435,22 +530,42 @@ public class SheduleJobWritePlatformServiceImpl implements
 	public void processNotify() {
 		try {
 			System.out.println("Processing Notify Details.......");
+			File file=null;
 			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
-    	    for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
-    	    	if(emailDetail.getMessageType()=='E'){
-    	    		 this.messagePlatformEmailService.sendToUserEmail(emailDetail);
-    	    	}
-    	    	else if(emailDetail.getMessageType()=='M'){
-    	    		String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
-    	    		this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());
-    	    	}
-    	    	else{
-    	    		return;
-    	    	}		                        
-           }
+    	    if(!billingMessageDataForProcessings.isEmpty()){
+    	    	
+    	    	file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+		                + File.separator + "SheduleLogFile"+ File.separator + "PushNotification"+ File.separator +"PushNotification-"+new Date().toString().replace(" ", "-").trim()+".log");
+ 		        file.createNewFile();
+ 		        FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+		        FileWriter fw = new FileWriter(file);
+			    fw.append("Processing Notify Details....... \r\n");
+    	    	
+				for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
+					fw.append("BillingMessageData id="+emailDetail.getId()+" ,MessageTo="+emailDetail.getMessageTo()+" ,MessageType="
+							+emailDetail.getMessageType()+" ,MessageFrom="+emailDetail.getMessageFrom()+" ,Message="
+							+emailDetail.getBody()+"\r\n");
+	    	    	if(emailDetail.getMessageType()=='E'){
+	    	    		 this.messagePlatformEmailService.sendToUserEmail(emailDetail);
+	    	    	}
+	    	    	else if(emailDetail.getMessageType()=='M'){
+	    	    		String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
+	    	    		this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());
+	    	    	}
+	    	    	else{
+	    	    		return;
+	    	    	}		                        
+	           }
+				fw.append("Notify Job is Completed.... \r\n");
+		    	fw.flush();
+				fw.close();
+    	    }
 			System.out.println("Notify Job is Completed...");
 		} catch (DataIntegrityViolationException exception) {
 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -462,116 +577,154 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 
 			System.out.println("Processing Middleware Details.......");
-
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.Middleware.toString());
-			String credentials = data.getUsername().trim() + ":"
-					+ data.getPassword().trim();
-			byte[] encoded = Base64.encodeBase64(credentials.getBytes());
-			HttpClient httpClient = new DefaultHttpClient();
-
-			List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService
-					.getProcessingData(new Long(100));
-
-			for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
-				Long clientId = entitlementsData.getClientId();
-				ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
-				ReceiveMessage = "Success";
-				if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
-				    String status="";
-					String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
-							+ "&account_number="+ clientId + "&tariff_plan=1&status=1&&stb_mac="+ entitlementsData.getHardwareId();
-					StringEntity se = new StringEntity(query.trim());
-					HttpPost postRequest = new HttpPost(data.getUrl() + "accounts/");
-					postRequest.setHeader("Authorization", "Basic " + new String(encoded));
-					postRequest.setEntity(se);
-					HttpResponse response = httpClient.execute(postRequest);
-					if (response.getStatusLine().getStatusCode() != 200) {
-						System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-						return;
-					}
-					BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
-					String output;
-					while ((output = br1.readLine()) != null) {
-						System.out.println(output);
-						final JsonElement ele = fromApiJsonHelper.parse(output);
-						 status = fromApiJsonHelper.extractStringNamed("status", ele);
-						if (status.equalsIgnoreCase("ERROR")) {
-							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-							ReceiveMessage = "failure :" + error;
-						}
-					}
-					
-                    if(!(status.equalsIgnoreCase("ERROR") || status.equalsIgnoreCase(""))){
-					String query1 = data.getUrl() + "account_subscription/"+ clientId;
-					String queryData = "subscribed[]="+ entitlementsData.getProduct();
-					StringEntity se1 = new StringEntity(queryData.trim());
-
-					HttpPut putRequest = new HttpPut(query1.trim());
-					putRequest.setHeader("Authorization", "Basic " + new String(encoded));
-					putRequest.setEntity(se1);
-					HttpResponse response1 = httpClient.execute(putRequest);
-					if (response1.getStatusLine().getStatusCode() != 200) {
-						System.out.println("Failed : HTTP error code : " + response1.getStatusLine().getStatusCode());
-						return;
-					}
-					BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
-
-					String output2;
-					while ((output2 = br2.readLine()) != null) {
-						System.out.println(output2);
-						final JsonElement ele = fromApiJsonHelper.parse(output2);
-						final String status1 = fromApiJsonHelper.extractStringNamed("status", ele);
-						if (status1.equalsIgnoreCase("ERROR")) {
-							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-							ReceiveMessage = "failure :" + error;
-						}
-					}
-                   }
-				  
-				}else if(entitlementsData.getRequestType().equalsIgnoreCase("DISCONNECTION")){
-					String query = "status= " + new Long(0);
-					StringEntity se = new StringEntity(query.trim());
-					String url=""+data.getUrl() + "accounts/123";
-					HttpPut putrequest = new HttpPut(url.trim());
-					putrequest.setEntity(se);
-					putrequest.setHeader("Authorization", "Basic " + new String(encoded));
-					
-					
-					HttpResponse putresponse = httpClient.execute(putrequest);
-					if (putresponse.getStatusLine().getStatusCode() != 200) {
-						System.out.println("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode());
-						return;
-					}
-					BufferedReader br = new BufferedReader(
-							new InputStreamReader((putresponse.getEntity().getContent())));
-					String output="";
-					while ((output = br.readLine()) != null) {
-						System.out.println(output);
-						final JsonElement ele = fromApiJsonHelper.parse(output);
-						final String status = fromApiJsonHelper.extractStringNamed("status", ele);
-						if (status.equalsIgnoreCase("ERROR")) {
-							final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-							ReceiveMessage = "failure :" + error;
-						}
-					}
-				}
-					JsonObject object = new JsonObject();
-					object.addProperty("serviceId",entitlementsData.getServiceId());
-					object.addProperty("receivedStatus", new Long(1));
-					
-					object.addProperty("receiveMessage", ReceiveMessage);
-					String entityName = "ENTITLEMENT";
-					final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
-					JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
-							entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
-					CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
-					System.out.println(result);
-
-				}
-				httpClient.getConnectionManager().shutdown();
-				System.out.println("Middleware Job is Completed...");
 			
+			File file=null;
+			
+			JobParameterData data = this.sheduleJobReadPlatformService.getJobParameters(JobName.Middleware.toString());
+			if(data!=null){
+				String credentials = data.getUsername().trim() + ":"+ data.getPassword().trim();
+				byte[] encoded = Base64.encodeBase64(credentials.getBytes());
+				HttpClient httpClient = new DefaultHttpClient();
+	
+				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService
+						.getProcessingData(new Long(100));
+	            if(!entitlementDataForProcessings.isEmpty()){
+	            	file = new File(FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+			                + File.separator + "SheduleLogFile"+ File.separator + "Middleware"+ File.separator +"middleware-"+new Date().toString().replace(" ", "-").trim()+".log");
+		 		    file.createNewFile();
+		 		    FileUtils.BILLING_JOB_PATH=file.getAbsolutePath();
+				    FileWriter fw = new FileWriter(file);
+				    fw.append("Processing Middleware Details....... \r\n");
+				    fw.append("Staker Server Details.....");
+				    fw.append("UserName of Staker:"+data.getUsername());
+				    fw.append("password of Staker: **************");
+				    fw.append("url of staker:"+data.getUrl());
+				  
+				for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
+					fw.append("EntitlementsData id="+entitlementsData.getId()+" ,clientId="+entitlementsData.getClientId()+" ,HardwareId="
+							+entitlementsData.getHardwareId()+" ,RequestType="+entitlementsData.getRequestType()+"\r\n");
+					Long clientId = entitlementsData.getClientId();
+					ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
+					ReceiveMessage = "Success";
+					if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
+					    String status="";
+						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
+								+ "&account_number="+ clientId + "&tariff_plan=1&status=1&&stb_mac="+ entitlementsData.getHardwareId();
+						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
+						StringEntity se = new StringEntity(query.trim());
+						fw.append("Url for Activation request:"+data.getUrl() + "accounts/" +"\r\n");
+						HttpPost postRequest = new HttpPost(data.getUrl() + "accounts/");
+						postRequest.setHeader("Authorization", "Basic " + new String(encoded));
+						postRequest.setEntity(se);
+						HttpResponse response = httpClient.execute(postRequest);
+						if (response.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
+							return;
+						}
+						BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
+						String output;
+						while ((output = br1.readLine()) != null) {
+							System.out.println(output);
+							fw.append("Output From Staker : "+ output+" \r\n");
+							final JsonElement ele = fromApiJsonHelper.parse(output);
+							 status = fromApiJsonHelper.extractStringNamed("status", ele);
+							 fw.append("status of the output is : "+ status+" \r\n");
+							if (status.equalsIgnoreCase("ERROR")) {
+								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+								fw.append("error of the output is : "+ error+" \r\n");
+								ReceiveMessage = "failure :" + error;
+							}
+						}
+						
+	                    if(!(status.equalsIgnoreCase("ERROR") || status.equalsIgnoreCase(""))){
+	                    fw.append("Url for account_subscription request:"+data.getUrl() + "account_subscription/"+ clientId +"\r\n");
+						String query1 = data.getUrl() + "account_subscription/"+ clientId;
+						String queryData = "subscribed[]="+ entitlementsData.getProduct();
+						fw.append("data Sending to Stalker Server is: "+queryData+" \r\n");
+						StringEntity se1 = new StringEntity(queryData.trim());
+	
+						HttpPut putRequest = new HttpPut(query1.trim());
+						putRequest.setHeader("Authorization", "Basic " + new String(encoded));
+						putRequest.setEntity(se1);
+						HttpResponse response1 = httpClient.execute(putRequest);
+						if (response1.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : " + response1.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
+							return;
+						}
+						BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+	
+						String output2;
+						while ((output2 = br2.readLine()) != null) {
+							System.out.println(output2);
+							fw.append("Output From Staker : "+ output2+" \r\n");
+							final JsonElement ele = fromApiJsonHelper.parse(output2);
+							final String status1 = fromApiJsonHelper.extractStringNamed("status", ele);
+							 fw.append("status of the output is : "+ status1+" \r\n");
+							if (status1.equalsIgnoreCase("ERROR")) {
+								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+								fw.append("error of the output is : "+ error+" \r\n");
+								ReceiveMessage = "failure :" + error;
+							}
+						}
+	                   }
+					  
+					}else if(entitlementsData.getRequestType().equalsIgnoreCase("DISCONNECTION")){
+						String query = "status= " + new Long(0);
+						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
+						StringEntity se = new StringEntity(query.trim());					
+						String url=""+data.getUrl() + "accounts/123";
+						fw.append("Url for DISCONNECTION request:"+ url +"\r\n");
+						HttpPut putrequest = new HttpPut(url.trim());
+						putrequest.setEntity(se);
+						putrequest.setHeader("Authorization", "Basic " + new String(encoded));
+						
+						
+						HttpResponse putresponse = httpClient.execute(putrequest);
+						if (putresponse.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode()+" \r\n");
+							return;
+						}
+						BufferedReader br = new BufferedReader(
+								new InputStreamReader((putresponse.getEntity().getContent())));
+						String output="";
+						while ((output = br.readLine()) != null) {
+							System.out.println(output);
+							fw.append("Output From Staker : "+ output+" \r\n");
+							final JsonElement ele = fromApiJsonHelper.parse(output);
+							final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+							 fw.append("status of the output is : "+ status+" \r\n");
+							if (status.equalsIgnoreCase("ERROR")) {
+								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+								fw.append("error of the output is : "+ error+" \r\n");
+								ReceiveMessage = "failure :" + error;
+							}
+						}
+					}
+						JsonObject object = new JsonObject();
+						object.addProperty("serviceId",entitlementsData.getServiceId());
+						object.addProperty("receivedStatus", new Long(1));
+						
+						object.addProperty("receiveMessage", ReceiveMessage);
+						String entityName = "ENTITLEMENT";
+						fw.append("sending json data to EntitlementApi is:"+object.toString()+"\r\n");
+						final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
+						JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
+								entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
+						CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
+						System.out.println(result);
+						fw.append("Result From the EntitlementApi is:"+result+"\r\n");
+	
+					}
+				    fw.append("Middleware Job is Completed...");
+				    fw.flush();
+				    fw.close();
+	            }
+					httpClient.getConnectionManager().shutdown();
+					System.out.println("Middleware Job is Completed...");
+			}
 		} catch (DataIntegrityViolationException exception) {
 
 		} catch (IOException e) {
