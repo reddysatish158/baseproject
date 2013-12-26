@@ -1,15 +1,13 @@
 package org.mifosplatform.billing.billingmaster.api;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
 
 public class DateAndTime {
 
     public static void main(String[] args) throws Exception {
-        LocalDate date=new LocalDate();
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy");
-        String formattedDate = formatter.print(date);
-        System.out.println(formattedDate);
-
+     BigDecimal bal=new BigDecimal(-4000);
+     BigDecimal price=new BigDecimal(10000);
+     BigDecimal sum=bal.add(price);
+     System.out.println(sum);
+     System.out.println(sum.compareTo(BigDecimal.ZERO));
     }
 }

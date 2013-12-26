@@ -6,6 +6,6 @@ import org.mifosplatform.billing.action.data.ActionDetaislData;
 
 public interface ActiondetailsWritePlatformService {
 
-	void AddNewActions(List<ActionDetaislData> actionDetaislDatas, Long clientId);
+	void AddNewActions(List<ActionDetaislData> actionDetaislDatas, Long clientId, Long resorceId);
 
 }

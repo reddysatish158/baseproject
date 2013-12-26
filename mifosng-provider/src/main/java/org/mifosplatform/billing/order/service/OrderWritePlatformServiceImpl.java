@@ -65,6 +65,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -429,7 +432,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	}
 
 	@Override
-	public CommandProcessingResult renewalClientOrder(JsonCommand command) {
+	public CommandProcessingResult renewalClientOrder(JsonCommand command,Long orderId) {
 		
 		try{
 			
@@ -504,10 +507,15 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 
 		    	    //this.paymentWritePlatformService.createPayment(command);
 		      }
-				//For Order History
+ 			      // For Order History
+		      Long userId=null;
+		      SecurityContext context = SecurityContextHolder.getContext();
+		      if(context.getAuthentication() != null)
+		      {
      		      AppUser appUser=this.context.authenticatedUser();
-	   			  Long userId=appUser.getId();
-				
+     		      
+	   			   userId=appUser.getId();
+		      }
 				//For Order History
 				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,"Renewal",userId);
 				this.orderHistoryRepository.save(orderHistory);

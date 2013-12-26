@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -24,6 +27,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mifosplatform.billing.billingmaster.api.BillingMasterApiResourse;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
+import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
 import org.mifosplatform.billing.entitlements.data.ClientEntitlementData;
 import org.mifosplatform.billing.entitlements.data.EntitlementsData;
 import org.mifosplatform.billing.entitlements.service.EntitlementReadPlatformService;
@@ -65,8 +70,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 @Service
-public class SheduleJobWritePlatformServiceImpl implements
-		SheduleJobWritePlatformService {
+public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatformService {
+	
+
+    Logger logger = Logger.getLogger("SheduleJobWritePlatformServiceImpl");  
+    
+
 
 	private final SheduleJobReadPlatformService sheduleJobReadPlatformService;
 	private final InvoiceClient invoiceClient;
@@ -84,29 +93,23 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final BillingMesssageReadPlatformService billingMesssageReadPlatformService;
 	private final MessagePlatformEmailService messagePlatformEmailService;
 	private final EntitlementReadPlatformService entitlementReadPlatformService;
-
+	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
+	private final ScheduleJob scheduleJob;
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private String ReceiveMessage;
 	private File file=null;
+	
 	@Autowired
-	public SheduleJobWritePlatformServiceImpl(
-			final InvoiceClient invoiceClient,
-			final SheduleJobReadPlatformService sheduleJobReadPlatformService,
-			final ScheduledJobRepository scheduledJobRepository,
-			final BillingMasterApiResourse billingMasterApiResourse,
-			final ProcessRequestRepository processRequestRepository,
-			final OrderWritePlatformService orderWritePlatformService,
-			final FromJsonHelper fromApiJsonHelper,
-			final OrderReadPlatformService orderReadPlatformService,
-			final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
-			final PrepareRequestReadplatformService prepareRequestReadplatformService,
-			final ProcessRequestReadplatformService processRequestReadplatformService,
-			final ProcessRequestWriteplatformService processRequestWriteplatformService,
-			final ScheduledJobDetailRepository scheduledJobDetailRepository,
-			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,
-			final MessagePlatformEmailService messagePlatformEmailService,
-			final EntitlementReadPlatformService entitlementReadPlatformService,
-			final EntitlementWritePlatformService entitlementWritePlatformService) {
+	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final SheduleJobReadPlatformService sheduleJobReadPlatformService,
+			final ScheduledJobRepository scheduledJobRepository,final BillingMasterApiResourse billingMasterApiResourse,final FromJsonHelper fromApiJsonHelper,
+			final ProcessRequestRepository processRequestRepository,final OrderWritePlatformService orderWritePlatformService,final ScheduleJob scheduleJob,
+			final OrderReadPlatformService orderReadPlatformService,final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
+			final PrepareRequestReadplatformService prepareRequestReadplatformService,final ProcessRequestReadplatformService processRequestReadplatformService,
+			final ProcessRequestWriteplatformService processRequestWriteplatformService,final ScheduledJobDetailRepository scheduledJobDetailRepository,
+			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
+			final EntitlementReadPlatformService entitlementReadPlatformService,final EntitlementWritePlatformService entitlementWritePlatformService,
+			final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
+		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
 		this.scheduledJobRepository = scheduledJobRepository;
@@ -124,16 +127,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.messagePlatformEmailService = messagePlatformEmailService;
 		this.entitlementReadPlatformService = entitlementReadPlatformService;
 		this.entitlementWritePlatformService = entitlementWritePlatformService;
+		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
+		this.scheduleJob=scheduleJob;
+	
+		
 	}
 
 	// @Transactional
 	@Override
 	@CronTarget(jobName = JobName.INVOICE)
 	public void processInvoice() {
-
-
 	try
 	{
+		 
 		
 		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
 		
@@ -156,9 +162,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 											FileWriter fw = new FileWriter(file);
 											fw.append(e.toString());
 											fw.close();
-										} catch (IOException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
+										} catch (IOException exception) {
+											exception.printStackTrace();
 										}
 										e.printStackTrace();
 									}
@@ -201,11 +206,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	
 		    }
 	
-	}catch(DataIntegrityViolationException exception)
+	}catch(Exception exception)
 	{
 		exception.printStackTrace();
 	}
-	
 
 	}
 
@@ -262,8 +266,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Simulator Details.......");
 
-			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService
-					.retrieveUnProcessingDetails();
+			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveUnProcessingDetails();
 
 			for (ProcessingDetailsData detailsData : processingDetails) {
 
@@ -329,40 +332,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	}
 
-	/*@Transactional
-	@Override
-	@CronTarget(jobName = JobName.MESSANGER)
-	public void processingMessages() {
-		try {
-			System.out.println("Processing Message Details.......");
-			JobParameterData data = this.sheduleJobReadPlatformService
-					.getJobParameters(JobName.MESSANGER.toString());
-            
-			if (data != null) {
-
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService
-						.retrieveSheduleJobParameterDetails(data.getBatchName());
-
-				for (ScheduleJobData scheduleJobData : sheduleDatas) {
-
-					Long messageId = this.sheduleJobReadPlatformService
-							.getMessageId(data.getMessageTempalate());
-
-					this.billingMessageDataWritePlatformService
-							.createMessageData(messageId,
-									scheduleJobData.getQuery(),null);
-
-				}
-			}
-
-			System.out.println("Messanger job is completed"
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-		}
-
-		catch (Exception dve) {
-			handleCodeDataIntegrityIssues(null, dve);
-		}
-	}*/
 	
 	@Transactional
 	@Override
@@ -412,13 +381,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 			if(messageId!=null){
 				
 			   this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery(),"OSDMessage");
-			
 			}
-			
-		  }
-		   
-	     }
-    	   
+		   }
+          }
 		}
 		
 		catch (Exception dve) 
@@ -433,20 +398,22 @@ public class SheduleJobWritePlatformServiceImpl implements
 	public void processingAutoExipryOrders() {
 		try {
 			System.out.println("Processing Auto Exipiry Details.......");
-
 			
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
          
-                 if(data!=null){
+             if(data!=null){
                 	 
-			List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-			LocalDate exipirydate=null;
-			if(data.isDynamic().equalsIgnoreCase("Y")){
-				exipirydate=new LocalDate();
-			}else{
+			      List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+			      LocalDate exipirydate=null;
+			      if(data.isDynamic().equalsIgnoreCase("Y")){
+			    	  
+			       exipirydate=new LocalDate();
+			
+			 }else{
 				exipirydate=data.getExipiryDate();
 			}
-			for (ScheduleJobData scheduleJobData : sheduleDatas) 
+			
+			 for (ScheduleJobData scheduleJobData : sheduleDatas) 
 			{
 				List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
 				
@@ -458,15 +425,33 @@ public class SheduleJobWritePlatformServiceImpl implements
       			for (OrderData orderData : orderDatas) 
       			  {
       				
-      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
-      				 {
-      					
+      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || 
+      						      orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
+      				    
+      				       {
+      					     JSONObject jsonobject = new JSONObject();
+      					     if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
+      					    	 
+      					    
+      					     boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId);
+          				     
+      					     if(isSufficientAmountForRenewal){
+      					    	 
+      					    	List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1); 
+      					    	jsonobject.put("renewalPeriod",subscriptionDatas.get(0).getId());	
+      					    	jsonobject.put("description","Order Renewal By Scheduler");
+      					    	final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+      							final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"RENEWAL",clientId, null,
+      									null,clientId, null, null, null,null, null, null);
+      					    	this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
+           					
+          				}
+      					     }else { 
+          					
 				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
 				     {
 
-				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-				  		//System.out.println(dateFormat.format(localDate.toDate()));
-					JSONObject jsonobject = new JSONObject();
+				    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
 					jsonobject.put("disconnectReason","Date Expired");
 					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
 					jsonobject.put("dateFormat","dd MMMM yyyy");
@@ -477,16 +462,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 							null,clientId, null, null, null,null, null, null);
 					this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
 				     }
+          				}
 				}
 			}
+			
 				}
-				}
-		}
-		
-		   
-
-
-		
+			}
+			 
+                 }
 
 		} catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);

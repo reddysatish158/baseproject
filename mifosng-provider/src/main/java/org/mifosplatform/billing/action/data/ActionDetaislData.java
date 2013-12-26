@@ -4,13 +4,13 @@ public class ActionDetaislData {
 	
 	private final Long id;
 	private final String procedureName;
-	private final String actionType;
+	private final String actionName;
 
-	public ActionDetaislData(Long id, String procedureName, String actionType) {
+	public ActionDetaislData(Long id, String procedureName, String actionName) {
             
 		this.id=id;
 		this.procedureName=procedureName;
-		this.actionType=actionType;
+		this.actionName=actionName;
 
 	}
 
@@ -31,8 +31,8 @@ public class ActionDetaislData {
 	/**
 	 * @return the actionType
 	 */
-	public String getActionType() {
-		return actionType;
+	public String getaActionName() {
+		return actionName;
 	}
 	
 	

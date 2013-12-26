@@ -27,6 +27,7 @@ public class JobParameterData {
 	private String OSDMessageTemplate;
 	private String SendEmail;
 	private String EmailMessageTemplateName;
+	private String isAutoRenewal;
 	
 
 	public JobParameterData(List<JobParameters> jobParameters) {
@@ -81,7 +82,11 @@ public class JobParameterData {
             }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_Prov_System)){
                  this.provSystem=parameter.getParamValue();
 	
-            }else{
+            }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_IS_RENEWAL)){
+                
+            	this.isAutoRenewal=parameter.isDynamic();
+            	
+           }else{
 
 				 this.batchName=parameter.getParamValue();
 			}
@@ -127,7 +132,9 @@ public class JobParameterData {
 	}
 
 
-	
+	public String getIsAutoRenewal() {
+		return isAutoRenewal;
+	}
 
 	public String getIsDynamic() {
 

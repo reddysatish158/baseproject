@@ -463,5 +463,70 @@ public final class Client extends AbstractPersistable<Long> {
     	String accountno=this.accountNumber;
     	return accountno;
     }
-      
+
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+
+	public Office getOffice() {
+		return office;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public String getFirstname() {
+		return firstname;
+	}
+
+	public String getMiddlename() {
+		return middlename;
+	}
+
+	public String getLastname() {
+		return lastname;
+	}
+
+	public String getFullname() {
+		return fullname;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public String getImageKey() {
+		return imageKey;
+	}
+
+	public Long getCategoryType() {
+		return categoryType;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public String getLogin() {
+		return login;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public Set<Group> getGroups() {
+		return groups;
+	}
+
+    
 }

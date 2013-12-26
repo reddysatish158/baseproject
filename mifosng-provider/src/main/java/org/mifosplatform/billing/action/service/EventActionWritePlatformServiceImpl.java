@@ -31,7 +31,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 	}
 	
 	@Override
-	public void AddNewActions(List<ActionDetaislData> actionDetaislDatas,final Long clientId) {
+	public void AddNewActions(List<ActionDetaislData> actionDetaislDatas,final Long clientId,final Long resourceId) {
     try{
     	
     
@@ -39,7 +39,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 		if(actionDetaislDatas!=null){
 			
 			for(ActionDetaislData detaislData:actionDetaislDatas){
-				  if(detaislData.getActionType().equalsIgnoreCase("Send Mail")){
+				  if(detaislData.getaActionName().equalsIgnoreCase("Send Mail")){
 					 
 					  this.jdbcTemplate.update("call "+detaislData.getProcedureName()+" (?,?,?,@error)",new Object[] {clientId,28,29});
 					  
@@ -74,10 +74,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				  }else{
 					  this.jdbcTemplate.update("call "+detaislData.getProcedureName()+" (?,?,?,@error)",new Object[] {clientId,28,29});
 				  }
-				  
-				  EventAction eventAction=this.eventActionRepository.findOne(detaislData.getId());
-				  eventAction.update();
-				  this.eventActionRepository.save(eventAction);
+				
 				
 			}
 		}

@@ -93,8 +93,7 @@ public class AdjustmentWritePlatformServiceJpaRepositoryImpl implements
 			List<ClientBalanceData> adjustmentBalancesDatas = adjustmentReadPlatformService
 					.retrieveAllAdjustments(command.entityId());
 			Long id = Long.valueOf(-1);
-			if (clientBalancedatas.size() == 1
-					&& adjustmentBalancesDatas.size() == 1)
+			if (clientBalancedatas.size() == 1 && adjustmentBalancesDatas.size() == 1)
 				id = createAdjustment(clientBalancedatas.get(0).getId(),
 						adjustmentBalancesDatas.get(0).getId(),
 						command.entityId(), command);

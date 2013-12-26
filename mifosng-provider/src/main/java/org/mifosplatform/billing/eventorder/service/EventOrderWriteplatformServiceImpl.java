@@ -92,13 +92,13 @@ public class EventOrderWriteplatformServiceImpl implements
 				throw new NoMediaDeviceFoundException();
 			}
 			
-			
+			/*
 			//Check Client Custome Validation
 			boolean isCheck=this.eventOrderReadplatformServie.CheckClientCustomalidation(deviceData.getClientId());
 			if(!isCheck){
 				throw new  CustomValidationException();
 			}
-			
+			*/
 			
 			final String formatType = command.stringValueOfParameterNamed("formatType");
 			final String optType=command.stringValueOfParameterNamed("optType");
