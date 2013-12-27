@@ -41,6 +41,7 @@ import org.mifosplatform.infrastructure.jobs.data.JobDetailData;
 import org.mifosplatform.infrastructure.jobs.data.JobDetailHistoryData;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistory;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistoryRepository;
+import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.jobs.service.JobRegisterService;
 import org.mifosplatform.infrastructure.jobs.service.SchedulerJobRunnerReadService;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
@@ -146,11 +147,14 @@ public class SchedulerJobApiResource {
             @QueryParam(SchedulerJobApiConstants.COMMAND) final String commandParam) {
     	File file = null;
 		String fileUploadLocation = FileUtils.generateLogFileDirectory();
-		file = new File(fileUploadLocation);
+		for (JobName status : JobName.values()) {
+			String name=status.toString();
+			file = new File(fileUploadLocation+ File.separator + name);			
+			if(!file.isDirectory()){
+				file.mkdirs();
+			}
+	     }
 		
-		if(!file.isDirectory()){
-			file.mkdirs();
-		}
         Response response = Response.status(400).build();
         if (is(commandParam, SchedulerJobApiConstants.COMMAND_EXECUTE_JOB)) {
             this.jobRegisterService.executeJob(jobId);
