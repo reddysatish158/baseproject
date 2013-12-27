@@ -272,8 +272,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 		} catch (DataIntegrityViolationException exception) {
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException exception) {
+			exception.printStackTrace();
 		}
 	}
 
@@ -312,8 +312,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException exception) {
+			exception.printStackTrace();
 		}
 	}
 
@@ -570,8 +570,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Notify Job is Completed...");
 		} catch (DataIntegrityViolationException exception) {
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException exception) {
+			exception.printStackTrace();
 		}
 	}
 
@@ -734,8 +734,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			}
 		} catch (DataIntegrityViolationException exception) {
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException exception) {
+			exception.printStackTrace();
 		}
 	}
 }
