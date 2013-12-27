@@ -11,9 +11,9 @@ import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
 
 public interface MessagePlatformEmailService {
 
-    void sendToUserEmail(BillingMessageDataForProcessing emailDetail);
+    String sendToUserEmail(BillingMessageDataForProcessing emailDetail);
 
-	void sendToUserMobile(String message, Long id);
+	String sendToUserMobile(String message, Long id);
 	
 
 }
