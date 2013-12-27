@@ -10,9 +10,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -25,6 +23,9 @@ import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.mifosplatform.billing.action.domain.EventAction;
+import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.billingmaster.api.BillingMasterApiResourse;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
@@ -50,6 +51,7 @@ import org.mifosplatform.billing.processrequest.service.ProcessRequestReadplatfo
 import org.mifosplatform.billing.processscheduledjobs.service.SheduleJobReadPlatformService;
 import org.mifosplatform.billing.processscheduledjobs.service.SheduleJobWritePlatformService;
 import org.mifosplatform.billing.scheduledjobs.ProcessRequestWriteplatformService;
+import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
@@ -96,6 +98,8 @@ public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatfo
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final ScheduleJob scheduleJob;
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
+	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
+	private final ActiondetailsWritePlatformService  actiondetailsWritePlatformService;
 	private String ReceiveMessage;
 	private File file=null;
 	
@@ -108,7 +112,8 @@ public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatfo
 			final ProcessRequestWriteplatformService processRequestWriteplatformService,final ScheduledJobDetailRepository scheduledJobDetailRepository,
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			final EntitlementReadPlatformService entitlementReadPlatformService,final EntitlementWritePlatformService entitlementWritePlatformService,
-			final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
+			final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+			final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -128,6 +133,8 @@ public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatfo
 		this.entitlementReadPlatformService = entitlementReadPlatformService;
 		this.entitlementWritePlatformService = entitlementWritePlatformService;
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
+		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		this.scheduleJob=scheduleJob;
 	
 		
@@ -445,10 +452,20 @@ public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatfo
       									null,clientId, null, null, null,null, null, null);
       					    	this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
            					
+          				}else{
+          				   SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+       					jsonobject.put("disconnectReason","Date Expired");
+       					jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+       					jsonobject.put("dateFormat","dd MMMM yyyy");
+       					jsonobject.put("locale","en");
+       					final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+
+       					final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
+       							null,clientId, null, null, null,null, null, null);
+       					this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
           				}
-      					     }else { 
-          					
-				    if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
+      					     
+      					     }else if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
 				     {
 
 				    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
@@ -469,7 +486,7 @@ public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatfo
 				}
 			}
 			 
-                 }
+                 
 
 		} catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
@@ -624,6 +641,25 @@ public class SheduleJobWritePlatformServiceImpl implements SheduleJobWritePlatfo
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Transactional
+	@Override
+	@CronTarget(jobName = JobName.EVENT_ACTION_PROCESSOR)
+	public void eventActionProcessor() {
+		
+	System.out.println("Processing Event Actions.....");
+		
+      //Retrieve Event Actions
+	List<EventActionData> actionDatas=this.actionDetailsReadPlatformService.retrieveAllActionsForProccessing();
+	
+	for(EventActionData eventActionData:actionDatas){
+		
+		System.out.println(eventActionData.getId());
+		this.actiondetailsWritePlatformService.ProcessEventActions(eventActionData);
+	}
+		
+	System.out.println("Event Actions are Proccesed....");
 	}
 }
 

@@ -49,8 +49,6 @@ import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
-import org.mifosplatform.commands.domain.CommandWrapper;
-import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -65,7 +63,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -437,10 +434,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		try{
 			
 			this.fromApiJsonDeserializer.validateForRenewalOrder(command.json());
-			Order orderDetails=this.orderRepository.findOne(command.entityId());
+			Order orderDetails=this.orderRepository.findOne(orderId);
 			
 			if(orderDetails == null){
-				throw new NoOrdersFoundException(command.entityId());
+				throw new NoOrdersFoundException(orderId);
 			}
 			
 			List<OrderPrice>  orderPrices=orderDetails.getPrice();

@@ -17,9 +17,9 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mifosplatform.billing.action.data.ActionDetaislData;
-import org.mifosplatform.billing.action.data.EventActionConstantsApi;
 import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.action.service.EventActionConstants;
 import org.mifosplatform.billing.address.domain.Address;
 import org.mifosplatform.billing.address.domain.AddressRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -170,8 +170,8 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
                 this.clientRepository.save(newClient);
             }
             
-            List<ActionDetaislData> actionDetailsDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstantsApi.CREATE_CLIENT_EVENT);
-            this.actiondetailsWritePlatformService.AddNewActions(actionDetailsDatas,newClient.getId(),newClient.getId());
+            List<ActionDetaislData> actionDetailsDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_CLIENT);
+            this.actiondetailsWritePlatformService.AddNewActions(actionDetailsDatas,newClient.getId(),newClient.getId().toString());
             
             transactionHistoryWritePlatformService.saveTransactionHistory(newClient.getId(), "New Client", newClient.getActivationDate(),
             		"Name:"+newClient.getName(),"ImageKey:"+newClient.imageKey(),"AccountNumber:"+newClient.getAccountNo());

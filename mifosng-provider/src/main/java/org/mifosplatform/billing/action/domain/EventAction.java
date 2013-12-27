@@ -54,6 +54,14 @@ public EventAction(Date transDate, String eventAction, String entityName,String 
 	
 }
 
+
+
+public void updateStatus() {
+
+	this.isProcessed='Y';
+	
+}
+
 }
 
 

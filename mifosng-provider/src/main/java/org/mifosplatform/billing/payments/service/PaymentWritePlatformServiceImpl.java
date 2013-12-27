@@ -1,8 +1,10 @@
 package org.mifosplatform.billing.payments.service;
 import java.util.List;
 
+import org.mifosplatform.billing.action.data.ActionDetaislData;
 import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.action.service.EventActionConstants;
 import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalance;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
@@ -26,8 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PaymentWritePlatformServiceImpl implements
-		PaymentWritePlatformService {
+public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformService {
 
 	private final static Logger logger = LoggerFactory
 			.getLogger(PaymentWritePlatformServiceImpl.class);
@@ -83,6 +84,9 @@ public class PaymentWritePlatformServiceImpl implements
 				chequePaymentRepository.save(chequePayment);
 			}
 			
+			//Add New Action 
+			List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_PAYMENT);
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,clientBalancedatas.get(0).getClientId(), id.toString());
 			
 			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).build();
 		} catch (DataIntegrityViolationException dve) {
@@ -98,9 +102,6 @@ public class PaymentWritePlatformServiceImpl implements
                                                                               
 		try {
 			this.context.authenticatedUser();
-			// AdjustmentCommandValidator validator=new AdjustmentCommandValidator(command);
-			// validator.validateForCreate();
-
 			Payment payment = null;
 			payment  = Payment.fromJson(command,clientid);
 			this.paymentRepository.saveAndFlush(payment);
@@ -133,27 +134,6 @@ public class PaymentWritePlatformServiceImpl implements
 			return Long.valueOf(-1);
 		}
 	}
-
-/*	@Override
-	public CommandProcessingResult createPaypalPayment(JsonCommand command) {
-
-		
-		try {
-			context.authenticatedUser();
-			String emailId=null;
-            Long id = null;
-          //  this.fromApiJsonDeserializer.validateForCreate(command.json());
-            final BigDecimal amountPaid = command.bigDecimalValueOfParameterNamed("amountPaid");
-            Long clientId=this.paypalReadPlatformService.retrieveClientId(command);
-            List<ClientBalanceData> clientBalancedatas = clientBalanceReadPlatformService.retrieveAllClientBalances(clientId);
-			id= createPayments(clientBalancedatas.get(0).getId(),clientId,command);					
-			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).build();
-		} catch (DataIntegrityViolationException dve) {
-			return CommandProcessingResult.empty();
-		}
-		
-	
-	}*/
 
 
 }
