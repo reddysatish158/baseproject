@@ -94,7 +94,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
     private final ProcessRequestRepository processRequestRepository;
     private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
-    private final PaymentWritePlatformService paymentWritePlatformService;
     private final PaymentsApiResource paymentsApiResource;
     
     
@@ -112,7 +111,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final HardwareAssociationWriteplatformService associationWriteplatformService,final PlanHardwareMappingRepository hardwareMappingRepository,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-		    final PaymentWritePlatformService paymentWritePlatformService,final PaymentsApiResource paymentsApiResource) {
+		    final PaymentsApiResource paymentsApiResource) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -135,7 +134,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.processRequestRepository=processRequestRepository;
 		this.orderReadPlatformService = orderReadPlatformService;
 		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
-		this.paymentWritePlatformService=paymentWritePlatformService;
 		this.paymentsApiResource=paymentsApiResource;
 		
 

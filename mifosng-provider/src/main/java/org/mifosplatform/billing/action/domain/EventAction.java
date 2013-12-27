@@ -31,6 +31,12 @@ public class EventAction extends AbstractPersistable<Long> {
 	@Column(name = "resource_id", nullable = false, length = 100)
 	private Long resourceId;
 	
+	@Column(name = "order_id", nullable = false, length = 100)
+	private Long orderId;
+	
+	@Column(name = "client_id", nullable = false, length = 100)
+	private Long clientId;
+	
 	@Column(name = "command_as_json", nullable = false, length = 100)
 	private String commandAsJson;
 	
@@ -42,7 +48,8 @@ public EventAction(){}
 
 
 
-public EventAction(Date transDate, String eventAction, String entityName,String actionName, String apiUrl, Long resourceId, String commandAsJson) {
+public EventAction(Date transDate, String eventAction, String entityName,String actionName, String apiUrl, Long resourceId,
+		String commandAsJson, Long orderId, Long clientId) {
 	this.transDate=transDate;
 	this.eventAction=eventAction;
 	this.entityName=entityName;
@@ -50,6 +57,8 @@ public EventAction(Date transDate, String eventAction, String entityName,String 
 	this.apiUrl=apiUrl;
 	this.resourceId=resourceId;
 	this.commandAsJson=commandAsJson;
+	this.orderId=orderId;
+	this.clientId=clientId;
 	
 	
 }

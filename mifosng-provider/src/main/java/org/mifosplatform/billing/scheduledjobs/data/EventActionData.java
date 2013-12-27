@@ -8,10 +8,12 @@ public class EventActionData {
 	private final String actionName;
 	private final String jsonData;
 	private final Long resourceId;
+	private final Long orderId;
+	private final Long clientId;
 	
 	
 	public EventActionData(Long id, String eventaction, String entityName,
-			String actionName, String jsonData, Long resourceId) {
+			String actionName, String jsonData, Long resourceId, Long orderId, Long clientId) {
 		
 		this.id=id;
 		this.eventAction=eventaction;
@@ -19,6 +21,8 @@ public class EventActionData {
 		this.actionName=actionName;
 		this.jsonData=jsonData;
 		this.resourceId=resourceId;
+		this.orderId=orderId;
+		this.clientId=clientId;
 	
 	}
 
@@ -50,6 +54,16 @@ public class EventActionData {
 
 	public String getJsonData() {
 		return jsonData;
+	}
+
+
+	public Long getOrderId() {
+		return orderId;
+	}
+
+
+	public Long getClientId() {
+		return clientId;
 	}
 	
 	

@@ -60,7 +60,9 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	 JSONObject jsonObject=new JSONObject();
 				        	 jsonObject.put("renewalPeriod",5);	
 				        	 jsonObject.put("description","Order Renewal By Scheduler");
-				        	 EventAction eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",detailsData.getaActionName(),"/orders/renewal", Long.parseLong(resourceId), jsonObject.toString());
+				        	 EventAction eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",detailsData.getaActionName(),"/orders/renewal", 
+				        			 Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId
+				        			 );
 				        	 this.eventActionRepository.save(eventAction);
 				         }
 				  }else{
@@ -86,9 +88,9 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				
 				String jsonObject=eventActionData.getJsonData();
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
-					final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"RENEWAL",null, null,
-							null,null, null, null, null,null, null, null);
-			    	this.orderWritePlatformService.renewalClientOrder(command,eventActionData.getResourceId());
+				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",eventActionData.getClientId(), null,
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
+			    	this.orderWritePlatformService.renewalClientOrder(command,eventActionData.getOrderId());
 			    	
 			    	EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
 			    	eventAction.updateStatus();

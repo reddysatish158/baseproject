@@ -30,8 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformService {
 
-	private final static Logger logger = LoggerFactory
-			.getLogger(PaymentWritePlatformServiceImpl.class);
+	private final static Logger logger = LoggerFactory.getLogger(PaymentWritePlatformServiceImpl.class);
 
 	private final PlatformSecurityContext context;
 	private final PaymentRepository paymentRepository;

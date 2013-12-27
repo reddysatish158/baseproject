@@ -114,8 +114,8 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 	private static final class EventActionMapper implements RowMapper<EventActionData> {
 
 		public String schema() {
-			return " a.id as id,a.event_action AS eventaction,a.entity_name AS entityName,a.action_name AS actionName, a.command_as_json as json,a.resource_id as resourceId " +
-					" FROM b_event_actions a WHERE a.is_processed = 'N'";
+			return " a.id as id,a.event_action AS eventaction,a.entity_name AS entityName,a.action_name AS actionName, a.command_as_json as json,a.resource_id as resourceId, " +
+					" a.order_id as orderId,a.client_id as clientId FROM b_event_actions a WHERE a.is_processed = 'N'";
 
 		}
 
@@ -129,7 +129,9 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			String actionName = rs.getString("actionName");
 			String jsonData = rs.getString("json");
 			Long resourceId=rs.getLong("resourceId");
-			return new EventActionData(id,eventaction,entityName,actionName,jsonData,resourceId);
+			Long orderId=rs.getLong("orderId");
+			Long clientId=rs.getLong("clientId");
+			return new EventActionData(id,eventaction,entityName,actionName,jsonData,resourceId,orderId,clientId);
 
 		}
 	}
