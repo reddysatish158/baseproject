@@ -27,6 +27,14 @@ public class UserActionStatusEnumaration {
 			optionData = new EnumOptionData(UserActionStatusTypeEnum.DISCONNECTION.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.DISCONNECTION.getCode(), "DISCONNECTION");
 			break;
 			
+		case RENEWAL_AFTER_AUTOEXIPIRY:
+			optionData = new EnumOptionData(UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY.getCode(), "RENEWAL AFTER AUTOEXIPIRY");
+			break;
+			
+		case RENEWAL_BEFORE_AUTOEXIPIRY:
+			optionData = new EnumOptionData(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY.getCode(), "RENEWAL BEFORE AUTOEXIPIRY");
+			break;		
+			
 		
 		default:
 			optionData = new EnumOptionData(StatusTypeEnum.INVALID.getValue().longValue(), StatusTypeEnum.INVALID.getCode(), "INVALID");

@@ -22,6 +22,7 @@ import org.mifosplatform.billing.discountmaster.exceptions.DiscountMasterNoRecor
 import org.mifosplatform.billing.eventorder.service.PrepareRequestWriteplatformService;
 import org.mifosplatform.billing.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
+import org.mifosplatform.billing.order.data.UserActionStatusEnumaration;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderDiscount;
 import org.mifosplatform.billing.order.domain.OrderHistory;
@@ -470,15 +471,26 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
                        //OrderPrice price=this.OrderPriceRepository.findOne(orderprice.)
                 	  
                   }
+                  
+                  String requstStatus =UserActionStatusTypeEnum.ACTIVATION.toString();
 
+                  if(orderDetails.getEndDate().after(new Date())){
+           		   requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY).getValue();
+           	   }else{
+           		requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY).getValue();
+           	   }
+                  
                   if(orderDetails.getStatus().equals(StatusTypeEnum.DISCONNECTED.getValue()) && (!plan.getProvisionSystem().equalsIgnoreCase("None"))){
-      			
-                	String requstStatus =UserActionStatusTypeEnum.ACTIVATION.toString();
+                	  
           			this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,requstStatus);
+          			
           			orderDetails.setStatus(StatusTypeEnum.PENDING.getValue().longValue());
-          			orderDetails.setuserAction(UserActionStatusTypeEnum.ACTIVATION.toString());
+          			orderDetails.setuserAction(requstStatus);
       			}else{
+      				
+      				
       				orderDetails.setStatus(StatusTypeEnum.ACTIVE.getValue().longValue());
+      				orderDetails.setuserAction(requstStatus);
       			}
       			
 		      
