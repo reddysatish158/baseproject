@@ -25,7 +25,7 @@ public class CreateMessageDataCommandHandler implements NewCommandSourceHandler{
 	@Override
 	public CommandProcessingResult processCommand(JsonCommand command) {
 		// TODO Auto-generated method stub
-		return this.billingmessageDataWritePlatformService.createMessageData(command.entityId(),command.json(),null);
+		return this.billingmessageDataWritePlatformService.createMessageData(command.entityId(),command.json());
 	}
 
 }

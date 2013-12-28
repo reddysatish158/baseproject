@@ -23,7 +23,6 @@
     </encoder>
   </appender>
   
-  
   <logger name="org.mifosng.platform" level="debug" />
   <logger name="org.mifosplatform.infrastructure.security.filter" level="info" />
   <logger name="org.mifosplatform" level="debug" />
