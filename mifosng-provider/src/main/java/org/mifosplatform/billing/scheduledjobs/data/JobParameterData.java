@@ -10,24 +10,25 @@ import org.mifosplatform.billing.scheduledjobs.service.JobParametersConstants;
 public class JobParameterData {
 	
 	private String batchName;
-	private String promotionalMessage;
-	private String messageTempalate;
 	private String isDynamic;
 	private LocalDate dueDate;
 	private LocalDate processDate;
 	private LocalDate exipiryDate;
 	private String defaultValue;
-	private String SendMessage;
-	private String SendMessageTemplateName;
 	private String url;
 	private String username;
 	private String password;
 	private String provSystem;
+
 	private String OsdMessage;
 	private String OSDMessageTemplate;
 	private String SendEmail;
 	private String EmailMessageTemplateName;
 	private String isAutoRenewal;
+
+	private String promotionalMessage;
+	
+
 	
 
 	public JobParameterData(List<JobParameters> jobParameters) {
@@ -36,9 +37,9 @@ public class JobParameterData {
 			
 			if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_BATCH)){
 				   this.batchName=parameter.getParamValue();
-				   this.defaultValue=parameter.getParamDefaultValue();
+			}
 				   
-			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDEMAIL)){
+			/*}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDEMAIL)){
 				   this.SendEmail=parameter.getParamValue();
 				   this.EmailMessageTemplateName=parameter.getParamDefaultValue();	
 			
@@ -50,11 +51,16 @@ public class JobParameterData {
 				   this.OsdMessage=parameter.getParamValue();
 				   this.OSDMessageTemplate=parameter.getParamDefaultValue();	
 			
-			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
-			          this.promotionalMessage=parameter.getParamValue();	
+			}*/
+		
+			/*	
+			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_MESSAGETEMPLATE)){
+			     this.messageTempalate=parameter.getParamValue();
+		
+		    }*/
 			
-			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_MESSAGETEMPLATE)){
-				     this.messageTempalate=parameter.getParamValue();
+			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
+			          this.promotionalMessage=parameter.getParamValue();	
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROCESSDATE) && parameter.getParamValue()!=null){
 				    this.processDate= DateTimeFormat.forPattern("dd MMMM yyyy").parseLocalDate(parameter.getParamValue());
@@ -82,13 +88,16 @@ public class JobParameterData {
             }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_Prov_System)){
                  this.provSystem=parameter.getParamValue();
 	
+
             }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_IS_RENEWAL)){
                 
             	this.isAutoRenewal=parameter.isDynamic();
             	
            }else{
 
+
 				 this.batchName=parameter.getParamValue();
+				 this.defaultValue=parameter.getParamDefaultValue();
 			}
 			/*if(parameter.isDynamic() == "Y" && parameter.getParamValue() == null){
 				
@@ -111,14 +120,6 @@ public class JobParameterData {
 		return batchName;
 	}
 
-	public String getPromotionalMessage() {
-		return promotionalMessage;
-	}
-
-	public String getMessageTempalate() {
-		return messageTempalate;
-	}
-
 	public String isDynamic() {
 		return isDynamic;
 	}
@@ -130,6 +131,7 @@ public class JobParameterData {
 	public LocalDate getProcessDate() {
 		return processDate;
 	}
+
 
 
 	public String getIsAutoRenewal() {
@@ -165,30 +167,13 @@ public class JobParameterData {
 		return provSystem;
 	}
 
-	public String getSendMessage() {
-		return SendMessage;
+	public String getPromotionalMessage() {
+		return promotionalMessage;
 	}
+	
+	
 
 	
-	public String getSendMessageTemplateName() {
-		return SendMessageTemplateName;
-	}
-
-	public String getOsdMessage() {
-		return OsdMessage;
-	}
-
-	public String getOSDMessageTemplate() {
-		return OSDMessageTemplate;
-	}
-
-	public String getSendEmail() {
-		return SendEmail;
-	}
-
-	public String getEmailMessageTemplateName() {
-		return EmailMessageTemplateName;
-	}
 
 	
 	

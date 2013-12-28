@@ -1,10 +1,9 @@
 package org.mifosplatform.billing.message.data;
 
-import org.mifosplatform.billing.media.domain.MediaEnum;
 
 public enum EnumMessageType {
 
-	EMAIL("E","Email"), Message("M","Message"), INVALID("N","invalid");
+	EMAIL("E","Email"), Message("M","Message"),OSDMESSAGE("O","OSDMessage"), INVALID("N","invalid");
 
 	private final String code;
 	private final String value;
@@ -33,6 +32,10 @@ public enum EnumMessageType {
 			break;
 		case 2:
 			addressEnum = EnumMessageType.Message;
+			break;
+			
+		case 3:
+			addressEnum = EnumMessageType.OSDMESSAGE;
 			break;
 	
 		default:

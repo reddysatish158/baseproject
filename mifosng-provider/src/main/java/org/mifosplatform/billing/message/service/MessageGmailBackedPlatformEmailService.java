@@ -121,7 +121,7 @@ public class MessageGmailBackedPlatformEmailService implements
 	}
 
 	@Override
-	public void sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
+	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 		// TODO Auto-generated method stub
 		// HtmlEmail email = new HtmlEmail();
 		Email email = new SimpleEmail();
@@ -159,9 +159,10 @@ public class MessageGmailBackedPlatformEmailService implements
 				billingMessage.updateStatus();
 			}
 			this.messageDataRepository.save(billingMessage);
-
+            return "success";
 		} catch (Exception e) {
 			handleCodeDataIntegrityIssues(null, e);
+			return e.getMessage();
 		}
 
 	}
@@ -172,17 +173,10 @@ public class MessageGmailBackedPlatformEmailService implements
 	}
 
 	@Override
-	public void sendToUserMobile(String message, Long id) {
+	public String sendToUserMobile(String message, Long id) {
 		// TODO Auto-generated method stub
 		try {
-			/*
-			 * String retval = ""; postData += "User=" +
-			 * URLEncoder.encode(User,"UTF-8") + "&passwd=" + passwd +
-			 * "&mobilenumber=" + mobilenumber + "&message=" +
-			 * URLEncoder.encode(message,"UTF-8") + "&sid=" + sid + "&mtype=" +
-			 * mtype + "&DR=" + DR;
-			 */
-
+			
 			String retval = "";
 			URL url = new URL("http://smscountry.com/SMSCwebservice_Bulk.aspx");
 
@@ -215,15 +209,19 @@ public class MessageGmailBackedPlatformEmailService implements
 				}
 				this.messageDataRepository.save(billingMessage);
 			}
+			return "success";
 
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UnsupportedEncodingException : "
 					+ e.getMessage() + " . encoding pattern not supported.");
+			return e.getMessage();
 		} catch (MalformedURLException e) {
 			System.out.println("MalformedURLException : " + e.getMessage()
 					+ " . URL is not located.");
+			return e.getMessage();
 		} catch (IOException e) {
 			System.out.println("IOException : " + e.getMessage() + ".");
+			return e.getMessage();
 		}
 	}
 }

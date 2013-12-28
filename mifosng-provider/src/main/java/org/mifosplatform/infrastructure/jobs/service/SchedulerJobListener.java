@@ -87,12 +87,13 @@ public class SchedulerJobListener implements JobListener {
             
         scheduledJobDetails.updatePreviousRunStartTime(context.getFireTime());
         scheduledJobDetails.updateCurrentlyRunningStatus(false);
-        String filePath = FileUtils.BILLING_JOB_INVOICE_PATH;
+        String filePath= FileUtils.BILLING_JOB_PATH;
+       
         ScheduledJobRunHistory runHistory = new ScheduledJobRunHistory(scheduledJobDetails, version, context.getFireTime(), new Date(),
                 status, errorMessage, triggerType, errorLog, filePath);
-        // scheduledJobDetails.addRunHistory(runHistory);
 
         schedularService.saveOrUpdate(scheduledJobDetails, runHistory);
+        FileUtils.BILLING_JOB_PATH=null;
 
     }
 
