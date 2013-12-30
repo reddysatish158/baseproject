@@ -1838,4 +1838,11 @@ public CommandWrapperBuilder hardwareSwapping(Long clientId) {
 	return this;
 }
 
+public CommandWrapperBuilder activateProcess() {
+	this.actionName = "ACTIVATIONPROCESS";
+	this.entityName = "ACTIVATE";
+	this.href = "/clients/template";
+	return this;
+}
+
 }
