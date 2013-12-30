@@ -168,6 +168,9 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			Long totalRecordCount=0L;
 			JSONObject jsonObject = new JSONObject();
 			UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+			uploadStatusForMrn.setProcessStatus("Running...");
+			this.uploadStatusRepository.save(uploadStatusForMrn);
+			
 			try{
 				csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
 				line = csvFileBufferedReader.readLine();
@@ -258,6 +261,8 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		Long totalRecordCount=0L;
 		JSONObject jsonObject = new JSONObject();
 		UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+		uploadStatusForMrn.setProcessStatus("Running...");
+		this.uploadStatusRepository.save(uploadStatusForMrn);
 		try{
 			csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
 			line = csvFileBufferedReader.readLine();
@@ -424,6 +429,8 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			Long totalRecordCount=0L;
 			JSONObject jsonObject = new JSONObject();
 			UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+			uploadStatusForMrn.setProcessStatus("Running...");
+			this.uploadStatusRepository.save(uploadStatusForMrn);
 			try{
 				csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
 				line = csvFileBufferedReader.readLine();
@@ -518,6 +525,8 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				Long totalRecordCount=0L;
 				JSONObject jsonObject = new JSONObject();
 				UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+				uploadStatusForMrn.setProcessStatus("Running...");
+				this.uploadStatusRepository.save(uploadStatusForMrn);
 				try{
 					csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
 					line = csvFileBufferedReader.readLine();
@@ -616,6 +625,9 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				Long totalRecordCount=0L;
 				JSONObject jsonObject = new JSONObject();
 				UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+				uploadStatusForMrn.setProcessStatus("Running...");
+				this.uploadStatusRepository.save(uploadStatusForMrn);
+				
 				try{
 					csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
 					line = csvFileBufferedReader.readLine();
@@ -1559,8 +1571,23 @@ public synchronized void writeXLSXFileMediaEpgMrn(final String excelFileName, fi
 
 private void writeCSVData(String fileLocation,
 		ArrayList<MRNErrorData> errorData, UploadStatus uploadStatusForMrn) {
-		uploadStatusForMrn.setProcessStatus((uploadStatusForMrn.getUnprocessedRecords()>0)?"ERROR":"COMPLETED");
-		uploadStatusForMrn.setErrorMessage((uploadStatusForMrn.getUnprocessedRecords()>0)?"ERROR":"SUCCESS");
+		
+		long processRecords = uploadStatusForMrn.getProcessRecords();
+		long totalRecords = uploadStatusForMrn.getTotalRecords();
+		long unprocessRecords  = totalRecords-processRecords;
+			
+		
+		if(unprocessRecords == 0){
+			uploadStatusForMrn.setProcessStatus("Success");
+			uploadStatusForMrn.setErrorMessage("Data successfully saved");
+		}else if(unprocessRecords<totalRecords){
+			uploadStatusForMrn.setProcessStatus("Completed");
+			uploadStatusForMrn.setErrorMessage("Completed with some errors");
+		}else if(unprocessRecords == totalRecords){
+			uploadStatusForMrn.setProcessStatus("Failed");
+			uploadStatusForMrn.setErrorMessage("Processing failed");
+		}
+		
 		uploadStatusForMrn.setProcessDate(new LocalDate().toDate());
 		this.uploadStatusRepository.save(uploadStatusForMrn);
 		uploadStatusForMrn = null;
