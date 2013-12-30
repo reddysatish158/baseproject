@@ -171,7 +171,10 @@ public class SynchronousCommandProcessingService implements
 				throw new UnsupportedCommandException(wrapper.commandName());
 			}
 			// end of client
-		} else if (wrapper.isUpdateRolePermissions()) {
+		}else if (wrapper.isActivationProcessResource()) {
+			handler = applicationContext.getBean("createActivationProcessHandler",NewCommandSourceHandler.class);
+		}
+ 		else if (wrapper.isUpdateRolePermissions()) {
 			handler = applicationContext.getBean("updateRolePermissionsCommandHandler",NewCommandSourceHandler.class);
 		} else if (wrapper.isPermissionResource()) {
 			handler = applicationContext.getBean("updateMakerCheckerPermissionsCommandHandler",NewCommandSourceHandler.class);
