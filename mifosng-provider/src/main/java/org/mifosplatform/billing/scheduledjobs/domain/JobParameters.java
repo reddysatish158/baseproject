@@ -112,10 +112,10 @@ public class JobParameters extends AbstractPersistable<Long>{
 	        
         final String descriptionParamName = "messageTempalate";
 	    final String messagetemplate= command.stringValueOfParameterNamed(descriptionParamName);
-	    final String reportName1= command.stringValueOfParameterNamed("reportName");
+	    final String reportName1= command.stringValueOfParameterNamed("messageTemplate");
 	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.jobMessageTemplate) && messagetemplate!=null && reportName1!=null){
 	    	this.paramDefaultValue=messagetemplate;
-	    	this.paramValue=reportName1;
+	    	this.paramValue=messagetemplate;
 	      }
 	    
 	    final String duedateParamName = "dueDate";

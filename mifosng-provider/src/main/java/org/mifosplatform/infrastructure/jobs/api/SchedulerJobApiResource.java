@@ -249,17 +249,21 @@ public class SchedulerJobApiResource {
 	} 
     
     @GET
-	@Path("printlog")
+	@Path("printlog/{id}")
 	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	public Response logFile(@QueryParam("path") final String path) {
-    	//ScheduledJobRunHistory scheduledJobRunHistory = this.scheduledJobRunHistoryRepository.findOne(id);
-		//String printFilePath = scheduledJobRunHistory.getFilePath();
-		File file = new File(path);
+	public Response logFile(@PathParam("id") final Long id) {
+    	ScheduledJobRunHistory scheduledJobRunHistory = this.scheduledJobRunHistoryRepository.findOne(id);
+		String printFilePath = scheduledJobRunHistory.getFilePath();
+		if(printFilePath!=null){
+		File file = new File(printFilePath);
 		ResponseBuilder response = Response.ok(file);
-		response.header("Content-Disposition", "attachment; filename=\""+ path + "\"");
+		response.header("Content-Disposition", "attachment; filename=\""+ printFilePath + "\"");
        		response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		return response.build();
+		
+		}
+		return null;
 	}
 
 }
