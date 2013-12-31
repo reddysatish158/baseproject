@@ -28,6 +28,6 @@ public class CreateActivationProcessHandler implements NewCommandSourceHandler {
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        return this.activationProcessWritePlatformService.createClient(command);
+        return this.activationProcessWritePlatformService.activationProcess(command);
     }
 }
