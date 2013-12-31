@@ -936,6 +936,7 @@ return null;
 						 final String sql = "select id FROM b_orders_history WHERE DATE_ADD((select created_date from b_orders_history where order_id = ? order by id desc limit 1), INTERVAL 1 HOUR) <= NOW() AND order_id = ? limit 1";
 						 return jdbcTemplate.queryForLong(sql, new Object[]{entityId,entityId});
 					}
+					
 			
 	}
 

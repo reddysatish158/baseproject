@@ -18,6 +18,7 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
@@ -33,6 +34,8 @@ public final class OrderCommandFromApiJsonDeserializer {
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode",
     		"contractPeriod","billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid","disconnectionDate","ispaymentEnable",
     		"paymentCode","amountPaid","paymentDate","receiptNo"));
+    private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
+    		"commandParameters","commandParam","paramType","paramDefault"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -118,5 +121,42 @@ public final class OrderCommandFromApiJsonDeserializer {
 	        baseDataValidator.reset().parameter("disconnectReason").value(disconnectReason).notBlank();
 	        throwExceptionIfValidationWarningsExist(dataValidationErrors);
 		
+	}
+	
+	public void validateForProvisioning(String json){
+		
+		if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
+
+        final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, provisioningsupportedParameters);
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("order");
+
+        final JsonElement element = fromApiJsonHelper.parse(json);
+        final String provisioningSystem = fromApiJsonHelper.extractStringNamed("provisioningSystem", element);
+        baseDataValidator.reset().parameter("provisioningSystem").value(provisioningSystem).notBlank();
+        
+        final String commandName = fromApiJsonHelper.extractStringNamed("commandName", element);
+        baseDataValidator.reset().parameter("commandName").value(commandName).notBlank();
+        
+        final JsonArray commandArray=fromApiJsonHelper.extractJsonArrayNamed("commandParameters",element);
+ 
+		  if(commandArray.size()>0){
+		   
+	         for (JsonElement jsonelement : commandArray) {
+	
+		         final String commandParam = fromApiJsonHelper.extractStringNamed("commandParam", jsonelement);
+		         baseDataValidator.reset().parameter("commandParam").value(commandParam).notBlank();   
+		         
+		         final String paramType = fromApiJsonHelper.extractStringNamed("paramType", jsonelement);
+		         baseDataValidator.reset().parameter("paramType").value(paramType).notBlank();
+		     
+		     }
+		  }
+        
+        
+        
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
 }
