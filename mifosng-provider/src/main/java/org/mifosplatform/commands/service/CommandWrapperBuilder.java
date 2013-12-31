@@ -1830,6 +1830,13 @@ public CommandWrapperBuilder cancelOneTimeSale(Long saleId) {
 	return this;
 }
 
+public CommandWrapperBuilder updateEventOrderPrice() {
+	this.actionName="UPDATE";
+	this.entityName="EVENTORDER";
+	this.entityId=clientId;
+	this.href="eventorder";
+	return this;
+}
 public CommandWrapperBuilder hardwareSwapping(Long clientId) {
 	this.actionName = "SWAPPING";
 	this.entityName = "HARDWARESWAPPING";

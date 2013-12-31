@@ -260,10 +260,6 @@ public class CommandWrapper {
     public boolean isClientResource() {
         return this.entityName.equalsIgnoreCase("CLIENT");
     }
-    
-    public boolean isActivationProcessResource() {
-        return this.entityName.equalsIgnoreCase("ACTIVATE");
-    }
 
     public boolean isClientActivation() {
         return this.actionName.equalsIgnoreCase("ACTIVATE") && this.entityName.equalsIgnoreCase("CLIENT");
@@ -879,12 +875,11 @@ public class CommandWrapper {
 		public boolean isCreatePaymentGateway() {
 			return this.actionName.equalsIgnoreCase("CREATE");
 		}
-		public boolean isUpdateEventOrderPrice() {
-			  return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("EVENTORDER");
-		} 
+
 		public boolean isHardwareSwapping() {
 			return this.entityName.equalsIgnoreCase("HARDWARESWAPPING");
 		}
+
 		public boolean isDoSwapping() {
 			return this.actionName.equalsIgnoreCase("SWAPPING");
 		}
