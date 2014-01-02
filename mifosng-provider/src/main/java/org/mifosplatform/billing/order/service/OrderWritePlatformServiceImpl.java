@@ -607,20 +607,18 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	@Override
 	public CommandProcessingResult retrackOsdMessage(JsonCommand command) {
 		try {
-			
-			orderReadPlatformService.checkRetrackInterval(command.entityId());
-			
+			this.context.authenticatedUser();
+			this.fromApiJsonDeserializer.validateForRetrack(command.json());
+				
 			String requstStatus = null;
 			String message = null;
-			
-			this.context.authenticatedUser();
+			String commandName = command.stringValueOfParameterNamed("commandName");
 			Order order = this.orderRepository.findOne(command.entityId());
 			if (order == null) {
 				throw new NoOrdersFoundException(command.entityId());
 			}
-			int i = command.subentityId().intValue();
-			 if (i == 1) {
-				 
+			 if (commandName.equalsIgnoreCase("RETRACK")) {
+				orderReadPlatformService.checkRetrackInterval(command.entityId());	
 				Long id = this.orderReadPlatformService.getRetrackId(command.entityId());				
 				String transaction_type = this.orderReadPlatformService.getOSDTransactionType(id);
 
@@ -637,10 +635,12 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					requstStatus = null;
 				}
 
-			} else if(i==2) {
+			} else if(commandName.equalsIgnoreCase("OSM")) {
+				orderReadPlatformService.checkRetrackInterval(command.entityId());	
 				requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
 				message = command.stringValueOfParameterNamed("message");
 			} else{
+				orderReadPlatformService.checkRetrackInterval(command.entityId());	
 				requstStatus = UserActionStatusTypeEnum.INVALID.toString();
 			}
 			 

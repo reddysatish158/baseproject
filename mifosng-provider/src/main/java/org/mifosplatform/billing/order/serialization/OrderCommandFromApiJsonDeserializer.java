@@ -34,8 +34,7 @@ public final class OrderCommandFromApiJsonDeserializer {
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode",
     		"contractPeriod","billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid","disconnectionDate","ispaymentEnable",
     		"paymentCode","amountPaid","paymentDate","receiptNo"));
-    private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
-    		"commandParameters","commandParam","paramType","paramDefault"));
+    private final Set<String> retracksupportedParameters = new HashSet<String>(Arrays.asList("commandName","message","orderId"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -122,41 +121,22 @@ public final class OrderCommandFromApiJsonDeserializer {
 	        throwExceptionIfValidationWarningsExist(dataValidationErrors);
 		
 	}
-	
-	public void validateForProvisioning(String json){
+
+	public void validateForRetrack(String json) {
 		
 		if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
 
         final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
-        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, provisioningsupportedParameters);
+        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, retracksupportedParameters);
 
         final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("order");
-
         final JsonElement element = fromApiJsonHelper.parse(json);
-        final String provisioningSystem = fromApiJsonHelper.extractStringNamed("provisioningSystem", element);
-        baseDataValidator.reset().parameter("provisioningSystem").value(provisioningSystem).notBlank();
         
         final String commandName = fromApiJsonHelper.extractStringNamed("commandName", element);
         baseDataValidator.reset().parameter("commandName").value(commandName).notBlank();
-        
-        final JsonArray commandArray=fromApiJsonHelper.extractJsonArrayNamed("commandParameters",element);
- 
-		  if(commandArray.size()>0){
-		   
-	         for (JsonElement jsonelement : commandArray) {
-	
-		         final String commandParam = fromApiJsonHelper.extractStringNamed("commandParam", jsonelement);
-		         baseDataValidator.reset().parameter("commandParam").value(commandParam).notBlank();   
-		         
-		         final String paramType = fromApiJsonHelper.extractStringNamed("paramType", jsonelement);
-		         baseDataValidator.reset().parameter("paramType").value(paramType).notBlank();
-		     
-		     }
-		  }
-        
-        
-        
+      
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
+		
 	}
 }
