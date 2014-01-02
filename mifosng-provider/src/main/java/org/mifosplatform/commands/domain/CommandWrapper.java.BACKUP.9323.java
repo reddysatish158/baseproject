@@ -260,10 +260,6 @@ public class CommandWrapper {
     public boolean isClientResource() {
         return this.entityName.equalsIgnoreCase("CLIENT");
     }
-    
-    public boolean isActivationProcessResource() {
-        return this.entityName.equalsIgnoreCase("ACTIVATE");
-    }
 
     public boolean isClientActivation() {
         return this.actionName.equalsIgnoreCase("ACTIVATE") && this.entityName.equalsIgnoreCase("CLIENT");

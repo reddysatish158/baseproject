@@ -14,6 +14,8 @@ import org.mifosplatform.billing.eventorder.domain.EventOrderRepository;
 import org.mifosplatform.billing.eventorder.domain.EventOrderdetials;
 import org.mifosplatform.billing.eventorder.exception.CustomValidationException;
 import org.mifosplatform.billing.eventorder.exception.InsufficientAmountException;
+import org.mifosplatform.billing.eventpricing.domain.EventPricing;
+import org.mifosplatform.billing.eventpricing.domain.EventPricingRepository;
 import org.mifosplatform.billing.media.domain.MediaAsset;
 import org.mifosplatform.billing.media.exceptions.NoEventMasterFoundException;
 import org.mifosplatform.billing.media.exceptions.NoMoviesFoundException;
@@ -29,6 +31,7 @@ import org.mifosplatform.billing.onetimesale.service.OneTimeSaleReadPlatformServ
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -50,14 +53,23 @@ public class EventOrderWriteplatformServiceImpl implements
 	private final ClientBalanceReadPlatformService balanceReadPlatformService;
 	private final EventDetailsRepository eventDetailsRepository;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
+	private final EventPricingRepository eventPricingRepository;
 
 	@Autowired
-	public EventOrderWriteplatformServiceImpl(final PlatformSecurityContext context,final EventOrderRepository eventOrderRepository,
-			final EventOrderCommandFromApiJsonDeserializer apiJsonDeserializer,final EventOrderReadplatformServie eventOrderReadplatformServie,
-			final InvoiceOneTimeSale invoiceOneTimeSale,final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService,
-			final EventMasterRepository eventMasterRepository,final MediaAssetRepository mediaAssetRepository,
-			final MediaDeviceReadPlatformService deviceReadPlatformService,	final ClientBalanceReadPlatformService balanceReadPlatformService,
-			final EventDetailsRepository eventDetailsRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
+	public EventOrderWriteplatformServiceImpl(
+			final PlatformSecurityContext context,
+			final EventOrderRepository eventOrderRepository,
+			final EventOrderCommandFromApiJsonDeserializer apiJsonDeserializer,
+			final EventOrderReadplatformServie eventOrderReadplatformServie,
+			final InvoiceOneTimeSale invoiceOneTimeSale,
+			final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService,
+			final EventMasterRepository eventMasterRepository,
+			final MediaAssetRepository mediaAssetRepository,
+			final MediaDeviceReadPlatformService deviceReadPlatformService,
+			final ClientBalanceReadPlatformService balanceReadPlatformService,
+			final EventDetailsRepository eventDetailsRepository,
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
+			final EventPricingRepository eventPricingRepository) {
 		
 		this.context = context;
 		this.eventOrderRepository = eventOrderRepository;
@@ -70,6 +82,7 @@ public class EventOrderWriteplatformServiceImpl implements
 		this.balanceReadPlatformService = balanceReadPlatformService;
 		this.eventDetailsRepository=eventDetailsRepository;
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
+		this.eventPricingRepository = eventPricingRepository;
 
 	}
 
@@ -156,6 +169,17 @@ public class EventOrderWriteplatformServiceImpl implements
 		}
 	}
 
+	
+	@Override
+	public CommandProcessingResult updateEventOrderPrice(JsonCommand command) {
+		
+		Long id = eventOrderReadplatformServie.getCurrentRow(command.stringValueOfParameterNamed("formatType"), command.stringValueOfParameterNamed("optType"), command.longValueOfParameterNamed("clientId"));
+		EventPricing eventPricing = eventPricingRepository.findOne(id);
+		eventPricing.setPrice(Double.valueOf(command.stringValueOfParameterNamed("price")));
+		eventPricingRepository.save(eventPricing);
+		return new CommandProcessingResultBuilder().withResourceIdAsString(eventPricing.getPrice().toString()).build();
+	}
+	
 	public boolean checkClientBalance(Double bookedPrice, Long clientId) {
 		  boolean isBalanceAvailable = false;
 		  ClientBalanceData clientBalance=this.balanceReadPlatformService.retrieveBalance(clientId);

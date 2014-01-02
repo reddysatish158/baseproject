@@ -31,7 +31,7 @@ public final class EventOrderCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("clientId","locale","dateFormat","eventId","eventBookedDate",
-    		"formatType","optType","deviceId"));
+    		"formatType","optType","deviceId","clientType"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -51,7 +51,7 @@ public final class EventOrderCommandFromApiJsonDeserializer {
         final JsonElement element = fromApiJsonHelper.parse(json);
 
         final String deviceId = fromApiJsonHelper.extractStringNamed("deviceId", element);
-        baseDataValidator.reset().parameter("deviceId").value(deviceId).notNull().notBlank();
+        baseDataValidator.reset().parameter("deviceId").value(deviceId).notBlank();
         final Long eventId = fromApiJsonHelper.extractLongNamed("eventId", element);
         baseDataValidator.reset().parameter("eventId").value(eventId).notBlank();
         final String formatType = fromApiJsonHelper.extractStringNamed("formatType", element);
