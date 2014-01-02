@@ -1852,4 +1852,29 @@ public CommandWrapperBuilder activateProcess() {
 	return this;
 }
 
+public CommandWrapperBuilder provisiongSystem() {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.href = "/provisionings";
+	return this;
+}
+
+public CommandWrapperBuilder updateprovisiongSystem(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.entityId = id;
+	this.href = "/provisionings/"+ id ;
+	return this;
+}
+
+public CommandWrapperBuilder deleteProvisiongSystem(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.entityId = id;
+	this.href = "/provisionings/"+ id ;
+	return this;
+}
+
+
+
 }
