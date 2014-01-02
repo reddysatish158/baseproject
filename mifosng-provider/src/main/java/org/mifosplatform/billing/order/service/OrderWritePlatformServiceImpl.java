@@ -636,7 +636,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				throw new NoOrdersFoundException(command.entityId());
 			}
 			 if (commandName.equalsIgnoreCase("RETRACK")) {
-				orderReadPlatformService.checkRetrackInterval(command.entityId());	
+				String restrict=orderReadPlatformService.checkRetrackInterval(command.entityId());
+				if(restrict!=null && restrict.equalsIgnoreCase("yes")){
 				Long id = this.orderReadPlatformService.getRetrackId(command.entityId());				
 				String transaction_type = this.orderReadPlatformService.getOSDTransactionType(id);
 
@@ -651,6 +652,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 
 				} else {
 					requstStatus = null;
+				}
+				}else{
+					throw new PlatformDataIntegrityException("retrack.already.done", "retrack.already.done", "retrack.already.done");	
 				}
 
 			} else if(commandName.equalsIgnoreCase("OSM")) {
