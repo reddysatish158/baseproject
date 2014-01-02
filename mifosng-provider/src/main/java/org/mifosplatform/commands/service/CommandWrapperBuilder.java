@@ -1830,6 +1830,13 @@ public CommandWrapperBuilder cancelOneTimeSale(Long saleId) {
 	return this;
 }
 
+public CommandWrapperBuilder updateEventOrderPrice() {
+	this.actionName="UPDATE";
+	this.entityName="EVENTORDER";
+	this.entityId=clientId;
+	this.href="eventorder";
+	return this;
+}
 public CommandWrapperBuilder hardwareSwapping(Long clientId) {
 	this.actionName = "SWAPPING";
 	this.entityName = "HARDWARESWAPPING";
@@ -1844,5 +1851,30 @@ public CommandWrapperBuilder activateProcess() {
 	this.href = "/clients/template";
 	return this;
 }
+
+public CommandWrapperBuilder provisiongSystem() {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.href = "/provisionings";
+	return this;
+}
+
+public CommandWrapperBuilder updateprovisiongSystem(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.entityId = id;
+	this.href = "/provisionings/"+ id ;
+	return this;
+}
+
+public CommandWrapperBuilder deleteProvisiongSystem(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.entityId = id;
+	this.href = "/provisionings/"+ id ;
+	return this;
+}
+
+
 
 }

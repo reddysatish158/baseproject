@@ -14,6 +14,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.eventmaster.domain.EventMaster;
 import org.mifosplatform.billing.eventpricing.domain.EventPricing;
+import org.mifosplatform.billing.media.exceptions.NoEventPriceFoundException;
 import org.mifosplatform.billing.media.exceptions.NoPricesFoundException;
 import org.mifosplatform.billing.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -89,6 +90,11 @@ public class EventOrder extends AbstractAuditableCustom<AppUser, Long> {
 		 final String optType=command.stringValueOfParameterNamed("optType");
 		 final String formatType=command.stringValueOfParameterNamed("formatType");
 		 final Date eventValidtill=eventMaster.getEventValidity();
+		 
+		 if(eventMaster.getEventPricings() == null || eventMaster.getEventPricings().isEmpty()){
+			 throw new NoEventPriceFoundException();
+		 }
+		 
 		 final Long eventPriceId=eventMaster.getEventPricings().get(0).getId();
 		 Double bookedPrice=null;
 		 List<EventPricing> eventPricings=eventMaster.getEventPricings();

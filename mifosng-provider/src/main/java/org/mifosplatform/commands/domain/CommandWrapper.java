@@ -879,13 +879,26 @@ public class CommandWrapper {
 		public boolean isCreatePaymentGateway() {
 			return this.actionName.equalsIgnoreCase("CREATE");
 		}
-
+		public boolean isUpdateEventOrderPrice() {
+			  return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("EVENTORDER");
+		} 
 		public boolean isHardwareSwapping() {
 			return this.entityName.equalsIgnoreCase("HARDWARESWAPPING");
 		}
-
 		public boolean isDoSwapping() {
 			return this.actionName.equalsIgnoreCase("SWAPPING");
+		}
+
+		public boolean isProvisioningSystem() {
+			return this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
+		}
+
+		public boolean isUpdateProvisioning() {
+			return this.actionName.equalsIgnoreCase("UPDATE");
+		}
+
+		public boolean isDeleteProvisioning() {
+			return this.actionName.equalsIgnoreCase("DELETE");
 		}
 		
 }

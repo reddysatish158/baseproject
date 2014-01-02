@@ -13,5 +13,4 @@ public interface OrderWritePlatformService {
 //	CommandProcessingResult updateOrder(JsonCommand command, Long orderId);
 	CommandProcessingResult disconnectOrder(JsonCommand command, Long orderId);
 	CommandProcessingResult retrackOsdMessage(JsonCommand command);
-	
 }

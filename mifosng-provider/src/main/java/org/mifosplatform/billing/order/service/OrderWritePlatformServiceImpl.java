@@ -46,11 +46,11 @@ import org.mifosplatform.billing.pricing.data.PriceData;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.billing.provisioning.domain.ProvisioningCommand;
+import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandParameters;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
-import org.mifosplatform.commands.domain.CommandWrapper;
-import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -58,6 +58,7 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
+import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.useradministration.domain.AppUser;
@@ -67,6 +68,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 
 
@@ -96,6 +100,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
     private final PaymentWritePlatformService paymentWritePlatformService;
     private final PaymentsApiResource paymentsApiResource;
+    private final FromJsonHelper fromApiJsonHelper;
     
     
     public final static String CONFIG_PROPERTY="Implicit Association";
@@ -112,7 +117,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final HardwareAssociationWriteplatformService associationWriteplatformService,final PlanHardwareMappingRepository hardwareMappingRepository,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-		    final PaymentWritePlatformService paymentWritePlatformService,final PaymentsApiResource paymentsApiResource) {
+		    final PaymentWritePlatformService paymentWritePlatformService,final PaymentsApiResource paymentsApiResource,final FromJsonHelper fromApiJsonHelper) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -137,6 +142,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
 		this.paymentWritePlatformService=paymentWritePlatformService;
 		this.paymentsApiResource=paymentsApiResource;
+		this.fromApiJsonHelper=fromApiJsonHelper;
 		
 
 	}
@@ -631,10 +637,13 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					requstStatus = null;
 				}
 
-			} else {
+			} else if(i==2) {
 				requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
 				message = command.stringValueOfParameterNamed("message");
+			} else{
+				requstStatus = UserActionStatusTypeEnum.INVALID.toString();
 			}
+			 
 			 
 			Plan plan = this.planRepository.findOne(order.getPlanId());
 			
@@ -702,7 +711,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			handleCodeDataIntegrityIssues(null, dve);
 			return new CommandProcessingResult(Long.valueOf(-1));
 		}
-	}	
+	}
+
+	
  }
 	
 

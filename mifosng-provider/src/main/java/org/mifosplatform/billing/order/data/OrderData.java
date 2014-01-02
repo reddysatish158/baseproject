@@ -43,6 +43,7 @@ public class OrderData {
 	private String provisioningSys;
 	private boolean ispaymentEnable;
 	private Collection<McodeData> paymodes;
+	
 
 	public OrderData(List<PlanCodeData> allowedtypes,
 			List<PaytermData> paytermData,
@@ -224,4 +225,5 @@ public class OrderData {
 		this.paymodes=data;
 		
 	}
+	
 }
