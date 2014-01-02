@@ -9,7 +9,6 @@ import org.mifosplatform.billing.activationprocess.service.ActivationProcessWrit
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
-import org.mifosplatform.portfolio.client.service.ClientWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +27,6 @@ public class CreateActivationProcessHandler implements NewCommandSourceHandler {
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        return this.activationProcessWritePlatformService.createClient(command);
+        return this.activationProcessWritePlatformService.activationProcess(command);
     }
 }
