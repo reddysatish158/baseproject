@@ -47,7 +47,7 @@ public class BillingOrderReadPlatformServiceImplementation implements
 		BillingOrderMapper billingOrderMapper = new BillingOrderMapper();
 		String sql = "select " + billingOrderMapper.billingOrderSchema();
 		return this.jdbcTemplate.query(sql, billingOrderMapper,
-				new Object[] { clientId,planId,date.toString() });
+				new Object[] { clientId,planId,date.toString(),date.toString() });
 	}
 
 	private static final class BillingOrderMapper implements
@@ -89,7 +89,7 @@ public class BillingOrderReadPlatformServiceImplementation implements
 					+ "op.charge_duration AS chargeDuration,op.duration_type AS durationType,op.invoice_tilldate AS invoiceTillDate,op.price AS price,co.order_status as orderStatus,op.tax_inclusive as taxInclusive, "
 					+ "co.billing_align AS billingAlign,op.bill_start_date as billStartDate,Date_format(IFNULL(op.bill_end_date,'3099-12-31'), '%Y-%m-%d') AS billEndDate "
 					+ "FROM b_orders co left JOIN b_order_price op ON co.id = op.order_id"
-					+ " WHERE co.client_id = ? AND co.id = ? AND Date_format(IFNULL(op.invoice_tilldate,now() ),'%Y-%m-%d') <= ? "
+					+ " WHERE co.client_id = ? AND co.id = ? AND Date_format(IFNULL(op.invoice_tilldate,? ),'%Y-%m-%d') <= ? "
 					+ " AND Date_format(IFNULL(op.next_billable_day, co.start_date ), '%Y-%m-%d')  <= Date_format(IFNULL(op.bill_end_date,'3099-12-31'), '%Y-%m-%d')";
 		}
 

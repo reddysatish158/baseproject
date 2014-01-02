@@ -1,8 +1,10 @@
 package org.mifosplatform.billing.payments.service;
-import java.math.BigDecimal;
 import java.util.List;
 
-import org.mifosplatform.billing.address.data.AddressData;
+import org.mifosplatform.billing.action.data.ActionDetaislData;
+import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.action.service.EventActionConstants;
 import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalance;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
@@ -13,7 +15,6 @@ import org.mifosplatform.billing.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
-import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -27,11 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PaymentWritePlatformServiceImpl implements
-		PaymentWritePlatformService {
+public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformService {
 
-	private final static Logger logger = LoggerFactory
-			.getLogger(PaymentWritePlatformServiceImpl.class);
+	private final static Logger logger = LoggerFactory.getLogger(PaymentWritePlatformServiceImpl.class);
 
 	private final PlatformSecurityContext context;
 	private final PaymentRepository paymentRepository;
@@ -41,22 +40,26 @@ public class PaymentWritePlatformServiceImpl implements
 	private final UpdateClientBalance updateClientBalance;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	private final ChequePaymentRepository chequePaymentRepository;
+	private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
+	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
 	
 
 	@Autowired
 	public PaymentWritePlatformServiceImpl(final PlatformSecurityContext context,final PaymentRepository paymentRepository,
 			final PaymentCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ClientBalanceReadPlatformService clientBalanceReadPlatformService,
 			final ClientBalanceRepository clientBalanceRepository,final ChequePaymentRepository chequePaymentRepository,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
-			final UpdateClientBalance updateClientBalance) {
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+			final UpdateClientBalance updateClientBalance,final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
 		this.context = context;
 		this.paymentRepository = paymentRepository;
 		this.fromApiJsonDeserializer = fromApiJsonDeserializer;
 		this.clientBalanceReadPlatformService=clientBalanceReadPlatformService;
 		this.clientBalanceRepository=clientBalanceRepository;
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
-		 this.updateClientBalance= updateClientBalance;
-		 this.chequePaymentRepository=chequePaymentRepository;
+		this.updateClientBalance= updateClientBalance;
+		this.chequePaymentRepository=chequePaymentRepository;
+		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService; 
+		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
 		
 	}
 
@@ -80,6 +83,9 @@ public class PaymentWritePlatformServiceImpl implements
 				chequePaymentRepository.save(chequePayment);
 			}
 			
+			//Add New Action 
+			List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_PAYMENT);
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,clientBalancedatas.get(0).getClientId(), id.toString());
 			
 			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).build();
 		} catch (DataIntegrityViolationException dve) {
@@ -92,13 +98,9 @@ public class PaymentWritePlatformServiceImpl implements
 	@Transactional
 	@Override
 	public Long createPayments(Long clientBalanceid, Long clientid,JsonCommand command) {
-		// TODO Auto-generated method stub
                                                                               
 		try {
 			this.context.authenticatedUser();
-			// AdjustmentCommandValidator validator=new AdjustmentCommandValidator(command);
-			// validator.validateForCreate();
-
 			Payment payment = null;
 			payment  = Payment.fromJson(command,clientid);
 			this.paymentRepository.saveAndFlush(payment);
@@ -112,7 +114,6 @@ public class PaymentWritePlatformServiceImpl implements
 
 			if(clientBalance != null){
 
-				// clientBalance = updateClientBalance.doUpdateClientBalance(command.getAdjustment_type(),command.getAmount_paid(),clientid,clientBalance);
 				clientBalance = updateClientBalance.doUpdatePaymentClientBalance(clientid,command,clientBalance);
 
 			}else if(clientBalance == null){
@@ -122,6 +123,9 @@ public class PaymentWritePlatformServiceImpl implements
 
 			updateClientBalance.saveClientBalanceEntity(clientBalance);
 			
+			//Perform Event Action
+		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());
+			
 			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payment.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"PaymentID:"+payment.getId());
 			return payment.getId();
 
@@ -129,27 +133,6 @@ public class PaymentWritePlatformServiceImpl implements
 			return Long.valueOf(-1);
 		}
 	}
-
-/*	@Override
-	public CommandProcessingResult createPaypalPayment(JsonCommand command) {
-
-		
-		try {
-			context.authenticatedUser();
-			String emailId=null;
-            Long id = null;
-          //  this.fromApiJsonDeserializer.validateForCreate(command.json());
-            final BigDecimal amountPaid = command.bigDecimalValueOfParameterNamed("amountPaid");
-            Long clientId=this.paypalReadPlatformService.retrieveClientId(command);
-            List<ClientBalanceData> clientBalancedatas = clientBalanceReadPlatformService.retrieveAllClientBalances(clientId);
-			id= createPayments(clientBalancedatas.get(0).getId(),clientId,command);					
-			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).build();
-		} catch (DataIntegrityViolationException dve) {
-			return CommandProcessingResult.empty();
-		}
-		
-	
-	}*/
 
 
 }

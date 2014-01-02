@@ -156,6 +156,7 @@ public class ClientProspectWritePlatformServiceImp implements ClientProspectWrit
 			newClientJsonObject.put("zipCode",clientProspect.getZipCode());
 			newClientJsonObject.put("state", clientProspect.getState());
 			newClientJsonObject.put("country",clientProspect.getCountry());
+			newClientJsonObject.put("flag","false");
 			
 			
 			

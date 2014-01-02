@@ -30,6 +30,7 @@ public class FinancialTransactionsData {
 	private BigDecimal creditAmount;
 	private BigDecimal debitAmount;
 	private Long chargeId;
+	private Long orderId;
 	
 
 	public FinancialTransactionsData(final Long transactionId,final Date transactionDate,String transactionType,BigDecimal amount) {
@@ -72,7 +73,7 @@ public class FinancialTransactionsData {
 
 	public FinancialTransactionsData(Long chargeId, String chargeType,
 			String chargeDescription, BigDecimal chargeAmount,
-			BigDecimal taxAmount,BigDecimal discountAmount, BigDecimal netChargeAmount,LocalDate chargeStartDate, LocalDate chargeEndDate) {
+			BigDecimal taxAmount,BigDecimal discountAmount, BigDecimal netChargeAmount,LocalDate chargeStartDate, LocalDate chargeEndDate, Long orderId) {
 		this.chargeId=chargeId;
 		this.chargeType=chargeType;
 		this.chargeDescription=chargeDescription;
@@ -82,6 +83,7 @@ public class FinancialTransactionsData {
 		this.netChargeAmount=netChargeAmount;
 		this.chargeStartDate=chargeStartDate;
 		this.chargeEndDate=chargeEndDate;
+		this.orderId=orderId;
 	}
 
 	public FinancialTransactionsData(
