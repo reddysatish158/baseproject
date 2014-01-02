@@ -654,11 +654,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				}
 
 			} else if(commandName.equalsIgnoreCase("OSM")) {
-				orderReadPlatformService.checkRetrackInterval(command.entityId());	
 				requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
 				message = command.stringValueOfParameterNamed("message");
 			} else{
-				orderReadPlatformService.checkRetrackInterval(command.entityId());	
 				requstStatus = UserActionStatusTypeEnum.INVALID.toString();
 			}
 			 
