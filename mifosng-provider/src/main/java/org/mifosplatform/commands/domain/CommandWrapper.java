@@ -888,5 +888,17 @@ public class CommandWrapper {
 		public boolean isDoSwapping() {
 			return this.actionName.equalsIgnoreCase("SWAPPING");
 		}
+
+		public boolean isProvisioningSystem() {
+			return this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
+		}
+
+		public boolean isUpdateProvisioning() {
+			return this.actionName.equalsIgnoreCase("UPDATE");
+		}
+
+		public boolean isDeleteProvisioning() {
+			return this.actionName.equalsIgnoreCase("DELETE");
+		}
 		
 }

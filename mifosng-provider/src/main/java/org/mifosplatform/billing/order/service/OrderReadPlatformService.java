@@ -39,5 +39,6 @@ public interface OrderReadPlatformService {
 	String getOSDTransactionType(Long id);
 
 	Long checkRetrackInterval(Long entityId);
+	
 
 }
