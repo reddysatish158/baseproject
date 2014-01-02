@@ -136,6 +136,10 @@ public final class OrderCommandFromApiJsonDeserializer {
         final String commandName = fromApiJsonHelper.extractStringNamed("commandName", element);
         baseDataValidator.reset().parameter("commandName").value(commandName).notBlank();
       
+        if(commandName!=null && commandName.equalsIgnoreCase("OSM")){
+        	 final String message = fromApiJsonHelper.extractStringNamed("message", element);
+             baseDataValidator.reset().parameter("message").value(message).notBlank().notExceedingLengthOf(160);
+        }
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 		
 	}
