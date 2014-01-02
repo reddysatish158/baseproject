@@ -128,9 +128,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.scheduleJob=scheduleJob;
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 	}
-	Date date=new Date();
-	@SuppressWarnings("deprecation")
-	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+	
+	
 	// @Transactional
 	@Override
 	@CronTarget(jobName = JobName.INVOICE)
@@ -140,11 +139,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 	try
 	{
 		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
-		//Logger logger = Logger.getLogger("SheduleJobWritePlatformServiceImpl.processInvoice");
+	
 		if(data!=null){
 			
-	    	
-			 String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+			Date date=new Date();  
+			String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+	    	  
+			 String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+
+			 "_"+dateTime+".log";
 			 File fileHandler = new File(path.trim());
 			 fileHandler.createNewFile();
 			 FileWriter fw = new FileWriter(fileHandler);
@@ -221,6 +223,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 			
 			if(!data.isEmpty()){
 				
+				Date date=new Date();
+				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+				
 				String path=FileUtils.generateLogFileDirectory()+JobName.REQUESTOR.toString()+ File.separator +"Requester_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 				 File fileHandler = new File(path.trim());
 				 System.out.println(path);
@@ -260,6 +265,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			
 			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
 			if(!processingDetails.isEmpty()){
+				Date date=new Date();
+				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+ JobName.RESPONSOR.toString()+ File.separator +"Responser_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 				 File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
@@ -295,6 +302,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Simulator Details.......");
 			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveUnProcessingDetails();
 			if(!processingDetails.isEmpty()){
+				Date date=new Date();
+				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.SIMULATOR.toString()+ File.separator +"Simulator_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 				 File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
@@ -332,6 +341,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing statement Details.......");
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
 		    if(data!=null){
+		    	Date date=new Date();
+		    	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 		    	String path=FileUtils.generateLogFileDirectory()+ JobName.GENERATE_STATMENT.toString() + File.separator +"statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 		    	 File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
@@ -400,6 +411,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		{
 		 JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.MESSAGE_MERGE.toString());
           if(data!=null){
+        	  Date date=new Date();
+        	  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
         	  String path=FileUtils.generateLogFileDirectory()+ JobName.MESSAGE_MERGE.toString() + File.separator +"Messanger_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
         	  File fileHandler = new File(path.trim());
  			 fileHandler.createNewFile();
@@ -447,7 +460,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Auto Exipiry Details.......");
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
             if(data!=null){
-            	
+            	Date date=new Date();
+            	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 	            String path=FileUtils.generateLogFileDirectory()+ JobName.AUTO_EXIPIRY.toString() + File.separator +"AutoExipiry_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 	            File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
@@ -569,7 +583,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Notify Details.......");
 			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
-    	    if(!billingMessageDataForProcessings.isEmpty()){
+    	    
+			if(!billingMessageDataForProcessings.isEmpty()){
+				Date date=new Date();
+				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
     	    	String path=FileUtils.generateLogFileDirectory()+JobName.PUSH_NOTIFICATION.toString() + File.separator +"PushNotification_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
     	    	 File fileHandler = new File(path.trim());
     			 fileHandler.createNewFile();
@@ -616,7 +633,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 
 			System.out.println("Processing Middleware Details.......");
 			JobParameterData data = this.sheduleJobReadPlatformService.getJobParameters(JobName.Middleware.toString());
+			
 			if(data!=null){
+				Date date=new Date();
+				String dateTime =date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String credentials = data.getUsername().trim() + ":"+ data.getPassword().trim();
 				byte[] encoded = Base64.encodeBase64(credentials.getBytes());
 				HttpClient httpClient = new DefaultHttpClient();
@@ -776,7 +796,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 	  
 	 System.out.println("Processing Event Actions.....");
 	  try {
-	      //Retrieve Event Actions
+		  
+		  Date date=new Date();
+		  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+	      
+		  //Retrieve Event Actions
 	 String path=FileUtils.generateLogFileDirectory()+ JobName.EVENT_ACTION_PROCESSOR.toString() + File.separator +"Activationprocess_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 	  File fileHandler = new File(path.trim());
 	  fileHandler.createNewFile();
