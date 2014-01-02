@@ -27,6 +27,7 @@ public class SchedulerJobApiConstants {
     public static final String cronDescriptionParamName = "cronDescription";
     public static final String schedulerStatusParamName = "active";
     public static final String schedulerJobParamName = "jobName";
+    public static final String schedulerJobLogFile="runFilePath";
     
     public static final String JOB_INVOICE = "Invoice";
     public static final String JOB_GENERATE_STATEMENT = "Generate Statment";
@@ -37,13 +38,13 @@ public class SchedulerJobApiConstants {
     public static final String jobProcessdate = "processDate";
     public static final String jobDueDate = "dueDate";
     public static final String jobPromotionalMessage = "promotionalMessage";
-    public static final String jobMessageTemplate= "SendMessage";
+    public static final String jobMessageTemplate= "messageTemplate";
     public static final String jobExipiryDate= "exipiryDate";
     
     
     public static final Set<String> JOB_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobIdentifierParamName,
             displayNameParamName, nextRunTimeParamName, initializingErrorParamName, cronExpressionParamName, jobActiveStatusParamName,
-            currentlyRunningParamName, lastRunHistoryObjParamName,schedulerJobParamName,cronDescriptionParamName,jobIsDynamic));
+            currentlyRunningParamName, lastRunHistoryObjParamName,schedulerJobParamName,cronDescriptionParamName,jobIsDynamic,schedulerJobLogFile));
 
     public static final Set<String> JOB_HISTORY_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(versionParamName,
             jobRunStartTimeParamName, jobRunEndTimeParamName, statusParamName, jobRunErrorMessageParamName, triggerTypeParamName,

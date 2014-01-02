@@ -7,7 +7,9 @@ public enum UserActionStatusTypeEnum {
 	DISCONNECTION(2, "CategoryType.disconnected"),
 	RECONNECTION(3,"CategoryType.reconnection"),
 	MESSAGE(4,"CategoryType.message"),
-	INVALID(5, "CategoryType.invalid");
+	RENEWAL_BEFORE_AUTOEXIPIRY(5,"CategoryType.renewal before autoexipiry"),
+	RENEWAL_AFTER_AUTOEXIPIRY(6,"CategoryType.renewal after autoexipiry"),
+	INVALID(7, "CategoryType.invalid");
 
 
     private final Integer value;
@@ -43,6 +45,12 @@ public enum UserActionStatusTypeEnum {
 		
 		case 4:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.MESSAGE;
+			
+		case 5:
+			actionStatusTypeEnum = UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY;
+			
+		case 6:
+			actionStatusTypeEnum = UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY;
 			
 		default:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.INVALID;

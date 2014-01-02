@@ -33,12 +33,9 @@ public class ContractPeriodReadPlatformServiceImpl implements ContractPeriodRead
 	@Override
 	public Collection<SubscriptionData> retrieveSubscriptionDetails() {
 
-
 		this.context.authenticatedUser();
-
-
 	    SuscriptionMapper depositProductMapper= new SuscriptionMapper();
-		String sql="select "+depositProductMapper.depositProductSchema();
+		String sql="select "+depositProductMapper.contractPeriodSchema ();
 		return this.jdbcTemplate.query(sql,depositProductMapper, new Object[]{});
 
 	}
@@ -47,14 +44,14 @@ public class ContractPeriodReadPlatformServiceImpl implements ContractPeriodRead
 	public Collection<SubscriptionData> retrieveAllSubscription() {
 		this.context.authenticatedUser();
 		SuscriptionMapper mapper= new SuscriptionMapper();
-		String sql="select "+mapper.depositProductSchema()+"where dp.is_deleted=0";
+		String sql="select "+mapper.contractPeriodSchema()+"where dp.is_deleted=0";
 		return this.jdbcTemplate.query(sql,mapper, new Object[]{});
 	}
 
 	@Override
 	public SubscriptionData retrieveSubscriptionData(Long subscriptionId) {
 		SuscriptionMapper depositProductMapper=new SuscriptionMapper();
-		String sql = "select "+ depositProductMapper.depositProductSchema() +" where dp.id = ? and dp.is_deleted=0";
+		String sql = "select "+ depositProductMapper.contractPeriodSchema() +" where dp.id = ? and dp.is_deleted=0";
 
 		return this.jdbcTemplate.queryForObject(sql, depositProductMapper, new Object[]{subscriptionId});
 	}
@@ -62,7 +59,7 @@ public class ContractPeriodReadPlatformServiceImpl implements ContractPeriodRead
 
 private static final class SuscriptionMapper implements RowMapper<SubscriptionData>{
 
-		public String depositProductSchema(){
+		public String contractPeriodSchema(){
 			return " dp.id as id,dp.contract_period as  subscriptionPeriod,dp.contract_type as subscriptionType,dp.contract_duration as units from b_contract_period dp ";
 
 		}
@@ -103,13 +100,19 @@ public List<PeriodData> retrieveAllPlatformPeriod() {
         @Override
         public PeriodData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
 
-     //   Long id = rs.getLong("id");
             String type = rs.getString("subscriptionType");
-          //  String contractType = rs.getString("contract_type");
-
             return new PeriodData(type,null,type);
         }
  }
+
+@Override
+public List<SubscriptionData> retrieveSubscriptionDatabyContractType(String contractType, int duration) {
+	//this.context.authenticatedUser();
+    SuscriptionMapper depositProductMapper= new SuscriptionMapper();
+	String sql="select "+depositProductMapper.contractPeriodSchema ()+" where dp.contract_type=? and dp.contract_duration=? and dp.is_deleted='N'";
+	return this.jdbcTemplate.query(sql,depositProductMapper, new Object[]{ contractType,duration});
+
+}
 
 
 

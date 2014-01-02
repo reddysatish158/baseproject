@@ -63,7 +63,7 @@ public final class DiscountCommandFromApiJsonDeserializer {
         	final String discountType=fromApiJsonHelper.extractStringNamed("discountType", element);
         	baseDataValidator.reset().parameter("discountType").value(discountType).notBlank();
         	final Integer discountRate=fromApiJsonHelper.extractIntegerWithLocaleNamed("discountRate", element);
-        	baseDataValidator.reset().parameter("discountRate").value(discountRate).notNull().integerGreaterThanZero();
+        	baseDataValidator.reset().parameter("discountRate").value(discountRate).notNull();
         	final String status=fromApiJsonHelper.extractStringNamed("status", element);
         	 baseDataValidator.reset().parameter("status").value(status).notBlank();
         

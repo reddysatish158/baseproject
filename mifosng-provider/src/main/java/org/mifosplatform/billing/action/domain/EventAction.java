@@ -1,6 +1,8 @@
 
 package org.mifosplatform.billing.action.domain;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -8,32 +10,68 @@ import javax.persistence.Table;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
-@Table(name = "b_event_action")
+@Table(name = "b_event_actions")
 public class EventAction extends AbstractPersistable<Long> {
+	
+	@Column(name = "trans_date", nullable = false, length = 100)
+	private Date transDate;
 
-	@Column(name = "action_name", nullable = false, length = 20)
+	@Column(name = "event_action", nullable = false, length = 20)
+	private String eventAction;
+
+	@Column(name = "entity_name", nullable = false, length = 100)
+	private String entityName;
+
+	@Column(name = "action_name", nullable = false, length = 100)
 	private String actionName;
 
-	@Column(name = "process", nullable = false, length = 100)
-	private String process;
+	@Column(name = "api_url", nullable = false, length = 100)
+	private String apiUrl;
+	
+	@Column(name = "resource_id", nullable = false, length = 100)
+	private Long resourceId;
+	
+	@Column(name = "order_id", nullable = false, length = 100)
+	private Long orderId;
+	
+	@Column(name = "client_id", nullable = false, length = 100)
+	private Long clientId;
+	
+	@Column(name = "command_as_json", nullable = false, length = 100)
+	private String commandAsJson;
+	
+	@Column(name = "is_processed")
+	private char isProcessed='N';
 
-	@Column(name = "event_id", nullable = false, length = 100)
-	private Long eventId;
 
-	@Column(name = "isCheck")
-	private char isCheck='N';
+public EventAction(){}
 
 
-public EventAction()
-{}
 
-
-public void update() {
-	if(this.isCheck!='Y'){
-		this.isCheck='Y';
-	}
+public EventAction(Date transDate, String eventAction, String entityName,String actionName, String apiUrl, Long resourceId,
+		String commandAsJson, Long orderId, Long clientId) {
+	this.transDate=transDate;
+	this.eventAction=eventAction;
+	this.entityName=entityName;
+	this.actionName=actionName;
+	this.apiUrl=apiUrl;
+	this.resourceId=resourceId;
+	this.commandAsJson=commandAsJson;
+	this.orderId=orderId;
+	this.clientId=clientId;
+	
 	
 }
 
 
+
+public void updateStatus() {
+
+	this.isProcessed='Y';
+	
 }
+
+}
+
+
+

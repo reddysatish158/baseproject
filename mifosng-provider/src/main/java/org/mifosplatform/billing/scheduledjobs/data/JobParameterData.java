@@ -19,8 +19,16 @@ public class JobParameterData {
 	private String username;
 	private String password;
 	private String provSystem;
+
+	private String OsdMessage;
+	private String OSDMessageTemplate;
+	private String SendEmail;
+	private String EmailMessageTemplateName;
+	private String isAutoRenewal;
+
 	private String promotionalMessage;
 	
+
 	
 
 	public JobParameterData(List<JobParameters> jobParameters) {
@@ -80,7 +88,14 @@ public class JobParameterData {
             }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_Prov_System)){
                  this.provSystem=parameter.getParamValue();
 	
-            }else{
+
+            }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_IS_RENEWAL)){
+                
+            	this.isAutoRenewal=parameter.isDynamic();
+            	
+           }else{
+
+
 				 this.batchName=parameter.getParamValue();
 				 this.defaultValue=parameter.getParamDefaultValue();
 			}
@@ -115,6 +130,12 @@ public class JobParameterData {
 
 	public LocalDate getProcessDate() {
 		return processDate;
+	}
+
+
+
+	public String getIsAutoRenewal() {
+		return isAutoRenewal;
 	}
 
 	public String getIsDynamic() {

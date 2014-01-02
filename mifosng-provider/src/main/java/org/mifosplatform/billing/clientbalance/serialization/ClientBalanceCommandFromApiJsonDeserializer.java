@@ -29,7 +29,7 @@ public final class ClientBalanceCommandFromApiJsonDeserializer {
     /**
      * The parameters supported for this command.
      */
-    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("id","clientId","balance"));
+    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("id","clientId","balance","locale"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired

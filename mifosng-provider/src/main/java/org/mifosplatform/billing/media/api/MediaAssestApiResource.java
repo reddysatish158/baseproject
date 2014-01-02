@@ -210,9 +210,7 @@ public class MediaAssestApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveMediaAssestTemplatedata(@Context final UriInfo uriInfo) {
          context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-         
          MediaAssetData assetData=handleTEmplateData();
-    	
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, assetData, RESPONSE_DATA_PARAMETERS);
     

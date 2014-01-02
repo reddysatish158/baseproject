@@ -44,7 +44,7 @@ import com.google.gson.JsonElement;
 @Component
 @Scope("singleton")
 public class BillingMasterApiResourse {
-	    private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("transactionId","transactionDate","transactionType","amount",
+	    private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("transactionId","transactionDate","transactionType","amount","orderId",
 			"invoiceId","chrageAmount","taxAmount","chargeType","amount","billDate","dueDate","id","transaction","chargeStartDate","chargeEndDate"));
         private final String resourceNameForPermissions = "BILLMASTER";
 	    private final PlatformSecurityContext context;

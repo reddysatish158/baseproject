@@ -4,8 +4,6 @@ package org.mifosplatform.billing.hardwareplanmapping.service;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.billing.action.service.EventActionReadPlatformService;
-import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.hardwareplanmapping.data.HardwarePlanData;
 import org.mifosplatform.billing.hardwareplanmapping.domain.HardwarePlanMapper;
 import org.mifosplatform.billing.hardwareplanmapping.domain.HardwarePlanMapperRepository;
@@ -13,7 +11,6 @@ import org.mifosplatform.billing.hardwareplanmapping.exception.ItemCodeDuplicate
 import org.mifosplatform.billing.hardwareplanmapping.handler.HardwarePlanWritePlatformService;
 import org.mifosplatform.billing.plan.domain.PlanHardWareDetailsRepository;
 import org.mifosplatform.billing.plan.domain.VolumeDetailsRepository;
-import org.mifosplatform.billing.plan.serialization.PlanCommandFromApiJsonDeserializer;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -37,7 +34,7 @@ public class HardwarePlanWritePlatformServiceImpl implements HardwarePlanWritePl
 	
 	@Autowired
 	public HardwarePlanWritePlatformServiceImpl(final PlatformSecurityContext context,PlanHardWareDetailsRepository planHardWareDetailsRepository,
-			final HardwarePlanMapperRepository hardwarePlanMapperRepository,final EventActionReadPlatformService eventActionReadPlatformService,
+			final HardwarePlanMapperRepository hardwarePlanMapperRepository,
 			final VolumeDetailsRepository volumeDetailsRepository,final HardwarePlanCommandFromApiJsonDeserializer fromApiJsonDeserializer,final HardwarePlanReadPlatformService hardwarePlanReadPlatformService) {
 		
 		this.context = context;

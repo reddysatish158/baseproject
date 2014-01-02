@@ -16,4 +16,6 @@ public interface ContractPeriodReadPlatformService {
 
 	List<PeriodData> retrieveAllPlatformPeriod();
 
+	List<SubscriptionData> retrieveSubscriptionDatabyContractType(String string, int i);
+
 }

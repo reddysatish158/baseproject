@@ -12,6 +12,7 @@ import org.mifosplatform.billing.eventmaster.domain.EventMasterRepository;
 import org.mifosplatform.billing.eventorder.domain.EventOrder;
 import org.mifosplatform.billing.eventorder.domain.EventOrderRepository;
 import org.mifosplatform.billing.eventorder.domain.EventOrderdetials;
+import org.mifosplatform.billing.eventorder.exception.CustomValidationException;
 import org.mifosplatform.billing.eventorder.exception.InsufficientAmountException;
 import org.mifosplatform.billing.eventpricing.domain.EventPricing;
 import org.mifosplatform.billing.eventpricing.domain.EventPricingRepository;
@@ -104,13 +105,13 @@ public class EventOrderWriteplatformServiceImpl implements
 				throw new NoMediaDeviceFoundException();
 			}
 			
-			
-		/*	//Check Client Custome Validation
+			/*
+			//Check Client Custome Validation
 			boolean isCheck=this.eventOrderReadplatformServie.CheckClientCustomalidation(deviceData.getClientId());
 			if(!isCheck){
 				throw new  CustomValidationException();
-			}*/
-			
+			}
+			*/
 			
 			final String formatType = command.stringValueOfParameterNamed("formatType");
 			final String optType=command.stringValueOfParameterNamed("optType");
