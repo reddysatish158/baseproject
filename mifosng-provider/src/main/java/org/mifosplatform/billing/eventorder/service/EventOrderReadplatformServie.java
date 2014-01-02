@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.eventorder.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.mifosplatform.billing.eventmaster.data.EventMasterData;
@@ -19,4 +20,8 @@ public interface EventOrderReadplatformServie {
 
 	List<EventMasterData> getEvents();
 
+	BigDecimal retriveEventPrice(String fType, String oType, Long clientId);
+
+	Long getCurrentRow(String fType, String oType, Long clientId);
+	
 }

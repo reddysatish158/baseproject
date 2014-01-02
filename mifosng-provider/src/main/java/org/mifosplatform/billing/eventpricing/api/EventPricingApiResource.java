@@ -93,6 +93,9 @@ public class EventPricingApiResource {
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.apiJsonSerializer.serialize(settings, templateData, RESPONSE_PARAMETERS);
 	}
+	
+	
+	
 	public EventPricingData handleTemplateRelatedData(Long eventId) {
 		List<EnumOptionData> optType = this.eventMasterReadPlatformService.retrieveOptTypeData();
 		List<EventDetailsData> details = this.eventMasterReadPlatformService.retrieveEventDetailsData(eventId.intValue());

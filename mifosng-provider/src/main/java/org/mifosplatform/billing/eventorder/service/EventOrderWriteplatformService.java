@@ -7,4 +7,6 @@ public interface EventOrderWriteplatformService {
 
 	CommandProcessingResult createEventOrder(JsonCommand command);
 
+	CommandProcessingResult updateEventOrderPrice(JsonCommand command);
+
 }

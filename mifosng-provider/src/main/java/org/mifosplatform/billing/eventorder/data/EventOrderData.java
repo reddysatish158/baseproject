@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.eventmaster.data.EventMasterData;
+import org.mifosplatform.billing.eventpricing.data.ClientTypeData;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
@@ -21,6 +22,7 @@ public class EventOrderData {
 	private List<EventMasterData> events;
 	private List<EnumOptionData> optType;
 	private Collection<MCodeData> codes;
+	private List<ClientTypeData> clientType;
 
 	public EventOrderData(Long orderid, LocalDate bookedDate, String eventName,
 			BigDecimal bookedPrice, String chargeCode, String status) {
@@ -33,13 +35,22 @@ public class EventOrderData {
 		this.status=status;
 	}
 
-	public EventOrderData(List<EventOrderDeviceData> devices, List<EventMasterData> events, List<EnumOptionData> optType, Collection<MCodeData> codes) {
+	public EventOrderData(List<EventOrderDeviceData> devices, List<EventMasterData> events, List<EnumOptionData> optType, Collection<MCodeData> codes, List<ClientTypeData> clientType) {
 		this.devices = devices;
 		this.events = events;
 		this.optType = optType;
 		this.codes = codes;
+		this.clientType = clientType;
 	}
 
+	public EventOrderData() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public EventOrderData(BigDecimal eventPrice) {
+		this.eventPrice = eventPrice;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -55,7 +66,9 @@ public class EventOrderData {
 	public BigDecimal getEventPrice() {
 		return eventPrice;
 	}
-
+	public void setEventPrice(final BigDecimal eventPrice){
+		this.eventPrice = eventPrice;
+	}
 	public String getChargeCode() {
 		return chargeCode;
 	}
