@@ -28,6 +28,7 @@ import org.mifosplatform.billing.eventpricing.data.ClientTypeData;
 import org.mifosplatform.billing.eventpricing.service.EventPricingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
+import org.mifosplatform.billing.media.exceptions.NoEventPriceFoundException;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
