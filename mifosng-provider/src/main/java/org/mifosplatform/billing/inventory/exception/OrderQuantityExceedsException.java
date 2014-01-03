@@ -8,7 +8,7 @@ public class OrderQuantityExceedsException extends AbstractPlatformDomainRuleExc
     
 
 	public OrderQuantityExceedsException(Long orderId) {
-		 super("error.msg.order.quantity..exceeds", "No more order quantity"+orderId,orderId);
+		 super("error.msg.order.quantity..exceeds", "No more order quantity for grn id "+orderId,orderId);
 		 
 	}
 }

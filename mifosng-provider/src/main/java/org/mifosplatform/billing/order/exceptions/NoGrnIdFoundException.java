@@ -8,7 +8,7 @@ public class NoGrnIdFoundException extends AbstractPlatformDomainRuleException {
     
 
 	public NoGrnIdFoundException(Long orderId) {
-		 super("error.msg.order.quantity..exceeds", "No more order quantity"+orderId,orderId);
+		 super("error.msg.order.quantity..exceeds", "Grn id "+orderId+" not found. ",orderId);
 		 
 	}
 }
