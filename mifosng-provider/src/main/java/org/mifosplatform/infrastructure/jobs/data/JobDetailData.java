@@ -48,8 +48,11 @@ public class JobDetailData {
 
 	private JobParameterData jobparameters;
 
+	private Long historyId;
+
     public JobDetailData(final Long jobId, final String displayName, String name, final Date nextRunTime, final String initializingError,
-            final String cronExpression,final boolean active, final boolean currentlyRunning, final JobDetailHistoryData lastRunHistory, String cronDescription) {
+            final String cronExpression,final boolean active, final boolean currentlyRunning, final JobDetailHistoryData lastRunHistory, 
+            String cronDescription, Long historyId) {
         this.jobId = jobId;
         this.displayName = displayName;
         this.nextRunTime = nextRunTime;
@@ -62,6 +65,7 @@ public class JobDetailData {
         this.name=name;
         this.queryData=null;
         this.billingMessageDatas=null;
+        this.historyId=historyId;
     }
 
 	public Long getJobId() {

@@ -17,30 +17,33 @@ import org.springframework.stereotype.Service;
 public class ReconnectionInvoice {
 	
 	private BillingOrderReadPlatformService billingOrderReadPlatformService;
-	private GenerateReverseBillingOrderService generateReverseBillingOrderService;
+	private GenerateReconnectionBillingOrderService generateReconnectionBillingOrderService;
+	private GenerateBillingOrderService generateBillingOrderService;
 	private PlatformSecurityContext context;
 	private final ClientBalanceReadPlatformService clientBalanceReadPlatformService;
 	private final BillingOrderWritePlatformService billingOrderWritePlatformService;
 	
 	
+	
 	@Autowired
 	public ReconnectionInvoice(BillingOrderReadPlatformService billingOrderReadPlatformService,PlatformSecurityContext context,
-			GenerateReverseBillingOrderService generateReverseBillingOrderService,final BillingOrderWritePlatformService billingOrderWritePlatformService,
-			final ClientBalanceReadPlatformService  balanceReadPlatformService){
+			GenerateReconnectionBillingOrderService generateReconnectionBillingOrderService,final BillingOrderWritePlatformService billingOrderWritePlatformService,
+			final ClientBalanceReadPlatformService  balanceReadPlatformService,GenerateBillingOrderService generateBillingOrderService){
 		
 		this.context = context;
 		this.billingOrderReadPlatformService = billingOrderReadPlatformService;
-		this.generateReverseBillingOrderService = generateReverseBillingOrderService;
+		this.generateReconnectionBillingOrderService = generateReconnectionBillingOrderService;
 		this.clientBalanceReadPlatformService=balanceReadPlatformService;
 		this.billingOrderWritePlatformService=billingOrderWritePlatformService;
+		this.generateBillingOrderService=generateBillingOrderService;
 	}
 	
 	 
-	public BigDecimal reverseInvoiceServices(Long orderId,Long clientId,LocalDate disconnectionDate){
+	public BigDecimal reconnectionInvoiceServices(Long orderId,Long clientId,LocalDate disconnectionDate){
 		
 		List<BillingOrderData> billingOrderProducts = this.billingOrderReadPlatformService.getReconnectionBillingOrderData(clientId, disconnectionDate, orderId);
-		List<BillingOrderCommand> billingOrderCommands = this.generateReverseBillingOrderService.generateReverseBillingOrder(billingOrderProducts,disconnectionDate);
-		Invoice invoice = this.generateReverseBillingOrderService.generateNegativeInvoice(billingOrderCommands);
+		List<BillingOrderCommand> billingOrderCommands = this.generateReconnectionBillingOrderService.generateReconnectionBillingOrder(billingOrderProducts,disconnectionDate);
+		Invoice invoice = this.generateBillingOrderService.generateInvoice(billingOrderCommands);
 		
 		List<ClientBalanceData> clientBalancesDatas = clientBalanceReadPlatformService.retrieveAllClientBalances(clientId);
 		

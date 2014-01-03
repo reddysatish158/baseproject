@@ -25,6 +25,7 @@ public class JobParameterData {
 	private String SendEmail;
 	private String EmailMessageTemplateName;
 	private String isAutoRenewal;
+	private String messageTempalate;
 
 	private String promotionalMessage;
 	
@@ -53,11 +54,11 @@ public class JobParameterData {
 			
 			}*/
 		
-			/*	
+				
 			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_MESSAGETEMPLATE)){
 			     this.messageTempalate=parameter.getParamValue();
 		
-		    }*/
+		    }
 			
 			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
 			          this.promotionalMessage=parameter.getParamValue();	
@@ -91,7 +92,7 @@ public class JobParameterData {
 
             }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_IS_RENEWAL)){
                 
-            	this.isAutoRenewal=parameter.isDynamic();
+            	this.isAutoRenewal=parameter.getParamValue();
             	
            }else{
 
