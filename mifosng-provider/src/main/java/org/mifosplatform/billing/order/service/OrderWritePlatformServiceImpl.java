@@ -33,7 +33,6 @@ import org.mifosplatform.billing.order.domain.OrderPrice;
 import org.mifosplatform.billing.order.domain.OrderPriceRepository;
 import org.mifosplatform.billing.order.domain.OrderReadPlatformImpl;
 import org.mifosplatform.billing.order.domain.OrderRepository;
-import org.mifosplatform.billing.order.domain.PlanHardwareMappingRepository;
 import org.mifosplatform.billing.order.exceptions.NoOrdersFoundException;
 import org.mifosplatform.billing.order.exceptions.NoRegionalPriceFound;
 import org.mifosplatform.billing.order.serialization.OrderCommandFromApiJsonDeserializer;
@@ -57,7 +56,6 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
-import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.useradministration.domain.AppUser;
@@ -112,7 +110,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final HardwareAssociationWriteplatformService associationWriteplatformService,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
+
 		    final PaymentsApiResource paymentsApiResource,final ReconnectionInvoice reconnectionInvoice) {
+
 
 		
 		this.context = context;
@@ -622,20 +622,19 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	@Override
 	public CommandProcessingResult retrackOsdMessage(JsonCommand command) {
 		try {
-			
-			orderReadPlatformService.checkRetrackInterval(command.entityId());
-			
+			this.context.authenticatedUser();
+			this.fromApiJsonDeserializer.validateForRetrack(command.json());
+				
 			String requstStatus = null;
 			String message = null;
-			
-			this.context.authenticatedUser();
+			String commandName = command.stringValueOfParameterNamed("commandName");
 			Order order = this.orderRepository.findOne(command.entityId());
 			if (order == null) {
 				throw new NoOrdersFoundException(command.entityId());
 			}
-			int i = command.subentityId().intValue();
-			 if (i == 1) {
-				 
+			 if (commandName.equalsIgnoreCase("RETRACK")) {
+				String restrict=orderReadPlatformService.checkRetrackInterval(command.entityId());
+				if(restrict!=null && restrict.equalsIgnoreCase("yes")){
 				Long id = this.orderReadPlatformService.getRetrackId(command.entityId());				
 				String transaction_type = this.orderReadPlatformService.getOSDTransactionType(id);
 
@@ -651,8 +650,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				} else {
 					requstStatus = null;
 				}
+				}else{
+					throw new PlatformDataIntegrityException("retrack.already.done", "retrack.already.done", "retrack.already.done");	
+				}
 
-			} else if(i==2) {
+			} else if(commandName.equalsIgnoreCase("OSM")) {
 				requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
 				message = command.stringValueOfParameterNamed("message");
 			} else{

@@ -272,7 +272,7 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 		context.authenticatedUser();
 		SerialNumberMapper rowMapper = new SerialNumberMapper();
 		String sql = "select idt.serial_no as serialNumber from b_onetime_sale ots left join b_item_detail idt on idt.item_master_id = ots.item_id" +
-				" where ots.id = ? and idt.client_id is null";/*"select serial_no as serialNumber from b_item_detail where item_master_id=(select item_id from b_onetime_sale where id=?) and client_id is null";*/
+				" where ots.id = ? and idt.client_id is null  limit 20";/*"select serial_no as serialNumber from b_item_detail where item_master_id=(select item_id from b_onetime_sale where id=?) and client_id is null";*/
 		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{oneTimeSaleId});
 	}
 	

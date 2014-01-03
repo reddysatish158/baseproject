@@ -22,14 +22,14 @@ import org.springframework.stereotype.Component;
 @Path("/activationprocess")
 @Component
 @Scope("singleton")
-public class ActivationProcessResourceApi {
+public class ActivationProcessApiResource {
 
     private final ToApiJsonSerializer<ClientData> toApiJsonSerializer;
 
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
     @Autowired
-    public ActivationProcessResourceApi(
+    public ActivationProcessApiResource(
              final ToApiJsonSerializer<ClientData> toApiJsonSerializer,
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
      

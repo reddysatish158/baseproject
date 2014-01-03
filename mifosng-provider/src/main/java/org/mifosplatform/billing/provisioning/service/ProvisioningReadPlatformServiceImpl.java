@@ -35,7 +35,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 				
 				ProvisioningMapper rm = new ProvisioningMapper();
 				
-				final String sql = "select "+rm.schema()+" where p.id=?";
+				final String sql = "select "+rm.schema()+" and p.id=?";
 				 
 				return jdbcTemplate.queryForObject(sql, rm, new Object[] {id});
 				} catch (EmptyResultDataAccessException e) {

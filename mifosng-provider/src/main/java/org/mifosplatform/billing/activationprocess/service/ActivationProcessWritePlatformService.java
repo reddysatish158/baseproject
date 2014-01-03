@@ -5,15 +5,13 @@
  */
 package org.mifosplatform.billing.activationprocess.service;
 
-import java.io.InputStream;
-
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
-import org.mifosplatform.infrastructure.core.domain.Base64EncodedImage;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 public interface ActivationProcessWritePlatformService {
 
     CommandProcessingResult activationProcess(JsonCommand command);
+
+	
 
 }
