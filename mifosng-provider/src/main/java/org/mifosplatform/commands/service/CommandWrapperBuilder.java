@@ -1743,12 +1743,11 @@ public CommandWrapperBuilder editProspectDetails(Long id) {
 	return this;
 }
 
-public CommandWrapperBuilder retrackOsdmessage(Long orderId, Long id) {
+public CommandWrapperBuilder retrackOsdmessage(Long orderId) {
 	// TODO Auto-generated method stub
 	this.actionName="RETRACKOSDMESSAGE";
 	this.entityName="ORDER";
 	this.entityId=orderId;
-	this.subentityId=id;
 	this.href="order/retrackOsdmessage";
 	return this;
 }
@@ -1851,5 +1850,30 @@ public CommandWrapperBuilder activateProcess() {
 	this.href = "/clients/template";
 	return this;
 }
+
+public CommandWrapperBuilder provisiongSystem() {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.href = "/provisionings";
+	return this;
+}
+
+public CommandWrapperBuilder updateprovisiongSystem(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.entityId = id;
+	this.href = "/provisionings/"+ id ;
+	return this;
+}
+
+public CommandWrapperBuilder deleteProvisiongSystem(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "PROVISIONINGSYSTEM";
+	this.entityId = id;
+	this.href = "/provisionings/"+ id ;
+	return this;
+}
+
+
 
 }

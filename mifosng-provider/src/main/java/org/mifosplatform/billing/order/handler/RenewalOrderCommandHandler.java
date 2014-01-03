@@ -27,6 +27,6 @@ public class RenewalOrderCommandHandler implements NewCommandSourceHandler {
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        return this.writePlatformService.renewalClientOrder(command);
+        return this.writePlatformService.renewalClientOrder(command,command.entityId());
     }
 }

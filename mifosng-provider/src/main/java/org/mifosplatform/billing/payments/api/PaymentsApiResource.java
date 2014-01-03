@@ -107,12 +107,13 @@ public class PaymentsApiResource {
 	}
 	
 	
-	@POST
+	 @POST
 	 @Path("paypal")
 	 @Consumes("application/x-www-form-urlencoded")
-	 //@Consumes({ MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED,MediaType.APPLICATION_JSON ,MediaType.APPLICATION_OCTET_STREAM,MediaType.TEXT_PLAIN,MediaType.WILDCARD })
 	 @Produces({ MediaType.APPLICATION_JSON })
-	 public String Checkout(@FormParam("txn_id") String txnId,@FormParam("payment_date") Date Date,@FormParam("mc_gross") BigDecimal amount,@FormParam("address_name") String name,@FormParam("payer_email") String payerEmail,@FormParam("transaction_subject") String clientStringId){
+	 public String Checkout(@FormParam("txn_id") String txnId,@FormParam("payment_date") Date Date,@FormParam("mc_gross") BigDecimal amount,
+			 @FormParam("address_name") String name,@FormParam("payer_email") String payerEmail,
+			 @FormParam("transaction_subject") String clientStringId){
 	   try {
 		   
 		  Long clientId= Long.parseLong(clientStringId);

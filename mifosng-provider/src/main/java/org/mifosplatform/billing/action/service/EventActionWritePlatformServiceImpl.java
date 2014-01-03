@@ -1,14 +1,24 @@
 package org.mifosplatform.billing.action.service;
 
+import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jettison.json.JSONObject;
 import org.mifosplatform.billing.action.data.ActionDetaislData;
+import org.mifosplatform.billing.action.data.EventActionProcedureData;
 import org.mifosplatform.billing.action.domain.EventAction;
 import org.mifosplatform.billing.action.domain.EventActionRepository;
+import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
+import org.mifosplatform.infrastructure.core.api.JsonCommand;
+import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import com.google.gson.JsonElement;
 
 
 @Service
@@ -18,98 +28,81 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 	
 	private final JdbcTemplate jdbcTemplate;
 	private final EventActionRepository eventActionRepository;
- //  private MyStoredProcedure myStoredProcedure; 
-	
+    private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;	
+    private final FromJsonHelper fromApiJsonHelper;
+    private final OrderWritePlatformService orderWritePlatformService;
+ 
 
 	@Autowired
-	public EventActionWritePlatformServiceImpl(final TenantAwareRoutingDataSource dataSource,
-			final EventActionRepository eventActionRepository)
+	public EventActionWritePlatformServiceImpl(final TenantAwareRoutingDataSource dataSource,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+			final EventActionRepository eventActionRepository,final FromJsonHelper fromJsonHelper,final OrderWritePlatformService orderWritePlatformService)
 	{
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.eventActionRepository=eventActionRepository;
-		 //this. myStoredProcedure=new MyStoredProcedure(this.jdbcTemplate.getDataSource());
+        this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+        this.fromApiJsonHelper=fromJsonHelper;
+        this.orderWritePlatformService=orderWritePlatformService;
 	}
 	
 	@Override
-	public void AddNewActions(List<ActionDetaislData> actionDetaislDatas,final Long clientId) {
+	public void AddNewActions(List<ActionDetaislData> actionDetaislDatas,final Long clientId,final String resourceId) {
     try{
     	
-    
-		
 		if(actionDetaislDatas!=null){
 			
-			for(ActionDetaislData detaislData:actionDetaislDatas){
-				  if(detaislData.getActionType().equalsIgnoreCase("Send Mail")){
-					 
-					  this.jdbcTemplate.update("call "+detaislData.getProcedureName()+" (?,?,?,@error)",new Object[] {clientId,28,29});
+			for(ActionDetaislData detailsData:actionDetaislDatas){
+				  if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_RENEWAL)){
 					  
-				//	MyStoredProcedure sproc = new MyStoredProcedure();
-				    /*   Map<String, Object> string= myStoredProcedure.execute(clientId);
-				       
-				       boolean string2= ((Boolean) string.get("status")).booleanValue();
-				       System.out.println(string2);
-				    */   
-				      //  printMap(results);
-				        
-					 
-					  /*   @SuppressWarnings("rawtypes")
-					   Map<String, Object> parameters = new HashMap();
-				        parameters.put("keyid", clientId);
-				        parameters.put("eventid", 28);
-				        parameters.put("actionid", 29);
-				   //     parameters.put("error_status", null);
-				    
-					 MyStoredProcedure myStoredProcedure=new MyStoredProcedure(detaislData,clientId,this.jdbcTemplate.getDataSource());
-                     myStoredProcedure.execute(parameters);*/
+					  EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.ACTION_INVOICE,detailsData.getaActionName(),resourceId);
 					  
-					    /* private EmployeeSP sproc=new EmployeeSP();
-
-					     #   public String getEmployeeName(int emp_id)  
-					     #    {   
-					     #     return (String) sproc.execute(emp_id);   
-					     #     }   */
-
-
-					  
+				         if(actionProcedureData.isCheck()){
+				        	 
+				        	 JSONObject jsonObject=new JSONObject();
+				        	 jsonObject.put("renewalPeriod",5);	
+				        	 jsonObject.put("description","Order Renewal By Scheduler");
+				        	 EventAction eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",detailsData.getaActionName(),"/orders/renewal", 
+				        			 Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId
+				        			 );
+				        	 this.eventActionRepository.save(eventAction);
+				         }
 				  }else{
-					  this.jdbcTemplate.update("call "+detaislData.getProcedureName()+" (?,?,?,@error)",new Object[] {clientId,28,29});
+					  
 				  }
-				  
-				  EventAction eventAction=this.eventActionRepository.findOne(detaislData.getId());
-				  eventAction.update();
-				  this.eventActionRepository.save(eventAction);
 				
 			}
 		}
-		
-		
-
-		
 		
     }catch(Exception exception){
     	exception.printStackTrace();
     }
     
    
-	}}
-	/* @SuppressWarnings("unused")
-		final class MyStoredProcedure extends StoredProcedure {
-		        
-		  final static String SQL ="custom_validate_eventorders";//.getProcedureName();
+	}
 
-			public MyStoredProcedure(DataSource dataSource) {
-				 super(dataSource,SQL);  				 declareParameter( new SqlParameter( "clientid", Types.INTEGER) ); //declaring sql in parameter to pass input   
-			      declareParameter( new SqlOutParameter( "status", Types.BOOLEAN ) ); //declaring sql out parameter   
-			      compile();     
-		        }
+	@Override
+	public void ProcessEventActions(EventActionData eventActionData) {
+      
+		try{
+			 
+			if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_RENEWAL)){
 				
-					@SuppressWarnings("rawtypes")
-				public Map execute(int emp_id) {
-						MyStoredProcedure myStoredProcedure;
-						  Map<String, Object> results = super.execute(emp_id);   
-						   return (Map) results.get("name"); 
-		    }
-					}*/
-	 
-
-
+				String jsonObject=eventActionData.getJsonData();
+				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
+				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",eventActionData.getClientId(), null,
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
+			    	this.orderWritePlatformService.renewalClientOrder(command,eventActionData.getOrderId());
+			    	
+			    	EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
+			    	eventAction.updateStatus();
+			    	this.eventActionRepository.save(eventAction);
+			}
+			
+			
+		}catch(DataIntegrityViolationException exception){
+			
+			
+		}
+		
+	}
+	
+}

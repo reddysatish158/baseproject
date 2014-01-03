@@ -18,6 +18,7 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
@@ -33,6 +34,7 @@ public final class OrderCommandFromApiJsonDeserializer {
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode",
     		"contractPeriod","billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid","disconnectionDate","ispaymentEnable",
     		"paymentCode","amountPaid","paymentDate","receiptNo"));
+    private final Set<String> retracksupportedParameters = new HashSet<String>(Arrays.asList("commandName","message","orderId"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -117,6 +119,28 @@ public final class OrderCommandFromApiJsonDeserializer {
 	        final String disconnectReason = fromApiJsonHelper.extractStringNamed("disconnectReason", element);
 	        baseDataValidator.reset().parameter("disconnectReason").value(disconnectReason).notBlank();
 	        throwExceptionIfValidationWarningsExist(dataValidationErrors);
+		
+	}
+
+	public void validateForRetrack(String json) {
+		
+		if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
+
+        final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, retracksupportedParameters);
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("order");
+        final JsonElement element = fromApiJsonHelper.parse(json);
+        
+        final String commandName = fromApiJsonHelper.extractStringNamed("commandName", element);
+        baseDataValidator.reset().parameter("commandName").value(commandName).notBlank();
+      
+        if(commandName!=null && commandName.equalsIgnoreCase("OSM")){
+        	 final String message = fromApiJsonHelper.extractStringNamed("message", element);
+             baseDataValidator.reset().parameter("message").value(message).notBlank().notExceedingLengthOf(160);
+        }
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
 		
 	}
 }

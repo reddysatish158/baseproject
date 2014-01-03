@@ -15,5 +15,6 @@ public class JobParametersConstants {
 	public static final String PARAM_Prov_System="Stalker";
 	public static final String PARAM_OSDMESSAGE="OSDMessage";
 	public static final String PARAM_SENDEMAIL="SendEmail";
+	public static final String PARAM_IS_RENEWAL="isAutoRenewal";
 	
 }

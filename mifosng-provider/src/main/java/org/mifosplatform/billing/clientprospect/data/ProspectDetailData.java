@@ -1,7 +1,6 @@
 package org.mifosplatform.billing.clientprospect.data;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 public class ProspectDetailData {

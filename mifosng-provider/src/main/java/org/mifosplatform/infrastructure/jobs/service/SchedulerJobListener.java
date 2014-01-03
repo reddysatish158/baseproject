@@ -84,7 +84,7 @@ public class SchedulerJobListener implements JobListener {
                 && trigger.getNextFireTime().after(scheduledJobDetails.getNextRunTime())) {
             scheduledJobDetails.updateNextRunTime(trigger.getNextFireTime());
         }
-
+            
         scheduledJobDetails.updatePreviousRunStartTime(context.getFireTime());
         scheduledJobDetails.updateCurrentlyRunningStatus(false);
         String filePath= FileUtils.BILLING_JOB_PATH;
