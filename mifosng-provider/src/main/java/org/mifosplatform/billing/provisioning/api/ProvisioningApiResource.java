@@ -40,7 +40,6 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class ProvisioningApiResource {
 	
-	private static final String CONFIG_PROPERTY = "renewal";
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","cancelledStatus","status","contractPeriod","nextBillDate","flag",
 	           "currentDate","plan_code","units","service_code","allowedtypes","data","servicedata","billing_frequency", "start_date", "contract_period",
 	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes"));
