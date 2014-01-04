@@ -197,21 +197,23 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				throws SQLException {
 			ArrayList<String> rowdata = new ArrayList<String>();
 			ArrayList<String> columndata = new ArrayList<String>();
-			
+	        //To know the number of rows		
 			rs.last();
 			int Rows = rs.getRow();
+			//Resultset object pointer position to before first record.
 			rs.beforeFirst();
+			
+			//To know the column count of a Row
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int columnCount = rsmd.getColumnCount();
 
+			//processing each row and save the row as record in b_message_data table
 			for (int j = 1; j <= Rows; j++) {
+				//resultset pointing to first position/next position
 				rs.next();
-
 				for (int i = 1; i <= columnCount; i++) {
-
 					String name = rs.getString(i);
-					columndata.add(name);
-					
+					columndata.add(name);					
 				}
 
 				rowdata.addAll(columndata);

@@ -13,6 +13,7 @@ import org.mifosplatform.billing.message.domain.BillingMessageTemplate;
 import org.mifosplatform.billing.message.domain.BillingMessageTemplateRepository;
 import org.mifosplatform.billing.message.serialization.BillingMessageTemplateCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.paymode.exception.PaymodeNotFoundException;
+import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandParameters;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -56,36 +57,20 @@ public class BillingMessageTemplateWritePlatformServiceImpl implements BillingMe
 				context.authenticatedUser();
 				this.billingMessageTemplateCommandFromApiJsonDeserializer.validateForCreate(command.json());
 				 BillingMessageTemplate  billingMessageTemplate = BillingMessageTemplate.fromJson(command);
+								 
+				 final JsonArray billingMessageparamArray=command.arrayOfParameterNamed("messageParams").getAsJsonArray();
+				 Long number=0L;
+				 if(billingMessageparamArray!=null){
+				     for (JsonElement jsonelement : billingMessageparamArray) {	
+				    	     final String parameterName = fromApiJsonHelper.extractStringNamed("parameter", jsonelement);   
+				    	     number=number+1;
+				    	     BillingMessageParam billingMessageParam = new BillingMessageParam(number, parameterName);
+				    	     billingMessageTemplate.setBillingMessageParam(billingMessageParam);				 
+				     }
+				 }
 				 this.billingMessageTemplateRepository.save(billingMessageTemplate);
-				
-	            final JsonArray billingMessageparamArray=command.arrayOfParameterNamed("messageParams").getAsJsonArray();
-				  String[] messageparam =null;
-				  messageparam=new String[billingMessageparamArray.size()];
-				  
-				  for(int i=0; i<billingMessageparamArray.size();i++){
-					  
-					  messageparam[i] =billingMessageparamArray.get(i).toString();
-				       
-				  }
-				  if(messageparam.length>0){
-					  
-				  Long number=new Long(1);
-					 for (String messageparamdetails : messageparam)
-					 { 
-				     final JsonElement element = fromApiJsonHelper.parse(messageparamdetails);
-					 final String parameterName = fromApiJsonHelper.extractStringNamed("parameter", element);
-					 Long sequenceNo=number;
-					 BillingMessageParam billingMessageParam = new BillingMessageParam(sequenceNo, parameterName);
-					 billingMessageTemplate.setBillingMessageParam(billingMessageParam);
-					 this.billingMessageParamRepository.save(billingMessageParam);
-					 number++;
-			          }
-					
-				  }
-	           
 	            return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(billingMessageTemplate.getId()).build();
 			    
-	        
 			} catch (DataIntegrityViolationException dve) {
 	            return CommandProcessingResult.empty();
 	        }
@@ -103,29 +88,15 @@ public class BillingMessageTemplateWritePlatformServiceImpl implements BillingMe
 				messageTemplate.getDetails().clear();
 				
 				final JsonArray billingMessageparamArray=command.arrayOfParameterNamed("messageParams").getAsJsonArray();
-				  String[] messageparam =null;
-				  messageparam=new String[billingMessageparamArray.size()];
-				  
-				  for(int i=0; i<billingMessageparamArray.size();i++){
-					  
-					  messageparam[i] =billingMessageparamArray.get(i).toString();
-				       
-				  }
-				  if(messageparam.length>0){
-				  Long number= new Long(1);
-				  ArrayList<String> addparamdata=new ArrayList<String>();
-					 for (String messageparamdetails : messageparam)
-					 { 
-				     final JsonElement element = fromApiJsonHelper.parse(messageparamdetails);
-					 final String parameterName = fromApiJsonHelper.extractStringNamed("parameter", element);
-					 addparamdata.add(parameterName);
-					 Long sequenceNo=number;
-					 BillingMessageParam billingMessageParam = new BillingMessageParam(sequenceNo, parameterName);
-					 messageTemplate.setBillingMessageParam(billingMessageParam);
-					 this.billingMessageParamRepository.save(billingMessageParam);
-					 number++;
-			          }					 
-				     }//if
+				 Long number=0L;
+				 if(billingMessageparamArray!=null){
+				     for (JsonElement jsonelement : billingMessageparamArray) {	
+				    	     final String parameterName = fromApiJsonHelper.extractStringNamed("parameter", jsonelement);   
+				    	     number=number+1;
+				    	     BillingMessageParam billingMessageParam = new BillingMessageParam(number, parameterName);
+				    	     messageTemplate.setBillingMessageParam(billingMessageParam);				 
+				     }
+				 }
 				   
 				     this.billingMessageTemplateRepository.save(messageTemplate);
 				     
@@ -148,7 +119,6 @@ public class BillingMessageTemplateWritePlatformServiceImpl implements BillingMe
 			}
 			messageTemplate.isDelete();
 		    this.billingMessageTemplateRepository.save(messageTemplate);
-			//this.billingMessageTemplateRepository.delete(messageTemplate);
 			return new CommandProcessingResultBuilder().withEntityId(command.entityId()).build();
 		}
 		
