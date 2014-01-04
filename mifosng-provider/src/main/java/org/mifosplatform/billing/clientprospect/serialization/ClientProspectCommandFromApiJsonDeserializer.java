@@ -62,11 +62,11 @@ public class ClientProspectCommandFromApiJsonDeserializer {
 	        baseDataValidator.reset().parameter("lastName").value(lastName).notBlank().notExceedingLengthOf(50);
 	        
 	        final String homePhoneNumber = fromApiJsonHelper.extractStringNamed("homePhoneNumber", element);
-	        baseDataValidator.reset().parameter("homePhoneNumber").value(homePhoneNumber).notBlank().notExceedingLengthOf(20);
+	        baseDataValidator.reset().parameter("homePhoneNumber").value(homePhoneNumber).notBlank().validateforNumeric().notExceedingLengthOf(20);
 	        final String workPhoneNumber = fromApiJsonHelper.extractStringNamed("workPhoneNumber", element);
-	        baseDataValidator.reset().parameter("workPhoneNumber").value(workPhoneNumber).notBlank().notExceedingLengthOf(20);
+	        baseDataValidator.reset().parameter("workPhoneNumber").value(workPhoneNumber).notBlank().validateforNumeric().notExceedingLengthOf(20);
 	        final String mobileNumber = fromApiJsonHelper.extractStringNamed("mobileNumber", element);
-	        baseDataValidator.reset().parameter("mobileNumber").value(mobileNumber).notBlank().notExceedingLengthOf(20);
+	        baseDataValidator.reset().parameter("mobileNumber").value(mobileNumber).notBlank().validateforNumeric().notExceedingLengthOf(20);
 	        
 	        final String email = fromApiJsonHelper.extractStringNamed("email", element);
 	        baseDataValidator.reset().parameter("email").value(email).notBlank().notExceedingLengthOf(100);

@@ -147,6 +147,9 @@ public class ClientProspectWritePlatformServiceImp implements ClientProspectWrit
 			newClientJsonObject.put("active","true");
 			newClientJsonObject.put("email",clientProspect.getEmail());
 			newClientJsonObject.put("phone",clientProspect.getMobileNumber());
+			newClientJsonObject.put("flag",false);
+			/*newClientJsonObject.put("login","");
+			newClientJsonObject.put("password","");*/
 			
 			
 			
