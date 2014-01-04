@@ -157,9 +157,6 @@ public class Plan{
 
 	}
 
-	public Long getBill_rule() {
-		return billRule;
-	}
 
 	
 

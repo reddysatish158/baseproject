@@ -1,6 +1,7 @@
 package org.mifosplatform.billing.epgprogramguide.api;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.time.LocalDate;
+import org.mifosplatform.accounting.journalentry.api.DateParam;
 import org.mifosplatform.billing.epgprogramguide.data.EpgProgramGuideData;
 import org.mifosplatform.billing.epgprogramguide.service.EpgProgramGuideReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -66,12 +69,14 @@ public class EpgProgramGuideApiResource {
 
 	
 	@GET
-	@Path("{channelName}/{counter}")
+	@Path("{channelName}/{ProgDate}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retrieveEpgDetails(@PathParam("channelName") final String channelName,@PathParam("counter") final Long counter, @Context final UriInfo uriInfo) {
+	public String retrieveEpgDetails(@PathParam("channelName") final String channelName,@PathParam("ProgDate") final DateParam  ProgDateParam, @Context final UriInfo uriInfo) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		List<EpgProgramGuideData> epgProgramGuideDatas = epgProgramGuideReadPlatformService.retrivePrograms(channelName,counter);
+		//LocalDate ProgrammeDate=new LocalDate(ProgDate);
+		Date ProgDate=ProgDateParam.getDate();
+		List<EpgProgramGuideData> epgProgramGuideDatas = epgProgramGuideReadPlatformService.retrivePrograms(channelName,ProgDate);
 		EpgProgramGuideData programGuideData = new EpgProgramGuideData(epgProgramGuideDatas);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializer.serialize(settings, programGuideData, RESPONSE_DATA_PARAMETERS);

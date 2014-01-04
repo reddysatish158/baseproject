@@ -396,7 +396,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
 			}
 	         
+	         if(plan.getBillRule() !=400){ 
 	         this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),disconnectionDate);
+	         
+	         }
 	      
 			order.update(command,orderStatus);
 			order.setuserAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
