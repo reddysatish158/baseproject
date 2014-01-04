@@ -47,8 +47,6 @@ import org.mifosplatform.billing.pricing.data.PriceData;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
-import org.mifosplatform.billing.provisioning.domain.ProvisioningCommand;
-import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandParameters;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -71,9 +69,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 
 
 
@@ -119,7 +114,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final HardwareAssociationWriteplatformService associationWriteplatformService,final PlanHardwareMappingRepository hardwareMappingRepository,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-		    final PaymentWritePlatformService paymentWritePlatformService,final PaymentsApiResource paymentsApiResource,final FromJsonHelper fromApiJsonHelper) {
+		    final PaymentsApiResource paymentsApiResource,final FromJsonHelper fromApiJsonHelper) {
 
 		
 		this.context = context;
