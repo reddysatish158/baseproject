@@ -56,7 +56,7 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
         final Long itemId = fromApiJsonHelper.extractLongNamed("itemId", element);
         baseDataValidator.reset().parameter("itemId").value(itemId).notNull();
         final String quantity = fromApiJsonHelper.extractStringNamed("quantity", element);
-        baseDataValidator.reset().parameter("quantity").value(quantity).notBlank().notExceedingLengthOf(50);        
+        baseDataValidator.reset().parameter("quantity").value(quantity).notBlank().integerGreaterThanZero().notExceedingLengthOf(50);        
         final Long discountId = fromApiJsonHelper.extractLongNamed("discountId", element);
         baseDataValidator.reset().parameter("discountId").value(discountId).notNull();
         final String chargeCode = fromApiJsonHelper.extractStringNamed("chargeCode", element);
@@ -80,7 +80,7 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
         final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("onetimesale");
         final Integer totalPrice=fromApiJsonHelper.extractIntegerWithLocaleNamed("quantity", jsonElement);
-        baseDataValidator.reset().parameter("unitPrice").value(totalPrice).notNull().integerGreaterThanZero();
+        baseDataValidator.reset().parameter("quantity").value(totalPrice).notNull().integerGreaterThanZero();
         
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
