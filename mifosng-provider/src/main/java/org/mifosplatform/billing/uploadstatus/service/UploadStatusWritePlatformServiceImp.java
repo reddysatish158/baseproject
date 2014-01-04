@@ -530,7 +530,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				        {
 				         for(AdjustmentData adjustmentData:adjustmentDataList)
 				         {
-				         if( adjustmentData.getAdjustment_code().equalsIgnoreCase(currentLineData[2].toString()));
+				         if( adjustmentData.getAdjustment_code().equalsIgnoreCase(currentLineData[2].toString()))
 				          {          
 				        	  if(currentLineData.length>=6){
 				        		  jsonObject.put("adjustment_date", currentLineData[1]);
@@ -552,16 +552,14 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								}else{
 									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 								}
+				        	}else{
+				        		 errorData.add(new MRNErrorData((long)i, "Invalid Adjustment Code"));
+				                 totalRecordCount++;
 				        	}
 				         }
 				        }
 						
 						
-						if(currentLineData.length>=8){
-							
-						}else{
-							errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
-						}
 						
 						}catch (DataIntegrityViolationException e) {
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));

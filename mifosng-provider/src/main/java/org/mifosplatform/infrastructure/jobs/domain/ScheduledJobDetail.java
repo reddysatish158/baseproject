@@ -211,13 +211,17 @@ public class ScheduledJobDetail extends AbstractPersistable<Long> {
 
 	public void updateJobParamters(JsonCommand command) {
 	
-            //   List<JobParameters> parameters=this.details;
+               List<JobParameters> parameters=new ArrayList<JobParameters>();
                
                for(JobParameters jobParameters:this.details){
             	   
             	   jobParameters.update(command);
             	   
+            	   parameters.add(jobParameters);
                }
+               
+               this.details.clear();
+               this.details.addAll(parameters);
 		
 		
 	}

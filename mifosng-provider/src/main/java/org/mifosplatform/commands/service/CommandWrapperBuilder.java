@@ -1743,12 +1743,11 @@ public CommandWrapperBuilder editProspectDetails(Long id) {
 	return this;
 }
 
-public CommandWrapperBuilder retrackOsdmessage(Long orderId, Long id) {
+public CommandWrapperBuilder retrackOsdmessage(Long orderId) {
 	// TODO Auto-generated method stub
 	this.actionName="RETRACKOSDMESSAGE";
 	this.entityName="ORDER";
 	this.entityId=orderId;
-	this.subentityId=id;
 	this.href="order/retrackOsdmessage";
 	return this;
 }
