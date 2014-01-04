@@ -40,24 +40,30 @@ public class SchedulerJobApiConstants {
     public static final String jobPromotionalMessage = "promotionalMessage";
     public static final String jobMessageTemplate= "messageTemplate";
     public static final String jobExipiryDate= "exipiryDate";
+    public static final String jobHistoryId="historyId";
+    public static final String jobisAutoRenewal="isAutoRenewal";
     
     
     public static final Set<String> JOB_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobIdentifierParamName,
             displayNameParamName, nextRunTimeParamName, initializingErrorParamName, cronExpressionParamName, jobActiveStatusParamName,
-            currentlyRunningParamName, lastRunHistoryObjParamName,schedulerJobParamName,cronDescriptionParamName,jobIsDynamic,schedulerJobLogFile));
+            currentlyRunningParamName, lastRunHistoryObjParamName,schedulerJobParamName,cronDescriptionParamName,jobIsDynamic,
+            schedulerJobLogFile,jobHistoryId));
 
     public static final Set<String> JOB_HISTORY_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(versionParamName,
             jobRunStartTimeParamName, jobRunEndTimeParamName, statusParamName, jobRunErrorMessageParamName, triggerTypeParamName,
             jobRunErrorLogParamName));
 
     public static final Set<String> JOB_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(displayNameParamName,
-            jobActiveStatusParamName, cronExpressionParamName,cronDescriptionParamName,jobIsDynamic));
+            jobActiveStatusParamName, cronExpressionParamName,cronDescriptionParamName,jobIsDynamic,"isAutoRenewal"));
     
     public static final Set<String> JOB_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(displayNameParamName,
             jobActiveStatusParamName, cronExpressionParamName,schedulerJobParamName,cronDescriptionParamName));
     
+
     public static final Set<String> CREATE_REQUEST_JOB_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobProcessdate,
-    		jobDueDate,jobPromotionalMessage,jobMessageTemplate,jobExipiryDate,"locale","dateFormat","isDynamic",schedulerJobParamName,jobReportName));
+    		jobDueDate,jobPromotionalMessage,jobMessageTemplate,jobExipiryDate,"locale","dateFormat","isDynamic",schedulerJobParamName,jobReportName,
+    		"isAutoRenewal","jobName","reportName"));
+
 
     public static final Set<String> SCHEDULER_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(schedulerStatusParamName));
 

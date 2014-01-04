@@ -20,10 +20,11 @@ public class JobParameterData {
 	private String password;
 	private String provSystem;
 	private String isAutoRenewal;
-
 	private String promotionalMessage;
+
 	private String messageTemplate;
 	
+
 	
 
 	
@@ -35,9 +36,11 @@ public class JobParameterData {
 			if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_BATCH)){
 				   this.batchName=parameter.getParamValue();
 			}
+
 			
 			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_MESSAGETEMPLATE)){
 			     this.messageTemplate=parameter.getParamValue();
+
 		    }
 			
 			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
@@ -150,8 +153,10 @@ public class JobParameterData {
 		return promotionalMessage;
 	}
 
+
 	public String getMessageTemplate() {
 		return messageTemplate;
+
 	}
 	
 	

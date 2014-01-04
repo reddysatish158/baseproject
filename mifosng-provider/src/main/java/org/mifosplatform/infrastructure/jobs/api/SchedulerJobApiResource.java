@@ -41,6 +41,7 @@ import org.mifosplatform.infrastructure.jobs.data.JobDetailData;
 import org.mifosplatform.infrastructure.jobs.data.JobDetailHistoryData;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistory;
 import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistoryRepository;
+import org.mifosplatform.infrastructure.jobs.exception.NoLogFileFoundException;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.jobs.service.JobRegisterService;
 import org.mifosplatform.infrastructure.jobs.service.SchedulerJobRunnerReadService;
@@ -262,8 +263,9 @@ public class SchedulerJobApiResource {
        		response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		return response.build();
 		
+		}else{
+			throw new NoLogFileFoundException();
+		
 		}
-		return null;
-	}
-
+    }
 }

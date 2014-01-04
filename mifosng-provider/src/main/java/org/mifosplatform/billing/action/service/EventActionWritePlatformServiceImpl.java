@@ -41,7 +41,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 		this.eventActionRepository=eventActionRepository;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
         this.fromApiJsonHelper=fromJsonHelper;
-        this.orderWritePlatformService=orderWritePlatformService;
+       this.orderWritePlatformService=orderWritePlatformService;
 	}
 	
 	@Override
@@ -61,8 +61,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	 jsonObject.put("renewalPeriod",5);	
 				        	 jsonObject.put("description","Order Renewal By Scheduler");
 				        	 EventAction eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",detailsData.getaActionName(),"/orders/renewal", 
-				        			 Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId
-				        			 );
+				        			 Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId);
 				        	 this.eventActionRepository.save(eventAction);
 				         }
 				  }else{

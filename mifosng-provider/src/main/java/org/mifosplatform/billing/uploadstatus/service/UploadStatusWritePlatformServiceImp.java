@@ -607,13 +607,16 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 								}
 				        	}else{
+
 				        		errorData.add(new MRNErrorData((long)i, "Invalid Adjustment Code"));
 				        		totalRecordCount++;
+
 				        	}
 				         }
 				        }
 						
 						
+
 						}catch (DataIntegrityViolationException e) {
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));
 						}catch (PlatformApiDataValidationException e) {
