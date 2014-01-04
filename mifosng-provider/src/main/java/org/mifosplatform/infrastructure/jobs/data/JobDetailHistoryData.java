@@ -30,8 +30,10 @@ public class JobDetailHistoryData {
     @SuppressWarnings("unused")
     private final String runFilePath;
 
+	private Long historyId;
+
     public JobDetailHistoryData(final Long version, final LocalDate jobRunStartTime, final Date jobRunEndTime, final String status,
-            final String jobRunErrorMessage, final String triggerType, final String jobRunErrorLog,final String runFilePath) {
+            final String jobRunErrorMessage, final String triggerType, final String jobRunErrorLog,final String runFilePath, Long historyId) {
         this.version = version;
         this.jobRunStartTime = jobRunStartTime;
         this.jobRunEndTime = jobRunEndTime;
@@ -40,5 +42,6 @@ public class JobDetailHistoryData {
         this.triggerType = triggerType;
         this.jobRunErrorLog = jobRunErrorLog;
         this.runFilePath=runFilePath;
+        this.historyId=historyId;
     }
 }

@@ -110,11 +110,9 @@ public class JobParameters extends AbstractPersistable<Long>{
 			this.paramValue=date;
 	   }
 	        
-        final String descriptionParamName = "messageTempalate";
+        final String descriptionParamName = "messageTemplate";
 	    final String messagetemplate= command.stringValueOfParameterNamed(descriptionParamName);
-	    final String reportName1= command.stringValueOfParameterNamed("messageTemplate");
-	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.jobMessageTemplate) && messagetemplate!=null && reportName1!=null){
-	    	this.paramDefaultValue=messagetemplate;
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.jobMessageTemplate) && messagetemplate!=null){
 	    	this.paramValue=messagetemplate;
 	      }
 	    
@@ -140,7 +138,16 @@ public class JobParameters extends AbstractPersistable<Long>{
 	    	this.isDynamic="Y";
 	    	}else
 	    		this.isDynamic="N";
-	    //} 
+	    //} isAutoRenewal
+	    	
+	    	final String isAutoRenewalParamName = "isAutoRenewal";
+		    final boolean isAutoRenewal= command.booleanPrimitiveValueOfParameterNamed(isAutoRenewalParamName);
+		    
+		    	if(isAutoRenewal == true){
+		    	this.isDynamic="Y";
+		    	}else
+		    		this.isDynamic="N";
+		     
 	    
 	    final String messageParamName = "promotionalMessage";
 	    final String promotionalMessage= command.stringValueOfParameterNamed(messageParamName);

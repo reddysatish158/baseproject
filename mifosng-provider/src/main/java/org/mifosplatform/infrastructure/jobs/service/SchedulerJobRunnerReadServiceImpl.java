@@ -106,7 +106,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
     private static final class JobDetailMapper implements RowMapper<JobDetailData> {
 
         private StringBuilder sqlBuilder = new StringBuilder("select")
-                .append(" job.id,job.name as name,job.display_name as displayName,job.next_run_time as nextRunTime,job.initializing_errorlog as initializingError,job.cron_expression as cronExpression,job.is_active as active,job.currently_running as currentlyRunning,job.cron_description as cronDescription,")
+                .append(" job.id, runHistory.id as historyId,job.name as name,job.display_name as displayName,job.next_run_time as nextRunTime,job.initializing_errorlog as initializingError,job.cron_expression as cronExpression,job.is_active as active,job.currently_running as currentlyRunning,job.cron_description as cronDescription,")
                 .append(" runHistory.version,runHistory.start_time as lastRunStartTime,runHistory.end_time as lastRunEndTime,runHistory.`status`,runHistory.error_message as jobRunErrorMessage,runHistory.trigger_type as triggerType,runHistory.error_log as jobRunErrorLog ")
                 .append(" from job job  left join job_run_history runHistory ON job.id=runHistory.job_id and job.previous_run_start_time=runHistory.start_time ");
 
@@ -125,7 +125,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             String cronDescription = rs.getString("cronDescription");
             boolean active = rs.getBoolean("active");
             boolean currentlyRunning = rs.getBoolean("currentlyRunning");
-
+            Long historyId=rs.getLong("historyId");  
             Long version = rs.getLong("version");
             LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"lastRunStartTime");
             Date jobRunEndTime = rs.getTimestamp("lastRunEndTime");
@@ -137,10 +137,10 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             JobDetailHistoryData lastRunHistory = null;
             if (version > 0) {
                 lastRunHistory = new JobDetailHistoryData(version, jobRunStartTime, jobRunEndTime, status, jobRunErrorMessage, triggerType,
-                        jobRunErrorLog,null);
+                        jobRunErrorLog,null,historyId);
             }
             JobDetailData jobDetail = new JobDetailData(id, name,displayName, nextRunTime, initializingError, cronExpression, active,
-                    currentlyRunning, lastRunHistory,cronDescription);
+                    currentlyRunning, lastRunHistory,cronDescription,historyId);
             return jobDetail;
         }
 
@@ -149,7 +149,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
     private static final class JobHistoryMapper implements RowMapper<JobDetailHistoryData> {
 
         private StringBuilder sqlBuilder = new StringBuilder(200)
-                .append(" runHistory.version,runHistory.file_path as runFilePath,runHistory.start_time as runStartTime,runHistory.end_time as runEndTime,runHistory.`status`,runHistory.error_message as jobRunErrorMessage,runHistory.trigger_type as triggerType,runHistory.error_log as jobRunErrorLog ")
+                .append(" runHistory.version,runHistory.id as historyId,runHistory.file_path as runFilePath,runHistory.start_time as runStartTime,runHistory.end_time as runEndTime,runHistory.`status`,runHistory.error_message as jobRunErrorMessage,runHistory.trigger_type as triggerType,runHistory.error_log as jobRunErrorLog ")
                 .append(" from job job join job_run_history runHistory ON job.id=runHistory.job_id");
 
         public String schema() {
@@ -165,9 +165,10 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             String jobRunErrorMessage = rs.getString("jobRunErrorMessage");
             String triggerType = rs.getString("triggerType");
             String jobRunErrorLog = rs.getString("jobRunErrorLog");
+            Long historyId=rs.getLong("historyId");
             String runFilePath=rs.getString("runFilePath");
             JobDetailHistoryData jobDetailHistory = new JobDetailHistoryData(version, jobRunStartTime, jobRunEndTime, status,
-                    jobRunErrorMessage, triggerType, jobRunErrorLog,runFilePath);
+                    jobRunErrorMessage, triggerType, jobRunErrorLog,runFilePath,historyId);
             return jobDetailHistory;
         }
 

@@ -80,9 +80,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 
 			public String clientOrderLookupSchema() {
 			return " pr.id AS id,pr.client_id AS clientId,pr.order_id AS orderId,pr.provisioning_sys AS provisioningSystem,c.firstname AS userName," +
-					"p.is_hw_req as hwRequired,pw.plan_code AS planName,pr.request_type AS requestType FROM b_prepare_request pr,m_client c,b_hw_plan_mapping pw," +
-					" b_orders o, b_plan_master p WHERE pr.client_id = c.id AND o.plan_id =p.id and p.plan_code = pw.plan_code AND pr.order_id = o.id" +
-					" AND (pr.is_provisioning = 'N' OR pr.status = 'PENDING')  group by pr.order_id desc limit 100";
+					"p.is_hw_req AS hwRequired,pw.plan_code AS planName,pr.request_type AS requestType FROM b_prepare_request pr,m_client c,b_hw_plan_mapping pw," +
+					" b_orders o,b_association asoc,b_plan_master p  WHERE pr.client_id = c.id  AND o.plan_id = p.id  AND p.plan_code = pw.plan_code  AND pr.order_id = o.id" +
+					" AND o.id=asoc.order_id  AND (pr.is_provisioning = 'N' OR pr.status = 'PENDING')  GROUP BY pr.order_id DESC";
 
 			}
 

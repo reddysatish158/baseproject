@@ -68,8 +68,8 @@ public class PaymentCommandFromApiJsonDeserializer {
 		//final String remarks = fromApiJsonHelper.extractStringNamed("remarks", element);
 		
 		
-		/*String receiptNo = fromApiJsonHelper.extractStringNamed("receiptNo", element);
-		baseDataValidator.reset().parameter("receiptNo").value(receiptNo).notBlank().notExceedingLengthOf(20);*/
+		String receiptNo = fromApiJsonHelper.extractStringNamed("receiptNo", element);
+		baseDataValidator.reset().parameter("receiptNo").value(receiptNo).notBlank().notExceedingLengthOf(50);
 	//	baseDataValidator.reset().parameter("paymentDate").value(paymentDate)
 		//.notBlank().notExceedingLengthOf(100);
 		baseDataValidator.reset().parameter("paymentCode").value(paymentCode)
