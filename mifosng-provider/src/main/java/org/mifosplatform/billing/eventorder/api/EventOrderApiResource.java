@@ -111,7 +111,7 @@ public class EventOrderApiResource {
 	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 		}
 		
-		@GET
+		/*@GET
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType, @QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
@@ -128,9 +128,9 @@ public class EventOrderApiResource {
 			
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
-		}
+		}*/
 		
-		@PUT
+		/*@PUT
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String updatePrice(final String apiRequestBodyAsJson){
@@ -140,6 +140,6 @@ public class EventOrderApiResource {
 		    return this.toApiJsonSerializer.serialize(result);
 		    
 		    
-		}
+		}*/
 		
 }
