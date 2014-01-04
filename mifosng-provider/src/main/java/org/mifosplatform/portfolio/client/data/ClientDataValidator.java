@@ -94,11 +94,11 @@ public final class ClientDataValidator {
             baseDataValidator.reset().parameter(ClientApiConstants.activeParamName).value(active).trueOrFalseRequired(false);
         }*/
         
-        if (fromApiJsonHelper.parameterExists(ClientApiConstants.addressNoParamName, element)) {
+       /* if (fromApiJsonHelper.parameterExists(ClientApiConstants.addressNoParamName, element)) {
             final String addrNo= fromApiJsonHelper.extractStringNamed(ClientApiConstants.addressNoParamName, element);
             baseDataValidator.reset().parameter(ClientApiConstants.addressNoParamName).value(addrNo).notNull()
                     .notExceedingLengthOf(100);
-        }
+        }*/
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.streetParamName, element)) {
             final String street = fromApiJsonHelper.extractStringNamed(ClientApiConstants.streetParamName, element);
             baseDataValidator.reset().parameter(ClientApiConstants.streetParamName).value(street).notNull()

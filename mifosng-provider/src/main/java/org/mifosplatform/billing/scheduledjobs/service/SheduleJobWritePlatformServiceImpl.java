@@ -407,7 +407,7 @@ public class SheduleJobWritePlatformServiceImpl implements
  		     
 		      fw.append("Processing the Messanger....... \r\n");
 		      
-		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
+		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getSendMessage());
 		   
 		    if(sheduleDatas.isEmpty()){
  				fw.append("ScheduleJobData Empty \r\n");
