@@ -19,14 +19,11 @@ public class JobParameterData {
 	private String username;
 	private String password;
 	private String provSystem;
-
-	private String OsdMessage;
-	private String OSDMessageTemplate;
-	private String SendEmail;
-	private String EmailMessageTemplateName;
 	private String isAutoRenewal;
 
 	private String promotionalMessage;
+	private String messageTemplate;
+	
 	
 
 	
@@ -38,26 +35,10 @@ public class JobParameterData {
 			if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_BATCH)){
 				   this.batchName=parameter.getParamValue();
 			}
-				   
-			/*}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDEMAIL)){
-				   this.SendEmail=parameter.getParamValue();
-				   this.EmailMessageTemplateName=parameter.getParamDefaultValue();	
 			
-			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_SENDMESSAGE)){
-				   this.SendMessage=parameter.getParamValue();
-				   this.SendMessageTemplateName=parameter.getParamDefaultValue();	
-			
-			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_OSDMESSAGE)){
-				   this.OsdMessage=parameter.getParamValue();
-				   this.OSDMessageTemplate=parameter.getParamDefaultValue();	
-			
-			}*/
-		
-			/*	
 			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_MESSAGETEMPLATE)){
-			     this.messageTempalate=parameter.getParamValue();
-		
-		    }*/
+			     this.messageTemplate=parameter.getParamValue();
+		    }
 			
 			else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROMTIONALMESSAGE)){
 			          this.promotionalMessage=parameter.getParamValue();	
@@ -94,8 +75,6 @@ public class JobParameterData {
             	this.isAutoRenewal=parameter.isDynamic();
             	
            }else{
-
-
 				 this.batchName=parameter.getParamValue();
 				 this.defaultValue=parameter.getParamDefaultValue();
 			}
@@ -170,6 +149,12 @@ public class JobParameterData {
 	public String getPromotionalMessage() {
 		return promotionalMessage;
 	}
+
+	public String getMessageTemplate() {
+		return messageTemplate;
+	}
+	
+	
 	
 	
 

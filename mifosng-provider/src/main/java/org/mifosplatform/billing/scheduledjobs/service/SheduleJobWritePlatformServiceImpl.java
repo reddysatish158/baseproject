@@ -430,7 +430,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
 	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
 		    	   fw.append("Selected Message Template Name is :" +data.getDefaultValue()+" \r\n");
-				   Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getDefaultValue());
+				   Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getMessageTemplate());
 				   fw.append("Selected Message Template id is :" +messageId+" \r\n");
 					if(messageId!=null){
 					  fw.append("generating the message....... \r\n");
