@@ -1874,6 +1874,15 @@ public CommandWrapperBuilder deleteProvisiongSystem(Long id) {
 	return this;
 }
 
+public CommandWrapperBuilder createUserChat() {
+	
+	this.actionName = "CREATE";
+	this.entityName = "USERCHAT";
+	this.entityId = null;
+	this.href = "/userchat/";
+	return this;
+}
+
 
 
 }

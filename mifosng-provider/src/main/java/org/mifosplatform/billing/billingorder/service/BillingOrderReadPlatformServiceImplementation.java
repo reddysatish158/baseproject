@@ -345,12 +345,12 @@ public String discountOrderSchema() {
 
 	}
 	 @Override
-	 public List<BillingOrderData> getReconnectionBillingOrderData(Long clientId,LocalDate reconnectionDate, Long orderId) {
+	 public List<BillingOrderData> getReconnectionBillingOrderData(Long clientId, Long orderId) {
 
 	  ReconnectionBillingOrderMapper billingOrderMapper = new ReconnectionBillingOrderMapper();
 	  String sql = "select " + billingOrderMapper.reconnectionSchema();
 	  return this.jdbcTemplate.query(sql, billingOrderMapper,
-	    new Object[] { clientId,orderId,reconnectionDate });
+	    new Object[] { clientId,orderId });
 	 }
 
 	 private static final class ReconnectionBillingOrderMapper implements
@@ -392,7 +392,7 @@ public String discountOrderSchema() {
 	     + "op.charge_duration AS chargeDuration,op.duration_type AS durationType,op.invoice_tilldate AS invoiceTillDate,op.price AS price,co.order_status as orderStatus,op.tax_inclusive as taxInclusive,"
 	     + "co.billing_align AS billingAlign,op.bill_start_date as billStartDate,Date_format(IFNULL(op.bill_end_date,'3099-12-31'), '%Y-%m-%d') AS billEndDate "
 	     + "FROM b_orders co left JOIN b_order_price op ON co.id = op.order_id"
-	     + " WHERE co.client_id = ? AND co.id = ? AND Date_format(IFNULL(op.invoice_tilldate, now()),'%Y-%m-%d') >= ?";
+	     + " WHERE co.client_id = ? AND co.id = ?";
 	     
 	  }
 

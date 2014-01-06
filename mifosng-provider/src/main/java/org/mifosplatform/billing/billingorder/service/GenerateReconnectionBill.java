@@ -398,8 +398,7 @@ public class GenerateReconnectionBill {
 	}
 
 	// order cancelled bill
-	public BillingOrderCommand getCancelledOrderBill(
-			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
+	public BillingOrderCommand getCancelledOrderBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 
 		if (billingOrderData.getInvoiceTillDate() == null)
 			startDate = new LocalDate(billingOrderData.getStartDate());

@@ -900,5 +900,9 @@ public class CommandWrapper {
 		public boolean isDeleteProvisioning() {
 			return this.actionName.equalsIgnoreCase("DELETE");
 		}
+
+		public boolean isUserChatResource() {
+			return this.entityName.equalsIgnoreCase("USERCHAT");
+		}
 		
 }

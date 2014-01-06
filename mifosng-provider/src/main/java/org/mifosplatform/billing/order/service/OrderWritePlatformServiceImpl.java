@@ -395,7 +395,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
 			}
 	         
+	         if(plan.getBillRule() !=400){ 
 	         this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),disconnectionDate);
+	         
+	         }
 	      
 			order.update(command,orderStatus);
 			order.setuserAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
@@ -590,7 +593,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		        order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
 		      this.orderRepository.save(order);
 		   
-		      this.reconnectionInvoice.reconnectionInvoiceServices(orderId, order.getClientId(), new LocalDate());
+		   //   this.reconnectionInvoice.reconnectionInvoiceServices(orderId, order.getClientId(), new LocalDate());
 			  
 			//for Prepare Request
 			String requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString().toString();

@@ -621,12 +621,14 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								}else{
 									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 								}
+
 				        	
 				        		  
 				        
 						
 						}catch(AdjustmentCodeNotFoundException e){
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+
 						}catch (DataIntegrityViolationException e) {
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));
 						}catch (PlatformApiDataValidationException e) {

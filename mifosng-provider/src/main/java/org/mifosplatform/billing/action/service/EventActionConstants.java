@@ -3,7 +3,7 @@ package org.mifosplatform.billing.action.service;
 public class EventActionConstants {
 	
 	//Events
-	public static final String EVENT_CREATE_PAYMENT="Create Paymnet";
+	public static final String EVENT_CREATE_PAYMENT="Create Payment";
 	public static final String  EVENT_CREATE_CLIENT="Create Client";
 	public static final String EVENT_CREATE_ORDER="Create_Order";
 	

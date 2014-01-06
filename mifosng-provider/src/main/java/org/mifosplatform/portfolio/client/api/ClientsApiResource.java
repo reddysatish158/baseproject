@@ -6,11 +6,8 @@
 package org.mifosplatform.portfolio.client.api;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -74,7 +71,8 @@ public class ClientsApiResource {
             final OfficeReadPlatformService officeReadPlatformService, final ToApiJsonSerializer<ClientData> toApiJsonSerializer,
             final ToApiJsonSerializer<ClientAccountSummaryCollectionData> clientAccountSummaryToApiJsonSerializer,
             final ApiRequestParameterHelper apiRequestParameterHelper,AddressReadPlatformService addressReadPlatformService,
-            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AllocationReadPlatformService allocationReadPlatformService,final GlobalConfigurationRepository configurationRepository) {
+            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AllocationReadPlatformService allocationReadPlatformService,
+            final GlobalConfigurationRepository configurationRepository) {
         this.context = context;
         this.clientReadPlatformService = readPlatformService;
         this.officeReadPlatformService = officeReadPlatformService;
@@ -215,9 +213,7 @@ public class ClientsApiResource {
             final CommandWrapper commandRequest = builder.activateClient(clientId).build();
             result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
         }
-
         if (result == null) {
-            //
             throw new UnrecognizedQueryParamException("command", commandParam, new Object[] { "activate" });
         }
 
@@ -228,24 +224,5 @@ public class ClientsApiResource {
         return StringUtils.isNotBlank(commandParam) && commandParam.trim().equalsIgnoreCase(commandValue);
     }
 
-    @GET
-    @Path("{clientId}/loans")
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
-    public String retrieveAssociatedAccounts(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo) {
 
-        context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
-
-        final ClientAccountSummaryCollectionData clientAccount = this.clientReadPlatformService.retrieveClientAccountDetails(clientId);
-
-        final Set<String> CLIENT_ACCOUNTS_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("pendingApprovalLoans",
-                "awaitingDisbursalLoans", "openLoans", "closedLoans", "anyLoanCount", "pendingApprovalLoanCount",
-                "awaitingDisbursalLoanCount", "activeLoanCount", "closedLoanCount", "pendingApprovalSavingAccountsCount",
-                "pendingApprovalSavingAccounts", "approvedSavingAccountsCount", "approvedSavingAccounts",
-                "withdrawnByClientSavingAccountsCount", "withdrawnByClientSavingAccounts", "rejectedSavingAccountsCount",
-                "rejectedSavingAccounts", "closedSavingAccountsCount", "closedSavingAccounts"));
-
-        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        return this.clientAccountSummaryToApiJsonSerializer.serialize(settings, clientAccount, CLIENT_ACCOUNTS_DATA_PARAMETERS);
-    }
 }

@@ -144,7 +144,7 @@ public class InvoiceClient {
 			 this.apiJsonDeserializer.validateForCreate(command.json());
 			
 			LocalDate processDate = ProcessDate.fromJson(command);
-	List<GenerateInvoiceData> invoiceDatas = this.billingOrderReadPlatformService.retrieveClientsWithOrders(processDate);
+//	List<GenerateInvoiceData> invoiceDatas = this.billingOrderReadPlatformService.retrieveClientsWithOrders(processDate);
 			/*if (invoiceDatas == null || invoiceDatas.size() == 0) {
 				throw new BillingOrderNoRecordsFoundException();
 			} else {

@@ -73,7 +73,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 	
 			  jdbcCall.setProcedureName("workflow_events");
 			  MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-			  parameterSource.addValue("clientid", clientId, Types.BIGINT);
+			  parameterSource.addValue("clientid", clientId.toString(), Types.VARCHAR);
 			  parameterSource.addValue("eventname", event, Types.VARCHAR);
 			  parameterSource.addValue("actionname", action, Types.VARCHAR);
 			  parameterSource.addValue("resourceid", resourceId, Types.VARCHAR);
