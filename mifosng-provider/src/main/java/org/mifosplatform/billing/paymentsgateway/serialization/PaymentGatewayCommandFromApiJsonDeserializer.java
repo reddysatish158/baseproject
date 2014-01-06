@@ -29,8 +29,11 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 	 * The parameters supported for this command.
 	 */
 	
-	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("KEY_ID","PARTY_ID", "PAYMENT_DATE","AMOUNT_PAID", 
+	private final Set<String> supportedParameters1 = new HashSet<String>(Arrays.asList("KEY_ID","PARTY_ID", "PAYMENT_DATE","AMOUNT_PAID", 
 			"RECEIPT_NO", "SOURCE", "PAYMENT_ID","DETIALS","dateFormat","locale"));
+	 
+	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("amount","timestamp", "msisdn","name", 
+				"service", "receipt", "reference","transaction","dateFormat","locale"));
 	
     private final FromJsonHelper fromApiJsonHelper;
     
@@ -56,12 +59,12 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 
 		final JsonElement element = fromApiJsonHelper.parse(json);
 	
-		final String keyId = fromApiJsonHelper.extractStringNamed("KEY_ID", element);
-		baseDataValidator.reset().parameter("KEY_ID").value(keyId).notBlank().notExceedingLengthOf(30);
-		final BigDecimal amountPaid = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("AMOUNT_PAID", element);
-		baseDataValidator.reset().parameter("AMOUNT_PAID").value(amountPaid).notBlank();
-		final String paymentId = fromApiJsonHelper.extractStringNamed("PAYMENT_ID", element);
-		baseDataValidator.reset().parameter("paymentId").value(paymentId).notBlank();
+		final String reference = fromApiJsonHelper.extractStringNamed("reference", element);
+		baseDataValidator.reset().parameter("reference").value(reference).notBlank().notExceedingLengthOf(30);
+		final BigDecimal amount = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", element);
+		baseDataValidator.reset().parameter("amount").value(amount).notBlank();
+		final String receipt = fromApiJsonHelper.extractStringNamed("receipt", element);
+		baseDataValidator.reset().parameter("receipt").value(receipt).notBlank();
 		
 		throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
