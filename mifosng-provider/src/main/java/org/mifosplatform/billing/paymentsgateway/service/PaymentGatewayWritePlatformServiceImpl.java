@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.mifosplatform.billing.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.billing.payments.service.PaymentWritePlatformService;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGateway;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGatewayRepository;
@@ -34,7 +33,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    private final PaymentGatewayRepository paymentGatewayRepository;
 	    private final PaymentGatewayCommandFromApiJsonDeserializer paymentGatewayCommandFromApiJsonDeserializer;
 	    private final FromJsonHelper fromApiJsonHelper;
-	    private final MediaDeviceReadPlatformService mediaDeviceReadPlatformService;
+	    private final PaymentGatewayReadPlatformService readPlatformService;
 	    private final PaymentWritePlatformService paymentWritePlatformService;
 	    private final PaymodeReadPlatformService paymodeReadPlatformService;
 	   
@@ -42,7 +41,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    public PaymentGatewayWritePlatformServiceImpl(final PlatformSecurityContext context,
 	    	    final PaymentGatewayRepository paymentGatewayRepository,final FromJsonHelper fromApiJsonHelper,
 	    		final PaymentGatewayCommandFromApiJsonDeserializer paymentGatewayCommandFromApiJsonDeserializer,
-	    		final MediaDeviceReadPlatformService mediaDeviceReadPlatformService,
+	    		final PaymentGatewayReadPlatformService readPlatformService,
 	    		final PaymentWritePlatformService paymentWritePlatformService,
 	    		final PaymodeReadPlatformService paymodeReadPlatformService)
 	    {
@@ -50,7 +49,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    	this.paymentGatewayRepository=paymentGatewayRepository;
 	    	this.fromApiJsonHelper=fromApiJsonHelper;
 	    	this.paymentGatewayCommandFromApiJsonDeserializer=paymentGatewayCommandFromApiJsonDeserializer;
-	    	this.mediaDeviceReadPlatformService=mediaDeviceReadPlatformService;
+	    	this.readPlatformService=readPlatformService;
 	    	this.paymentWritePlatformService=paymentWritePlatformService;
 	    	 this.paymodeReadPlatformService=paymodeReadPlatformService;
 	    }
@@ -76,7 +75,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 					    PaymentGateway  paymentGateway = new PaymentGateway(serialNumberId,phoneNo,date,amountPaid,receiptNo,SOURCE,details);
 					    this.paymentGatewayRepository.save(paymentGateway);
 					
-					    Long clientId = this.mediaDeviceReadPlatformService.retrieveClientIdForProvisioning(serialNumberId);
+					    Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
 						if(clientId == null){
 							PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
 					    	gateway.setStatus("Failure");    	
