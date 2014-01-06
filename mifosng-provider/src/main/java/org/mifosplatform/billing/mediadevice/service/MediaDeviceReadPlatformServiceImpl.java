@@ -133,5 +133,15 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			return new PlanData(id, planCode, planDescription);
 		}
 	}
+
+	@Override
+	public Long retrieveClientIdForProvisioning(String serialNum) {
+		try{
+		String sql = "select client_id as clientId from b_item_detail where serial_no like '%"+serialNum+"%' ";
+		return jdbcTemplate.queryForLong(sql);
+		} catch(EmptyResultDataAccessException e){
+			return null;
+		}
+	}
 }
 

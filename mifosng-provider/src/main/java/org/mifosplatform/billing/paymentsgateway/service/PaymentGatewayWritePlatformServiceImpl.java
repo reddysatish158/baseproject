@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.mifosplatform.billing.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.billing.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.billing.payments.service.PaymentWritePlatformService;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGateway;
@@ -59,81 +58,69 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 		@Override
 		public CommandProcessingResult createPaymentGateway(JsonCommand command) {
 			  JsonElement element=null;
+			  CommandProcessingResult result=null;
 			try {
 				   context.authenticatedUser();
 				   this.paymentGatewayCommandFromApiJsonDeserializer.validateForCreate(command.json());
 				   element= fromApiJsonHelper.parse(command.json());
 				   if(element!=null){
-				    String keyId = fromApiJsonHelper.extractStringNamed("KEY_ID", element);
-				    String paymentDate = fromApiJsonHelper.extractStringNamed("PAYMENT_DATE", element);
-				    BigDecimal amountPaid = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("AMOUNT_PAID", element);
-				    String partyId = fromApiJsonHelper.extractStringNamed("PARTY_ID", element);
-				    String receiptNo = fromApiJsonHelper.extractStringNamed("RECEIPT_NO", element);
-				    String SOURCE = fromApiJsonHelper.extractStringNamed("SOURCE", element);
-				    String paymentId = fromApiJsonHelper.extractStringNamed("PAYMENT_ID", element);
-				    String details = fromApiJsonHelper.extractStringNamed("DETIALS", element);
-				   DateFormat readFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-					  Date date = null;
-					    try {
-					       date = readFormat.parse(paymentDate);
-					    } catch ( ParseException e ) {
-					        e.printStackTrace();
-					    }
-				   PaymentGateway  paymentGateway = new PaymentGateway(keyId,partyId,date,amountPaid,receiptNo,SOURCE,paymentId,details);
-				   this.paymentGatewayRepository.save(paymentGateway);
-				
-				   MediaDeviceData datas = this.mediaDeviceReadPlatformService.retrieveDeviceDetails(keyId);
-					if(datas == null){
-						throw new IllegalAccessException();		
-					}
-					Long paymodeId=this.paymodeReadPlatformService.getOnlinePaymode();
-					if(paymodeId==null){
-						paymodeId=new Long(27);
-					}
-					Long id=datas.getClientId();
-					String remarks="Details: "+details+" ,PARTY_ID:"+partyId+" ,SOURCE : "+SOURCE;
-					SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
-				    String paymentdate=daformat.format(date);
-				    JsonObject object=new JsonObject();
-				    object.addProperty("txn_id", paymentId);
-				    object.addProperty("dateFormat","dd MMMM yyyy");
-				    object.addProperty("locale","en");
-				    object.addProperty("paymentDate",paymentdate);
-				    object.addProperty("amountPaid",amountPaid);
-				    object.addProperty("isChequeSelected","no");
-				    object.addProperty("receiptNo",receiptNo);
-				    object.addProperty("remarks",remarks);
-				    object.addProperty("paymentCode",paymodeId);
-				    String entityName="PAYMENT";
-				    final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
-				    JsonCommand comm=new JsonCommand(null, object.toString(), element1, fromApiJsonHelper, entityName, id, null, null, null,
-			                null, null, null, null, null, null);
-				    CommandProcessingResult result=this.paymentWritePlatformService.createPayment(comm);
-				    if(result.resourceId()!=null){
-				    	PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
-				    	gateway.setObsId(result.resourceId());
-				    	gateway.setStatus("Success");    	
-				    	 this.paymentGatewayRepository.save(gateway);
-				    	
-				    }else{
-				    	PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
-				    	gateway.setStatus("Failure");    	
-				    	this.paymentGatewayRepository.save(gateway);
-				    }
-	                 
-					return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paymentGateway.getId()).build();
-				   }else{
-					   return new CommandProcessingResult(Long.valueOf(-1));
-				   }
-				   
+					    String serialNumberId = fromApiJsonHelper.extractStringNamed("reference", element);
+					    String paymentDate = fromApiJsonHelper.extractStringNamed("timestamp", element);
+					    BigDecimal amountPaid = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", element);
+					    String phoneNo = fromApiJsonHelper.extractStringNamed("msisdn", element);
+					    String receiptNo = fromApiJsonHelper.extractStringNamed("receipt", element);
+					    String SOURCE = fromApiJsonHelper.extractStringNamed("service", element);
+					    String details = fromApiJsonHelper.extractStringNamed("name", element);
+					    DateFormat readFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+					    Date date = readFormat.parse(paymentDate);					     
+					    PaymentGateway  paymentGateway = new PaymentGateway(serialNumberId,phoneNo,date,amountPaid,receiptNo,SOURCE,details);
+					    this.paymentGatewayRepository.save(paymentGateway);
+					
+					    Long clientId = this.mediaDeviceReadPlatformService.retrieveClientIdForProvisioning(serialNumberId);
+						if(clientId == null){
+							PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
+					    	gateway.setStatus("Failure");    	
+					    	this.paymentGatewayRepository.save(gateway);
+					    	return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withTransactionId("Failure").build();		
+						}else{
+							Long paymodeId=this.paymodeReadPlatformService.getOnlinePaymode();
+							if(paymodeId==null){
+								paymodeId=new Long(27);
+							}
+							String remarks="customerName: "+details+" ,PhoneNo:"+phoneNo+" ,Biller account Name : "+SOURCE;
+							SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
+						    String paymentdate=daformat.format(date);
+						    JsonObject object=new JsonObject();
+						    object.addProperty("dateFormat","dd MMMM yyyy");
+						    object.addProperty("locale","en");
+						    object.addProperty("paymentDate",paymentdate);
+						    object.addProperty("amountPaid",amountPaid);
+						    object.addProperty("isChequeSelected","no");
+						    object.addProperty("receiptNo",receiptNo);
+						    object.addProperty("remarks",remarks);
+						    object.addProperty("paymentCode",paymodeId);
+						    String entityName="PAYMENT";
+						    final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
+						    JsonCommand comm=new JsonCommand(null, object.toString(), element1, fromApiJsonHelper, entityName, clientId, null, null, null,
+					                null, null, null, null, null, null);
+						    result=this.paymentWritePlatformService.createPayment(comm);
+						    if(result.resourceId()!=null){
+						    	PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
+						    	gateway.setObsId(result.resourceId());
+						    	gateway.setStatus("Success");    	
+						    	this.paymentGatewayRepository.save(gateway);	    	
+						    }						    
+						}					  		               
+				   }	 
+				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(result.resourceId()).withTransactionId("Success").build();
 			} catch (DataIntegrityViolationException dve) {
 	           // return CommandProcessingResult.empty();
 				    handleCodeDataIntegrityIssues(element, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
-	        } catch (IllegalAccessException e) {	 
-	        	  final String name = fromApiJsonHelper.extractStringNamed("KEY_ID", element);
-		          throw new PlatformDataIntegrityException("error.msg.code.BillerRef", "A BillerRef with this value '" + name + "' does not exists");			
-			} 
+	        }catch ( ParseException e ) {
+	        	    return new CommandProcessingResult(Long.valueOf(-1));
+		    }
+			
 			
 		}
 		
@@ -141,9 +128,9 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 				DataIntegrityViolationException dve) {
 			
 			 Throwable realCause = dve.getMostSpecificCause();
-		        if (realCause.getMessage().contains("KEY_ID")) {
-		            final String name = fromApiJsonHelper.extractStringNamed("KEY_ID", element);
-		            throw new PlatformDataIntegrityException("error.msg.code.BillerRef", "A BillerRef with this value '" + name + "' does not exists");
+		        if (realCause.getMessage().contains("reference")) {
+		            final String name = fromApiJsonHelper.extractStringNamed("reference", element);
+		            throw new PlatformDataIntegrityException("error.msg.code.reference", "A reference with this value '" + name + "' does not exists");
 		        }
 		        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
 		                "Unknown data integrity issue with resource: " + realCause.getMessage());

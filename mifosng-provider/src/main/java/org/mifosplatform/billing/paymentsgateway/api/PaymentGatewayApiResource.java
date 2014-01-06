@@ -6,6 +6,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONObject;
+import org.json.XML;
 import org.mifosplatform.billing.payments.data.PaymentData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
@@ -34,15 +36,42 @@ public class PaymentGatewayApiResource {
 	}
 
 	@POST
-	@Consumes({ MediaType.APPLICATION_JSON })
-	@Produces({ MediaType.APPLICATION_JSON })
+	@Consumes({ MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_XML })
 	public String mpesaPayment(final String apiRequestBodyAsJson) {
 		try {
-			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(apiRequestBodyAsJson).build();
+			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
+			JSONObject element= xmlJSONObj.getJSONObject("transaction");
+			element.put("locale", "en");
+            System.out.println(element);
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
 			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
-			return this.toApiJsonSerializer.serialize(result);
+			
+			if("Success".equalsIgnoreCase(result.getTransactionId())){
+            StringBuilder builder = new StringBuilder();
+            builder
+                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+                .append("<response>")
+                .append("<receipt>"+result.resourceId())
+                .append("</receipt>")
+                 .append("<result>"+result.getTransactionId())
+                .append("</result>")
+                .append("</response>");
+            return builder.toString();
+			}
+			else{
+				StringBuilder failurebuilder = new StringBuilder();
+				failurebuilder
+	                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+	                .append("<response>")
+	                .append("<receipt/>")
+	                 .append("<result>"+"FAILURE")
+	                .append("</result>")
+	                .append("</response>");
+	            return failurebuilder.toString();
+			}
 		} catch (Exception e) {
-			return null;
+			return e.getMessage();
 		}
 	}
 
