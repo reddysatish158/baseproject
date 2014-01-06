@@ -1,17 +1,32 @@
 package org.mifosplatform.billing.paymentsgateway.api;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.payments.data.PaymentData;
+import org.json.JSONObject;
+import org.json.XML;
+import org.mifosplatform.billing.paymentsgateway.data.PaymentGatewayData;
+import org.mifosplatform.billing.paymentsgateway.service.PaymentGatewayReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.infrastructure.codes.data.CodeData;
+import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,30 +35,82 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class PaymentGatewayApiResource {
+	
+	/**
+	 * The set of parameters that are supported in response for {@link CodeData}
+	 */
+	private static final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(
+			Arrays.asList("id","paymentId", "serialNo", "paymentDate", "receiptNo","status","phoneNo","clientName","amountPaid"));
+	
+	private final String resourceNameForPermissions = "PAYMENTGATEWAY";
 
-	private final DefaultToApiJsonSerializer<PaymentData> toApiJsonSerializer;
+	private final PlatformSecurityContext context;
+	private final PaymentGatewayReadPlatformService readPlatformService;
+	private final ApiRequestParameterHelper apiRequestParameterHelper;
+	private final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer;
 	private final PortfolioCommandSourceWritePlatformService writePlatformService;
 
 	@Autowired
-	public PaymentGatewayApiResource(
-			final DefaultToApiJsonSerializer<PaymentData> toApiJsonSerializer,
+	public PaymentGatewayApiResource(final PlatformSecurityContext context,final PaymentGatewayReadPlatformService readPlatformService,
+			final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
 			final PortfolioCommandSourceWritePlatformService writePlatformService) {
 
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.writePlatformService = writePlatformService;
+		this.context=context;
+		this.readPlatformService=readPlatformService;
+		this.apiRequestParameterHelper=apiRequestParameterHelper;
 	}
 
 	@POST
-	@Consumes({ MediaType.APPLICATION_JSON })
-	@Produces({ MediaType.APPLICATION_JSON })
+	@Consumes({ MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_XML })
 	public String mpesaPayment(final String apiRequestBodyAsJson) {
 		try {
-			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(apiRequestBodyAsJson).build();
+			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
+			JSONObject element= xmlJSONObj.getJSONObject("transaction");
+			element.put("locale", "en");
+            System.out.println(element);
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
 			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
-			return this.toApiJsonSerializer.serialize(result);
+			
+			if("Success".equalsIgnoreCase(result.getTransactionId())){
+            StringBuilder builder = new StringBuilder();
+            builder
+                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+                .append("<response>")
+                .append("<receipt>"+result.resourceId())
+                .append("</receipt>")
+                 .append("<result>"+result.getTransactionId())
+                .append("</result>")
+                .append("</response>");
+            return builder.toString();
+			}
+			else{
+				StringBuilder failurebuilder = new StringBuilder();
+				failurebuilder
+	                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+	                .append("<response>")
+	                .append("<receipt/>")
+	                 .append("<result>"+"FAILURE")
+	                .append("</result>")
+	                .append("</response>");
+	            return failurebuilder.toString();
+			}
 		} catch (Exception e) {
-			return null;
+			return e.getMessage();
 		}
+	}
+	
+	@GET
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveAllDetailsForPayments(@Context final UriInfo uriInfo) {
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<PaymentGatewayData> paymentData = readPlatformService.retrievePaymentGatewayData();
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, paymentData,RESPONSE_DATA_PARAMETERS);
+
 	}
 
 }

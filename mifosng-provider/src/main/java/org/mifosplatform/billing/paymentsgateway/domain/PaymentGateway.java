@@ -58,7 +58,7 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 	}
 	
 	public PaymentGateway(String deviceId, String partyId,Date paymentDate, BigDecimal amountPaid, 
-			      String receiptNo,String source, String paymentId, String details) {
+			      String receiptNo,String source, String details) {
 		
 		this.deviceId=deviceId;
 		this.partyId=partyId;
@@ -66,7 +66,6 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 		this.amountPaid=amountPaid;
 		this.receiptNo=receiptNo;
 		this.source=source;
-		this.paymentId=paymentId;
 		this.details=details;
 	}
 
