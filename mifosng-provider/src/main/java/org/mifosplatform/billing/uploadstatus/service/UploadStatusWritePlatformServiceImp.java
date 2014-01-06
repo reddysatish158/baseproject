@@ -43,6 +43,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.mifosplatform.billing.adjustment.api.AdjustmentApiResource;
 import org.mifosplatform.billing.adjustment.data.AdjustmentData;
+import org.mifosplatform.billing.adjustment.exception.AdjustmentCodeNotFoundException;
 import org.mifosplatform.billing.adjustment.service.AdjustmentReadPlatformService;
 import org.mifosplatform.billing.importfile.data.MRNErrorData;
 import org.mifosplatform.billing.inventory.api.InventoryItemDetailsApiResource;
@@ -52,7 +53,9 @@ import org.mifosplatform.billing.inventory.exception.OrderQuantityExceedsExcepti
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.billing.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.billing.payments.api.PaymentsApiResource;
+import org.mifosplatform.billing.payments.exception.PaymentCodeNotFoundException;
 import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.paymode.exception.PaymodeNotFoundException;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.uploadstatus.command.UploadStatusCommand;
 import org.mifosplatform.billing.uploadstatus.domain.UploadStatus;
@@ -88,7 +91,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 	private PlatformSecurityContext context;
 	private UploadStatusRepository uploadStatusRepository;
 	private final Gson gsonConverter;
-	private final Set<String> RESPONSE_DATA_ITEM_DETAILS_PARAMETERS = new HashSet<String>(Arrays.asList("id", "itemMasterId", "serialNumber", "grnId","provisioningSerialNumber", "quality", "status","warranty", "remarks"));
+	/*private final Set<String> RESPONSE_DATA_ITEM_DETAILS_PARAMETERS = new HashSet<String>(Arrays.asList("id", "itemMasterId", "serialNumber", "grnId","provisioningSerialNumber", "quality", "status","warranty", "remarks"));*/
 	private int rownumber;
 	private String filePath;
 	private int countno;
@@ -97,11 +100,10 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 	private Long totalRecords=new Long(0);
 	private String processStatus=null;
 	private String errormessage=null;
-	private String uploadStatusValue="UPLOADSTATUS";
+	
 	private ApiRequestJsonSerializationSettings serSettings;
-	private Long orderIdValue;
+	
 	private String resultStatus="";
-	//public int rowupdateno=0;
 	public List<AdjustmentData> adjustmentDataList;
 	 public Collection<McodeData> paymodeDataList;
 	
@@ -117,10 +119,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 	
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	
-	@Autowired
-	private InventoryItemDetailsWritePlatformService inventoryItemDetailsWritePlatformService;
-	@Autowired
-	private  DefaultToApiJsonSerializer<ItemDetailsCommand> toApiJsonSerializer;	
 	
 	private InventoryItemDetailsApiResource inventoryItemDetailsApiResource;
 	
@@ -360,7 +358,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		
 		writeToFile(fileLocation,errorData);
 		
-		}else if(uploadProcess.equalsIgnoreCase("Mrn")){
+		}else if(uploadProcess.equalsIgnoreCase("Mrn")){/*
 			Integer cellNumber = 2;
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			Workbook wb = null;
@@ -394,7 +392,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					    	//Long rsId = result.resourceId();
 					    	processRecordCount++;
 					    	errorData.add(new MRNErrorData((long)i, "Success"));
-					    	/*
+					    	
 					    	Long rsId = result.resourceId();
 					    	if(rsId != null ){
 						    	if(rsId>1){
@@ -405,7 +403,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						    		errorData.add(new MRNErrorData((long)i, result.getTransactionId()));
 						    	}
 						    }
-					    */}
+					    }
 						
 						//System.out.println(i);
 					}catch (PlatformApiDataValidationException e) {
@@ -442,7 +440,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-		}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
+		*/}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
 			
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			BufferedReader csvFileBufferedReader = null;
@@ -550,7 +548,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			
 			}else if(uploadProcess.equalsIgnoreCase("Adjustments") && new File(fileLocation).getName().contains(".csv")){
 			
-				adjustmentDataList=this.adjustmentReadPlatformService.retrieveAllAdjustmentsCodes();
+				
 				ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 				BufferedReader csvFileBufferedReader = null;
 				String line = null;
@@ -580,15 +578,29 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 							return new CommandProcessingResult(Long.valueOf(-1));
 						}
 						
-						if(adjustmentDataList.size()>0)
-				        {
-				         for(AdjustmentData adjustmentData:adjustmentDataList)
-				         {
-				         if( adjustmentData.getAdjustment_code().equalsIgnoreCase(currentLineData[2].toString()))
-				          {          
+						
 				        	  if(currentLineData.length>=6){
+				        		  adjustmentDataList=this.adjustmentReadPlatformService.retrieveAllAdjustmentsCodes();
+				        		  if(adjustmentDataList!=null && adjustmentDataList.size()>0)
+							        {
+							         for(AdjustmentData adjustmentData:adjustmentDataList)
+							         {
+								         if( adjustmentData.getAdjustment_code().equalsIgnoreCase(currentLineData[2].toString()))
+								          { 
+								        	 jsonObject.put("adjustment_code", adjustmentData.getId());
+								        	 break;
+								          }else{
+								        	  jsonObject.put("adjustment_code", -1);	
+								          }
+							         }
+							         Long adjustmentCode = jsonObject.getLong("adjustment_code");
+							         if(adjustmentCode!=null && adjustmentCode<=0){
+							        	 totalRecordCount++;
+							        	 throw new AdjustmentCodeNotFoundException(currentLineData[2].toString());
+							         }
+				        		  
 				        		  jsonObject.put("adjustment_date", currentLineData[1]);
-					        	  jsonObject.put("adjustment_code", adjustmentData.getId());
+					        	  
 					        	  jsonObject.put("adjustment_type",currentLineData[3]);
 					        	  jsonObject.put("amount_paid",currentLineData[4]);
 					        	  jsonObject.put("Remarks",currentLineData[5]);
@@ -602,20 +614,20 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								    	processRecordCount++;
 								    	errorData.add(new MRNErrorData((long)i, "Success."));
 					              }
-					        
+							     }else{
+							    	 errorData.add(new MRNErrorData((long)i, "Adjustment Code, Data does not exist in MCode table"));
+							    	 totalRecordCount++;
+							     }
 								}else{
 									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 								}
-				        	}else{
 
-				        		errorData.add(new MRNErrorData((long)i, "Invalid Adjustment Code"));
-				        		totalRecordCount++;
-
-				        	}
-				         }
-				        }
+				        	
+				        		  
+				        
 						
-						
+						}catch(AdjustmentCodeNotFoundException e){
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 
 						}catch (DataIntegrityViolationException e) {
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));
@@ -698,12 +710,19 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				                 {
 				                   for(McodeData paymodeData:paymodeDataList)
 				                      {
-					                    if(paymodeData.getPaymodeCode().equalsIgnoreCase(currentLineData[2].toString()))
-					                      {
-					        	              jsonObject.put("paymentCode",paymodeData.getId());
-					                      }
+					                    if(paymodeData.getPaymodeCode().equalsIgnoreCase(currentLineData[2].toString())){
+					                    	jsonObject.put("paymentCode",paymodeData.getId());
+					                    	break;
+					                    }else{
+					                    	jsonObject.put("paymentCode","-1");
+					                    }
+					                    
 				                    }
-				          
+				                 Long paymentCode = jsonObject.getLong("paymentCode");
+				                 if(paymentCode!=null && paymentCode<=0){
+				                	 totalRecordCount++;
+				                	 throw new PaymentCodeNotFoundException(currentLineData[2].toString());
+				                 }
 				                 jsonObject.put("clientId", currentLineData[0]);
 				                 jsonObject.put("paymentDate",currentLineData[1]);
 				                 jsonObject.put("amountPaid", currentLineData[3]);
@@ -719,14 +738,15 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					              }
 				               
 				        }else{
-			        		errorData.add(new MRNErrorData((long)i, "Invalid Payments Code"));
+			        		errorData.add(new MRNErrorData((long)i, "Payment Mode, does not exist in MCode table"));
 			        		totalRecordCount++;
 			        	}
 						}else{
 							errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 						}
 						
-						
+						}catch(PaymentCodeNotFoundException e){
+							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 						}catch (DataIntegrityViolationException e) {
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getLocalizedMessage()));
 						}catch (PlatformApiDataValidationException e) {
@@ -769,7 +789,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								
 				writeToFile(fileLocation,errorData);
 				
-			}else if(uploadProcess.equalsIgnoreCase("Epg")){
+			}else if(uploadProcess.equalsIgnoreCase("Epg")){/*
 			Integer cellNumber = 11;
 			UploadStatus uploadStatusForEpg = this.uploadStatusRepository.findOne(orderId);
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
@@ -846,7 +866,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-		}else if(uploadProcess.equalsIgnoreCase("MediaAssets")){
+		*/}else if(uploadProcess.equalsIgnoreCase("MediaAssets")){
 			Integer cellNumber = 15;
 			UploadStatus uploadStatusForMediaAsset = this.uploadStatusRepository.findOne(orderId);
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
@@ -1180,7 +1200,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			XSSFSheet sheet = wb.getSheetAt(0);
 			XSSFRow row;
 			XSSFCell cell;
-			String serialno = "0";
+			/*String serialno = "0";*/
 			 countno = rowvalue;
 			if (countno == 0) {
 				countno = countno + 2;
@@ -1344,7 +1364,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			try {
 				updateUploadStatusReadXls(filePath, rownum);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+		
 				exception();
 				e.printStackTrace();
 
@@ -1606,7 +1626,7 @@ public synchronized void writeXLSXFileMediaEpgMrn(final String excelFileName, fi
 		for(MRNErrorData err: errorData){			
 				XSSFRow row = (XSSFRow)sheet.getRow(Integer.parseInt(err.getRowNumber().toString()));
 				//XSSFCell cell = row.getCell(3, row.CREATE_NULL_AS_BLANK);
-				XSSFCell cell = row.getCell(cellNumber, row.CREATE_NULL_AS_BLANK);
+				XSSFCell cell = row.getCell(cellNumber, XSSFRow.CREATE_NULL_AS_BLANK);
 				if(cell == null)
 					row.createCell(cellNumber);
 				cell = row.getCell(cellNumber);

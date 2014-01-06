@@ -41,7 +41,7 @@ public class ReconnectionInvoice {
 	 
 	public BigDecimal reconnectionInvoiceServices(Long orderId,Long clientId,LocalDate disconnectionDate){
 		
-		List<BillingOrderData> billingOrderProducts = this.billingOrderReadPlatformService.getReconnectionBillingOrderData(clientId, disconnectionDate, orderId);
+		List<BillingOrderData> billingOrderProducts = this.billingOrderReadPlatformService.getReconnectionBillingOrderData(clientId, orderId);
 		List<BillingOrderCommand> billingOrderCommands = this.generateReconnectionBillingOrderService.generateReconnectionBillingOrder(billingOrderProducts,disconnectionDate);
 		Invoice invoice = this.generateBillingOrderService.generateInvoice(billingOrderCommands);
 		

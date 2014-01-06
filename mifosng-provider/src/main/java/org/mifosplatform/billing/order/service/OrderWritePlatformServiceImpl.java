@@ -110,7 +110,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final HardwareAssociationWriteplatformService associationWriteplatformService,
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-
 		    final PaymentsApiResource paymentsApiResource,final ReconnectionInvoice reconnectionInvoice) {
 
 
@@ -594,7 +593,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		        order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
 		      this.orderRepository.save(order);
 		   
-		      this.reconnectionInvoice.reconnectionInvoiceServices(orderId, order.getClientId(), new LocalDate());
+		   //   this.reconnectionInvoice.reconnectionInvoiceServices(orderId, order.getClientId(), new LocalDate());
 			  
 			//for Prepare Request
 			String requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString().toString();

@@ -29,8 +29,7 @@ public interface BillingOrderReadPlatformService {
 
 	List<BillingOrderData> getReverseBillingOrderData(Long clientId,LocalDate disconnectionDate, Long orderId);
 
-	List<BillingOrderData> getReconnectionBillingOrderData(Long clientId,
-			LocalDate disconnectionDate, Long orderId);
+	List<BillingOrderData> getReconnectionBillingOrderData(Long clientId,Long orderId);
 
 
 

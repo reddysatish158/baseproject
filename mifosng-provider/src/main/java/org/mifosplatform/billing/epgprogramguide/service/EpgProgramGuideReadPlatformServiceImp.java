@@ -38,7 +38,7 @@ public class EpgProgramGuideReadPlatformServiceImp implements
 				" from b_program_guide p where p.channel_name=?  AND date(program_date) = date(now()) and time_format(start_time,'%H:%i') >=time_format(now(),'%H:%i')  limit ?,5";*/
 		String sql="SELECT p.channel_name AS channelName,p.channel_icon AS channelIcon,p.program_date AS programDate,p.start_time AS startTime," +
 				"p.stop_time AS stopTime,p.program_title AS programTitle, p.program_desc AS programDescription, p.type AS type, p.genre AS genre FROM b_program_guide p" +
-				" WHERE p.channel_name = ?   AND Date_format( program_date,'%Y-%m-%d') = ?";
+				" WHERE p.channel_name = ?   AND Date_format( program_date,'%Y-%m-%d') =  Date_format(?,'%Y-%m-%d')";
 		ChannelRowMapper channelRowMapper = new ChannelRowMapper();
 		return jdbcTemplate.query(sql, channelRowMapper,new Object[]{channelName,progDate});
 	}

@@ -43,10 +43,11 @@ public class OrderData {
 	private String provisioningSys;
 	private boolean ispaymentEnable;
 	private Collection<McodeData> paymodes;
+	private List<OrderLineData> orderServices;
+	private List<OrderDiscountData> orderDiscountDatas;
 	
 
-	public OrderData(List<PlanCodeData> allowedtypes,
-			List<PaytermData> paytermData,
+	public OrderData(List<PlanCodeData> allowedtypes,List<PaytermData> paytermData,
 			List<SubscriptionData> contractPeriod, OrderData data) {
 
 		if (data != null) {
@@ -100,10 +101,13 @@ public class OrderData {
 
 	}
 
-	public OrderData(List<OrderPriceData> priceDatas, List<OrderHistoryData> historyDatas, OrderData orderDetailsData) {
+	public OrderData(List<OrderPriceData> priceDatas, List<OrderHistoryData> historyDatas, OrderData orderDetailsData,
+			  List<OrderLineData> services, List<OrderDiscountData> discountDatas) {
 		this.orderPriceData = priceDatas;
 		this.orderHistory=historyDatas;
 		this.orderData=orderDetailsData;
+		this.orderServices=services;
+		this.orderDiscountDatas=discountDatas;
        
 	}
 

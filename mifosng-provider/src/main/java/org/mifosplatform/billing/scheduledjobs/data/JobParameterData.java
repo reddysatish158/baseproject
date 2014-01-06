@@ -21,6 +21,7 @@ public class JobParameterData {
 	private String provSystem;
 	private String isAutoRenewal;
 	private String promotionalMessage;
+
 	private String messageTemplate;
 	
 

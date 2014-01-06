@@ -835,6 +835,10 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+			   }else if(wrapper.isUserChatResource()){
+				   if(wrapper.isCreate()) {
+				         handler = applicationContext.getBean("createUserChatCommandHandler",NewCommandSourceHandler.class);
+				     }
 			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }

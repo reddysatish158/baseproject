@@ -1,24 +1,16 @@
 package org.mifosplatform.billing.billingorder.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.billingorder.commands.BillingOrderCommand;
-import org.mifosplatform.billing.billingorder.commands.InvoiceTaxCommand;
 import org.mifosplatform.billing.billingorder.data.BillingOrderData;
-import org.mifosplatform.billing.billingorder.domain.BillingOrder;
-import org.mifosplatform.billing.billingorder.domain.Invoice;
 import org.mifosplatform.billing.billingorder.domain.InvoiceRepository;
-import org.mifosplatform.billing.billingorder.domain.InvoiceTax;
 import org.mifosplatform.billing.billingorder.exceptions.BillingOrderNoRecordsFoundException;
-import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
 import org.mifosplatform.billing.service.DiscountMasterData;
-import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 @Service

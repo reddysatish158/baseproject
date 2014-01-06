@@ -24,7 +24,9 @@ import javax.ws.rs.core.UriInfo;
 import org.mifosplatform.billing.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
 import org.mifosplatform.billing.order.data.OrderData;
+import org.mifosplatform.billing.order.data.OrderDiscountData;
 import org.mifosplatform.billing.order.data.OrderHistoryData;
+import org.mifosplatform.billing.order.data.OrderLineData;
 import org.mifosplatform.billing.order.data.OrderPriceData;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.paymode.data.McodeData;
@@ -54,7 +56,7 @@ public class OrdersApiResource {
 	private static final String CONFIG_PROPERTY = "renewal";
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","cancelledStatus","status","contractPeriod","nextBillDate","flag",
 	           "currentDate","plan_code","units","service_code","allowedtypes","data","servicedata","billing_frequency", "start_date", "contract_period",
-	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes"));
+	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes","orderServices","orderDiscountDatas"));
 	  private final String resourceNameForPermissions = "ORDER";
 	  private final PlatformSecurityContext context;
 	  private final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer;
@@ -159,9 +161,12 @@ public class OrdersApiResource {
 	    	@Context final UriInfo uriInfo) {
 	        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	        final List<OrderPriceData> priceDatas = this.orderReadPlatformService.retrieveOrderPriceDetails(orderId,null);
+	        final List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
+	        final List<OrderDiscountData> discountDatas= this.orderReadPlatformService.retrieveOrderDiscountDetails(orderId);
 	        final List<OrderHistoryData> historyDatas = this.orderReadPlatformService.retrieveOrderHistoryDetails(orderId);
+	        
 	         OrderData orderDetailsData = this.orderReadPlatformService.retrieveOrderDetails(orderId);
-	         orderDetailsData=new OrderData(priceDatas,historyDatas,orderDetailsData);
+	         orderDetailsData=new OrderData(priceDatas,historyDatas,orderDetailsData,services,discountDatas);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, orderDetailsData, RESPONSE_DATA_PARAMETERS);
 	    }
@@ -256,8 +261,7 @@ public class OrdersApiResource {
 		@Produces({ MediaType.APPLICATION_JSON })
 		public String retrackmessage(@PathParam("orderId") final Long orderId,
 				final String apiRequestBodyAsJson) {
-			final CommandWrapper commandRequest = new CommandWrapperBuilder()
-					.retrackOsdmessage(orderId).withJson(apiRequestBodyAsJson).build();
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().retrackOsdmessage(orderId).withJson(apiRequestBodyAsJson).build();
 			final CommandProcessingResult result = this.commandsSourceWritePlatformService
 					.logCommandSource(commandRequest);
 			return this.toApiJsonSerializer.serialize(result);
