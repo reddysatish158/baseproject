@@ -9,13 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CreatePaymentGatewayCommandHandler implements NewCommandSourceHandler {
+public class UpdatePaymentGatewayCommandhandler implements NewCommandSourceHandler {
 
-	 
-	private final PaymentGatewayWritePlatformService paymentGatewayWritePlatformService;
+private final PaymentGatewayWritePlatformService paymentGatewayWritePlatformService;
 	
 	@Autowired
-	public CreatePaymentGatewayCommandHandler(final PaymentGatewayWritePlatformService paymentGatewayWritePlatformService)
+	public UpdatePaymentGatewayCommandhandler(final PaymentGatewayWritePlatformService paymentGatewayWritePlatformService)
 	{
 	this.paymentGatewayWritePlatformService =paymentGatewayWritePlatformService;
 	}
@@ -23,7 +22,9 @@ public class CreatePaymentGatewayCommandHandler implements NewCommandSourceHandl
 	@Transactional
 	@Override
 	public CommandProcessingResult processCommand(JsonCommand command) {
-		// TODO Auto-generated method stub
-		return this.paymentGatewayWritePlatformService.createPaymentGateway(command);
-	}
+		
+		return this.paymentGatewayWritePlatformService.updatePaymentGateway(command);
+		
+	} 
+	
 }

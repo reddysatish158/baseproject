@@ -3,11 +3,15 @@ package org.mifosplatform.billing.paymentsgateway.service;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.media.domain.MediaTypeEnumaration;
+import org.mifosplatform.billing.paymentsgateway.data.PaymentEnum;
 import org.mifosplatform.billing.paymentsgateway.data.PaymentGatewayData;
-import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.paymentsgateway.domain.PaymentEnumClass;
+import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
@@ -32,6 +36,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	@Override
 	public Long retrieveClientIdForProvisioning(String serialNum) {
 		try{
+			this.context.authenticatedUser();
 		String sql = "select client_id as clientId from b_item_detail where serial_no like '%"+serialNum+"%' ";
 		return jdbcTemplate.queryForLong(sql);
 		} catch(EmptyResultDataAccessException e){
@@ -42,6 +47,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	@Override
 	public List<PaymentGatewayData> retrievePaymentGatewayData() {
 		try{
+			this.context.authenticatedUser();
 			PaymentMapper mapper=new PaymentMapper();
 			String sql = "select "+mapper.schema();
 			return jdbcTemplate.query(sql, mapper, new Object[] {});
@@ -75,5 +81,28 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		}
 
 	}
+	
+	@Override
+	public List<MediaEnumoptionData> retrieveTemplateData() {
+		this.context.authenticatedUser();
+		MediaEnumoptionData FINISHED = PaymentEnumClass.enumPaymentData(PaymentEnum.FINISHED);
+		MediaEnumoptionData INVALID = PaymentEnumClass.enumPaymentData(PaymentEnum.INVALID);
+		
+		List<MediaEnumoptionData> categotyType = Arrays.asList(FINISHED,INVALID);
+		return categotyType;
+	}
 
+	@Override
+	public PaymentGatewayData retrievePaymentGatewayIdData(Long id) {
+		try{
+			this.context.authenticatedUser();
+			PaymentMapper mapper=new PaymentMapper();
+			String sql = "select "+mapper.schema()+ " where p.id=?";
+			return jdbcTemplate.queryForObject(sql, mapper, new Object[] {id});
+			} catch(EmptyResultDataAccessException e){
+				return null;
+			}
+	}
+	
+	
 }

@@ -1,10 +1,9 @@
 package org.mifosplatform.billing.paymentsgateway.domain;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,7 +11,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.joda.time.LocalDate;
+import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -53,6 +52,12 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 	@Column(name = "status")
 	private String status;
 	
+	@Column(name = "Remarks")
+	private String remarks;
+	
+	@Column(name = "is_auto" ,nullable = false)
+	private boolean isAuto=true;
+	
 	public PaymentGateway(){
 		
 	}
@@ -91,6 +96,33 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 				paymentId, details);
 
 	}*/
+
+	public Map<String, Object> fromJson(JsonCommand command) {
+		
+		/* String remarks = command.stringValueOfParameterNamed("remarks");
+		 String status = command.stringValueOfParameterNamed("status");*/
+		 
+		final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
+		 final String remarks = "remarks";
+		 if (command.isChangeInStringParameterNamed(remarks,this.remarks)) {
+				final String newValue = command
+						.stringValueOfParameterNamed("remarks");
+				actualChanges.put(remarks, newValue);
+				this.remarks = StringUtils.defaultIfEmpty(newValue, null);
+		 }
+		 final String status = "status";
+			if (command.isChangeInStringParameterNamed(status,
+					this.status)) {
+				final String newValue = command
+						.stringValueOfParameterNamed("status");
+				actualChanges.put(status, newValue);
+				this.status = StringUtils.defaultIfEmpty(newValue, null);
+			}
+			return actualChanges;
+		 
+		 
+		 
+	}
 
 	public String getDeviceId() {
 		return deviceId;
@@ -139,6 +171,16 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public void setAuto(boolean isAuto) {
+		this.isAuto = isAuto;
+	}
+
+	public boolean isAuto() {
+		return isAuto;
+	}
+
+	
 	
 	
 	

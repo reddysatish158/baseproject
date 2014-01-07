@@ -28,12 +28,9 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 	/**
 	 * The parameters supported for this command.
 	 */
-	
-	private final Set<String> supportedParameters1 = new HashSet<String>(Arrays.asList("KEY_ID","PARTY_ID", "PAYMENT_DATE","AMOUNT_PAID", 
-			"RECEIPT_NO", "SOURCE", "PAYMENT_ID","DETIALS","dateFormat","locale"));
 	 
 	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("amount","timestamp", "msisdn","name", 
-				"service", "receipt", "reference","transaction","dateFormat","locale"));
+				"service", "receipt", "reference","transaction","dateFormat","locale","remarks","status"));
 	
     private final FromJsonHelper fromApiJsonHelper;
     
@@ -76,6 +73,32 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 					"validation.msg.validation.errors.exist",
 					"Validation errors exist.", dataValidationErrors);
 		}
+	}
+
+	public void validateForUpdate(String json) {
+
+		if (StringUtils.isBlank(json)) {
+			throw new InvalidJsonException();
+		}
+
+		final Type typeOfMap = new TypeToken<Map<String, Object>>() {
+		}.getType();
+		fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json,
+				supportedParameters);
+
+		final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+		final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(
+				dataValidationErrors).resource("paymentgateway");
+
+		final JsonElement element = fromApiJsonHelper.parse(json);
+	
+		final String remarks = fromApiJsonHelper.extractStringNamed("remarks", element);
+		baseDataValidator.reset().parameter("remarks").value(remarks).notBlank().notExceedingLengthOf(500);
+		
+		final String status = fromApiJsonHelper.extractStringNamed("status", element);
+		baseDataValidator.reset().parameter("status").value(status).notBlank();
+		
+		throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
 
 }

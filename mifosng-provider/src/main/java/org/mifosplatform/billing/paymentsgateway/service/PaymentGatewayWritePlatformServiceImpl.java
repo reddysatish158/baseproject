@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import org.mifosplatform.billing.payments.service.PaymentWritePlatformService;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGateway;
@@ -106,7 +107,8 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 						    if(result.resourceId()!=null){
 						    	PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
 						    	gateway.setObsId(result.resourceId());
-						    	gateway.setStatus("Success");    	
+						    	gateway.setStatus("Success");    
+						    	gateway.setAuto(false);
 						    	this.paymentGatewayRepository.save(gateway);	    	
 						    }						    
 						}					  		               
@@ -134,6 +136,18 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 		        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
 		                "Unknown data integrity issue with resource: " + realCause.getMessage());
 			
+		}
+
+		@Override
+		public CommandProcessingResult updatePaymentGateway(JsonCommand command) {
+			
+			this.context.authenticatedUser();
+			this.paymentGatewayCommandFromApiJsonDeserializer.validateForUpdate(command.json());
+			PaymentGateway gateway=this.paymentGatewayRepository.findOne(command.entityId());
+			final Map<String, Object> changes =gateway.fromJson(command);
+			this.paymentGatewayRepository.save(gateway);	   
+			
+			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(gateway.getId()).with(changes).build();
 		}
 			 
 	    	
