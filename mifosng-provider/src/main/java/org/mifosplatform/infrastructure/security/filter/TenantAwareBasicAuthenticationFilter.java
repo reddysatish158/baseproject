@@ -50,7 +50,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
     @Autowired
     private TenantDetailsService tenantDetailsService;
-
+    
     @Autowired
     private ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
 
@@ -67,7 +67,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-
+      
         StopWatch task = new StopWatch();
         task.start();
 
@@ -76,6 +76,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 // ignore to allow 'preflight' requests from AJAX applications
                 // in different origin (domain name)
+            	
             }else{
 
                 String tenantId = request.getHeader(tenantRequestHeader);
@@ -92,8 +93,8 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
                 ThreadLocalContextUtil.setTenant(tenant);
             }
-
             super.doFilter(req, res, chain);
+            
         } catch (InvalidTenantIdentiferException e) {
             // deal with exception at low level
             SecurityContextHolder.getContext().setAuthentication(null);

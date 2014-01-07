@@ -1905,4 +1905,14 @@ public CommandWrapperBuilder deleteEventActionMapping(Long id) {
 	return this;
 }
 
+public CommandWrapperBuilder updatePaymentGateway(Long id) {
+
+	this.actionName = "UPDATE";
+	this.entityName = "PAYMENTGATEWAY";
+	this.entityId = id;
+	this.href = "/paymentgateways/"+this.entityId;
+	return this;
+}
+
+
 }

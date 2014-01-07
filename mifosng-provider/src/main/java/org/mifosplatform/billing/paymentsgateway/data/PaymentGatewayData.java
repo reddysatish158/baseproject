@@ -1,8 +1,10 @@
 package org.mifosplatform.billing.paymentsgateway.data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 
 public class PaymentGatewayData {
 
@@ -15,6 +17,7 @@ public class PaymentGatewayData {
 	private String status;
 	private String phoneNo;
 	private String clientName;
+	private List<MediaEnumoptionData> statusData;
 
 	public PaymentGatewayData(Long id, String serialNo, String phoneNo,
 			LocalDate paymentDate, BigDecimal amountPaid, String receiptNo,
@@ -64,6 +67,14 @@ public class PaymentGatewayData {
 
 	public String getClientName() {
 		return clientName;
+	}
+
+	public List<MediaEnumoptionData> getStatusData() {
+		return statusData;
+	}
+
+	public void setStatusData(List<MediaEnumoptionData> statusData) {
+		this.statusData = statusData;
 	}
 	
 	
