@@ -767,7 +767,18 @@ public class SynchronousCommandProcessingService implements
 						   }else{
 					           throw new UnsupportedCommandException(wrapper.commandName());
 					       }
-		    }else if(wrapper.isMRN()){
+		    }else if(wrapper.isEventActionMappingResource()){
+         		 if(wrapper.isCreateEventActionMapping()) {
+		        		handler = applicationContext.getBean("createEventActionMappingCommandHandler",NewCommandSourceHandler.class);
+				   } else if(wrapper.isUpdateEventActionMapping()) {
+		        		handler = applicationContext.getBean("updateEventActionMappingCommandHandler",NewCommandSourceHandler.class);	
+				   } else if(wrapper.isDeleteEventActionMapping()) {
+		        		handler = applicationContext.getBean("deleteEventActionMappingCommandHandler",NewCommandSourceHandler.class);	
+				   }else{
+			           throw new UnsupportedCommandException(wrapper.commandName());
+			       }
+		    }
+			else if(wrapper.isMRN()){
 			           if(wrapper.isCreateMRN()){
 			               handler = applicationContext.getBean("createMRNDetailsCommandHandler",NewCommandSourceHandler.class);
 			              }else if(wrapper.moveMRN()){
