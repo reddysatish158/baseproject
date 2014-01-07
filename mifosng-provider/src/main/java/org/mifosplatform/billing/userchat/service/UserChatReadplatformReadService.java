@@ -10,4 +10,6 @@ public interface UserChatReadplatformReadService {
 
 	List<UserChatData> getUserChatDetails();
 
+	List<UserChatData> getUserSentMessageDetails();
+
 }

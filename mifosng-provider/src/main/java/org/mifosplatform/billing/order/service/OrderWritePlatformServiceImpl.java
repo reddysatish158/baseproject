@@ -97,10 +97,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     
     
     public final static String CONFIG_PROPERTY="Implicit Association";
-    
-    
-    
-	@Autowired
+
+    @Autowired
 	public OrderWritePlatformServiceImpl(final PlatformSecurityContext context,final OrderRepository orderRepository,
 			final PlanRepository planRepository,final OrderPriceRepository OrderPriceRepository,final TenantAwareRoutingDataSource dataSource,
 			final SubscriptionRepository subscriptionRepository,final OrderCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ReverseInvoice reverseInvoice,
@@ -111,8 +109,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
 		    final PaymentsApiResource paymentsApiResource,final ReconnectionInvoice reconnectionInvoice) {
-
-
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
