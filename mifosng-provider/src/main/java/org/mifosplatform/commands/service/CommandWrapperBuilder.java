@@ -1883,6 +1883,28 @@ public CommandWrapperBuilder createUserChat() {
 	return this;
 }
 
+public CommandWrapperBuilder createEventActionMapping() {
+	this.actionName = "CREATE";
+	this.entityName = "EVENTACTIONMAP";
+	this.entityId = null;
+	this.href = "/eventactionmapping";
+	return this;
+}
+public CommandWrapperBuilder updateEventActionMapping(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "EVENTACTIONMAP";
+	this.entityId = id;
+	this.href = "/eventactionmapping";
+	return this;
+}
+public CommandWrapperBuilder deleteEventActionMapping(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "EVENTACTIONMAP";
+	this.entityId = id;
+	this.href = "/eventactionmapping";
+	return this;
+}
+
 public CommandWrapperBuilder updatePaymentGateway(Long id) {
 
 	this.actionName = "UPDATE";
@@ -1891,7 +1913,6 @@ public CommandWrapperBuilder updatePaymentGateway(Long id) {
 	this.href = "/paymentgateways/"+this.entityId;
 	return this;
 }
-
 
 
 }

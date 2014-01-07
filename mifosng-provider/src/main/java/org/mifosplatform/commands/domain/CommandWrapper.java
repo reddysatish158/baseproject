@@ -909,4 +909,18 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("UPDATE");
 		}
 		
+		public boolean isEventActionMappingResource() {
+			return this.entityName.equalsIgnoreCase("EVENTACTIONMAP");
+		}
+		
+		public boolean isCreateEventActionMapping() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("EVENTACTIONMAP");
+		}
+		public boolean isUpdateEventActionMapping() {
+			return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("EVENTACTIONMAP");
+		}
+		public boolean isDeleteEventActionMapping() {
+			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("EVENTACTIONMAP");
+		}
+		
 }
