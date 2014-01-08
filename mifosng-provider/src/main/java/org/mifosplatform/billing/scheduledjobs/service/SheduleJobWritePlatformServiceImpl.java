@@ -627,8 +627,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				byte[] encoded = Base64.encodeBase64(credentials.getBytes());
 				HttpClient httpClient = new DefaultHttpClient();
 	
-				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService
-						.getProcessingData(new Long(100));
+				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100));
 	            if(!entitlementDataForProcessings.isEmpty()){
 	            	String path=FileUtils.generateLogFileDirectory()+ JobName.Middleware.toString() + File.separator +"middleware_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 	            	 File fileHandler = new File(path.trim());

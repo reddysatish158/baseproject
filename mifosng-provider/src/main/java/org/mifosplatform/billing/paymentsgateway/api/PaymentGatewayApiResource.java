@@ -8,7 +8,9 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -27,6 +29,7 @@ import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformSer
 import org.mifosplatform.infrastructure.codes.data.CodeData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
@@ -52,17 +55,20 @@ public class PaymentGatewayApiResource {
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
 	private final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer;
 	private final PortfolioCommandSourceWritePlatformService writePlatformService;
+	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
 	@Autowired
 	public PaymentGatewayApiResource(final PlatformSecurityContext context,final PaymentGatewayReadPlatformService readPlatformService,
 			final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
-			final PortfolioCommandSourceWritePlatformService writePlatformService) {
+			final PortfolioCommandSourceWritePlatformService writePlatformService,
+			final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
 
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.writePlatformService = writePlatformService;
 		this.context=context;
 		this.readPlatformService=readPlatformService;
 		this.apiRequestParameterHelper=apiRequestParameterHelper;
+		 this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 	}
 
 	@POST
@@ -113,6 +119,31 @@ public class PaymentGatewayApiResource {
 		List<PaymentGatewayData> paymentData = readPlatformService.retrievePaymentGatewayData();
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, paymentData,RESPONSE_DATA_PARAMETERS);
+
+	}
+	
+	@GET
+	@Path("{id}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveAllDetailsForPayments(@PathParam("id") final Long id,@Context final UriInfo uriInfo) {
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		PaymentGatewayData paymentData = readPlatformService.retrievePaymentGatewayIdData(id);
+		List<MediaEnumoptionData> data=readPlatformService.retrieveTemplateData();
+		paymentData.setStatusData(data);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, paymentData,RESPONSE_DATA_PARAMETERS);
+
+	}
+	
+	@PUT
+	@Path("{id}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String updateData(@PathParam("id") final Long id,final String apiRequestBodyAsJson) {
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePaymentGateway(id).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		 return this.toApiJsonSerializer.serialize(result);
 
 	}
 

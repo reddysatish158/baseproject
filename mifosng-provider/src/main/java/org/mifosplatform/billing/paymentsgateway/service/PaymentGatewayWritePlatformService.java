@@ -6,6 +6,9 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 public interface PaymentGatewayWritePlatformService {
 
 	CommandProcessingResult createPaymentGateway(JsonCommand command);
+
+	CommandProcessingResult updatePaymentGateway(JsonCommand command);
+	
 	
 
 }

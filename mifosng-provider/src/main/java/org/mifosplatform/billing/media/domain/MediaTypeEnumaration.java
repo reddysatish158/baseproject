@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.media.domain;
 import org.mifosplatform.billing.message.data.EnumMessageType;
+import org.mifosplatform.billing.paymentsgateway.data.PaymentEnum;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 
 public class MediaTypeEnumaration {
@@ -11,6 +12,7 @@ public class MediaTypeEnumaration {
 	public static MediaEnumoptionData enummessageData(final int id) {
 		return enummessageData(EnumMessageType.fromInt(id));
 	}
+
 	public static MediaEnumoptionData enumOptionData(final MediaEnum mediaEnum) {
 		final String codePrefix = "deposit.interest.compounding.period.";
 		MediaEnumoptionData optionData = null;
@@ -59,7 +61,6 @@ public class MediaTypeEnumaration {
 		return optionData;
 
 	}
-
 
 
 }
