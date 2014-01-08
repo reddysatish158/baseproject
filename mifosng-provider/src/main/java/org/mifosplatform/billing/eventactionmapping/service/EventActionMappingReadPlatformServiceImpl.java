@@ -144,7 +144,7 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 
 		 String sql=null;
 		 EventMapper mapper = new EventMapper();
-		 sql = "select " + mapper.schema()+"  where event_name=?";
+		 sql = "select " + mapper.schema()+"  where b.event_name=? and b.is_deleted='N'";
 		return this.jdbcTemplate.query(sql, mapper, new Object[] { event});
 	}
 	

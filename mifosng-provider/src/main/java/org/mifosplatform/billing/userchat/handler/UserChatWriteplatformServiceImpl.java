@@ -39,12 +39,12 @@ public CommandProcessingResult createUserChat(JsonCommand command) {
  
 	try{
 		this.apiJsonDeserializer.validateForCreate(command.json());
-		final Long userId=this.context.authenticatedUser().getId();
+		final String user=this.context.authenticatedUser().getUsername();
 		final String userName=command.stringValueOfParameterNamed("userName");
 		final String message=command.stringValueOfParameterNamed("message");
 		final LocalDate messageDate=command.localDateValueOfParameterNamed("messageDate");
 		
-		UserChat userChat=new UserChat(userName,messageDate.toDate(),message,userId);
+		UserChat userChat=new UserChat(userName,messageDate.toDate(),message,user);
 		this.userChatRepository.save(userChat);
 		
 		return new CommandProcessingResult(userChat.getId());

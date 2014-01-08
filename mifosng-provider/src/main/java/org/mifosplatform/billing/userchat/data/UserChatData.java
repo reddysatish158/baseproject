@@ -11,18 +11,18 @@ public class UserChatData {
 	private final String userName;
 	private final String message;
 	private final LocalDate messageDate;
-	private final Long createdById;
+	private final String createdByUser;
 	private List<UserChatData> userChatDatas;
 	private Collection<AppUserData> appUserDatas;
 	
 	public UserChatData(Long id, String userName, LocalDate messageDate,
-			String message, Long createdById) {
+			String message, String createdByUser) {
            
 		this.id=id;
 		this.userName=userName;
 		this.message=message;
 		this.messageDate=messageDate;
-		this.createdById=createdById;
+		this.createdByUser=createdByUser;
 	}
 	public UserChatData(List<UserChatData> userChatDatas,
 			Collection<AppUserData> appUserDatas) {
@@ -30,7 +30,7 @@ public class UserChatData {
 		this.userName=null;
 		this.message=null;
 		this.messageDate=null;
-		this.createdById=null;
+		this.createdByUser=null;
 		this.userChatDatas=userChatDatas;
 		this.appUserDatas=appUserDatas;
   
@@ -47,8 +47,8 @@ public class UserChatData {
 	public LocalDate getMessageDate() {
 		return messageDate;
 	}
-	public Long getCreatedById() {
-		return createdById;
+	public String getCreatedByUser() {
+		return createdByUser;
 	}
 
 	

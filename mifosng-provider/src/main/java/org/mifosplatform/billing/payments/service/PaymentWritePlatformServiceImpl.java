@@ -14,6 +14,7 @@ import org.mifosplatform.billing.payments.domain.ChequePayment;
 import org.mifosplatform.billing.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
+import org.mifosplatform.billing.payments.exception.PaymentDetailsNotFoundException;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -132,6 +133,29 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		} catch (DataIntegrityViolationException dve) {
 			return Long.valueOf(-1);
 		}
+	}
+
+	@Override
+	public CommandProcessingResult cancelPayment(JsonCommand command,Long paymentId) {
+		
+		try{
+			Payment payment=this.paymentRepository.findOne(paymentId);
+			if(payment == null){
+				throw new PaymentDetailsNotFoundException(paymentId.toString());
+			}
+			
+			payment.cancelPayment(command);
+			this.paymentRepository.save(payment);
+			ClientBalance clientBalance = clientBalanceRepository.findOne(payment.getClientId());
+			clientBalance.setBalanceAmount(clientBalance.getBalanceAmount().add(payment.getAmountPaid()));
+			this.clientBalanceRepository.save(clientBalance);
+			return new CommandProcessingResult(paymentId);
+			
+			
+		}catch(DataIntegrityViolationException exception){
+			return CommandProcessingResult.empty();
+		}
+		
 	}
 
 
