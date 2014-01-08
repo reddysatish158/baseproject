@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class UserChatApiResource{
 
-	   private final Set<String> USER_CHAT_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "userName", "messageDate", "message","createdById"));
+	   private final Set<String> USER_CHAT_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "userName", "messageDate", "message","createdByUser"));
  
 	    private final String resourceNameForPermissions = "USERCHAT";
 	    private final PlatformSecurityContext context;
@@ -69,24 +69,44 @@ public class UserChatApiResource{
 	        return this.toApiJsonSerializer.serialize(result);
 	    }
 	    
-		    @GET
-		    @Consumes({MediaType.APPLICATION_JSON})
-		    @Produces({MediaType.APPLICATION_JSON})
-		    public String retrieveOrderDetails(@Context final UriInfo uriInfo) {
-	        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	        final List<UserChatData> userChatDatas = this.userChatReadplatformReadService.getUserChatDetails();
-	        final Collection<AppUserData> appUserDatas = this.appUserReadPlatformService.retrieveAllUsers();
-	        
-	        Collection<AppUserData> userDatas=new ArrayList<AppUserData>();
-	           for(AppUserData appUserData:appUserDatas ){
-	        	   System.out.println(context.authenticatedUser().getUsername());
-	        	 if(appUserData.username().equalsIgnoreCase(context.authenticatedUser().getUsername())){
+		
+	    @GET
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String retrieveInboxMessageDetails(@Context final UriInfo uriInfo) {
+	    context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	    
+	    final List<UserChatData> userChatDatas = this.userChatReadplatformReadService.getUserChatDetails();
+	    final Collection<AppUserData> appUserDatas = this.appUserReadPlatformService.retrieveAllUsers();
+	    Collection<AppUserData> userDatas=new ArrayList<AppUserData>();
+
+	        for(AppUserData appUserData:appUserDatas ){
+	        	 if(!appUserData.username().equalsIgnoreCase(context.authenticatedUser().getUsername())){
 	        		 userDatas.add(appUserData);
 	        	 }
 	           }
-	           
 	           UserChatData data=new UserChatData(userChatDatas,userDatas);
-	        
+	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	        return this.toApiJsonSerializer.serialize(settings, data, USER_CHAT_DATA_PARAMETERS);
+		    }
+	    
+	    @GET
+	    @Path("sentmessages")
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String retrieveSentMessageDetails(@Context final UriInfo uriInfo) {
+
+	    context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	    final List<UserChatData> userChatDatas = this.userChatReadplatformReadService.getUserSentMessageDetails();
+	    final Collection<AppUserData> appUserDatas = this.appUserReadPlatformService.retrieveAllUsers();
+	    Collection<AppUserData> userDatas=new ArrayList<AppUserData>();
+
+	        for(AppUserData appUserData:appUserDatas ){
+	        	 if(!appUserData.username().equalsIgnoreCase(context.authenticatedUser().getUsername())){
+	        		 userDatas.add(appUserData);
+	        	 }
+	           }
+	           UserChatData data=new UserChatData(userChatDatas,userDatas);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, data, USER_CHAT_DATA_PARAMETERS);
 		    }

@@ -39,11 +39,13 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	private String remarks;
 
 	@Column(name = "paymode_id")
-	private int paymode_id;
+	private int paymodeId;
 	
-
 	@Column(name = "transaction_id")
 	private String transactionId;
+	
+	@Column(name = "cancel_remark")
+	private String cancelRemark;
 
 
 	public Payment() {
@@ -58,7 +60,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		this.amountPaid = amountPaid;
 		this.paymentDate = paymentDate.toDate();
 		this.remarks = remark;
-		this.paymode_id = paymodeCode.intValue();
+		this.paymodeId = paymodeCode.intValue();
 		this.transactionId=transId;
 
 	}
@@ -102,12 +104,20 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	}
 
 	public int getPaymodeCode() {
-		return paymode_id;
+		return paymodeId;
 	}
 
 		public void updateBillId(Long billId) {
 		this.statementId=billId;
 
 	}
+
+		public void cancelPayment(JsonCommand command) {
+			
+			final String cancelRemarks=command.stringValueOfParameterNamed("cancelRemorks");
+			this.cancelRemark=cancelRemarks;
+			this.deleted=true;
+			
+		}
 
 }

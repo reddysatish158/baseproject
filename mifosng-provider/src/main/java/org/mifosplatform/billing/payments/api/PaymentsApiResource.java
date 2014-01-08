@@ -7,11 +7,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -107,6 +106,7 @@ public class PaymentsApiResource {
 	}
 	
 	
+	
 	 @POST
 	 @Path("paypal")
 	 @Consumes("application/x-www-form-urlencoded")
@@ -139,4 +139,15 @@ public class PaymentsApiResource {
 	    return e.getMessage();
 	   }
 	 }
+	 
+	 @DELETE
+	 @Path("cancelpayment/{paymentId}")
+	 @Consumes({ MediaType.APPLICATION_JSON })
+	 @Produces({ MediaType.APPLICATION_JSON })
+	 public String cancelPayment(@PathParam("paymentId") final Long paymentId,final String apiRequestBodyAsJson) {
+		 
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().cancelPayment(paymentId).withJson(apiRequestBodyAsJson).build();
+			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
+			return this.toApiJsonSerializer.serialize(result);
+		}	 
 }
