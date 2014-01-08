@@ -527,6 +527,8 @@ public final class Client extends AbstractPersistable<Long> {
 	public Set<Group> getGroups() {
 		return groups;
 	}
-
+	public void setOffice(Office office) {
+		this.office = office;
+	}
     
 }
