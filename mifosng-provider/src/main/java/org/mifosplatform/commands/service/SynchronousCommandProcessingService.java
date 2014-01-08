@@ -578,6 +578,8 @@ public class SynchronousCommandProcessingService implements
 	        }else if (wrapper.isPaymentResource()) {
 	        	if (wrapper.isCreate()) {
 	                handler = applicationContext.getBean("createPaymentCommandHandler", NewCommandSourceHandler.class);
+	        	}else if (wrapper.isCancel()) {
+	                handler = applicationContext.getBean("cancelPaymentCommandHandler", NewCommandSourceHandler.class);
 	        	}else {
 	                    throw new UnsupportedCommandException(wrapper.commandName());
 	                }

@@ -922,5 +922,8 @@ public class CommandWrapper {
 		public boolean isDeleteEventActionMapping() {
 			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("EVENTACTIONMAP");
 		}
+		public boolean isCancel() {
+			return this.actionName.equalsIgnoreCase("CANCEL") && this.entityName.equalsIgnoreCase("PAYMENT");
+		}
 		
 }
