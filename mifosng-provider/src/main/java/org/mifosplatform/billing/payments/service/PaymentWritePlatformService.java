@@ -9,6 +9,8 @@ public interface PaymentWritePlatformService {
 
 	Long createPayments(Long clientBalanceid, Long clientid, JsonCommand command);
 
+	CommandProcessingResult cancelPayment(JsonCommand command,Long entityId);
+
 	
 	
 	

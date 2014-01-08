@@ -92,11 +92,12 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 
 		final JsonElement element = fromApiJsonHelper.parse(json);
 	
+		final String status = fromApiJsonHelper.extractStringNamed("status", element);
+		baseDataValidator.reset().parameter("status").value(status).notBlank();
+		
 		final String remarks = fromApiJsonHelper.extractStringNamed("remarks", element);
 		baseDataValidator.reset().parameter("remarks").value(remarks).notBlank().notExceedingLengthOf(500);
 		
-		final String status = fromApiJsonHelper.extractStringNamed("status", element);
-		baseDataValidator.reset().parameter("status").value(status).notBlank();
 		
 		throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}

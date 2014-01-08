@@ -24,10 +24,18 @@ import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * A customised version of spring security's {@link BasicAuthenticationFilter}.
@@ -48,9 +56,20 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
     private final static Logger logger = LoggerFactory.getLogger(TenantAwareBasicAuthenticationFilter.class);
 
+    //ashok changed
+    private AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private RememberMeServices rememberMeServices = new NullRememberMeServices();
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
+    //ashok changed
+    
     @Autowired
     private TenantDetailsService tenantDetailsService;
-    
+
     @Autowired
     private ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
 
@@ -67,40 +86,81 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-      
+
+        String path=request.getRequestURI();
         StopWatch task = new StopWatch();
         task.start();
 
         try {
-
+        	String header = request.getHeader("Authorization");
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 // ignore to allow 'preflight' requests from AJAX applications
                 // in different origin (domain name)
+            	super.doFilter(req, res, chain); //ashok changed please comment when delete the else if statement
+            }else if(path.contains("/api/v1/paymentgateways") && request.getMethod().equalsIgnoreCase("POST")){
             	
-            }else{
-
-                String tenantId = request.getHeader(tenantRequestHeader);
-                if (org.apache.commons.lang.StringUtils.isBlank(tenantId)) {
-                    tenantId = request.getParameter("tenantIdentifier");
+           	    String username= request.getParameter("username");
+                String password= request.getParameter("password");
+                
+                final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");             	
+	             ThreadLocalContextUtil.setTenant(tenant);
+                
+                if(!(org.apache.commons.lang.StringUtils.isBlank(username) || org.apache.commons.lang.StringUtils.isBlank(password))){
+	            	
+	                UsernamePasswordAuthenticationToken authRequest =
+	                        new UsernamePasswordAuthenticationToken(username, password);
+	                authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+	                Authentication authResult = authenticationManager.authenticate(authRequest);
+	       
+	                SecurityContextHolder.getContext().setAuthentication(authResult);
+	
+	                rememberMeServices.loginSuccess(request, response, authResult);
+	
+	                onSuccessfulAuthentication(request, response, authResult);
+	                chain.doFilter(request, response);
+                }else{
+               	   throw new AuthenticationCredentialsNotFoundException("Credentials are not valid");
                 }
+                
+           }else {
 
-                if (tenantId == null && exceptionIfHeaderMissing) { throw new InvalidTenantIdentiferException(
-                        "No tenant identifier found: Add request header of '" + tenantRequestHeader
-                                + "' or add the parameter 'tenantIdentifier' to query string of request URL."); }
+               String tenantId = request.getHeader(tenantRequestHeader);
+               if (org.apache.commons.lang.StringUtils.isBlank(tenantId)) {
+                   tenantId = request.getParameter("tenantIdentifier");
+               }
 
-                // check tenants database for tenantId
-                final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantId);
+               if (tenantId == null && exceptionIfHeaderMissing) { throw new InvalidTenantIdentiferException(
+                       "No tenant identifier found: Add request header of '" + tenantRequestHeader
+                               + "' or add the parameter 'tenantIdentifier' to query string of request URL."); }
 
-                ThreadLocalContextUtil.setTenant(tenant);
-            }
-            super.doFilter(req, res, chain);
+               // check tenants database for tenantId
+               final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantId);
+
+               ThreadLocalContextUtil.setTenant(tenant);
+               //ashokchanged
+               super.doFilter(req, res, chain);
+               //ashok changed
+           }
             
+               //     response.addHeader("Authorization", "YmlsbGluZzpwYXNzd29yZA==");
+            //super.doFilter(req, res, chain); //active this line
         } catch (InvalidTenantIdentiferException e) {
             // deal with exception at low level
             SecurityContextHolder.getContext().setAuthentication(null);
 
             response.addHeader("WWW-Authenticate", "Basic realm=\"" + "Mifos Platform API" + "\"");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }catch (AuthenticationException failed) {
+            SecurityContextHolder.clearContext();
+
+            rememberMeServices.loginFail(request, response);
+
+            onUnsuccessfulAuthentication(request, response, failed);
+
+           
+                authenticationEntryPoint.commence(request, response, failed);
+            
+            return;
         } finally {
             task.stop();
             final PlatformRequestLog log = PlatformRequestLog.from(task, request);

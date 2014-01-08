@@ -1914,5 +1914,14 @@ public CommandWrapperBuilder updatePaymentGateway(Long id) {
 	return this;
 }
 
+public CommandWrapperBuilder cancelPayment(Long paymentId) {
+	
+	this.actionName = "CANCEL";
+	this.entityName = "PAYMENT";
+	this.entityId = paymentId;
+	this.href = "/payments/cancelpayment"+this.entityId;
+	return this;
+}
+
 
 }

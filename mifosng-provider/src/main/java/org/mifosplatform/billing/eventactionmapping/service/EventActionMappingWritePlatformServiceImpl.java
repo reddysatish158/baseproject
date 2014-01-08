@@ -76,7 +76,7 @@ public EventActionMappingWritePlatformServiceImpl(final PlatformSecurityContext 
 	        if (realCause.getMessage().contains("discountcode")) {
 	            final String name = command.stringValueOfParameterNamed("discountcode");
 	            throw new PlatformDataIntegrityException("error.msg.discount.duplicate.name", "A discount with Code'"
-	                    + name + "'already exists", "displayName", name);
+	                    + name + "'already exists");
 	        }
 
 	        logger.error(dve.getMessage(), dve);

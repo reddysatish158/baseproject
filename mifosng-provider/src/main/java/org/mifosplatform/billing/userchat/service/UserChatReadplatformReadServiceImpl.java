@@ -42,7 +42,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
              
     		final String userName=this.context.authenticatedUser().getUsername();
     		UserChatDataMapper mapper = new UserChatDataMapper();
-    		String sql = "select " + mapper.schema();
+    		String sql = "select " + mapper.schema()+" where u.username=?";
     		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
     		
     		
@@ -56,8 +56,8 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
     private static final class UserChatDataMapper implements RowMapper<UserChatData> {
 
 		public String schema() {
-			return " u.id AS id,u.username AS userName,u.message_date AS messageDate,u.message AS message, u.createdby_id AS createdById" +
-					" FROM b_userchat u where u.username=?";
+			return " u.id AS id,u.username AS userName,u.message_date AS messageDate,u.message AS message, u.createdby_user AS createdbyUser" +
+					" FROM b_userchat u ";
 
 		}
 
@@ -68,12 +68,28 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
 			Long id = rs.getLong("id");
 			String userName = rs.getString("userName");
 			String message = rs.getString("message");
-			Long createdById = rs.getLong("createdById");
+			String createdByUser = rs.getString("createdbyUser");
 			LocalDate messageDate=JdbcSupport.getLocalDate(rs, "messageDate");
 
-			return new UserChatData(id,userName,messageDate,message,createdById);
+			return new UserChatData(id,userName,messageDate,message,createdByUser);
 
 		}
 	}
+
+	@Override
+	public List<UserChatData> getUserSentMessageDetails() {
+        
+    	try{
+             
+    		final String userName=this.context.authenticatedUser().getUsername();
+    		UserChatDataMapper mapper = new UserChatDataMapper();
+    		String sql = "select " + mapper.schema()+" where u.createdby_user = ?";
+    		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
+    	}catch(EmptyResultDataAccessException accessException){
+    		return null;
+    	}
+		
+    
+    }
 
 }
