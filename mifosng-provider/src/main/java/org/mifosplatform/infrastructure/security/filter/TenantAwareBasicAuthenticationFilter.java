@@ -92,12 +92,12 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
         task.start();
 
         try {
-
+        	String header = request.getHeader("Authorization");
             if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 // ignore to allow 'preflight' requests from AJAX applications
                 // in different origin (domain name)
             	super.doFilter(req, res, chain); //ashok changed please comment when delete the else if statement
-            }else if(path.contains("/api/v1/paymentgateways")){
+            }else if(path.contains("/api/v1/paymentgateways") && request.getMethod().equalsIgnoreCase("POST")){
             	
            	    String username= request.getParameter("username");
                 String password= request.getParameter("password");
@@ -122,25 +122,26 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
                	   throw new AuthenticationCredentialsNotFoundException("Credentials are not valid");
                 }
                 
-           }else{
+           }else {
 
-                String tenantId = request.getHeader(tenantRequestHeader);
-                if (org.apache.commons.lang.StringUtils.isBlank(tenantId)) {
-                    tenantId = request.getParameter("tenantIdentifier");
-                }
+               String tenantId = request.getHeader(tenantRequestHeader);
+               if (org.apache.commons.lang.StringUtils.isBlank(tenantId)) {
+                   tenantId = request.getParameter("tenantIdentifier");
+               }
 
-                if (tenantId == null && exceptionIfHeaderMissing) { throw new InvalidTenantIdentiferException(
-                        "No tenant identifier found: Add request header of '" + tenantRequestHeader
-                                + "' or add the parameter 'tenantIdentifier' to query string of request URL."); }
+               if (tenantId == null && exceptionIfHeaderMissing) { throw new InvalidTenantIdentiferException(
+                       "No tenant identifier found: Add request header of '" + tenantRequestHeader
+                               + "' or add the parameter 'tenantIdentifier' to query string of request URL."); }
 
-                // check tenants database for tenantId
-                final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantId);
+               // check tenants database for tenantId
+               final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantId);
 
-                ThreadLocalContextUtil.setTenant(tenant);
-                //ashokchanged
-                super.doFilter(req, res, chain);
-                //ashok changed
-            }
+               ThreadLocalContextUtil.setTenant(tenant);
+               //ashokchanged
+               super.doFilter(req, res, chain);
+               //ashok changed
+           }
+            
                //     response.addHeader("Authorization", "YmlsbGluZzpwYXNzd29yZA==");
             //super.doFilter(req, res, chain); //active this line
         } catch (InvalidTenantIdentiferException e) {
