@@ -86,7 +86,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			
 			//Add New Action 
 			List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_PAYMENT);
-			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,clientBalancedatas.get(0).getClientId(), id.toString());
+			if(actionDetaislDatas.size() != 0){
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), id.toString());
+			}
 			
 			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).build();
 		} catch (DataIntegrityViolationException dve) {
@@ -139,6 +141,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	public CommandProcessingResult cancelPayment(JsonCommand command,Long paymentId) {
 		
 		try{
+			this.fromApiJsonDeserializer.validateForCancel(command.json());
 			Payment payment=this.paymentRepository.findOne(paymentId);
 			if(payment == null){
 				throw new PaymentDetailsNotFoundException(paymentId.toString());
@@ -146,7 +149,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			
 			payment.cancelPayment(command);
 			this.paymentRepository.save(payment);
-			ClientBalance clientBalance = clientBalanceRepository.findOne(payment.getClientId());
+			ClientBalance clientBalance = clientBalanceRepository.findByClientId(payment.getClientId());
 			clientBalance.setBalanceAmount(clientBalance.getBalanceAmount().add(payment.getAmountPaid()));
 			this.clientBalanceRepository.save(clientBalance);
 			return new CommandProcessingResult(paymentId);

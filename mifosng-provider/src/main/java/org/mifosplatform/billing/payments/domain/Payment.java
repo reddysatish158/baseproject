@@ -46,13 +46,16 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	
 	@Column(name = "cancel_remark")
 	private String cancelRemark;
+	
+	@Column(name = "receipt_no")
+	private String receiptNo;
 
 
 	public Payment() {
 	}
 
 	public Payment(final Long clientId, final Long paymentId,final Long externalId, final BigDecimal amountPaid,final Long statmentId, final LocalDate paymentDate,
-			final String remark, final Long paymodeCode, String transId) {
+			final String remark, final Long paymodeCode, String transId,String receiptNo) {
 
 		this.clientId = clientId;
 
@@ -62,6 +65,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		this.remarks = remark;
 		this.paymodeId = paymodeCode.intValue();
 		this.transactionId=transId;
+		this.receiptNo=receiptNo;
 
 	}
 
@@ -70,12 +74,11 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 				.localDateValueOfParameterNamed("paymentDate");
 		final Long paymentCode = command.longValueOfParameterNamed("paymentCode");
 				
-		final BigDecimal amountPaid = command
-				.bigDecimalValueOfParameterNamed("amountPaid");
+		final BigDecimal amountPaid = command.bigDecimalValueOfParameterNamed("amountPaid");
 		final String remarks = command.stringValueOfParameterNamed("remarks");
 		final String txtid=command.stringValueOfParameterNamed("txn_id");
-		return new Payment(clientid, null, null, amountPaid, null, paymentDate,
-				remarks, paymentCode,txtid);
+		final String receiptNo=command.stringValueOfParameterNamed("receiptNo");
+		return new Payment(clientid, null, null, amountPaid, null, paymentDate,remarks, paymentCode,txtid,receiptNo);
 
 	}
 
@@ -114,7 +117,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 
 		public void cancelPayment(JsonCommand command) {
 			
-			final String cancelRemarks=command.stringValueOfParameterNamed("cancelRemorks");
+			final String cancelRemarks=command.stringValueOfParameterNamed("cancelRemark");
 			this.cancelRemark=cancelRemarks;
 			this.deleted=true;
 			
