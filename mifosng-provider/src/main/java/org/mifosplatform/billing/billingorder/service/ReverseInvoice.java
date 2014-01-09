@@ -18,6 +18,7 @@ public class ReverseInvoice {
 	
 	private BillingOrderReadPlatformService billingOrderReadPlatformService;
 	private GenerateReverseBillingOrderService generateReverseBillingOrderService;
+	private GenerateBillingOrderService generateBillingOrderService;
 	private PlatformSecurityContext context;
 	private final ClientBalanceReadPlatformService clientBalanceReadPlatformService;
 	private final BillingOrderWritePlatformService billingOrderWritePlatformService;
@@ -26,21 +27,26 @@ public class ReverseInvoice {
 	@Autowired
 	public ReverseInvoice(BillingOrderReadPlatformService billingOrderReadPlatformService,PlatformSecurityContext context,
 			GenerateReverseBillingOrderService generateReverseBillingOrderService,final BillingOrderWritePlatformService billingOrderWritePlatformService,
-			final ClientBalanceReadPlatformService  balanceReadPlatformService){
+			final ClientBalanceReadPlatformService  balanceReadPlatformService,GenerateBillingOrderService generateBillingOrderService){
 		
 		this.context = context;
 		this.billingOrderReadPlatformService = billingOrderReadPlatformService;
 		this.generateReverseBillingOrderService = generateReverseBillingOrderService;
 		this.clientBalanceReadPlatformService=balanceReadPlatformService;
 		this.billingOrderWritePlatformService=billingOrderWritePlatformService;
+		this.generateBillingOrderService=generateBillingOrderService;
 	}
 	
 	 
 	public BigDecimal reverseInvoiceServices(Long orderId,Long clientId,LocalDate disconnectionDate){
-		
+	    Invoice invoice=null;
 		List<BillingOrderData> billingOrderProducts = this.billingOrderReadPlatformService.getReverseBillingOrderData(clientId, disconnectionDate, orderId);
 		List<BillingOrderCommand> billingOrderCommands = this.generateReverseBillingOrderService.generateReverseBillingOrder(billingOrderProducts,disconnectionDate);
-		Invoice invoice = this.generateReverseBillingOrderService.generateNegativeInvoice(billingOrderCommands);
+		if(billingOrderCommands.get(0).getChargeType().equalsIgnoreCase("RC")){
+			 invoice = this.generateBillingOrderService. generateInvoice(billingOrderCommands);	
+		}else{
+	      invoice = this.generateReverseBillingOrderService.generateNegativeInvoice(billingOrderCommands);
+		}
 		
 		List<ClientBalanceData> clientBalancesDatas = clientBalanceReadPlatformService.retrieveAllClientBalances(clientId);
 		
