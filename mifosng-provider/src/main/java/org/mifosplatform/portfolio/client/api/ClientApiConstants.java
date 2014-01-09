@@ -33,6 +33,7 @@ public class ClientApiConstants {
     public static final String countryParamName="country";
     public static final String emailParamName="email";
     public static final String phoneParamName="phone";
+    public static final String homePhoneNumberParamName="homePhoneNumber";
     public static final String stateParamName="state";
     public static final String streetParamName="street";
     public static final String zipCodeParamName="zipCode";
@@ -60,11 +61,12 @@ public class ClientApiConstants {
     public static final Set<String> CLIENT_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, groupIdParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,
             lastnameParamName, fullnameParamName, officeIdParamName, activeParamName, activationDateParamName,clientCategoryParamName,
-            addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,stateParamName,streetParamName,zipCodeParamName,loginParamName,passwordParamName,flagParamName));
+            addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,homePhoneNumberParamName,stateParamName,streetParamName,zipCodeParamName,loginParamName,passwordParamName,flagParamName));
 
     public static final Set<String> CLIENT_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,clientCategoryParamName,
-            lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,emailParamName));
+            lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,homePhoneNumberParamName,emailParamName,officeIdParamName));
+
 
     /**
      * These parameters will match the class level parameters of

@@ -128,6 +128,10 @@ public final class ClientDataValidator {
             final String phone = fromApiJsonHelper.extractStringNamed(ClientApiConstants.phoneParamName, element);
             baseDataValidator.reset().parameter(ClientApiConstants.phoneParamName).value(phone).notNull()
                     .notExceedingLengthOf(11);
+        }if (fromApiJsonHelper.parameterExists(ClientApiConstants.homePhoneNumberParamName, element)) {
+            final String homePhoneNumber = fromApiJsonHelper.extractStringNamed(ClientApiConstants.homePhoneNumberParamName, element);
+            baseDataValidator.reset().parameter(ClientApiConstants.homePhoneNumberParamName).value(homePhoneNumber).notNull()
+                    .notExceedingLengthOf(11);
         }
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.emailParamName, element)) {
             final String email = fromApiJsonHelper.extractStringNamed(ClientApiConstants.emailParamName, element);
@@ -158,7 +162,10 @@ public final class ClientDataValidator {
 
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
                 .resource(ClientApiConstants.CLIENT_RESOURCE_NAME);
-
+        
+        final Long officeId = fromApiJsonHelper.extractLongNamed(ClientApiConstants.officeIdParamName, element);
+        baseDataValidator.reset().parameter(ClientApiConstants.officeIdParamName).value(officeId).notNull().integerGreaterThanZero();
+        
         boolean atLeastOneParameterPassedForUpdate = false;
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.accountNoParamName, element)) {
             atLeastOneParameterPassedForUpdate = true;
@@ -183,6 +190,11 @@ public final class ClientDataValidator {
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.phoneParamName, element)) {
             final String phone = fromApiJsonHelper.extractStringNamed(ClientApiConstants.phoneParamName, element);
             baseDataValidator.reset().parameter(ClientApiConstants.phoneParamName).value(phone).notNull()
+                    .notExceedingLengthOf(11);
+        }
+        if (fromApiJsonHelper.parameterExists(ClientApiConstants.homePhoneNumberParamName, element)) {
+            final String homePhoneNumber = fromApiJsonHelper.extractStringNamed(ClientApiConstants.homePhoneNumberParamName, element);
+            baseDataValidator.reset().parameter(ClientApiConstants.homePhoneNumberParamName).value(homePhoneNumber).notNull()
                     .notExceedingLengthOf(11);
         }
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.emailParamName, element)) {
