@@ -13,10 +13,10 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.useradministration.domain.AppUser;
-
+import javax.persistence.UniqueConstraint;
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "b_payments")
+@Table(name = "b_payments",uniqueConstraints = {@UniqueConstraint(name = "receipt_no", columnNames = { "receipt_no" })})
 public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 
 	@Column(name = "client_id", nullable = false)
@@ -46,13 +46,15 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	
 	@Column(name = "cancel_remark")
 	private String cancelRemark;
-
+	
+	@Column(name = "receipt_no")
+	private String receiptNo;
 
 	public Payment() {
 	}
 
 	public Payment(final Long clientId, final Long paymentId,final Long externalId, final BigDecimal amountPaid,final Long statmentId, final LocalDate paymentDate,
-			final String remark, final Long paymodeCode, String transId) {
+			final String remark, final Long paymodeCode, String transId,final String receiptNo) {
 
 		this.clientId = clientId;
 
@@ -62,6 +64,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		this.remarks = remark;
 		this.paymodeId = paymodeCode.intValue();
 		this.transactionId=transId;
+		this.receiptNo=receiptNo;
 
 	}
 
@@ -74,8 +77,9 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 				.bigDecimalValueOfParameterNamed("amountPaid");
 		final String remarks = command.stringValueOfParameterNamed("remarks");
 		final String txtid=command.stringValueOfParameterNamed("txn_id");
+		final String receiptNo=command.stringValueOfParameterNamed("receiptNo");
 		return new Payment(clientid, null, null, amountPaid, null, paymentDate,
-				remarks, paymentCode,txtid);
+				remarks, paymentCode,txtid,receiptNo);
 
 	}
 

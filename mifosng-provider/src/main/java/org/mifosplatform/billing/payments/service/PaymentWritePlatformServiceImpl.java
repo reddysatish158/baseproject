@@ -20,6 +20,7 @@ import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWr
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,6 +132,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			return payment.getId();
 
 		} catch (DataIntegrityViolationException dve) {
+			handleDataIntegrityIssues(command, dve);
 			return Long.valueOf(-1);
 		}
 	}
@@ -158,7 +160,16 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		
 	}
 
-
+	private void handleDataIntegrityIssues(JsonCommand command, DataIntegrityViolationException dve){
+		Throwable realCause = dve.getMostSpecificCause(); 
+		if(realCause.getMessage().contains("receipt_no")){
+			//throw new PlatformDataIntegrityException("validation.error.message.chargecode.duplicate.chargecode","","",command.stringValueOfParameterNamed("chargecode"));
+			 throw new PlatformDataIntegrityException("error.msg.payments.duplicate.receiptNo", "A code with receiptNo'"
+	                    + command.stringValueOfParameterNamed("receiptNo") + "'already exists", "displayName", command.stringValueOfParameterNamed("receiptNo"));
+		}
+		
+		logger.error(dve.getMessage(), dve);
+	}
 }
 
 
