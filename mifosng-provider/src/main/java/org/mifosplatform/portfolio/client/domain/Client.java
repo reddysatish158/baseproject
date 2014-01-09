@@ -94,6 +94,9 @@ public final class Client extends AbstractPersistable<Long> {
     @Column(name = "phone", length = 100)
     private String phone;
     
+    @Column(name = "home_phone_number", length = 20)
+    private String homePhoneNumber;
+    
     @Column(name = "login", length = 100)
     private String login;
     @Column(name = "password", length = 100)
@@ -120,6 +123,8 @@ public final class Client extends AbstractPersistable<Long> {
         final String fullname = command.stringValueOfParameterNamed(ClientApiConstants.fullnameParamName);
         final Long categoryType=command.longValueOfParameterNamed(ClientApiConstants.clientCategoryParamName);
         final String phone = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
+        final String homePhoneNumber = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
+        
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
 	    final String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
@@ -138,7 +143,7 @@ public final class Client extends AbstractPersistable<Long> {
         }
 
         return new Client(status, clientOffice, clientParentGroup, accountNo, firstname, middlename, lastname, fullname, activationDate,
-                externalId,categoryType,email,phone,login,password);
+                externalId,categoryType,email,phone,homePhoneNumber,login,password);
     }
 
     protected Client() {
@@ -147,7 +152,7 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone, String login, String password) {
+            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password) {
         if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
             this.accountNumberRequiresAutoGeneration = true;
@@ -159,6 +164,7 @@ public final class Client extends AbstractPersistable<Long> {
         this.categoryType=categoryType;
         this.email=email;
         this.phone=phone;
+        this.homePhoneNumber=homePhoneNumber;
         this.login=login;
         this.password=password;
         if (StringUtils.isNotBlank(externalId)) {
@@ -334,6 +340,12 @@ public final class Client extends AbstractPersistable<Long> {
             final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
             actualChanges.put(ClientApiConstants.phoneParamName, newValue);
             this.phone= StringUtils.defaultIfEmpty(newValue, null);
+        }
+        
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.homePhoneNumberParamName,this.homePhoneNumber)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
+            actualChanges.put(ClientApiConstants.homePhoneNumberParamName, newValue);
+            this.homePhoneNumber= StringUtils.defaultIfEmpty(newValue, null);
         }
         
         if (command.isChangeInStringParameterNamed(ClientApiConstants.loginParamName, this.login)) {
@@ -515,7 +527,11 @@ public final class Client extends AbstractPersistable<Long> {
 	public String getPhone() {
 		return phone;
 	}
-
+	
+	public String getHomePhoneNumber() {
+		return homePhoneNumber;
+	}
+	
 	public String getLogin() {
 		return login;
 	}

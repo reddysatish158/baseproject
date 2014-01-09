@@ -232,7 +232,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             sqlBuilder.append("c.office_id as officeId, o.name as officeName, ");
             sqlBuilder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
             sqlBuilder.append("c.fullname as fullname, c.display_name as displayName,c.category_type as categoryType, ");
-            sqlBuilder.append("c.email as email,c.phone as phone,c.activation_date as activationDate, c.image_key as imagekey ");
+            sqlBuilder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey ");
             sqlBuilder.append("from m_client c ");
             sqlBuilder.append("join m_office o on o.id = c.office_id ");
             sqlBuilder.append("join m_group_client pgc on pgc.client_id = c.id");
@@ -265,9 +265,10 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final Long categoryType=rs.getLong("categoryType");
             final String email = rs.getString("email");
             final String phone = rs.getString("phone");
+            final String homePhoneNumber = rs.getString("homePhoneNumber");
             final String currency = rs.getString("currency");
             return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone, null, null,null, null,null,null, null,null,currency);
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency);
         }
     }
 
@@ -283,7 +284,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("c.office_id as officeId, o.name as officeName, ");
             builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
             builder.append("c.fullname as fullname, c.display_name as displayName,c.category_type as categoryType, ");
-            builder.append("c.email as email,c.phone as phone,c.activation_date as activationDate, c.image_key as imagekey, ");
+            builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
             builder.append(" a.zip as zipcode,b.balance_amount as balanceAmount,bc.currency as currency,");
             builder.append("IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id  AND ba.is_deleted = 'N'),'No Hardware') HW_Serial ");
@@ -321,6 +322,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final Long categoryType=rs.getLong("categoryType");
             final String email = rs.getString("email");
             final String phone = rs.getString("phone");
+            final String homePhoneNumber = rs.getString("homePhoneNumber");
             final String addressNo = rs.getString("addrNo");
             final String street = rs.getString("street");
             final String city = rs.getString("city");
@@ -332,7 +334,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String currency=rs.getString("currency");
 
             return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone, addressNo, street, city, state, country, zipcode, clientBalance,hwSerial,currency);
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode, clientBalance,hwSerial,currency);
         }
 
     }
