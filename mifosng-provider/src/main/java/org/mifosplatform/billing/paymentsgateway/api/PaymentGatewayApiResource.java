@@ -71,7 +71,7 @@ public class PaymentGatewayApiResource {
 	}
 
 	@POST
-	@Consumes({ MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.WILDCARD })
 	@Produces({ MediaType.APPLICATION_XML })
 	public String mpesaPayment(final String apiRequestBodyAsJson) {
 		try {
