@@ -558,6 +558,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		  LocalDate EndDate=calculateEndDate(startDate,contractPeriod);
 		   order.setStartDate(startDate);
 		   order.setEndDate(EndDate);
+		   order.setNextBillableDay(null);
 		   List<OrderPrice> orderPrices=order.getPrice();
 		   
 		   for(OrderPrice price:orderPrices){

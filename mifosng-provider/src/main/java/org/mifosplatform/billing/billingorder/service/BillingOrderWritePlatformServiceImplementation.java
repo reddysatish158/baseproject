@@ -136,10 +136,9 @@ public class BillingOrderWritePlatformServiceImplementation implements BillingOr
 			List<OrderPrice> orderPrices = orderData.getPrice();
 
 			for (OrderPrice orderPriceData : orderPrices) {
-				if (orderPriceData.getChargeType().equalsIgnoreCase("RC")
-						&& billingOrderCommand.getChargeType()
-								.equalsIgnoreCase("RC")) {
-
+				if ((orderPriceData.getChargeType().equalsIgnoreCase("RC")&& billingOrderCommand.getChargeType().equalsIgnoreCase("RC"))
+						|| ( orderPriceData.getChargeType().equalsIgnoreCase("RC") && billingOrderCommand.getChargeType().equalsIgnoreCase("DC"))){
+ 
 					orderPriceData.setInvoiceTillDate(billingOrderCommand
 							.getInvoiceTillDate());
 					orderPriceData.setNextBillableDay(billingOrderCommand

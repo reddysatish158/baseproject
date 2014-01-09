@@ -477,7 +477,8 @@ public class GenerateBill {
 
 		if (discountMasterData != null) {
 
-			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())) {
+			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())||(this.getDiscountEndDateIfNull(discountMasterData).before(chargeEndDate.toDate()))) {
+				isDiscountApplicable = true;	 
 				isDiscountApplicable = true;	
 			}
 		}
