@@ -46,7 +46,7 @@ public class PaymentGatewayApiResource {
 	 * The set of parameters that are supported in response for {@link CodeData}
 	 */
 	private static final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(
-			Arrays.asList("id","paymentId", "serialNo", "paymentDate", "receiptNo","status","phoneNo","clientName","amountPaid"));
+			Arrays.asList("id","paymentId", "serialNo", "paymentDate", "receiptNo","status","phoneNo","clientName","amountPaid","remarks"));
 	
 	private final String resourceNameForPermissions = "PAYMENTGATEWAY";
 

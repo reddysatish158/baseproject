@@ -61,7 +61,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		public String schema() {
 			return " p.id as id,p.key_id as serialNo,p.party_id as phoneNo,p.payment_date as paymentDate," +
 					" p.amount_paid as amountPaid,p.receipt_no as receiptNo,p.t_details as clientName,p.status as status," +
-					" p.obs_id as paymentId from b_paymentgateway p";
+					" p.Remarks as remarks,p.obs_id as paymentId from b_paymentgateway p";
 		}
 		
 		@Override
@@ -75,9 +75,10 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			String clientName = rs.getString("clientName");
 			String status = rs.getString("status");
 			Long paymentId = rs.getLong("paymentId");
+			String remarks = rs.getString("remarks");
 			
 			
-			return new PaymentGatewayData(id,serialNo,phoneNo,paymentDate,amountPaid,receiptNo,clientName,status,paymentId);
+			return new PaymentGatewayData(id,serialNo,phoneNo,paymentDate,amountPaid,receiptNo,clientName,status,paymentId,remarks);
 		}
 
 	}
