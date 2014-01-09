@@ -162,7 +162,10 @@ public final class ClientDataValidator {
 
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
                 .resource(ClientApiConstants.CLIENT_RESOURCE_NAME);
-
+        
+        final Long officeId = fromApiJsonHelper.extractLongNamed(ClientApiConstants.officeIdParamName, element);
+        baseDataValidator.reset().parameter(ClientApiConstants.officeIdParamName).value(officeId).notNull().integerGreaterThanZero();
+        
         boolean atLeastOneParameterPassedForUpdate = false;
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.accountNoParamName, element)) {
             atLeastOneParameterPassedForUpdate = true;

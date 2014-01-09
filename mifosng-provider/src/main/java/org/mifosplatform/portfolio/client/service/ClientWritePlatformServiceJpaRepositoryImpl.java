@@ -200,12 +200,13 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             this.fromApiJsonDeserializer.validateForUpdate(command.json());
 
             final Client clientForUpdate = this.clientRepository.findOneWithNotFoundDetection(clientId);
-
+            final Long officeId = command.longValueOfParameterNamed(ClientApiConstants.officeIdParamName);
+            final Office clientOffice = this.officeRepository.findOne(officeId);
+            if (clientOffice == null) { throw new OfficeNotFoundException(officeId); }
             final Map<String, Object> changes = clientForUpdate.update(command);
-
-            if (!changes.isEmpty()) {
-                this.clientRepository.saveAndFlush(clientForUpdate);
-            }
+            clientForUpdate.setOffice(clientOffice);
+           
+            this.clientRepository.saveAndFlush(clientForUpdate);
             transactionHistoryWritePlatformService.saveTransactionHistory(clientForUpdate.getId(), "Update Client", clientForUpdate.getActivationDate(),
             		"Changes:"+changes.toString(),"Name:"+clientForUpdate.getName(),"ImageKey:"+clientForUpdate.imageKey(),"AccountNumber:"+clientForUpdate.getAccountNo());
             return new CommandProcessingResultBuilder() //

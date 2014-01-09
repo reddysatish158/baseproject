@@ -65,7 +65,8 @@ public class ClientApiConstants {
 
     public static final Set<String> CLIENT_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,clientCategoryParamName,
-            lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,homePhoneNumberParamName,emailParamName));
+            lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,homePhoneNumberParamName,emailParamName,officeIdParamName));
+
 
     /**
      * These parameters will match the class level parameters of
