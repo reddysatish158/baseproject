@@ -18,6 +18,8 @@ import javax.ws.rs.core.UriInfo;
 
 
 
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.mifosplatform.billing.paymentsgateway.data.PaymentGatewayData;
@@ -73,14 +75,14 @@ public class PaymentGatewayApiResource {
 	@POST
 	@Consumes({ MediaType.WILDCARD })
 	@Produces({ MediaType.APPLICATION_XML })
-	public String mpesaPayment(final String apiRequestBodyAsJson) {
-		try {
+	public String mpesaPayment(final String apiRequestBodyAsJson) throws JSONException {
+		 CommandProcessingResult result=null;
+	
 			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
 			JSONObject element= xmlJSONObj.getJSONObject("transaction");
 			element.put("locale", "en");
-            System.out.println(element);
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
-			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
+			result = this.writePlatformService.logCommandSource(commandRequest);
 			
 			if("Success".equalsIgnoreCase(result.getTransactionId())){
             StringBuilder builder = new StringBuilder();
@@ -94,7 +96,7 @@ public class PaymentGatewayApiResource {
                 .append("</response>");
             return builder.toString();
 			}
-			else{
+			else if("Failure".equalsIgnoreCase(result.getTransactionId())){
 				StringBuilder failurebuilder = new StringBuilder();
 				failurebuilder
 	                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
@@ -104,10 +106,10 @@ public class PaymentGatewayApiResource {
 	                .append("</result>")
 	                .append("</response>");
 	            return failurebuilder.toString();
+			}else{
+				return this.toApiJsonSerializer.serialize(result);
 			}
-		} catch (Exception e) {
-			return e.getMessage();
-		}
+		 
 	}
 	
 	@GET

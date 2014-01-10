@@ -80,10 +80,12 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		final String remarks = command.stringValueOfParameterNamed("remarks");
 		final String txtid=command.stringValueOfParameterNamed("txn_id");
 		final String receiptNo=command.stringValueOfParameterNamed("receiptNo");
+
+
+
 		return new Payment(clientid, null, null, amountPaid, null, paymentDate,
 				remarks, paymentCode,txtid,receiptNo);
 
-		
 
 
 	}
