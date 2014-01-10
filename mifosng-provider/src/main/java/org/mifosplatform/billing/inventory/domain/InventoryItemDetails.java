@@ -1,5 +1,8 @@
 package org.mifosplatform.billing.inventory.domain;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -8,7 +11,7 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.useradministration.domain.AppUser;
-
+import org.apache.commons.lang.StringUtils;
 
 @Entity
 @Table(name = "b_item_detail")//, uniqueConstraints = @UniqueConstraint(name = "serial_no_constraint", columnNames = { "serial_no" }))
@@ -173,7 +176,18 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 		this.remarks = remarks;
 	}
 	
-	
+	public Map<String, Object> update(JsonCommand command) {
+		 final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
+		  final String quality = "quality";
+	        if (command.isChangeInStringParameterNamed(quality, this.quality)) {
+	            final String newValue = command.stringValueOfParameterNamed(quality);
+	            actualChanges.put(quality, newValue);
+	            this.quality = StringUtils.defaultIfEmpty(newValue, null);
+	        }
+	        			
+	        return actualChanges;
+
+	}
 	public static InventoryItemDetails fromJson(JsonCommand command, FromJsonHelper fromJsonHelper){
 		
 		//final JsonElement element = fromJsonHelper.parse(command.toString());

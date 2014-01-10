@@ -568,6 +568,9 @@ public class CommandWrapper {
 	public boolean isInventoryResource() {
 		return this.entityName.equalsIgnoreCase("INVENTORY");
 	}
+	public boolean isUpdateInventoryItem(){
+		return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("INVENTORY");
+	}
 	public boolean isAllocateHardwareResource(){
 		return this.entityName.equalsIgnoreCase("ALLOCATION");
 	}
