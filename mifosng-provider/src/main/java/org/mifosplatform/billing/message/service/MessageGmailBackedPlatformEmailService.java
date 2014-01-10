@@ -89,15 +89,6 @@ private final BillingMesssageReadPlatformService billingMesssageReadPlatformServ
  */
 package org.mifosplatform.billing.message.service;
 
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.SimpleEmail;
-import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
-import org.mifosplatform.billing.message.domain.BillingMessage;
-import org.mifosplatform.billing.message.domain.MessageDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -106,15 +97,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Properties;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.SimpleEmail;
+import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
+import org.mifosplatform.billing.message.domain.BillingMessage;
+import org.mifosplatform.billing.message.domain.MessageDataRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MessageGmailBackedPlatformEmailService implements
@@ -130,9 +121,8 @@ public class MessageGmailBackedPlatformEmailService implements
 	}
 
 	@Override
-	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {/*
-		// TODO Auto-generated method stub
-		// HtmlEmail email = new HtmlEmail();
+	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
+		
 		Email email = new SimpleEmail();
 		String authuserName = "info@hugotechnologies.com";
 
@@ -173,44 +163,7 @@ public class MessageGmailBackedPlatformEmailService implements
 			handleCodeDataIntegrityIssues(null, e);
 			return e.getMessage();
 		}
-
-	*/
-		final String username = "ashokreddy556@gmail.com";
-		final String password = "9989720715";
- 
-		Properties props = new Properties();
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.host", "smtp.gmail.com");
-		props.put("mail.smtp.port", "587");
- 
-		Session session = Session.getInstance(props,
-		  new javax.mail.Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(username, password);
-			}
-		  });
- 
- 
-		try {
- 
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress("from-email@gmail.com"));
-			message.setRecipients(Message.RecipientType.TO,
-				InternetAddress.parse("to-email@gmail.com"));
-			message.setSubject("Testing Subject");
-			message.setText("Dear Mail Crawler,"
-				+ "\n\n No spam to my email, please!");
- 
-			Transport.send(message);
- 
-			System.out.println("Done");
- 
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
-		return null;
-		
+	
 		}
 
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
