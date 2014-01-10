@@ -7,12 +7,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.media.domain.MediaTypeEnumaration;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.paymentsgateway.data.PaymentEnum;
 import org.mifosplatform.billing.paymentsgateway.data.PaymentGatewayData;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentEnumClass;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
+import org.mifosplatform.infrastructure.core.service.Page;
+import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayReadPlatformService {
 
+	private final PaginationHelper<PaymentGatewayData> paginationHelper = new PaginationHelper<PaymentGatewayData>();
 	private final PlatformSecurityContext context;
 	private final JdbcTemplate jdbcTemplate;
 	
@@ -44,7 +47,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		}
 	}
 
-	@Override
+	/*@Override
 	public List<PaymentGatewayData> retrievePaymentGatewayData() {
 		try{
 			this.context.authenticatedUser();
@@ -54,7 +57,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			} catch(EmptyResultDataAccessException e){
 				return null;
 			}
-	}
+	}*/
 	
 	private static final class PaymentMapper implements RowMapper<PaymentGatewayData> {
 
@@ -103,6 +106,43 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			} catch(EmptyResultDataAccessException e){
 				return null;
 			}
+	}
+
+	@Override
+	public Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchPaymentDetail
+			,String tabType) {	
+		// TODO Auto-generated method stub
+		context.authenticatedUser();
+		PaymentMapper mapper=new PaymentMapper();
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
+        sqlBuilder.append(mapper.schema());
+        sqlBuilder.append(" where p.status like '%"+tabType+"%'");
+        
+        String sqlSearch = searchPaymentDetail.getSqlSearch();
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+	    }
+            sqlBuilder.append(extraCriteria);
+        
+        /*if (StringUtils.isNotBlank(extraCriteria)) {
+            sqlBuilder.append(extraCriteria);
+        }*/
+
+
+        if (searchPaymentDetail.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchPaymentDetail.getLimit());
+        }
+
+        if (searchPaymentDetail.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchPaymentDetail.getOffset());
+        }
+
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+                new Object[] {}, mapper);
 	}
 	
 	

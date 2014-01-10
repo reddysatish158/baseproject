@@ -106,6 +106,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class MessageGmailBackedPlatformEmailService implements
@@ -121,7 +130,7 @@ public class MessageGmailBackedPlatformEmailService implements
 	}
 
 	@Override
-	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
+	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {/*
 		// TODO Auto-generated method stub
 		// HtmlEmail email = new HtmlEmail();
 		Email email = new SimpleEmail();
@@ -165,7 +174,44 @@ public class MessageGmailBackedPlatformEmailService implements
 			return e.getMessage();
 		}
 
-	}
+	*/
+		final String username = "ashokreddy556@gmail.com";
+		final String password = "9989720715";
+ 
+		Properties props = new Properties();
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", "smtp.gmail.com");
+		props.put("mail.smtp.port", "587");
+ 
+		Session session = Session.getInstance(props,
+		  new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		  });
+ 
+ 
+		try {
+ 
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress("from-email@gmail.com"));
+			message.setRecipients(Message.RecipientType.TO,
+				InternetAddress.parse("to-email@gmail.com"));
+			message.setSubject("Testing Subject");
+			message.setText("Dear Mail Crawler,"
+				+ "\n\n No spam to my email, please!");
+ 
+			Transport.send(message);
+ 
+			System.out.println("Done");
+ 
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
+		return null;
+		
+		}
 
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
 		// TODO Auto-generated method stub
