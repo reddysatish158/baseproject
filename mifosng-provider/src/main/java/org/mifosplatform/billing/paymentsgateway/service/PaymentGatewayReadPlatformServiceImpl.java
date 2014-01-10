@@ -118,7 +118,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select ");
         sqlBuilder.append(mapper.schema());
-        sqlBuilder.append(" where p.status like '%"+tabType+"%'");
+        sqlBuilder.append(" where p.status like '"+tabType+"'");
         
         String sqlSearch = searchPaymentDetail.getSqlSearch();
         String extraCriteria = "";
@@ -128,11 +128,6 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	    }
             sqlBuilder.append(extraCriteria);
         
-        /*if (StringUtils.isNotBlank(extraCriteria)) {
-            sqlBuilder.append(extraCriteria);
-        }*/
-
-
         if (searchPaymentDetail.isLimited()) {
             sqlBuilder.append(" limit ").append(searchPaymentDetail.getLimit());
         }
