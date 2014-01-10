@@ -8,6 +8,12 @@ import org.mifosplatform.billing.action.data.ActionDetaislData;
 import org.mifosplatform.billing.action.data.EventActionProcedureData;
 import org.mifosplatform.billing.action.domain.EventAction;
 import org.mifosplatform.billing.action.domain.EventActionRepository;
+import org.mifosplatform.billing.association.data.AssociationData;
+import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
+import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
+import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
+import org.mifosplatform.billing.contract.service.ContractPeriodWritePlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -31,17 +37,22 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
     private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;	
     private final FromJsonHelper fromApiJsonHelper;
     private final OrderWritePlatformService orderWritePlatformService;
+    private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
+    private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
  
 
 	@Autowired
 	public EventActionWritePlatformServiceImpl(final TenantAwareRoutingDataSource dataSource,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-			final EventActionRepository eventActionRepository,final FromJsonHelper fromJsonHelper,final OrderWritePlatformService orderWritePlatformService)
+			final EventActionRepository eventActionRepository,final FromJsonHelper fromJsonHelper,final OrderWritePlatformService orderWritePlatformService,
+			final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService)
 	{
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.eventActionRepository=eventActionRepository;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
         this.fromApiJsonHelper=fromJsonHelper;
-       this.orderWritePlatformService=orderWritePlatformService;
+        this.orderWritePlatformService=orderWritePlatformService;
+        this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
+        this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 	}
 	
 	@Override
@@ -55,10 +66,16 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					  
 					  EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.ACTION_INVOICE,detailsData.getaActionName(),resourceId);
 					  
+					  AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(actionProcedureData.getOrderId());
+					  if(associationData ==null){
+						  throw new HardwareDetailsNotFoundException(actionProcedureData.getOrderId().toString());
+					  }
+					  
 				         if(actionProcedureData.isCheck()){
 				        	 
 				        	 JSONObject jsonObject=new JSONObject();
-				        	 jsonObject.put("renewalPeriod",5);	
+				        	 List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1); 
+   					    	 jsonObject.put("renewalPeriod",subscriptionDatas.get(0).getId());	
 				        	 jsonObject.put("description","Order Renewal By Scheduler");
 				        	 EventAction eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",detailsData.getaActionName(),"/orders/renewal", 
 				        			 Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId);

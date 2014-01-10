@@ -15,6 +15,7 @@ import org.mifosplatform.billing.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
 import org.mifosplatform.billing.payments.exception.PaymentDetailsNotFoundException;
+import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -166,9 +167,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	private void handleDataIntegrityIssues(JsonCommand command, DataIntegrityViolationException dve){
 		Throwable realCause = dve.getMostSpecificCause(); 
 		if(realCause.getMessage().contains("receipt_no")){
-			//throw new PlatformDataIntegrityException("validation.error.message.chargecode.duplicate.chargecode","","",command.stringValueOfParameterNamed("chargecode"));
-			 throw new PlatformDataIntegrityException("error.msg.payments.duplicate.receiptNo", "A code with receiptNo'"
-	                    + command.stringValueOfParameterNamed("receiptNo") + "'already exists", "displayName", command.stringValueOfParameterNamed("receiptNo"));
+		          throw new ReceiptNoDuplicateException(command.stringValueOfParameterNamed("receiptNo"));
+			/* throw new PlatformDataIntegrityException("error.msg.payments.duplicate.receiptNo", "A code with receiptNo'"
+	                    + command.stringValueOfParameterNamed("receiptNo") + "'already exists", "displayName", command.stringValueOfParameterNamed("receiptNo"));*/
 		}
 		
 		logger.error(dve.getMessage(), dve);
