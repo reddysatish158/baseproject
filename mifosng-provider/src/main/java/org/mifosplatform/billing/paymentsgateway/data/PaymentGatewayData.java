@@ -18,10 +18,11 @@ public class PaymentGatewayData {
 	private String phoneNo;
 	private String clientName;
 	private List<MediaEnumoptionData> statusData;
+	private String remarks;
 
 	public PaymentGatewayData(Long id, String serialNo, String phoneNo,
 			LocalDate paymentDate, BigDecimal amountPaid, String receiptNo,
-			String clientName, String status, Long paymentId) {
+			String clientName, String status, Long paymentId, String remarks) {
 		this.id=id;
 		this.paymentId=paymentId;
 		this.serialNo=serialNo;
@@ -31,6 +32,8 @@ public class PaymentGatewayData {
 		this.status=status;
 		this.phoneNo=phoneNo;
 		this.clientName=clientName;
+		this.remarks=remarks;
+		
 	}
 
 	public Long getId() {
@@ -75,6 +78,10 @@ public class PaymentGatewayData {
 
 	public void setStatusData(List<MediaEnumoptionData> statusData) {
 		this.statusData = statusData;
+	}
+
+	public String getRemarks() {
+		return remarks;
 	}
 	
 	
