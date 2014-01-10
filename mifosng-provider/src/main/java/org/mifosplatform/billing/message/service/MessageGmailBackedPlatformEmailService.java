@@ -89,15 +89,6 @@ private final BillingMesssageReadPlatformService billingMesssageReadPlatformServ
  */
 package org.mifosplatform.billing.message.service;
 
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.SimpleEmail;
-import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
-import org.mifosplatform.billing.message.domain.BillingMessage;
-import org.mifosplatform.billing.message.domain.MessageDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -106,6 +97,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.SimpleEmail;
+import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
+import org.mifosplatform.billing.message.domain.BillingMessage;
+import org.mifosplatform.billing.message.domain.MessageDataRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MessageGmailBackedPlatformEmailService implements
@@ -122,8 +122,7 @@ public class MessageGmailBackedPlatformEmailService implements
 
 	@Override
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
-		// TODO Auto-generated method stub
-		// HtmlEmail email = new HtmlEmail();
+		
 		Email email = new SimpleEmail();
 		String authuserName = "info@hugotechnologies.com";
 
@@ -164,8 +163,8 @@ public class MessageGmailBackedPlatformEmailService implements
 			handleCodeDataIntegrityIssues(null, e);
 			return e.getMessage();
 		}
-
-	}
+	
+		}
 
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
 		// TODO Auto-generated method stub
