@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +34,7 @@ public class PaymentCommandFromApiJsonDeserializer {
 	private final Set<String> supportedParameters = new HashSet<String>(
 			Arrays.asList("id", "clientId", "paymentDate", "paymentCode","amountPaid", "statmentId", "externalId", "dateFormat",
 					"locale", "remarks","receiptNo","chequeNo","chequeDate","bankName","branchName","ispaymentEnable","renewalPeriod",
-					"isChequeSelected","txn_id"));
+					"isChequeSelected","txn_id","cancelRemark"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 
@@ -110,6 +109,27 @@ public class PaymentCommandFromApiJsonDeserializer {
 					"validation.msg.validation.errors.exist",
 					"Validation errors exist.", dataValidationErrors);
 		}
+	}
+
+	public void validateForCancel(String json) {
+
+		if (StringUtils.isBlank(json)) {
+			throw new InvalidJsonException();
+		}
+
+		final Type typeOfMap = new TypeToken<Map<String, Object>>() {
+		}.getType();
+		fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json,supportedParameters);
+
+		final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+		final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(
+				dataValidationErrors).resource("payment");
+
+		final JsonElement element = fromApiJsonHelper.parse(json);
+		final String cancelRemark = fromApiJsonHelper.extractStringNamed("cancelRemark", element);
+		baseDataValidator.reset().parameter("cancelRemark").value(cancelRemark).notBlank().notExceedingLengthOf(50);
+
+		throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
 
 }

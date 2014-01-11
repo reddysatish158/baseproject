@@ -15,12 +15,12 @@ import org.mifosplatform.billing.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
 import org.mifosplatform.billing.payments.exception.PaymentDetailsNotFoundException;
+import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
-import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			
 			//Add New Action 
 			List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_PAYMENT);
-			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,clientBalancedatas.get(0).getClientId(), id.toString());
+			if(actionDetaislDatas.size() != 0){
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), id.toString());
+			}
 			
 			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).build();
 		} catch (DataIntegrityViolationException dve) {
@@ -141,6 +143,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	public CommandProcessingResult cancelPayment(JsonCommand command,Long paymentId) {
 		
 		try{
+			this.fromApiJsonDeserializer.validateForCancel(command.json());
 			Payment payment=this.paymentRepository.findOne(paymentId);
 			if(payment == null){
 				throw new PaymentDetailsNotFoundException(paymentId.toString());
@@ -148,7 +151,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			
 			payment.cancelPayment(command);
 			this.paymentRepository.save(payment);
-			ClientBalance clientBalance = clientBalanceRepository.findOne(payment.getClientId());
+			ClientBalance clientBalance = clientBalanceRepository.findByClientId(payment.getClientId());
 			clientBalance.setBalanceAmount(clientBalance.getBalanceAmount().add(payment.getAmountPaid()));
 			this.clientBalanceRepository.save(clientBalance);
 			return new CommandProcessingResult(paymentId);
@@ -163,9 +166,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	private void handleDataIntegrityIssues(JsonCommand command, DataIntegrityViolationException dve){
 		Throwable realCause = dve.getMostSpecificCause(); 
 		if(realCause.getMessage().contains("receipt_no")){
-			//throw new PlatformDataIntegrityException("validation.error.message.chargecode.duplicate.chargecode","","",command.stringValueOfParameterNamed("chargecode"));
-			 throw new PlatformDataIntegrityException("error.msg.payments.duplicate.receiptNo", "A code with receiptNo'"
-	                    + command.stringValueOfParameterNamed("receiptNo") + "'already exists", "displayName", command.stringValueOfParameterNamed("receiptNo"));
+		          throw new ReceiptNoDuplicateException(command.stringValueOfParameterNamed("receiptNo"));
+			/* throw new PlatformDataIntegrityException("error.msg.payments.duplicate.receiptNo", "A code with receiptNo'"
+	                    + command.stringValueOfParameterNamed("receiptNo") + "'already exists", "displayName", command.stringValueOfParameterNamed("receiptNo"));*/
 		}
 		
 		logger.error(dve.getMessage(), dve);

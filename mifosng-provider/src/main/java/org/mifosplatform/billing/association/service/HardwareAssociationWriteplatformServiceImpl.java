@@ -2,10 +2,11 @@ package org.mifosplatform.billing.association.service;
 
 import java.util.Map;
 
-import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.domain.HardwareAssociation;
 import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.order.domain.HardwareAssociationRepository;
+import org.mifosplatform.billing.order.domain.Order;
+import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -24,15 +25,18 @@ public class HardwareAssociationWriteplatformServiceImpl implements HardwareAsso
 	private final HardwareAssociationRepository associationRepository;
 	private final HardwareAssociationCommandFromApiJsonDeserializer fromApiJsonDeserializer;
 	private final HardwareAssociationReadplatformService associationReadplatformService;
+	private final OrderRepository orderRepository;
 	
 @Autowired
 	public HardwareAssociationWriteplatformServiceImpl(final PlatformSecurityContext context,final HardwareAssociationCommandFromApiJsonDeserializer fromApiJsonDeserializer,
-			final HardwareAssociationRepository associationRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService){
+			final HardwareAssociationRepository associationRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
+			final OrderRepository orderRepository){
 		
 	    this.context=context;
 		this.associationRepository=associationRepository;
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
 		this.associationReadplatformService=hardwareAssociationReadplatformService;
+		this.orderRepository=orderRepository;
 	}
 	
 	@Override
@@ -55,11 +59,12 @@ public class HardwareAssociationWriteplatformServiceImpl implements HardwareAsso
 		try {
 			context.authenticatedUser();
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
-			Long planId = command.longValueOfParameterNamed("planId");
+			//Long planId = command.longValueOfParameterNamed("planId");
 			Long orderId = command.longValueOfParameterNamed("orderId");
 			String serialNo = command.stringValueOfParameterNamed("serialNo");
+			Order order=this.orderRepository.findOne(orderId);
 			String provisionNum = command.stringValueOfParameterNamed("provisionNum");
-			HardwareAssociation hardwareAssociation = new HardwareAssociation(command.entityId(), planId, provisionNum, orderId);
+			HardwareAssociation hardwareAssociation = new HardwareAssociation(command.entityId(), order.getPlanId(), provisionNum, orderId);
 			this.associationRepository.saveAndFlush(hardwareAssociation);
 			return new CommandProcessingResultBuilder().withEntityId(
 					hardwareAssociation.getId()).build();

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.payments.service.PaymentWritePlatformService;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGateway;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGatewayRepository;
@@ -21,6 +22,7 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,6 +57,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    	 this.paymodeReadPlatformService=paymodeReadPlatformService;
 	    }
 
+	    @Transactional
 		@Override
 		public CommandProcessingResult createPaymentGateway(JsonCommand command) {
 			  JsonElement element=null;
@@ -114,27 +117,38 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 						}					  		               
 				   }	 
 				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(result.resourceId()).withTransactionId("Success").build();
-			} catch (DataIntegrityViolationException dve) {
+			}catch ( ParseException e ) {
+        	    return new CommandProcessingResult(Long.valueOf(-1));
+        	    
+	    }catch (ReceiptNoDuplicateException  e) {
+	    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
+	    	throw new ReceiptNoDuplicateException(receiptNo);
+		} catch (Exception dve) {
 	           // return CommandProcessingResult.empty();
 				    handleCodeDataIntegrityIssues(element, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
-	        }catch ( ParseException e ) {
-	        	    return new CommandProcessingResult(Long.valueOf(-1));
-		    }
+	        }
 			
 			
 		}
 		
 		private void handleCodeDataIntegrityIssues(JsonElement element,
-				DataIntegrityViolationException dve) {
-			
-			 Throwable realCause = dve.getMostSpecificCause();
-		        if (realCause.getMessage().contains("reference")) {
+				Exception dve) {
+			String realCause=dve.toString();
+			  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
+		        if (realCause.contains("reference")) {
+		        	
 		            final String name = fromApiJsonHelper.extractStringNamed("reference", element);
+		          
 		            throw new PlatformDataIntegrityException("error.msg.code.reference", "A reference with this value '" + name + "' does not exists");
+		        }else if(realCause.contains("receiptNo")){
+		        	
+		        	throw new PlatformDataIntegrityException("error.msg.payments.duplicate.receiptNo", "A code with receiptNo'"
+		                    + receiptNo + "'already exists", "displayName",receiptNo);
+		        	
 		        }
 		        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
-		                "Unknown data integrity issue with resource: " + realCause.getMessage());
+		                "Unknown data integrity issue with resource: " + realCause);
 			
 		}
 

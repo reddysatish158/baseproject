@@ -58,12 +58,12 @@ public class HardwareAssociationCommandFromApiJsonDeserializer {
 				dataValidationErrors).resource("association");
 
 		final JsonElement element = fromApiJsonHelper.parse(json);
-		
-		
+        
+		/*		
 		final Long planId = fromApiJsonHelper.extractLongNamed("planId", element);
         baseDataValidator.reset().parameter("planId").value(planId).notNull();
-        
       
+		*/
 		
 		final String serialNo = fromApiJsonHelper.extractStringNamed("provisionNum", element);
 		 baseDataValidator.reset().parameter("serialNo").value(serialNo).notBlank();
