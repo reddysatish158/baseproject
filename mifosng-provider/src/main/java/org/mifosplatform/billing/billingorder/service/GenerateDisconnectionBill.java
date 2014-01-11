@@ -5,9 +5,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeField;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
@@ -18,9 +15,6 @@ import org.mifosplatform.billing.billingorder.data.BillingOrderData;
 import org.mifosplatform.billing.billingorder.domain.BillingOrderRepository;
 import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
-import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
-import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
-import org.mifosplatform.infrastructure.configuration.exception.GlobalConfigurationPropertyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,18 +24,16 @@ public class GenerateDisconnectionBill {
 	private final BillingOrderReadPlatformService billingOrderReadPlatformService;
 	private final InvoiceTaxPlatformService invoiceTaxPlatformService;
 	private final BillingOrderRepository billingOrderRepository;
-    private final GlobalConfigurationRepository globalConfigurationRepository;
 	// private final OrderRepository orderRepository;
 
 	@Autowired
 	public GenerateDisconnectionBill(
 			BillingOrderReadPlatformService billingOrderReadPlatformService,
 			InvoiceTaxPlatformService invoiceTaxPlatformService,
-			final BillingOrderRepository billingOrderRepository,final GlobalConfigurationRepository globalConfigurationRepository) {
+			final BillingOrderRepository billingOrderRepository) {
 		this.billingOrderReadPlatformService = billingOrderReadPlatformService;
 		this.invoiceTaxPlatformService = invoiceTaxPlatformService;
 		this.billingOrderRepository = billingOrderRepository;
-		this.globalConfigurationRepository=globalConfigurationRepository;
 		// this.orderRepository = orderRepository;
 	}
 

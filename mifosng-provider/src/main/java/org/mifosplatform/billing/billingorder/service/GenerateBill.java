@@ -451,7 +451,6 @@ public class GenerateBill {
 					      taxPercentage = taxMappingRateData.getRate();
 					      taxCode = taxMappingRateData.getTaxCode();
 					      taxAmount = price.multiply(taxPercentage.divide(new BigDecimal(100)));
-					      taxAmount.setScale(2, RoundingMode.HALF_UP);
 					     } else if (taxMappingRateData.getTaxType().equalsIgnoreCase("Flat")) {
 					      taxFlat = taxMappingRateData.getRate();
 					      taxCode = taxMappingRateData.getTaxCode();
