@@ -107,6 +107,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.SimpleEmail;
 import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
 import org.mifosplatform.billing.message.domain.BillingMessage;
 import org.mifosplatform.billing.message.domain.MessageDataRepository;
@@ -127,7 +130,7 @@ public class MessageGmailBackedPlatformEmailService implements
 	}
 
 	@Override
-	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {/*
+	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 		
 		Email email = new SimpleEmail();
 		String authuserName = "info@hugotechnologies.com";
@@ -169,43 +172,6 @@ public class MessageGmailBackedPlatformEmailService implements
 			handleCodeDataIntegrityIssues(null, e);
 			return e.getMessage();
 		}
-	
-		*/
-		
-		final String username = "ashokreddy556@gmail.com";
-		final String password = "9989720715";
-
-		    Properties props = new Properties();
-
-		    props.put("mail.smtp.auth", "true");
-		    props.put("mail.smtp.starttls.enable", "true");
-		    props.put("mail.smtp.host", "smtp.gmail.com");
-		    props.put("mail.smtp.port", "587");
-
-		    Session session = Session.getInstance(props,new javax.mail.Authenticator() {
-		      protected PasswordAuthentication getPasswordAuthentication() {
-		        return new PasswordAuthentication(username, password);
-		      }
-		      });
-
-		    try {
-
-		      Message message = new MimeMessage(session);
-		      message.setFrom(new InternetAddress("fromemail@gmail.com"));
-		      message.setRecipients(Message.RecipientType.TO,
-		        InternetAddress.parse("toemail@gmail.com"));
-		      message.setSubject("Testing Subject");
-		      message.setText("Dear Mail Crawler,"
-		        + "\n\n No spam to my email, please!");
-
-		      Transport.send(message);
-		      System.out.println("Done");
-
-		    } catch (MessagingException e) {
-		      throw new RuntimeException(e);
-		    }
-		    return null;
-	
 	}
 
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
@@ -264,6 +230,44 @@ public class MessageGmailBackedPlatformEmailService implements
 			System.out.println("IOException : " + e.getMessage() + ".");
 			return e.getMessage();
 		}
+	}
+
+	@Override
+	public String createEmail(String pdfFileName, String emailId) {
+		
+		final String username = "ashokreddy556@gmail.com";
+		final String password = "9989720715";
+
+		    Properties props = new Properties();
+
+		    props.put("mail.smtp.auth", "true");
+		    props.put("mail.smtp.starttls.enable", "true");
+		    props.put("mail.smtp.host", "smtp.gmail.com");
+		    props.put("mail.smtp.port", "587");
+
+		    Session session = Session.getInstance(props,new javax.mail.Authenticator() {
+		      protected PasswordAuthentication getPasswordAuthentication() {
+		        return new PasswordAuthentication(username, password);
+		      }
+		      });
+
+		    try {
+
+		      Message message = new MimeMessage(session);
+		      message.setFrom(new InternetAddress(emailId));
+		      message.setRecipients(Message.RecipientType.TO,
+		        InternetAddress.parse(emailId));
+		      message.setSubject("Testing Subject");
+		      message.setText("Dear Mail Crawler,"
+		        + "\n\n No spam to my email, please!");
+
+		      Transport.send(message);
+		      System.out.println("Done");
+		      return "Success";
+		    } catch (MessagingException e) {
+		      throw new RuntimeException(e);
+		    }
+		    
 	}
 }
 

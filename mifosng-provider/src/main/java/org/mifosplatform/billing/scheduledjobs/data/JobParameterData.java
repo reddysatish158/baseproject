@@ -21,14 +21,9 @@ public class JobParameterData {
 	private String provSystem;
 	private String isAutoRenewal;
 	private String promotionalMessage;
-
 	private String messageTemplate;
+	private String emailId;
 	
-
-	
-
-	
-
 	public JobParameterData(List<JobParameters> jobParameters) {
               
 		for(JobParameters parameter:jobParameters){
@@ -77,7 +72,10 @@ public class JobParameterData {
                 
             	this.isAutoRenewal=parameter.isDynamic();
             	
-           }else{
+           }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_EMAIL)){
+		          this.emailId=parameter.getParamValue();	
+					
+		   }else{
 				 this.batchName=parameter.getParamValue();
 				 this.defaultValue=parameter.getParamDefaultValue();
 			}
@@ -158,6 +156,12 @@ public class JobParameterData {
 		return messageTemplate;
 
 	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+	
+	
 	
 	
 	
