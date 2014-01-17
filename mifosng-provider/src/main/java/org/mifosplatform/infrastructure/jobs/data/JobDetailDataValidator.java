@@ -182,10 +182,10 @@ public class JobDetailDataValidator {
         	
         }else if(jobName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_REPORTEMAIL)){
         	
-        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_REPORTEMAIL, element)) {
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_EmailId, element)) {
                 atLeastOneParameterPassedForUpdate = true;
-                final String emailId = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_REPORTEMAIL, element);
-                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_REPORTEMAIL).value(emailId).notBlank();
+                final String emailId = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_EmailId, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_EmailId).value(emailId).notBlank();
             }
         	
         }

@@ -165,7 +165,7 @@ public class JobParameters extends AbstractPersistable<Long>{
 	    
 	    final String ReportEmailParamName = "emailId";
 	    final String ReportEmail = command.stringValueOfParameterNamed(ReportEmailParamName);
-	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_REPORTEMAIL) && ReportEmail!=null){
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_EmailId) && ReportEmail!=null){
 	    	this.paramValue=ReportEmail;
 	      }
 	}
