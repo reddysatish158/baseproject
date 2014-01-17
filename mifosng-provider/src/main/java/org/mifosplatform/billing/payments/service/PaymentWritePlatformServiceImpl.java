@@ -130,7 +130,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			//Perform Event Action
 		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());
 			
-			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payment.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"PaymentID:"+payment.getId());
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payment.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"PaymentID:"+payment.getId(),"ReceiptNo: "+payment.getReceiptNo());
 			return payment.getId();
 
 		} catch (DataIntegrityViolationException dve) {
