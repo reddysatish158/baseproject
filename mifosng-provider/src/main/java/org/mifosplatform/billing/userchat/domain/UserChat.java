@@ -24,8 +24,11 @@ public class UserChat extends AbstractPersistable<Long>{
 
 	@Column(name = "createdby_user")
 	private String createdbyUser;
+	
+	@Column(name = "read")
+	private String read="N";	
 
-		 public UserChat() {
+	public UserChat() {
 		// TODO Auto-generated constructor stub
 			
 	}

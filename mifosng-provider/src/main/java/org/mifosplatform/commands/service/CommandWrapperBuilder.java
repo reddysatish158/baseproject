@@ -1923,5 +1923,14 @@ public CommandWrapperBuilder cancelPayment(Long paymentId) {
 	return this;
 }
 
+public CommandWrapperBuilder changePlan(Long orderId) {
+
+    this.actionName="CHANGEPLAN";
+    this.entityName="ORDER";
+    this.entityId=orderId;
+    this.href="orders/changePlan"+orderId;
+    
+   return this;
+}
 
 }
