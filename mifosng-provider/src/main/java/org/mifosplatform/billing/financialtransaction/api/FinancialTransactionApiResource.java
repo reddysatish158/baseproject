@@ -81,5 +81,17 @@ public class FinancialTransactionApiResource {
     final ApiRequestJsonSerializationSettings settings=apiRequestParameterHelper.process(uriInfo.getQueryParameters());
     return this.toApiJsonSerializer.serialize(settings,data,RESPONSE_DATA_PARAMETERS);
 	}
+	
+	@GET
+	@Path("{clientId}/type")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retrieveSampleData(@PathParam("clientId") final Long clientId,@Context final UriInfo uriInfo, @QueryParam("type") final String type,
+	 @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset)	{
+	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	final SearchSqlQuery searchFinancialTransaction =SearchSqlQuery.forSearch(null, offset,limit );
+	Page<FinancialTransactionsData> transactionData = this.billMasterReadPlatformService.retrieveSampleData(searchFinancialTransaction,clientId,type);
+	return this.toApiJsonSerializer.serialize(transactionData);    
+	}
 
 }

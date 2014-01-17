@@ -21,7 +21,6 @@ import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWr
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
-import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +130,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			//Perform Event Action
 		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());
 			
-			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payment.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"PaymentID:"+payment.getId());
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payment.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"PaymentID:"+payment.getId(),"ReceiptNo: "+payment.getReceiptNo());
 			return payment.getId();
 
 		} catch (DataIntegrityViolationException dve) {

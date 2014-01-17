@@ -608,6 +608,9 @@ public class SynchronousCommandProcessingService implements
 	        	if (wrapper.isCreate()) {
 					handler = applicationContext.getBean("createInventoryItemsCommandHandler", NewCommandSourceHandler.class);
 	        	}
+	        	else if(wrapper.isUpdateInventoryItem()){
+	        		handler = applicationContext.getBean("updateInventoryItemsCommandHandler", NewCommandSourceHandler.class);
+	        	}
 			} else if (wrapper.isGrnResource()) {
 				if (wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryGrnCommandHandler", NewCommandSourceHandler.class);

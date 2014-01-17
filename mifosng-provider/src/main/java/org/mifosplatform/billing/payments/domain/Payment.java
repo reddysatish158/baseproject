@@ -50,6 +50,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	@Column(name = "receipt_no")
 	private String receiptNo;
 
+
 	public Payment() {
 	}
 
@@ -80,10 +81,24 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		final String txtid=command.stringValueOfParameterNamed("txn_id");
 		final String receiptNo=command.stringValueOfParameterNamed("receiptNo");
 
+
+
 		return new Payment(clientid, null, null, amountPaid, null, paymentDate,
 				remarks, paymentCode,txtid,receiptNo);
 
 
+
+	}
+
+	
+	
+	
+	public String getReceiptNo() {
+		return receiptNo;
+	}
+
+	public void setReceiptNo(String receiptNo) {
+		this.receiptNo = receiptNo;
 	}
 
 	public Long getClientId() {
