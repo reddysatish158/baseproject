@@ -840,7 +840,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		  fileHandler.createNewFile();
 		  FileWriter fw = new FileWriter(fileHandler);
 	      FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-	      context.authenticatedUser();
+	     
 	      List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
 		   
 		    if(sheduleDatas.isEmpty()){

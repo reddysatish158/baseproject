@@ -17,15 +17,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-
-
-
-
 import org.json.JSONException;
-
 import org.json.JSONObject;
 import org.json.XML;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
+import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.paymentsgateway.data.PaymentGatewayData;
 import org.mifosplatform.billing.paymentsgateway.service.PaymentGatewayReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -80,11 +76,13 @@ public class PaymentGatewayApiResource {
 	@POST
 	@Consumes({ MediaType.WILDCARD })
 	@Produces({ MediaType.APPLICATION_XML })
-	public String mpesaPayment(final String apiRequestBodyAsJson) throws JSONException {
+	public String mpesaPayment(final String apiRequestBodyAsJson)  {
 		 CommandProcessingResult result=null;
-	
+		 String Receipt = null;
+	try{
 			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
 			JSONObject element= xmlJSONObj.getJSONObject("transaction");
+			Receipt=element.getString("receipt");
 			element.put("locale", "en");
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
 			result = this.writePlatformService.logCommandSource(commandRequest);
@@ -94,26 +92,33 @@ public class PaymentGatewayApiResource {
             builder
                 .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
                 .append("<response>")
-                .append("<receipt>"+result.resourceId())
+                .append("<receipt>"+Receipt)
                 .append("</receipt>")
                  .append("<result>"+result.getTransactionId())
                 .append("</result>")
                 .append("</response>");
             return builder.toString();
 			}
-			else if("Failure".equalsIgnoreCase(result.getTransactionId())){
-				StringBuilder failurebuilder = new StringBuilder();
-				failurebuilder
-	                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-	                .append("<response>")
-	                .append("<receipt/>")
-	                 .append("<result>"+"FAILURE")
-	                .append("</result>")
-	                .append("</response>");
-	            return failurebuilder.toString();
-			}else{
-				return this.toApiJsonSerializer.serialize(result);
-			}
+			else {	
+            return null;
+           }
+	}catch(ReceiptNoDuplicateException e){
+		
+		StringBuilder failurebuilder = new StringBuilder();
+		failurebuilder
+            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+            .append("<response>")
+            .append("<receipt>"+Receipt)
+            .append("</receipt>")
+            .append("<result>"+"DUPLICATE_TXN")
+            .append("</result>")
+            .append("</response>");
+        return failurebuilder.toString();
+	} catch (Exception e) {
+		return null;		
+	}
+	
+	
 		 
 	}
 	

@@ -268,7 +268,7 @@ public class MessageGmailBackedPlatformEmailService implements
 		      message.setFrom(new InternetAddress(emailId));
 		      message.setRecipients(Message.RecipientType.TO,
 		        InternetAddress.parse(emailId));
-		      message.setSubject("Testing Subject");
+		      message.setSubject("hello, For Testing");
 				message.setText("Dear Mail Crawler,"
 						+ "\n\n No spam to my email, please!");
 				
@@ -294,42 +294,3 @@ public class MessageGmailBackedPlatformEmailService implements
 		    
 	}
 }
-
-/*
- * Email email = new SimpleEmail();
- * 
- * String authuserName = "support@cloudmicrofinance.com";
- * 
- * String authuser = "support@cloudmicrofinance.com"; String authpwd =
- * "support80";
- * 
- * // Very Important, Don't use email.setAuthentication()
- * email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
- * email.setDebug(false); // true if you want to debug
- * email.setHostName("smtp.gmail.com"); try {
- * email.getMailSession().getProperties().put("mail.smtp.starttls.enable",
- * "true"); email.setFrom(authuser, authuserName);
- * 
- * StringBuilder subjectBuilder = new
- * StringBuilder().append("MifosX Prototype Demo: "
- * ).append(emailDetail.getContactName()).append(" user account creation.");
- * 
- * email.setSubject(subjectBuilder.toString());
- * 
- * String sendToEmail = emailDetail.getAddress();
- * 
- * StringBuilder messageBuilder = new
- * StringBuilder().append("You are receiving this email as your email account: "
- * ).append(sendToEmail).append(
- * " has being used to create a user account for an organisation named ["
- * ).append
- * (emailDetail.getOrganisationName()).append("] on MifosX Prototype Demo."
- * ).append
- * ("You can login using the following credentials: username: ").append(emailDetail
- * .getUsername()).append(" password: ").append(unencodedPassword);
- * 
- * email.setMsg(messageBuilder.toString());
- * 
- * email.addTo(sendToEmail, emailDetail.getContactName()); email.send(); } catch
- * (EmailException e) { throw new PlatformEmailSendException(e); }
- */

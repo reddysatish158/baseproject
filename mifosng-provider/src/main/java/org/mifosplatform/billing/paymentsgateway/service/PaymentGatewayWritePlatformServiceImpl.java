@@ -39,6 +39,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    private final PaymentGatewayReadPlatformService readPlatformService;
 	    private final PaymentWritePlatformService paymentWritePlatformService;
 	    private final PaymodeReadPlatformService paymodeReadPlatformService;
+	    private final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService;
 	   
 	    @Autowired
 	    public PaymentGatewayWritePlatformServiceImpl(final PlatformSecurityContext context,
@@ -46,7 +47,8 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    		final PaymentGatewayCommandFromApiJsonDeserializer paymentGatewayCommandFromApiJsonDeserializer,
 	    		final PaymentGatewayReadPlatformService readPlatformService,
 	    		final PaymentWritePlatformService paymentWritePlatformService,
-	    		final PaymodeReadPlatformService paymodeReadPlatformService)
+	    		final PaymodeReadPlatformService paymodeReadPlatformService,
+	    		final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService)
 	    {
 	    	this.context=context;
 	    	this.paymentGatewayRepository=paymentGatewayRepository;
@@ -54,7 +56,8 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    	this.paymentGatewayCommandFromApiJsonDeserializer=paymentGatewayCommandFromApiJsonDeserializer;
 	    	this.readPlatformService=readPlatformService;
 	    	this.paymentWritePlatformService=paymentWritePlatformService;
-	    	 this.paymodeReadPlatformService=paymodeReadPlatformService;
+	    	this.paymodeReadPlatformService=paymodeReadPlatformService;
+	    	this.paymentGatewayReadPlatformService=paymentGatewayReadPlatformService;
 	    }
 
 	    @Transactional
@@ -120,14 +123,21 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			}catch ( ParseException e ) {
         	    return new CommandProcessingResult(Long.valueOf(-1));
         	    
-	    }catch (ReceiptNoDuplicateException  e) {
+	       }catch (DataIntegrityViolationException  e) {
 	    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
-	    	throw new ReceiptNoDuplicateException(receiptNo);
-		} catch (Exception dve) {
+	    	  String receiptNO=this.paymentGatewayReadPlatformService.findReceiptNo(receiptNo);
+	    	  if(receiptNO!=null){
+	    	  throw new ReceiptNoDuplicateException(receiptNo);
+	    	  }
+	    	  else{
+	    		  return new CommandProcessingResult(Long.valueOf(-1));
+	    	  }
+		   } catch (Exception dve) {
 	           // return CommandProcessingResult.empty();
 				    handleCodeDataIntegrityIssues(element, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
 	        }
+			
 			
 			
 		}

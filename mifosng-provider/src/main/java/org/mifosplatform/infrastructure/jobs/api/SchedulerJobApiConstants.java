@@ -42,7 +42,7 @@ public class SchedulerJobApiConstants {
     public static final String jobExipiryDate= "exipiryDate";
     public static final String jobHistoryId="historyId";
     public static final String jobisAutoRenewal="isAutoRenewal";
-    public static final String JOB_REPORTEMAIL="Report Email";
+    public static final String JOB_REPORTEMAIL="emailId";
     
     
     public static final Set<String> JOB_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobIdentifierParamName,

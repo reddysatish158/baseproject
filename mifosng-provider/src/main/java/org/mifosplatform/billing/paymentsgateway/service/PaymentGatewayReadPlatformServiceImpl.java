@@ -139,6 +139,33 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
                 new Object[] {}, mapper);
 	}
+
+	@Override
+	public String findReceiptNo(String receiptNo) {
+		try{
+			this.context.authenticatedUser();
+			PaymentReceiptMapper mapper=new PaymentReceiptMapper();
+			String sql = "select "+mapper.schema()+ " where p.receipt_no=?";
+			return jdbcTemplate.queryForObject(sql, mapper, new Object[] {receiptNo});
+		} catch(EmptyResultDataAccessException e){
+			return null;
+		}
+	}
+	
+	private static final class PaymentReceiptMapper implements RowMapper<String> {
+
+		public String schema() {
+			return " p.receipt_no as receiptNo from b_paymentgateway p";
+		}
+		
+		@Override
+		public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+			
+			String receiptNo = rs.getString("receiptNo");
+			return receiptNo;
+		}
+
+	}
 	
 	
 }

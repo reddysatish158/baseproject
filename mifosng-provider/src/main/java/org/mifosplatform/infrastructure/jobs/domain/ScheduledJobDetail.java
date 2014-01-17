@@ -77,7 +77,7 @@ public class ScheduledJobDetail extends AbstractPersistable<Long> {
     @Column(name = "is_misfired")
     private boolean triggerMisfired;
     
-    @Column(name="createdby_id")
+    @Column(name="user_id")
 	private Long createdBy;
     
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -100,6 +100,7 @@ public class ScheduledJobDetail extends AbstractPersistable<Long> {
         this.updatesAllowed=true;
         this.schedulerGroup=0;
         this.triggerMisfired=false;
+        this.createdBy=null;
     
     }
 
