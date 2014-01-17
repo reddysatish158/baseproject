@@ -18,5 +18,6 @@ public interface BillMasterReadPlatformService {
 	BigDecimal retrieveClientBalance(Long clientId);
 	List<FinancialTransactionsData> retrieveSingleInvoiceData(Long invoiceId);
 	List<BillDetailsData> retrievegetStatementDetails(Long billId);
-
+	Page<FinancialTransactionsData> retrieveSampleData(
+			SearchSqlQuery searchFinancialTransaction, Long clientId,String type);
 }
