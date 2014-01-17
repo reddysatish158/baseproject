@@ -3,12 +3,14 @@ package org.mifosplatform.billing.inventory.service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.inventory.data.InventoryGrnData;
 import org.mifosplatform.billing.inventory.domain.InventoryGrnRepository;
+import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
@@ -183,6 +185,32 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
 		
 	}
 
+	@Override
+	public List<McodeData> retrieveItemQualityData(String str) {
+		ItemDataMaper mapper = new ItemDataMaper();
+
+		String sql = "select " + mapper.schema()+" m.code_name=? order by mc.id";
+
+		return this.jdbcTemplate.query(sql, mapper, new Object[] {str});
+	}
+	private static final class ItemDataMaper implements RowMapper<McodeData> {
+
+		public String schema() {
+			return "mc.id as id,mc.code_value as codeValue FROM m_code_value mc,m_code m where mc.code_id=m.id and";
+
+		}
+
+		@Override
+		public McodeData mapRow(final ResultSet rs,
+				@SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
+           
+			String codeValue = rs.getString("codeValue");
+			Long id = rs.getLong("id");
+			return new McodeData(id,codeValue);
+
+		}
+	}
 	
 	
 }
