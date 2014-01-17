@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
@@ -37,6 +38,7 @@ import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterJoinData
 import org.mifosplatform.infrastructure.dataqueries.data.ResultsetColumnHeaderData;
 import org.mifosplatform.infrastructure.dataqueries.data.ResultsetRowData;
 import org.mifosplatform.infrastructure.dataqueries.exception.ReportNotFoundException;
+import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
@@ -588,6 +590,96 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 
             return new ReportParameterData(id, null, parameterName);
         }
+    }
+
+	@Override
+	public String generateEmailReport(String name, String type,
+			Map<String, String> extractedQueryParams,String fileLocation) {
+		 String location = FileUtils.MIFOSX_BASE_DIR+ File.separator + JobName.REPORT_EMAIL.toString();
+        if (!new File(location).isDirectory()) {
+            new File(location).mkdirs();
+        }
+
+        String genaratePdf = fileLocation + ".pdf";
+
+        try {
+            GenericResultsetData result = generateEmailResultset(name, type, extractedQueryParams);
+
+            List<ResultsetColumnHeaderData> columnHeaders = result.getColumnHeaders();
+            List<ResultsetRowData> data = result.getData();
+            List<String> row;
+
+            logger.info("NO. of Columns: " + columnHeaders.size());
+            Integer chSize = columnHeaders.size();
+
+            Document document = new Document(PageSize.A4.rotate());
+
+            PdfWriter.getInstance(document, new FileOutputStream(new File(genaratePdf)));
+            document.open();
+
+            PdfPTable table = new PdfPTable(chSize);
+            table.setWidthPercentage(100);
+
+            for (int i = 0; i < chSize; i++) {
+
+                table.addCell(columnHeaders.get(i).getColumnName());
+
+            }
+            table.completeRow();
+
+            Integer rSize;
+            String currColType;
+            String currVal;
+            logger.info("NO. of Rows: " + data.size());
+            for (int i = 0; i < data.size(); i++) {
+                row = data.get(i).getRow();
+                rSize = row.size();
+                for (int j = 0; j < rSize; j++) {
+                    currColType = columnHeaders.get(j).getColumnType();
+                    currVal = row.get(j);
+                    if (currVal != null) {
+                        if (currColType.equals("DECIMAL") || currColType.equals("DOUBLE") || currColType.equals("BIGINT")
+                                || currColType.equals("SMALLINT") || currColType.equals("INT")) {
+
+                            table.addCell(currVal.toString());
+                        } else {
+                            table.addCell(currVal.toString());
+                        }
+                    }
+                }
+            }
+            table.completeRow();
+            document.add(table);
+            document.close();
+            return genaratePdf;
+        } catch (Exception e) {
+            logger.error("error.msg.reporting.error:" + e.getMessage());
+            throw new PlatformDataIntegrityException("error.msg.exception.error", e.getMessage());
+        }
+    }
+
+	@Override
+	public GenericResultsetData generateEmailResultset(String name,String type, Map<String, String> extractedQueryParams) {
+
+        long startTime = System.currentTimeMillis();
+        logger.info("STARTING REPORT: " + name + "   Type: " + type);
+
+        String sql = getEmailSQLtoRun(name, type, extractedQueryParams);
+
+        GenericResultsetData result = genericDataService.fillGenericResultSet(sql);
+
+        long elapsed = System.currentTimeMillis() - startTime;
+        logger.info("FINISHING Report/Request Name: " + name + " - " + type + "     Elapsed Time: " + elapsed);
+        return result;
+    }
+	
+	private String getEmailSQLtoRun(final String name, final String type, final Map<String, String> queryParams) {
+
+        String sql = getSql(name, type);
+        sql = genericDataService.wrapSQL(sql);
+
+        return sql;
+
     }
 
 }

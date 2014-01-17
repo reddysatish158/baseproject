@@ -97,19 +97,27 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.SimpleEmail;
+import org.joda.time.LocalDate;
 import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
 import org.mifosplatform.billing.message.domain.BillingMessage;
 import org.mifosplatform.billing.message.domain.MessageDataRepository;
@@ -235,6 +243,9 @@ public class MessageGmailBackedPlatformEmailService implements
 	@Override
 	public String createEmail(String pdfFileName, String emailId) {
 		
+		 Date date=new Date();
+		 String dateTime=date.getHours()+""+date.getMinutes();
+	     String fileLocation="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
 		final String username = "ashokreddy556@gmail.com";
 		final String password = "9989720715";
 
@@ -258,10 +269,23 @@ public class MessageGmailBackedPlatformEmailService implements
 		      message.setRecipients(Message.RecipientType.TO,
 		        InternetAddress.parse(emailId));
 		      message.setSubject("Testing Subject");
-		      message.setText("Dear Mail Crawler,"
-		        + "\n\n No spam to my email, please!");
+				message.setText("Dear Mail Crawler,"
+						+ "\n\n No spam to my email, please!");
+				
+				MimeBodyPart messageBodyPart = new MimeBodyPart();
 
-		      Transport.send(message);
+		        Multipart multipart = new MimeMultipart();
+
+		        messageBodyPart = new MimeBodyPart();
+		        String file = pdfFileName;
+		        String fileName = fileLocation;
+		        DataSource source = new FileDataSource(file);
+		        messageBodyPart.setDataHandler(new DataHandler(source));
+		        messageBodyPart.setFileName(fileName);
+		        multipart.addBodyPart(messageBodyPart);
+		        message.setContent(multipart);
+		        System.out.println("Sending");
+				Transport.send(message);
 		      System.out.println("Done");
 		      return "Success";
 		    } catch (MessagingException e) {

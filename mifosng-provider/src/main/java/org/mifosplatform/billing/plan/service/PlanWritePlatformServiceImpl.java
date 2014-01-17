@@ -61,7 +61,6 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
 	public CommandProcessingResult createPlan(JsonCommand command) {
 
 		try {
-
 			 this.context.authenticatedUser();
 		     this.fromApiJsonDeserializer.validateForCreate(command.json());
 			  Plan plan=Plan.fromJson(command);

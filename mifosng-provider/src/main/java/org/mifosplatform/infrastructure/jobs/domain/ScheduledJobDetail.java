@@ -77,6 +77,9 @@ public class ScheduledJobDetail extends AbstractPersistable<Long> {
     @Column(name = "is_misfired")
     private boolean triggerMisfired;
     
+    @Column(name="createdby_id")
+	private Long createdBy;
+    
     @LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "jobDetail", orphanRemoval = true)
 	private List<JobParameters> details = new ArrayList<JobParameters>();
@@ -209,7 +212,7 @@ public class ScheduledJobDetail extends AbstractPersistable<Long> {
 	return new ScheduledJobDetail(jobName,displayName,cronExpression,newValue);
 	}
 
-	public void updateJobParamters(JsonCommand command) {
+	public void updateJobParamters(JsonCommand command, Long id) {
 	
                List<JobParameters> parameters=new ArrayList<JobParameters>();
                
@@ -219,7 +222,7 @@ public class ScheduledJobDetail extends AbstractPersistable<Long> {
             	   
             	   parameters.add(jobParameters);
                }
-               
+               this.createdBy=id;
                this.details.clear();
                this.details.addAll(parameters);
 		
