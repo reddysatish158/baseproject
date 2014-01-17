@@ -154,8 +154,9 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 		private static final class AssociationMapper implements RowMapper<AssociationData> {
 
 			public String schema() {
-				return " b.serial_no AS serialNum,b.provisioning_serialno as provisionNum   FROM  b_item_detail b WHERE NOT EXISTS" +
-						" (SELECT *FROM b_association a WHERE a.hw_serial_no = b.serial_no and a.is_deleted ='N') and b.client_id=?"; 
+				return " b.serial_no AS serialNum,b.provisioning_serialno as provisionNum   FROM  b_item_detail b " +
+						/*" WHERE NOT EXISTS (SELECT *FROM b_association a WHERE a.hw_serial_no = b.serial_no and a.is_deleted ='N') and " +*/
+						" where  b.client_id=?"; 
 						
 			}
 
