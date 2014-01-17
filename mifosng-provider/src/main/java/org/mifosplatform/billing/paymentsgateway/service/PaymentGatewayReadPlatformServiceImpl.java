@@ -46,18 +46,6 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			return null;
 		}
 	}
-
-	/*@Override
-	public List<PaymentGatewayData> retrievePaymentGatewayData() {
-		try{
-			this.context.authenticatedUser();
-			PaymentMapper mapper=new PaymentMapper();
-			String sql = "select "+mapper.schema();
-			return jdbcTemplate.query(sql, mapper, new Object[] {});
-			} catch(EmptyResultDataAccessException e){
-				return null;
-			}
-	}*/
 	
 	private static final class PaymentMapper implements RowMapper<PaymentGatewayData> {
 
@@ -115,18 +103,30 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		context.authenticatedUser();
 		PaymentMapper mapper=new PaymentMapper();
 		
+		String sqlSearch = searchPaymentDetail.getSqlSearch();
+	    String extraCriteria = "";
 		StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select ");
         sqlBuilder.append(mapper.schema());
-        sqlBuilder.append(" where p.status like '"+tabType+"'");
-        
-        String sqlSearch = searchPaymentDetail.getSqlSearch();
-        String extraCriteria = "";
-	    if (sqlSearch != null) {
-	    	sqlSearch=sqlSearch.trim();
-	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
-	    }
-            sqlBuilder.append(extraCriteria);
+       
+          
+        if (tabType!=null ) {
+        	
+		        	tabType=tabType.trim();
+		        	sqlBuilder.append(" where p.status like '"+tabType+"'");
+		  
+		    	    if (sqlSearch != null) {
+		    	    	sqlSearch=sqlSearch.trim();
+		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+		    	    }
+		                sqlBuilder.append(extraCriteria);
+	    }else{
+	    	if (sqlSearch != null) {
+    	    	sqlSearch=sqlSearch.trim();
+    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+    	    }
+                sqlBuilder.append(extraCriteria);
+        }
         
         if (searchPaymentDetail.isLimited()) {
             sqlBuilder.append(" limit ").append(searchPaymentDetail.getLimit());
