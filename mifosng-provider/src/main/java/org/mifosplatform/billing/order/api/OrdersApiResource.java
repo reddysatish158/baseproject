@@ -97,15 +97,15 @@ public class OrdersApiResource {
 	@Path("template")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retrieveOrderTemplate(@Context final UriInfo uriInfo) {
+	public String retrieveOrderTemplate(@QueryParam("planId")Long planId,@Context final UriInfo uriInfo) {
 	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	OrderData orderData = handleTemplateRelatedData();
+	OrderData orderData = handleTemplateRelatedData(planId);
 	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
     return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
 	}
 	
-	private OrderData handleTemplateRelatedData() {
-		List<PlanCodeData> planDatas = this.orderReadPlatformService.retrieveAllPlatformData();
+	private OrderData handleTemplateRelatedData(Long planId) {
+		List<PlanCodeData> planDatas = this.orderReadPlatformService.retrieveAllPlatformData(planId);
 		List<PaytermData> data=new ArrayList<PaytermData>();
 		List<SubscriptionData> contractPeriod=this.planReadPlatformService.retrieveSubscriptionData();
 		return new OrderData(planDatas,data,contractPeriod,null);
@@ -117,7 +117,7 @@ public class OrdersApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String getBillingFrequency(@PathParam("planCode") final Long planCode,@Context final UriInfo uriInfo) {
 	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	OrderData orderData = handleTemplateRelatedData();
+	OrderData orderData = handleTemplateRelatedData(new Long(0));
 	List<PaytermData> datas  = this.orderReadPlatformService.getChargeCodes(planCode);
 	if(datas.size()==0){
 		throw new BillingOrderNoRecordsFoundException(planCode);
@@ -268,5 +268,15 @@ public class OrdersApiResource {
 			return this.toApiJsonSerializer.serialize(result);
 
 	 }
+	 
+	   @PUT
+		@Path("changePlan/{orderId}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public String changePlan(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().changePlan(orderId).withJson(apiRequestBodyAsJson).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		return this.toApiJsonSerializer.serialize(result);
+		}	 
 	 
 }

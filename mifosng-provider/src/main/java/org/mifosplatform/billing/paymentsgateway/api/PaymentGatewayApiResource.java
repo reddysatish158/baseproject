@@ -16,13 +16,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
-
-
-
-
-import org.json.JSONException;
-
 import org.json.JSONObject;
 import org.json.XML;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
@@ -80,9 +73,9 @@ public class PaymentGatewayApiResource {
 	@POST
 	@Consumes({ MediaType.WILDCARD })
 	@Produces({ MediaType.APPLICATION_XML })
-	public String mpesaPayment(final String apiRequestBodyAsJson) throws JSONException {
+	public String mpesaPayment(final String apiRequestBodyAsJson)  {
 		 CommandProcessingResult result=null;
-	
+	try{
 			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
 			JSONObject element= xmlJSONObj.getJSONObject("transaction");
 			element.put("locale", "en");
@@ -101,19 +94,30 @@ public class PaymentGatewayApiResource {
                 .append("</response>");
             return builder.toString();
 			}
-			else if("Failure".equalsIgnoreCase(result.getTransactionId())){
-				StringBuilder failurebuilder = new StringBuilder();
-				failurebuilder
-	                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-	                .append("<response>")
-	                .append("<receipt/>")
-	                 .append("<result>"+"FAILURE")
-	                .append("</result>")
-	                .append("</response>");
-	            return failurebuilder.toString();
-			}else{
-				return this.toApiJsonSerializer.serialize(result);
-			}
+			else {	StringBuilder failurebuilder = new StringBuilder();
+			
+		failurebuilder
+            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+            .append("<response>")
+            .append("<receipt/>")
+             .append("<result>"+"DUPLICATE_TXN")
+            .append("</result>")
+            .append("</response>");
+        return failurebuilder.toString();
+        }
+	}catch(Exception e){
+		
+		StringBuilder failurebuilder = new StringBuilder();
+		failurebuilder
+            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+            .append("<response>")
+            .append("<receipt/>")
+             .append("<result>"+"DUPLICATE_TXN")
+            .append("</result>")
+            .append("</response>");
+        return failurebuilder.toString();
+	}
+	
 		 
 	}
 	

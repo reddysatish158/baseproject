@@ -729,6 +729,28 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			return new CommandProcessingResult(Long.valueOf(-1));
 		}
 	}
+	
+	@Transactional
+	@Override
+	public CommandProcessingResult changePlan(JsonCommand command, Long entityId) {
+		
+		try{
+			this.context.authenticatedUser();
+			
+			Order order=this.orderRepository.findOne(entityId);
+			
+			this.disconnectOrder(command, entityId);
+			this.createOrder(order.getClientId(), command);
+			
+			return new CommandProcessingResult(entityId);
+			
+			
+		}catch(DataIntegrityViolationException exception){
+			handleCodeDataIntegrityIssues(command, exception);
+			return new CommandProcessingResult(new Long(-1));
+		}
+		
+	}
 
 	
  }

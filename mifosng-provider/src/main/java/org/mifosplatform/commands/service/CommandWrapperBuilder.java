@@ -1922,12 +1922,24 @@ public CommandWrapperBuilder cancelPayment(Long paymentId) {
 	this.href = "/payments/cancelpayment"+this.entityId;
 	return this;
 }
+
+
+public CommandWrapperBuilder changePlan(Long orderId) {
+
+    this.actionName="CHANGEPLAN";
+    this.entityName="ORDER";
+    this.entityId=orderId;
+    this.href="orders/changePlan"+orderId;
+    
+   return this;
+}
 public CommandWrapperBuilder updateInventoryItem(final Long id) {
 	this.actionName = "UPDATE";
 	this.entityName = "INVENTORY";
 	this.entityId = id;
 	this.href = "/itemdetails/template";
 	return this;
+
 }
 
 }

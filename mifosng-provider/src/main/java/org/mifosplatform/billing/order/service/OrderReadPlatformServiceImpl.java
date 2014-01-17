@@ -47,12 +47,13 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 
 	    }
 	@Override
-	public List<PlanCodeData> retrieveAllPlatformData() {
+	public List<PlanCodeData> retrieveAllPlatformData(Long planId) {
 		  context.authenticatedUser();
 
-	        String sql = "select s.id as id,s.plan_code as plan_code,s.is_prepaid as isPrepaid from b_plan_master s where s.plan_status=1 and  s.is_deleted='n'  ";
+	        String sql = "select s.id as id,s.plan_code as plan_code,s.is_prepaid as isPrepaid from b_plan_master s " +
+	        		" where s.plan_status=1 and  s.is_deleted='n'  and s.id !=? ";
 	        RowMapper<PlanCodeData> rm = new PeriodMapper();
-	        return this.jdbcTemplate.query(sql, rm, new Object[] {});
+	        return this.jdbcTemplate.query(sql, rm, new Object[] {planId});
 	}
 
 	 private static final class PeriodMapper implements RowMapper<PlanCodeData> {

@@ -104,6 +104,7 @@ public class SchedularWritePlatformServiceJpaRepositoryImpl implements Schedular
     @Override
     public CommandProcessingResult updateJobDetail(final Long jobId, final JsonCommand command) {
         dataValidator.validateForUpdate(command.json());
+        
         final ScheduledJobDetail scheduledJobDetail = findByJobId(jobId);
         if (scheduledJobDetail == null) { throw new JobNotFoundException(String.valueOf(jobId)); }
         final Map<String, Object> changes = scheduledJobDetail.update(command);
