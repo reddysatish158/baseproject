@@ -414,4 +414,56 @@ public class BillMasterReadPlatformServiceImplementation implements
 
 			}
 		}
+		
+		@Override
+		public Page<FinancialTransactionsData> retrieveSampleData(
+				SearchSqlQuery searchTransactionHistory,Long clientId,String type) {
+			FinancialTypeMapper financialTypeMapper = new FinancialTypeMapper();
+		
+				StringBuilder sqlBuilder = new StringBuilder(200);
+		        sqlBuilder.append("select ");
+		        sqlBuilder.append(financialTypeMapper.financialTypeSchema());
+		   
+		        if (searchTransactionHistory.isLimited()) {
+		            sqlBuilder.append(" limit ").append(searchTransactionHistory.getLimit());
+		        }
+
+		        if (searchTransactionHistory.isOffset()) {
+		            sqlBuilder.append(" offset ").append(searchTransactionHistory.getOffset());
+		        }
+			
+				return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+			            new Object[] {clientId,type}, financialTypeMapper);
+				
+
+		}
+
+		private static final class FinancialTypeMapper implements
+				RowMapper<FinancialTransactionsData> {
+
+			@Override
+			public FinancialTransactionsData mapRow(ResultSet rs, int rowNum)
+
+					throws SQLException {
+				Long transactionId = rs.getLong("TransId");
+			//	Date transactionDate = rs.getDate("transDate");
+				String transactionType = rs.getString("TransType");
+				BigDecimal debitAmount = rs.getBigDecimal("DebitAmount");
+				BigDecimal creditAmount =rs.getBigDecimal("CreditAmount");
+				
+				
+				LocalDate transDate=JdbcSupport.getLocalDate(rs,"TransDate");
+				
+				return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null);
+			}
+
+			public String financialTypeSchema() {
+
+				return " ft.TransId as TransId,ft.TransType as TransType,ft.Dr_amt as DebitAmount,ft.Cr_amt as CreditAmount,"
+						+"ft.TransDate as TransDate from fin_trans_vw as ft where client_id=? and transType like ?";
+
+				
+			}
+		}
+
 }

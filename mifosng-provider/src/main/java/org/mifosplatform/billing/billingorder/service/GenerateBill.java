@@ -335,7 +335,7 @@ public class GenerateBill {
 	private BigDecimal getDisconnectionCredit(LocalDate startDate,
 			LocalDate endDate, BigDecimal amount, String durationType,Integer chargeDuration) {
 
-		/*int currentDay = startDate.getDayOfMonth();*/
+		int maxDaysOfMonth = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
 
 		int totalDays = 0;
 		if (startDate.isEqual(endDate)) {
@@ -347,7 +347,7 @@ public class GenerateBill {
 		BigDecimal pricePerDay = BigDecimal.ZERO.setScale(Integer.parseInt(roundingDecimal()));
 
 		if (durationType.equalsIgnoreCase("month(s)")) {
-			pricePerDay = pricePerMonth.divide(new BigDecimal(30), 2,
+			pricePerDay = pricePerMonth.divide(new BigDecimal(maxDaysOfMonth), 2,
 					RoundingMode.HALF_UP);
 
 		} else if (durationType.equalsIgnoreCase("week(s)")) {

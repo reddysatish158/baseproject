@@ -2,11 +2,13 @@ package org.mifosplatform.billing.inventory.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.association.data.HardwareAssociationData;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
+import org.mifosplatform.billing.eventactionmapping.exception.EventActionMappingNotFoundException;
 import org.mifosplatform.billing.inventory.data.AllocationHardwareData;
 import org.mifosplatform.billing.inventory.domain.InventoryGrn;
 import org.mifosplatform.billing.inventory.domain.InventoryGrnRepository;
@@ -175,7 +177,34 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	        logger.error(dve.getMessage(), dve);   	
 	}
 
-
+		public CommandProcessingResult updateItem(Long id,JsonCommand command)
+		{
+	        try{
+	        	  
+	        	this.context.authenticatedUser();
+	        	this.inventoryItemCommandFromApiJsonDeserializer.validateForUpdate(command.json());
+	        	
+	        	InventoryItemDetails itemId=ItemretrieveById(id);
+	        	final Map<String, Object> changes = itemId.update(command);  
+	        	
+	        	if(!changes.isEmpty()){
+	        		this.inventoryItemDetailsRepository.save(itemId);
+	        	}
+	        	
+	        	return new CommandProcessingResult(id);
+	        	
+	        }catch(DataIntegrityViolationException dve){
+	        	handleDataIntegrityIssues(command, dve);
+	        	return null;        }
+			
+	         
+	}
+		private InventoryItemDetails ItemretrieveById(Long id) {
+            
+			InventoryItemDetails itemId=this.inventoryItemDetailsRepository.findOne(id);
+	              if (itemId== null) { throw new EventActionMappingNotFoundException(id.toString()); }
+		          return itemId;	
+		}
 
 
 		@Override

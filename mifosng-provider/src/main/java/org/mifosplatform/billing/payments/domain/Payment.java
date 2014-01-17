@@ -90,6 +90,17 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 
 	}
 
+	
+	
+	
+	public String getReceiptNo() {
+		return receiptNo;
+	}
+
+	public void setReceiptNo(String receiptNo) {
+		this.receiptNo = receiptNo;
+	}
+
 	public Long getClientId() {
 		return clientId;
 	}
