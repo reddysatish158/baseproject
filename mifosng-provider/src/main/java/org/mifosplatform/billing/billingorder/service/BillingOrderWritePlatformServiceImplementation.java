@@ -185,10 +185,7 @@ public class BillingOrderWritePlatformServiceImplementation implements BillingOr
 				new LocalDate().toDate(), invoiceCommand.getInvoiceAmount(),
 				invoiceCommand.getNetChargeAmount(),
 				invoiceCommand.getTaxAmount(),
-				invoiceCommand.getInvoiceStatus(),
-				invoiceCommand.getCreatedBy(), invoiceCommand.getCreatedDate(),
-				invoiceCommand.getLastModifiedDate(),
-				invoiceCommand.getLastModifiedId());
+				invoiceCommand.getInvoiceStatus());
 		
 		List<BillingOrder> charges = new ArrayList<BillingOrder>();
 		

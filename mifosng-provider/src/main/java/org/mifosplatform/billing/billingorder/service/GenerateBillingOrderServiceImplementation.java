@@ -17,12 +17,14 @@ import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
 import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GenerateBillingOrderServiceImplementation implements	GenerateBillingOrderService {
-
+	
 	private final GenerateBill generateBill;
 	private final BillingOrderReadPlatformService billingOrderReadPlatformService;
 	private final InvoiceRepository invoiceRepository;
@@ -30,7 +32,7 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 	//private final OrderRepository orderRepository;
 
 	@Autowired
-	public GenerateBillingOrderServiceImplementation(GenerateBill generateBill,BillingOrderReadPlatformService billingOrderReadPlatformService,
+	public GenerateBillingOrderServiceImplementation (GenerateBill generateBill,BillingOrderReadPlatformService billingOrderReadPlatformService,
 			InvoiceRepository invoiceRepository,final DiscountMasterRepository discountMasterRepository) {
 		this.generateBill = generateBill;
 		this.billingOrderReadPlatformService = billingOrderReadPlatformService;
@@ -179,9 +181,8 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 		LocalDate invoiceDate = new LocalDate();
 		List<BillingOrder> charges = new ArrayList<BillingOrder>();
 		
-		Invoice invoice = new Invoice(billingOrderCommands.get(0).getClientId(), new LocalDate().toDate(), invoiceAmount, invoiceAmount, netTaxAmount, "active",
-				null, null, null, null);
-		
+	   Invoice invoice = new Invoice(billingOrderCommands.get(0).getClientId(),new LocalDate().toDate(), invoiceAmount, 
+			   invoiceAmount, netTaxAmount,"active");
 		for (BillingOrderCommand billingOrderCommand : billingOrderCommands) {
 			BigDecimal netChargeTaxAmount = BigDecimal.ZERO;
 			BigDecimal discountAmount = billingOrderCommand.getDiscountMasterData().getDiscountAmount();
@@ -211,11 +212,9 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 			
 			
 			  if(billingOrderCommand.getTaxInclusive()!=null){
-			if(isTaxInclusive(billingOrderCommand.getTaxInclusive())){
+				  
+			   if(isTaxInclusive(billingOrderCommand.getTaxInclusive())){
 				netChargeAmount = netChargeAmount.subtract(netChargeTaxAmount);
-				
-
-
 				charge.setNetChargeAmount(netChargeAmount);
 				charge.setChargeAmount(netChargeAmount);
 			}
