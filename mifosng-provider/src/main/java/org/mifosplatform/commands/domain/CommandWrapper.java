@@ -568,6 +568,9 @@ public class CommandWrapper {
 	public boolean isInventoryResource() {
 		return this.entityName.equalsIgnoreCase("INVENTORY");
 	}
+	public boolean isUpdateInventoryItem(){
+		return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("INVENTORY");
+	}
 	public boolean isAllocateHardwareResource(){
 		return this.entityName.equalsIgnoreCase("ALLOCATION");
 	}
@@ -924,6 +927,10 @@ public class CommandWrapper {
 		}
 		public boolean isCancel() {
 			return this.actionName.equalsIgnoreCase("CANCEL") && this.entityName.equalsIgnoreCase("PAYMENT");
+		}
+
+		public boolean isChangePlan() {
+			return this.actionName.equalsIgnoreCase("CHANGEPLAN") && this.entityName.equalsIgnoreCase("ORDER");
 		}
 		
 }

@@ -517,8 +517,9 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("renewalOrderCommandHandler",NewCommandSourceHandler.class);
 			} else if (wrapper.isReconnectOrder()) {
 				handler = applicationContext.getBean("reconnectOrderCommandHandler",NewCommandSourceHandler.class);
-			}
-			else if (wrapper.isRetrackOsdMessageOrder()) {
+			}else if (wrapper.isChangePlan()) {
+				handler = applicationContext.getBean("changePlanCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isRetrackOsdMessageOrder()) {
 				handler = applicationContext.getBean("retrackOsdMessageOrderCommandHandler",NewCommandSourceHandler.class);
 			}
 		} else if (wrapper.isOrderPriceResource()) {
@@ -606,6 +607,9 @@ public class SynchronousCommandProcessingService implements
 			} else if (wrapper.isInventoryResource()) {
 	        	if (wrapper.isCreate()) {
 					handler = applicationContext.getBean("createInventoryItemsCommandHandler", NewCommandSourceHandler.class);
+	        	}
+	        	else if(wrapper.isUpdateInventoryItem()){
+	        		handler = applicationContext.getBean("updateInventoryItemsCommandHandler", NewCommandSourceHandler.class);
 	        	}
 			} else if (wrapper.isGrnResource()) {
 				if (wrapper.isCreate()){

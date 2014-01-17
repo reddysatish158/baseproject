@@ -26,6 +26,10 @@ public class AuthenticatedUserData {
     private final Collection<RoleData> roles;
     @SuppressWarnings("unused")
     private final Collection<String> permissions;
+    
+    @SuppressWarnings("unused")
+    private final Long unReadMessages;
+    
 
     public AuthenticatedUserData(final String username, final Collection<String> permissions) {
         this.username = username;
@@ -34,15 +38,18 @@ public class AuthenticatedUserData {
         this.authenticated = false;
         this.roles = null;
         this.permissions = permissions;
+        this.unReadMessages=null;
+        
     }
 
     public AuthenticatedUserData(final String username, final Collection<RoleData> roles, final Collection<String> permissions,
-            final Long userId, final String base64EncodedAuthenticationKey) {
+            final Long userId, final String base64EncodedAuthenticationKey,final Long unreadMessages) {
         this.username = username;
         this.userId = userId;
         this.base64EncodedAuthenticationKey = base64EncodedAuthenticationKey;
         this.authenticated = true;
         this.roles = roles;
         this.permissions = permissions;
+        this.unReadMessages=unreadMessages;
     }
 }

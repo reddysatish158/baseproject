@@ -8,13 +8,13 @@ package org.mifosplatform.infrastructure.security.api;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.mifosplatform.billing.userchat.service.UserChatReadplatformReadService;
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.data.AuthenticatedUserData;
 import org.mifosplatform.useradministration.data.RoleData;
@@ -39,14 +39,17 @@ public class AuthenticationApiResource {
     private final DaoAuthenticationProvider customAuthenticationProvider;
     private final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService;
     private final RoleReadPlatformService roleReadPlatformService;
+    private final UserChatReadplatformReadService userChatReadplatformReadService;
 
     @Autowired
     public AuthenticationApiResource(
             @Qualifier("customAuthenticationProvider") final DaoAuthenticationProvider customAuthenticationProvider,
-            final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService, final RoleReadPlatformService roleReadPlatformService) {
+            final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService, final RoleReadPlatformService roleReadPlatformService,
+            final  UserChatReadplatformReadService userChatReadplatformReadService) {
         this.customAuthenticationProvider = customAuthenticationProvider;
         this.apiJsonSerializerService = apiJsonSerializerService;
         this.roleReadPlatformService = roleReadPlatformService;
+        this.userChatReadplatformReadService=userChatReadplatformReadService;
     }
 
     @POST
@@ -69,9 +72,10 @@ public class AuthenticationApiResource {
             byte[] base64EncodedAuthenticationKey = Base64.encode(username + ":" + password);
 
             Collection<RoleData> roles = this.roleReadPlatformService.retrieveAll();
+            Long unreadMessages=this.userChatReadplatformReadService.getUnreadMessages(username);
 
             authenticatedUserData = new AuthenticatedUserData(username, roles, permissions, principal.getId(), new String(
-                    base64EncodedAuthenticationKey));
+                    base64EncodedAuthenticationKey),unreadMessages);
         }
 
         return this.apiJsonSerializerService.serialize(authenticatedUserData);

@@ -10,4 +10,5 @@ public interface InventoryItemDetailsWritePlatformService {
 	CommandProcessingResult addItem(JsonCommand json,Long orderId);
 	CommandProcessingResult allocateHardware(JsonCommand command);
 	InventoryItemDetailsAllocation deAllocateHardware(String serialNo,Long clientId);
+	CommandProcessingResult updateItem(Long itemId,JsonCommand json);
 }

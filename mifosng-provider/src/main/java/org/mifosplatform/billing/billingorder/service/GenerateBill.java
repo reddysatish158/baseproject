@@ -31,20 +31,12 @@ public class GenerateBill {
 
 	@Autowired
 	public GenerateBill(BillingOrderReadPlatformService billingOrderReadPlatformService,InvoiceTaxPlatformService invoiceTaxPlatformService,
-			final ClientRegionDetails clientRegionDetails,final GlobalConfigurationRepository globalConfigurationRepository
-	/* final OrderRepository orderRepository */) {
+			final ClientRegionDetails clientRegionDetails,final GlobalConfigurationRepository globalConfigurationRepository) {
 		this.billingOrderReadPlatformService = billingOrderReadPlatformService;
 		this.invoiceTaxPlatformService = invoiceTaxPlatformService;
 		this.clientRegionDetails=clientRegionDetails;
 		this.globalConfigurationRepository=globalConfigurationRepository;
 	}
-
-	BigDecimal pricePerMonth = null;
-	LocalDate startDate = null;
-	LocalDate endDate = null;
-	BigDecimal price = null;
-	LocalDate invoiceTillDate = null;
-	LocalDate nextbillDate = null;
 	BillingOrderCommand billingOrderCommand = null;
 
 	public boolean isChargeTypeNRC(BillingOrderData billingOrderData) {
@@ -76,12 +68,16 @@ public class GenerateBill {
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
 		BigDecimal  pricePerDay=BigDecimal.ZERO;
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		startDate = new LocalDate(billingOrderData.getBillStartDate());
 		endDate = startDate.dayOfMonth().withMaximumValue();
 		if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
 			int currentDay = startDate.getDayOfMonth();
-			int endOfMonth = startDate.dayOfMonth().withMaximumValue()
-					.getDayOfMonth();
+			int endOfMonth = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
 			int totalDays = endOfMonth - currentDay + 1;
 			// price = billingOrderData.getPrice();
 			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));
@@ -122,20 +118,23 @@ public class GenerateBill {
 	public BillingOrderCommand getNextMonthBill(
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		startDate = new LocalDate(billingOrderData.getNextBillableDate());
 		endDate = new LocalDate(billingOrderData.getInvoiceTillDate())
 				.plusMonths(billingOrderData.getChargeDuration()).dayOfMonth()
 				.withMaximumValue();
-
-		if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
+		if (endDate.toDate().before(billingOrderData.getBillEndDate())||endDate.toDate().compareTo(billingOrderData.getBillEndDate())==0) {
 			price = billingOrderData.getPrice();
-		} else if (endDate.toDate().after(billingOrderData.getBillEndDate())) {
+		   } else if (endDate.toDate().after(billingOrderData.getBillEndDate())) {
 			endDate = new LocalDate(billingOrderData.getBillEndDate());
 			price = getDisconnectionCredit(startDate, endDate,
 					billingOrderData.getPrice(),
 					billingOrderData.getDurationType(),null);
 		}
-
 		invoiceTillDate = endDate;
 		nextbillDate = invoiceTillDate.plusDays(1);
 		
@@ -144,7 +143,6 @@ public class GenerateBill {
 			discountMasterData = this.calculateDiscount(discountMasterData, discountAmount, price);
 			
 		}
-
 		List<InvoiceTaxCommand> listOfTaxes = this.calculateTax(billingOrderData,price);
 
 		return this.createBillingOrderCommand(billingOrderData, startDate, endDate, invoiceTillDate, nextbillDate, price, listOfTaxes,discountMasterData);
@@ -152,24 +150,22 @@ public class GenerateBill {
 	}
 	// Monthly Bill
 	public BillingOrderCommand getMonthyBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
-		BigDecimal discountAmount = BigDecimal.ZERO.setScale(Integer.parseInt(roundingDecimal()));;
+		BigDecimal discountAmount = BigDecimal.ZERO;
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		if (billingOrderData.getInvoiceTillDate() == null) {
 			startDate = new LocalDate(billingOrderData.getBillStartDate());
-			endDate = startDate
-					.plusMonths(billingOrderData.getChargeDuration())
-					.minusDays(1);
+			endDate = startDate.plusMonths(billingOrderData.getChargeDuration()).minusDays(1);
 			price = billingOrderData.getPrice();
 		} else if (billingOrderData.getInvoiceTillDate() != null) {
-
 			startDate = new LocalDate(billingOrderData.getNextBillableDate());
-			endDate = startDate
-					.plusMonths(billingOrderData.getChargeDuration())
-					.minusDays(1);
-
-			if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
+			endDate = startDate.plusMonths(billingOrderData.getChargeDuration()).minusDays(1);
+			if (endDate.toDate().before(billingOrderData.getBillEndDate())||endDate.toDate().compareTo(billingOrderData.getBillEndDate())==0) {
 				price = billingOrderData.getPrice();
-			} else if (endDate.toDate()
-					.after(billingOrderData.getBillEndDate())) {
+			} else if (endDate.toDate().after(billingOrderData.getBillEndDate())) {
 				endDate = new LocalDate(billingOrderData.getBillEndDate());
 				price = getDisconnectionCredit(startDate, endDate,
 						billingOrderData.getPrice(),
@@ -199,6 +195,11 @@ public class GenerateBill {
 	public BillingOrderCommand getProrataWeeklyFirstBill(
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		startDate = new LocalDate(billingOrderData.getBillStartDate());
 		endDate = startDate.dayOfWeek().withMaximumValue();
 
@@ -237,15 +238,15 @@ public class GenerateBill {
 	public BillingOrderCommand getNextWeeklyBill(
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		startDate = new LocalDate(billingOrderData.getNextBillableDate());
 		endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
-	/*  if (billingOrderData.getChargeDuration() == 2) {
-			endDate = startDate.plusWeeks(2).minusDays(1);
-		}else{
-			endDate = startDate.dayOfWeek().withMaximumValue();
-		}*/
-
-		if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
+	
+		if (endDate.toDate().before(billingOrderData.getBillEndDate())||endDate.toDate().compareTo(billingOrderData.getBillEndDate())==0) {
 			price = billingOrderData.getPrice();
 		} else if (endDate.toDate().after(billingOrderData.getBillEndDate())) {
 			endDate = new LocalDate(billingOrderData.getBillEndDate());
@@ -272,30 +273,24 @@ public class GenerateBill {
 	// Weekly Bill
 	public BillingOrderCommand getWeeklyBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
 		BigDecimal discountAmount = BigDecimal.ZERO;
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		if (billingOrderData.getInvoiceTillDate() == null) {
 
 			// please consider the contract start date over here
 			startDate = new LocalDate(billingOrderData.getBillStartDate());
 			endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
-			/*if(billingOrderData.getChargeDuration()==2){
-				endDate = startDate.plusWeeks(2).minusDays(1);
-			}else {
-				endDate = startDate.plusWeeks(1).minusDays(1);
-			}*/
 			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));;
-		} else if (billingOrderData.getInvoiceTillDate() != null) {
+		 } else if (billingOrderData.getInvoiceTillDate() != null) {
 
 			startDate = new LocalDate(billingOrderData.getNextBillableDate());
 			endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
-			/*if(billingOrderData.getChargeDuration()==2){
-				endDate = startDate.plusWeeks(2).minusDays(1);
-			}else{
-				endDate = startDate.plusWeeks(1).minusDays(1);
-			}*/
-			if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
+			if (endDate.toDate().before(billingOrderData.getBillEndDate())||endDate.toDate().compareTo(billingOrderData.getBillEndDate())==0) {
 				price = billingOrderData.getPrice();
-			} else if (endDate.toDate()
-					.after(billingOrderData.getBillEndDate())) {
+			} else if (endDate.toDate().after(billingOrderData.getBillEndDate())) {
 				endDate = new LocalDate(billingOrderData.getBillEndDate());
 				price = getDisconnectionCredit(startDate, endDate,
 						billingOrderData.getPrice(),
@@ -334,8 +329,8 @@ public class GenerateBill {
 	// Disconnection credit price
 	private BigDecimal getDisconnectionCredit(LocalDate startDate,
 			LocalDate endDate, BigDecimal amount, String durationType,Integer chargeDuration) {
-
-		/*int currentDay = startDate.getDayOfMonth();*/
+        BigDecimal pricePerMonth=null;  
+		int maxDaysOfMonth = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
 
 		int totalDays = 0;
 		if (startDate.isEqual(endDate)) {
@@ -347,7 +342,7 @@ public class GenerateBill {
 		BigDecimal pricePerDay = BigDecimal.ZERO.setScale(Integer.parseInt(roundingDecimal()));
 
 		if (durationType.equalsIgnoreCase("month(s)")) {
-			pricePerDay = pricePerMonth.divide(new BigDecimal(30), 2,
+			pricePerDay = pricePerMonth.divide(new BigDecimal(maxDaysOfMonth), 2,
 					RoundingMode.HALF_UP);
 
 		} else if (durationType.equalsIgnoreCase("week(s)")) {
@@ -368,7 +363,11 @@ public class GenerateBill {
 	// order cancelled bill
 	public BillingOrderCommand getCancelledOrderBill(
 			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
-
+		  LocalDate startDate = null;
+		  LocalDate endDate = null;
+		  BigDecimal price = null;
+		  LocalDate invoiceTillDate = null;
+		  LocalDate nextbillDate = null;
 		if (billingOrderData.getInvoiceTillDate() == null)
 			startDate = new LocalDate(billingOrderData.getStartDate());
 		else
@@ -398,7 +397,12 @@ public class GenerateBill {
 
 	// Daily Bill 
 	public BillingOrderCommand getDailyBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
-
+       
+		LocalDate startDate = null;
+		LocalDate endDate = null;
+		BigDecimal price = null;
+		LocalDate invoiceTillDate = null;
+		LocalDate nextbillDate = null;
 		if(billingOrderData.getNextBillableDate() == null){
 				
 		startDate = new LocalDate(billingOrderData.getBillStartDate());

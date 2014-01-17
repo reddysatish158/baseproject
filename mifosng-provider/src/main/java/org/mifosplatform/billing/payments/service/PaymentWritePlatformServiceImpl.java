@@ -1,3 +1,4 @@
+
 package org.mifosplatform.billing.payments.service;
 import java.util.List;
 
@@ -21,7 +22,6 @@ import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWr
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
-import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,5 +175,3 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		logger.error(dve.getMessage(), dve);
 	}
 }
-
-

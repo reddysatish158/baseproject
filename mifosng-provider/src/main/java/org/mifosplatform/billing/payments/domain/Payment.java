@@ -128,3 +128,4 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		}
 
 }
+

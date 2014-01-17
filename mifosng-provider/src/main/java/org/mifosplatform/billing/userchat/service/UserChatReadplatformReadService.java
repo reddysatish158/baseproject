@@ -6,10 +6,8 @@ import org.mifosplatform.billing.userchat.data.UserChatData;
 
 public interface UserChatReadplatformReadService {
 
-	
-
 	List<UserChatData> getUserChatDetails();
-
 	List<UserChatData> getUserSentMessageDetails();
+    Long getUnreadMessages(String username);	
 
 }
