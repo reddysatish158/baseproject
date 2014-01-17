@@ -66,13 +66,13 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 			}
 
 			@Override
-			public List<AllocationDetailsData> retrieveHardWareDetailsByItemCode(Long clientId, String itemCode) 
+			public List<AllocationDetailsData> retrieveHardWareDetailsByItemCode(Long clientId, String planCode) 
 			{
 				try {
 					  
 					final HardwareMapper mapper = new HardwareMapper();
 					final String sql = "select " + mapper.schema();
-					return jdbcTemplate.query(sql, mapper, new Object[] {clientId,itemCode});
+					return jdbcTemplate.query(sql, mapper, new Object[] {clientId,planCode});
 					} catch (EmptyResultDataAccessException e) {
 					return null;
 					}
@@ -83,8 +83,9 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 
 					public String schema() {
 					return " id.id AS id,id.serial_no AS serialNo,i.item_description AS itemDescription  FROM b_item_master i, b_item_detail id, " +
-							"b_association a, b_hw_plan_mapping hm  WHERE NOT EXISTS (SELECT *FROM b_association a  WHERE a.hw_serial_no = id.serial_no " +
-							" AND a.is_deleted = 'N') AND id.item_master_id = i.id AND i.item_code =hm.item_code AND id.client_id =? and  " +
+							"b_association a, b_hw_plan_mapping hm  WHERE " +
+							"NOT EXISTS (SELECT *FROM b_association a  WHERE a.hw_serial_no = id.serial_no  AND a.is_deleted = 'N') AND " +
+							" id.item_master_id = i.id AND i.item_code =hm.item_code AND id.client_id =? and  " +
 							" hm.plan_code=?  GROUP BY id.client_id ";
 					}
 
