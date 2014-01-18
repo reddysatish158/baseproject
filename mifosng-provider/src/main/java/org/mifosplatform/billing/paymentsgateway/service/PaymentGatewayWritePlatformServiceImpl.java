@@ -80,15 +80,11 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 					    DateFormat readFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
 					    Date date = readFormat.parse(paymentDate);					     
 					    PaymentGateway  paymentGateway = new PaymentGateway(serialNumberId,phoneNo,date,amountPaid,receiptNo,SOURCE,details);
-					    this.paymentGatewayRepository.save(paymentGateway);
-					
+	
 					    Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
-						if(clientId == null){
-							PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
-					    	gateway.setStatus("Failure");    	
-					    	this.paymentGatewayRepository.save(gateway);
-					    	return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withTransactionId("Failure").build();		
-						}else{
+					    
+						if(clientId != null){
+
 							Long paymodeId=this.paymodeReadPlatformService.getOnlinePaymode();
 							if(paymodeId==null){
 								paymodeId=new Long(27);
@@ -110,13 +106,17 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 						    JsonCommand comm=new JsonCommand(null, object.toString(), element1, fromApiJsonHelper, entityName, clientId, null, null, null,
 					                null, null, null, null, null, null);
 						    result=this.paymentWritePlatformService.createPayment(comm);
-						    if(result.resourceId()!=null){
-						    	PaymentGateway gateway=this.paymentGatewayRepository.findOne(paymentGateway.getId());
-						    	gateway.setObsId(result.resourceId());
-						    	gateway.setStatus("Success");    
-						    	gateway.setAuto(false);
-						    	this.paymentGatewayRepository.save(gateway);	    	
+						    if(result.resourceId()!=null){		
+						    	paymentGateway.setObsId(result.resourceId());
+						    	paymentGateway.setStatus("Success");    
+						    	paymentGateway.setAuto(false);
+						    	this.paymentGatewayRepository.save(paymentGateway);	    	
 						    }						    
+													
+						}else{						
+							paymentGateway.setStatus("Failure");    	
+					    	this.paymentGatewayRepository.save(paymentGateway);
+					    	return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withTransactionId("Failure").build();
 						}					  		               
 				   }	 
 				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(result.resourceId()).withTransactionId("Success").build();
@@ -132,8 +132,16 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    	  else{
 	    		  return new CommandProcessingResult(Long.valueOf(-1));
 	    	  }
-		   } catch (Exception dve) {
-	           // return CommandProcessingResult.empty();
+		   }catch (ReceiptNoDuplicateException  e) {
+		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
+		    	  String receiptNO=this.paymentGatewayReadPlatformService.findReceiptNo(receiptNo);
+		    	  if(receiptNO!=null){
+		    	  throw new ReceiptNoDuplicateException(receiptNo);
+		    	  }
+		    	  else{
+		    		  return new CommandProcessingResult(Long.valueOf(-1));
+		    	  }
+			   } catch (Exception dve) {
 				    handleCodeDataIntegrityIssues(element, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
 	        }

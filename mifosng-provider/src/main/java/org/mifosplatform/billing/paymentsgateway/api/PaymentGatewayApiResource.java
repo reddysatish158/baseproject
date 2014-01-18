@@ -59,19 +59,22 @@ public class PaymentGatewayApiResource {
 	private final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer;
 	private final PortfolioCommandSourceWritePlatformService writePlatformService;
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	private final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService;
 
 	@Autowired
 	public PaymentGatewayApiResource(final PlatformSecurityContext context,final PaymentGatewayReadPlatformService readPlatformService,
 			final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
 			final PortfolioCommandSourceWritePlatformService writePlatformService,
-			final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
+			final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+			final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService) {
 
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.writePlatformService = writePlatformService;
 		this.context=context;
 		this.readPlatformService=readPlatformService;
 		this.apiRequestParameterHelper=apiRequestParameterHelper;
-		 this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+		this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+		this.paymentGatewayReadPlatformService=paymentGatewayReadPlatformService;
 	}
 
 	@POST
@@ -93,7 +96,7 @@ public class PaymentGatewayApiResource {
             builder
                 .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
                 .append("<response>")
-                .append("<receipt>"+Receipt)
+                .append("<receipt>"+result.resourceId())
                 .append("</receipt>")
                  .append("<result>"+result.getTransactionId())
                 .append("</result>")
@@ -104,12 +107,12 @@ public class PaymentGatewayApiResource {
             return null;
            }
 	}catch(ReceiptNoDuplicateException e){
-		
+		 Long id=this.paymentGatewayReadPlatformService.GetReceiptNoId(Receipt);
 		StringBuilder failurebuilder = new StringBuilder();
 		failurebuilder
             .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
             .append("<response>")
-            .append("<receipt>"+Receipt)
+            .append("<receipt>"+id)
             .append("</receipt>")
             .append("<result>"+"DUPLICATE_TXN")
             .append("</result>")

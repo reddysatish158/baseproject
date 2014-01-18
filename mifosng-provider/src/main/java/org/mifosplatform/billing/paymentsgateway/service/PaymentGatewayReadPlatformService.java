@@ -18,6 +18,9 @@ public interface PaymentGatewayReadPlatformService {
 	PaymentGatewayData retrievePaymentGatewayIdData(Long id);
 
 	String findReceiptNo(String receiptNo);
+
+	Long GetReceiptNoId(String receipt);
+	
 	
 	
 	

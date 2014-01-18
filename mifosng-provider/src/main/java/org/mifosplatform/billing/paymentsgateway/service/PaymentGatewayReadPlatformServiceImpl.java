@@ -155,7 +155,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	private static final class PaymentReceiptMapper implements RowMapper<String> {
 
 		public String schema() {
-			return " p.receipt_no as receiptNo from b_paymentgateway p";
+			return " p.receipt_no as receiptNo from b_payments p";
 		}
 		
 		@Override
@@ -165,6 +165,17 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			return receiptNo;
 		}
 
+	}
+
+	@Override
+	public Long GetReceiptNoId(String receipt) {
+		try{
+			this.context.authenticatedUser();
+			String sql = "select a.id from b_payments a where  a.receipt_no like '"+receipt+"' ";
+			return jdbcTemplate.queryForLong(sql);
+			} catch(EmptyResultDataAccessException e){
+				return null;
+			}
 	}
 	
 	
