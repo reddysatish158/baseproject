@@ -208,7 +208,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				priceforHistory=priceforHistory.add(data.getPrice());
 				
 				//discount Order
-				OrderDiscount orderDiscount=new OrderDiscount(order,price,discountMaster.getId(),startDate.toDate(),endDate,
+				OrderDiscount orderDiscount=new OrderDiscount(order,price,discountMaster.getId(),discountMaster.getStartDate(),null,
 						discountMaster.getDiscountType(),discountMaster.getDiscountRate());
 				price.addOrderDiscount(orderDiscount);
 				
