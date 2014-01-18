@@ -18,6 +18,9 @@ import org.mifosplatform.billing.payments.domain.PaymentRepository;
 import org.mifosplatform.billing.payments.exception.PaymentDetailsNotFoundException;
 import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
+import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
+import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformServiceImpl;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -45,14 +48,14 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	private final ChequePaymentRepository chequePaymentRepository;
 	private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
 	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
-	
+	private final PaymodeReadPlatformService paymodeReadPlatformService ;
 
 	@Autowired
 	public PaymentWritePlatformServiceImpl(final PlatformSecurityContext context,final PaymentRepository paymentRepository,
 			final PaymentCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ClientBalanceReadPlatformService clientBalanceReadPlatformService,
 			final ClientBalanceRepository clientBalanceRepository,final ChequePaymentRepository chequePaymentRepository,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-			final UpdateClientBalance updateClientBalance,final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
+			final UpdateClientBalance updateClientBalance,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
 		this.context = context;
 		this.paymentRepository = paymentRepository;
 		this.fromApiJsonDeserializer = fromApiJsonDeserializer;
@@ -63,7 +66,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		this.chequePaymentRepository=chequePaymentRepository;
 		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService; 
 		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
-		
+		this.paymodeReadPlatformService=paymodeReadPlatformService;
 	}
 
 	@Override
@@ -110,7 +113,10 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			payment  = Payment.fromJson(command,clientid);
 			this.paymentRepository.saveAndFlush(payment);
 
-
+			Long getPayMode = Long.parseLong(String.valueOf(payment.getPaymodeCode()));
+			
+			McodeData payModeData=paymodeReadPlatformService.retrieveSinglePaymode(getPayMode);
+		
 			/* Manoj code for updating client balance */
               
 			ClientBalance clientBalance = null;
@@ -131,7 +137,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			//Perform Event Action
 		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());
 			
-			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payment.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"PaymentID:"+payment.getId());
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payModeData.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"ReceiptNo: "+payment.getReceiptNo());
 			return payment.getId();
 
 		} catch (DataIntegrityViolationException dve) {
@@ -175,3 +181,6 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		logger.error(dve.getMessage(), dve);
 	}
 }
+
+
+

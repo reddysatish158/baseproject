@@ -127,5 +127,11 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 			
 		}
 
+		public String getReceiptNo() {
+			return receiptNo;
+		}
+		
+		
+
 }
 
