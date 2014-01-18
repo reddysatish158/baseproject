@@ -337,6 +337,8 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 			}
 			
 		}
+
+
 }
 
 

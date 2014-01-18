@@ -192,7 +192,9 @@ public class OneTimeSalesApiResource {
      final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
      return this.toApiJsonSerializer.serialize(result);
 	}
-		
-	}
+
+	
+	
+}
 
 

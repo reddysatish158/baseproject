@@ -1923,5 +1923,4 @@ public CommandWrapperBuilder cancelPayment(Long paymentId) {
 	return this;
 }
 
-
 }

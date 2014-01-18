@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -30,6 +31,8 @@ import org.mifosplatform.billing.inventory.service.InventoryGrnReadPlatformServi
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsReadPlatformService;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.item.service.ItemReadPlatformService;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
 import org.mifosplatform.billing.supplier.data.SupplierData;
 import org.mifosplatform.billing.supplier.service.SupplierReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -74,12 +77,14 @@ public class InventoryItemDetailsApiResource {
 	private final OfficeReadPlatformService officeReadPlatformService;
 	private final ItemReadPlatformService itemReadPlatformService;
 	private final SupplierReadPlatformService supplierReadPlatformService;
+	private final MCodeReadPlatformService codeReadPlatformService;
     
 	@Autowired
 	public InventoryItemDetailsApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<InventoryItemDetailsData> toApiJsonSerializerForItem,ApiRequestParameterHelper apiRequestParameterHelper,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final InventoryGrnReadPlatformService inventoryGrnReadPlatformService,final DefaultToApiJsonSerializer<InventoryGrnData> toApiJsonSerializerForGrn,InventoryItemDetailsReadPlatformService itemDetailsReadPlatformService,final DefaultToApiJsonSerializer<InventoryItemDetailsAllocation> toApiJsonSerializerForItemAllocation,final DefaultToApiJsonSerializer<InventoryItemSerialNumberData> toApiJsonSerializerForAllocationHardware,
 										   final OfficeReadPlatformService officeReadPlatformService,
 										   final ItemReadPlatformService itemReadPlatformService,
-										   SupplierReadPlatformService supplierReadPlatformService) {
+										   final SupplierReadPlatformService supplierReadPlatformService,
+										   final MCodeReadPlatformService mCodeReadPlatformService) {
 		this.context=context;
 	    this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
 	    this.toApiJsonSerializerForGrn = toApiJsonSerializerForGrn;
@@ -92,6 +97,7 @@ public class InventoryItemDetailsApiResource {
 	    this.officeReadPlatformService = officeReadPlatformService;
 	    this.itemReadPlatformService = itemReadPlatformService;
 	    this.supplierReadPlatformService = supplierReadPlatformService;
+	    this.codeReadPlatformService = mCodeReadPlatformService;
 	}
 
 	/*
@@ -232,7 +238,6 @@ public class InventoryItemDetailsApiResource {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
 		
 		if(query != null && query.length()>0){
-			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
 			List<String> itemSerialNumbers = this.itemDetailsReadPlatformService.retriveSerialNumbersOnKeyStroke(oneTimeSaleId,query);
 			InventoryItemSerialNumberData allocationData = this.itemDetailsReadPlatformService.retriveAllocationData(itemSerialNumbers);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -292,7 +297,6 @@ public class InventoryItemDetailsApiResource {
 		
 
 	}
-	
 	
 	@GET
 	@Path("grn")
