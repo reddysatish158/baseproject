@@ -76,6 +76,26 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
 		}
 	}
 
+    private static final class UserUnreadMessageMapper implements RowMapper<Long> {
+
+		public String schema() {
+			return " us.username as username, count(*) as unread from b_userchat us ";
+
+		}
+
+		@Override
+		public Long mapRow(final ResultSet rs,
+				@SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
+			
+			Long unread = rs.getLong("unread");
+			
+			return unread;
+
+		}
+	}
+
+    
 	@Override
 	public List<UserChatData> getUserSentMessageDetails() {
         
@@ -91,5 +111,20 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
 		
     
     }
+
+
+	@Override
+	public Long getUnreadMessages(String userName) {
+		try{
+            
+    		
+    		UserUnreadMessageMapper mapper = new UserUnreadMessageMapper();
+    		String sql = "select " + mapper.schema()+" where us.username = ?  and  us.read='N'";
+    		return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { userName });
+    		
+    	 }catch(EmptyResultDataAccessException accessException){
+    		return null;
+    	}
+	}
 
 }

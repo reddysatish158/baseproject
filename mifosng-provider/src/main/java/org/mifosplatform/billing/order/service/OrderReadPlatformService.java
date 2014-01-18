@@ -12,7 +12,7 @@ import org.mifosplatform.billing.plan.data.PlanCodeData;
 
 public interface OrderReadPlatformService {
 
-	List<PlanCodeData> retrieveAllPlatformData();
+	List<PlanCodeData> retrieveAllPlatformData(Long planId);
 
 	List<PaytermData> retrieveAllPaytermData();
 	List<OrderPriceData> retrieveOrderPriceData(Long orderId);

@@ -31,8 +31,7 @@ import org.mifosplatform.billing.inventory.service.InventoryGrnReadPlatformServi
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsReadPlatformService;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.item.service.ItemReadPlatformService;
-import org.mifosplatform.billing.mcodevalues.data.MCodeData;
-import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
+import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.supplier.data.SupplierData;
 import org.mifosplatform.billing.supplier.service.SupplierReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -207,6 +206,28 @@ public class InventoryItemDetailsApiResource {
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializerForGrn.serialize(settings, inventoryGrnData, RESPONSE_DATA_GRN_DETAILS_PARAMETERS);
 		
+	}
+	
+	@PUT
+	@Path("{id}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String updateEventAction(@PathParam("id") final Long id,final String apiRequestBodyAsJson) {
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateInventoryItem(id).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializerForItem.serialize(result);
+	}
+	
+	@GET
+	@Path("itemquality")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retriveItemQuality(@Context final UriInfo uriInfo){
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<McodeData> quality = this.inventoryGrnReadPlatformService.retrieveItemQualityData("Item Quality");
+		InventoryGrnData inventoryGrnData= new InventoryGrnData(quality);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializerForGrn.serialize(settings,inventoryGrnData,RESPONSE_DATA_GRN_IDS_PARAMETERS);
 	}
 
 	/*@GET
