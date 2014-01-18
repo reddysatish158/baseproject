@@ -16,6 +16,12 @@ public interface PaymentGatewayReadPlatformService {
 	List<MediaEnumoptionData> retrieveTemplateData();
 
 	PaymentGatewayData retrievePaymentGatewayIdData(Long id);
+
+	String findReceiptNo(String receiptNo);
+
+	Long GetReceiptNoId(String receipt);
+	
+	
 	
 	
 	

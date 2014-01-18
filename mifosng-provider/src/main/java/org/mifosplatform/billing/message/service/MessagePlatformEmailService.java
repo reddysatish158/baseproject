@@ -14,6 +14,9 @@ public interface MessagePlatformEmailService {
     String sendToUserEmail(BillingMessageDataForProcessing emailDetail);
 
 	String sendToUserMobile(String message, Long id);
+
+	String createEmail(String pdfFileName, String emailId);
+	
 	
 
 }

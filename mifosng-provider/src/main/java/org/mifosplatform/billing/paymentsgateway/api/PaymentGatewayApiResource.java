@@ -1,3 +1,4 @@
+
 package org.mifosplatform.billing.paymentsgateway.api;
 
 import java.util.Arrays;
@@ -16,9 +17,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
+import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.paymentsgateway.data.PaymentGatewayData;
 import org.mifosplatform.billing.paymentsgateway.service.PaymentGatewayReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -55,19 +59,22 @@ public class PaymentGatewayApiResource {
 	private final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer;
 	private final PortfolioCommandSourceWritePlatformService writePlatformService;
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	private final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService;
 
 	@Autowired
 	public PaymentGatewayApiResource(final PlatformSecurityContext context,final PaymentGatewayReadPlatformService readPlatformService,
 			final DefaultToApiJsonSerializer<PaymentGatewayData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
 			final PortfolioCommandSourceWritePlatformService writePlatformService,
-			final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
+			final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+			final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService) {
 
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.writePlatformService = writePlatformService;
 		this.context=context;
 		this.readPlatformService=readPlatformService;
 		this.apiRequestParameterHelper=apiRequestParameterHelper;
-		 this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+		this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+		this.paymentGatewayReadPlatformService=paymentGatewayReadPlatformService;
 	}
 
 	@POST
@@ -75,9 +82,11 @@ public class PaymentGatewayApiResource {
 	@Produces({ MediaType.APPLICATION_XML })
 	public String mpesaPayment(final String apiRequestBodyAsJson)  {
 		 CommandProcessingResult result=null;
+		 String Receipt = null;
 	try{
 			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
 			JSONObject element= xmlJSONObj.getJSONObject("transaction");
+			Receipt=element.getString("receipt");
 			element.put("locale", "en");
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
 			result = this.writePlatformService.logCommandSource(commandRequest);
@@ -94,29 +103,25 @@ public class PaymentGatewayApiResource {
                 .append("</response>");
             return builder.toString();
 			}
-			else {	StringBuilder failurebuilder = new StringBuilder();
-			
-		failurebuilder
-            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-            .append("<response>")
-            .append("<receipt/>")
-             .append("<result>"+"DUPLICATE_TXN")
-            .append("</result>")
-            .append("</response>");
-        return failurebuilder.toString();
-        }
-	}catch(Exception e){
-		
+			else {	
+            return null;
+           }
+	}catch(ReceiptNoDuplicateException e){
+		 Long id=this.paymentGatewayReadPlatformService.GetReceiptNoId(Receipt);
 		StringBuilder failurebuilder = new StringBuilder();
 		failurebuilder
             .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
             .append("<response>")
-            .append("<receipt/>")
-             .append("<result>"+"DUPLICATE_TXN")
+            .append("<receipt>"+id)
+            .append("</receipt>")
+            .append("<result>"+"DUPLICATE_TXN")
             .append("</result>")
             .append("</response>");
         return failurebuilder.toString();
+	} catch (Exception e) {
+		return null;		
 	}
+	
 	
 		 
 	}
@@ -160,3 +165,4 @@ public class PaymentGatewayApiResource {
 	}
 
 }
+

@@ -1,3 +1,4 @@
+
 package org.mifosplatform.billing.payments.service;
 import java.util.List;
 
@@ -180,5 +181,6 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		logger.error(dve.getMessage(), dve);
 	}
 }
+
 
 

@@ -180,6 +180,14 @@ public class JobDetailDataValidator {
                 baseDataValidator.reset().parameter(SchedulerJobApiConstants.jobExipiryDate).value(exipiryDate).notBlank();
             }
         	
+        }else if(jobName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_REPORTEMAIL)){
+        	
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_EmailId, element)) {
+                atLeastOneParameterPassedForUpdate = true;
+                final String emailId = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_EmailId, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_EmailId).value(emailId).notBlank();
+            }
+        	
         }
        
         if (!atLeastOneParameterPassedForUpdate) {
