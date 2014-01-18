@@ -1942,4 +1942,12 @@ public CommandWrapperBuilder updateInventoryItem(final Long id) {
 
 }
 
+public CommandWrapperBuilder applyPromo(Long orderId) {
+	this.actionName = "APPLYPROMO";
+	this.entityName = "ORDER";
+	this.entityId = orderId;
+	this.href = "/orders/applyPromo";
+	return this;
+}
+
 }

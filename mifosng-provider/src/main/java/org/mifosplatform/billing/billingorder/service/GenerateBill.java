@@ -115,8 +115,8 @@ public class GenerateBill {
 
 	}
 
-	public BillingOrderCommand getNextMonthBill(
-			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
+	public BillingOrderCommand getNextMonthBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
+		
 		BigDecimal discountAmount = BigDecimal.ZERO;
 		LocalDate startDate = null;
 		LocalDate endDate = null;
