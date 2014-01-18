@@ -44,6 +44,12 @@ public class SchedulerJobApiConstants {
     public static final String jobisAutoRenewal="isAutoRenewal";
     public static final String JOB_REPORTEMAIL="Report Email";
     public static final String JOB_EmailId="emailId";
+    public static final String JOB_MiddleWare="Middleware";
+    public static final String JOB_ProvSystem="ProvSystem";
+    public static final String JOB_URL="URL";
+    public static final String JOB_Username="Username";
+    public static final String JOB_Password="Password";
+    
     
     
     public static final Set<String> JOB_DETAIL_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobIdentifierParamName,
@@ -64,7 +70,8 @@ public class SchedulerJobApiConstants {
 
 
     public static final Set<String> CREATE_REQUEST_JOB_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(jobProcessdate,jobDueDate,jobPromotionalMessage,
-    		jobMessageTemplate,jobExipiryDate,"locale","dateFormat","isDynamic","jobName","reportName","isAutoRenewal",schedulerJobParamName,jobReportName,JOB_REPORTEMAIL,JOB_EmailId));
+    		jobMessageTemplate,jobExipiryDate,"locale","dateFormat","isDynamic","jobName","reportName","isAutoRenewal",schedulerJobParamName,jobReportName,
+    		JOB_REPORTEMAIL,JOB_EmailId,JOB_ProvSystem,JOB_URL,JOB_Username,JOB_Password,JOB_MiddleWare));
 
 
 
