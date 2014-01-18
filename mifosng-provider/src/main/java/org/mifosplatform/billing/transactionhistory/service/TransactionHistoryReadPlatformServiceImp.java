@@ -57,7 +57,7 @@ public class TransactionHistoryReadPlatformServiceImp implements TransactionHist
 	private Page<TransactionHistoryData> retriveById(SearchSqlQuery searchTransactionHistory,Long id){
 		try{
 			context.authenticatedUser();
-			String sql = "select "+query()+" and  th.client_id = ?  ";
+			String sql = "select "+query()+" and  th.client_id = ? order by transactionDate desc ";
 			TransactionHistoryMapper rowMapper = new TransactionHistoryMapper();
 			StringBuilder sqlBuilder = new StringBuilder(200);
 		     //   sqlBuilder.append("select ");
