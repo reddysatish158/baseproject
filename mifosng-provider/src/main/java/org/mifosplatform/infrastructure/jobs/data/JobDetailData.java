@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.mifosplatform.billing.message.data.BillingMessageData;
+import org.mifosplatform.billing.plan.data.SystemData;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 
@@ -49,6 +50,8 @@ public class JobDetailData {
 	private JobParameterData jobparameters;
 
 	private Long historyId;
+	
+	private List<SystemData> provisionSysData;
 
     public JobDetailData(final Long jobId, final String displayName, String name, final Date nextRunTime, final String initializingError,
             final String cronExpression,final boolean active, final boolean currentlyRunning, final JobDetailHistoryData lastRunHistory, 
@@ -124,6 +127,15 @@ public class JobDetailData {
 		this.jobparameters=data;
 		
 	}
+
+	public List<SystemData> getProvisionSysData() {
+		return provisionSysData;
+	}
+
+	public void setProvisionSysData(List<SystemData> provisionSysData) {
+		this.provisionSysData = provisionSysData;
+	}
     
+	
     
 }
