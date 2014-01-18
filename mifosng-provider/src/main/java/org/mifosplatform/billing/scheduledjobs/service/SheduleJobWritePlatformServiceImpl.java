@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -57,8 +59,11 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
+import org.mifosplatform.infrastructure.dataqueries.service.GenericDataService;
+import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -74,6 +79,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	
 	private final SheduleJobReadPlatformService sheduleJobReadPlatformService;
 	private final InvoiceClient invoiceClient;
+	private final PlatformSecurityContext context;
 	private final BillingMasterApiResourse billingMasterApiResourse;
 	private final OrderWritePlatformService orderWritePlatformService;
 	private final FromJsonHelper fromApiJsonHelper;
@@ -92,6 +98,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private String ReceiveMessage;
 	private final ScheduleJob scheduleJob;
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
+	private final ReadReportingService readExtraDataAndReportingService;
 	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
@@ -103,7 +110,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
-			final EntitlementWritePlatformService entitlementWritePlatformService) {
+			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
+			final PlatformSecurityContext context) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -124,6 +132,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		this.scheduleJob=scheduleJob;
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
+		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
+		this.context=context;
 	}
 	
 	
@@ -806,6 +816,60 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 fw.append("Event Actions are Completed....");
 	    fw.flush();
 	    fw.close();
+	  } catch (IOException e) {
+			e.printStackTrace();
+		}
+	 }
+	
+	@Transactional
+	 @Override
+	 @CronTarget(jobName = JobName.REPORT_EMAIL)
+	 public void reportEmail() {
+	  
+	 System.out.println("Processing report email.....");
+	  try {
+		  JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.REPORT_EMAIL.toString());
+		  
+          if(data!=null){		  
+		  Date date=new Date();
+		  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+	      String fileLocation=FileUtils.MIFOSX_BASE_DIR+ File.separator + JobName.REPORT_EMAIL.toString() + File.separator +"ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime;
+		  //Retrieve Event Actions
+		  String path=FileUtils.generateLogFileDirectory()+ JobName.REPORT_EMAIL.toString() + File.separator +"ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+		  File fileHandler = new File(path.trim());
+		  fileHandler.createNewFile();
+		  FileWriter fw = new FileWriter(fileHandler);
+	      FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+	     
+	      List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
+		   
+		    if(sheduleDatas.isEmpty()){
+				fw.append("ScheduleJobData Empty \r\n");
+		    }
+		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
+	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+		    	Map<String, String> reportParams = new HashMap<String, String>();
+		    	
+				String pdfFileName = this.readExtraDataAndReportingService.generateEmailReport(scheduleJobData.getBatchName(), "report",reportParams,fileLocation);
+		    	   fw.append("PDF file location is :" + pdfFileName +" \r\n");
+					if(pdfFileName!=null){
+					  fw.append("Sending the Email....... \r\n");
+					  String result=this.messagePlatformEmailService.createEmail(pdfFileName,data.getEmailId());
+					  if(result.equalsIgnoreCase("Success")){
+						  fw.append("Email sent successfully to "+data.getEmailId()+" \r\n");
+					  }else{
+						  fw.append("Email sending failed to "+data.getEmailId()+", \r\n");
+					  }
+					}
+				}	
+	      
+	        fw.append("Report Emails are Completed....");
+		    fw.flush();
+		    fw.close();
+          }
+	 System.out.println("Report Emails are Proccesed....");
+	 
 	  } catch (IOException e) {
 			e.printStackTrace();
 		}

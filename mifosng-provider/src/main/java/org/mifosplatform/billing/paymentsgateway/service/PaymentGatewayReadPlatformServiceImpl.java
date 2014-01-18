@@ -46,18 +46,6 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			return null;
 		}
 	}
-
-	/*@Override
-	public List<PaymentGatewayData> retrievePaymentGatewayData() {
-		try{
-			this.context.authenticatedUser();
-			PaymentMapper mapper=new PaymentMapper();
-			String sql = "select "+mapper.schema();
-			return jdbcTemplate.query(sql, mapper, new Object[] {});
-			} catch(EmptyResultDataAccessException e){
-				return null;
-			}
-	}*/
 	
 	private static final class PaymentMapper implements RowMapper<PaymentGatewayData> {
 
@@ -115,18 +103,30 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		context.authenticatedUser();
 		PaymentMapper mapper=new PaymentMapper();
 		
+		String sqlSearch = searchPaymentDetail.getSqlSearch();
+	    String extraCriteria = "";
 		StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select ");
         sqlBuilder.append(mapper.schema());
-        sqlBuilder.append(" where p.status like '"+tabType+"'");
-        
-        String sqlSearch = searchPaymentDetail.getSqlSearch();
-        String extraCriteria = "";
-	    if (sqlSearch != null) {
-	    	sqlSearch=sqlSearch.trim();
-	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
-	    }
-            sqlBuilder.append(extraCriteria);
+       
+          
+        if (tabType!=null ) {
+        	
+		        	tabType=tabType.trim();
+		        	sqlBuilder.append(" where p.status like '"+tabType+"'");
+		  
+		    	    if (sqlSearch != null) {
+		    	    	sqlSearch=sqlSearch.trim();
+		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+		    	    }
+		                sqlBuilder.append(extraCriteria);
+	    }else{
+	    	if (sqlSearch != null) {
+    	    	sqlSearch=sqlSearch.trim();
+    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+    	    }
+                sqlBuilder.append(extraCriteria);
+        }
         
         if (searchPaymentDetail.isLimited()) {
             sqlBuilder.append(" limit ").append(searchPaymentDetail.getLimit());
@@ -138,6 +138,44 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
                 new Object[] {}, mapper);
+	}
+
+	@Override
+	public String findReceiptNo(String receiptNo) {
+		try{
+			this.context.authenticatedUser();
+			PaymentReceiptMapper mapper=new PaymentReceiptMapper();
+			String sql = "select "+mapper.schema()+ " where p.receipt_no=?";
+			return jdbcTemplate.queryForObject(sql, mapper, new Object[] {receiptNo});
+		} catch(EmptyResultDataAccessException e){
+			return null;
+		}
+	}
+	
+	private static final class PaymentReceiptMapper implements RowMapper<String> {
+
+		public String schema() {
+			return " p.receipt_no as receiptNo from b_payments p";
+		}
+		
+		@Override
+		public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+			
+			String receiptNo = rs.getString("receiptNo");
+			return receiptNo;
+		}
+
+	}
+
+	@Override
+	public Long GetReceiptNoId(String receipt) {
+		try{
+			this.context.authenticatedUser();
+			String sql = "select a.id from b_payments a where  a.receipt_no like '"+receipt+"' ";
+			return jdbcTemplate.queryForLong(sql);
+			} catch(EmptyResultDataAccessException e){
+				return null;
+			}
 	}
 	
 	

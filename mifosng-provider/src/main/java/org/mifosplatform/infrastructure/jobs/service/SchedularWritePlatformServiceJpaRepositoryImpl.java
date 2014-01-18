@@ -17,6 +17,8 @@ import org.mifosplatform.infrastructure.jobs.domain.ScheduledJobRunHistoryReposi
 import org.mifosplatform.infrastructure.jobs.domain.SchedulerDetail;
 import org.mifosplatform.infrastructure.jobs.domain.SchedulerDetailRepository;
 import org.mifosplatform.infrastructure.jobs.exception.JobNotFoundException;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -34,16 +36,21 @@ public class SchedularWritePlatformServiceJpaRepositoryImpl implements Schedular
     private final JobDetailDataValidator dataValidator;
     
     private final ScheduledJobRepository scheduledJobRepository;
+    
+    private final PlatformSecurityContext context;
+    
 
     @Autowired
     public SchedularWritePlatformServiceJpaRepositoryImpl(final ScheduledJobDetailRepository scheduledJobDetailsRepository,
             final ScheduledJobRunHistoryRepository scheduledJobRunHistoryRepository, final JobDetailDataValidator dataValidator,
-            final SchedulerDetailRepository schedulerDetailRepository,final ScheduledJobRepository scheduledJobRepository) {
+            final SchedulerDetailRepository schedulerDetailRepository,final ScheduledJobRepository scheduledJobRepository,
+            final PlatformSecurityContext context) {
         this.scheduledJobDetailsRepository = scheduledJobDetailsRepository;
         this.scheduledJobRunHistoryRepository = scheduledJobRunHistoryRepository;
         this.schedulerDetailRepository = schedulerDetailRepository;
         this.dataValidator = dataValidator;
         this.scheduledJobRepository=scheduledJobRepository;
+        this.context=context;
     }
 
     @Override
@@ -103,6 +110,7 @@ public class SchedularWritePlatformServiceJpaRepositoryImpl implements Schedular
     @Transactional
     @Override
     public CommandProcessingResult updateJobDetail(final Long jobId, final JsonCommand command) {
+    	
         dataValidator.validateForUpdate(command.json());
         
         final ScheduledJobDetail scheduledJobDetail = findByJobId(jobId);
@@ -205,11 +213,13 @@ public class SchedularWritePlatformServiceJpaRepositoryImpl implements Schedular
 	public CommandProcessingResult updateJobParametersDetail(Long jobId,JsonCommand command) {
 
         dataValidator.validateForUpdateJobParameters(command.json());
+        AppUser user= this.context.authenticatedUser();
+    	Long id=user.getId();
         final ScheduledJobDetail scheduledJobDetail = findByJobId(jobId);
         
-        scheduledJobDetail.updateJobParamters(command);
+        scheduledJobDetail.updateJobParamters(command,id);
       
-            this.scheduledJobDetailsRepository.saveAndFlush(scheduledJobDetail);
+        this.scheduledJobDetailsRepository.saveAndFlush(scheduledJobDetail);
       
         return new CommandProcessingResultBuilder() //
                 .withCommandId(command.commandId()) //
