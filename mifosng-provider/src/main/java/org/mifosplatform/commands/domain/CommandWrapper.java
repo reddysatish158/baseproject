@@ -933,6 +933,14 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("CHANGEPLAN") && this.entityName.equalsIgnoreCase("ORDER");
 		}
 
+		public boolean isPromotionCodeResource() {
+			return this.entityName.equalsIgnoreCase("PROMOTIONCODE");
+		}
+		public boolean isCreatePromotionCode() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
+		}
+
+
 		public boolean isApplyPormo() {
 			
 			return this.actionName.equalsIgnoreCase("APPLYPROMO") && this.entityName.equalsIgnoreCase("ORDER");
@@ -942,4 +950,5 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("DEALLOCATE") && this.entityName.equalsIgnoreCase("INVENTORY");
 		}
 		
+
 }

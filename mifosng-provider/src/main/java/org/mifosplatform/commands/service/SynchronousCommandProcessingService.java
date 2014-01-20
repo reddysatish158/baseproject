@@ -788,7 +788,14 @@ public class SynchronousCommandProcessingService implements
 				   }else{
 			           throw new UnsupportedCommandException(wrapper.commandName());
 			       }
+		    }else if(wrapper.isPromotionCodeResource()){
+        		 if(wrapper.isCreatePromotionCode()) {
+		        		handler = applicationContext.getBean("createPromotionCodeCommandHandler",NewCommandSourceHandler.class);
+				   }else{
+			           throw new UnsupportedCommandException(wrapper.commandName());
+			       }
 		    }
+			
 			else if(wrapper.isMRN()){
 			           if(wrapper.isCreateMRN()){
 			               handler = applicationContext.getBean("createMRNDetailsCommandHandler",NewCommandSourceHandler.class);
