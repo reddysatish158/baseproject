@@ -362,6 +362,22 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 			}
 			
 		}
+
+
+		@Override
+		public CommandProcessingResult deAllocateHardware(JsonCommand command) {
+
+           try{
+        	   
+        	   String serialNo=command.stringValueOfParameterNamed("serialNo");
+        	   Long clientId=command.longValueOfParameterNamed("clientId");
+        	   this.deAllocateHardware(serialNo, clientId);
+        	   return new CommandProcessingResult(command.entityId());
+           }catch(DataIntegrityViolationException exception){
+        	   
+        	   return null;
+           }
+		}
 }
 
 

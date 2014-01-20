@@ -332,5 +332,15 @@ public class InventoryItemDetailsApiResource {
 		return this.toApiJsonSerializerForGrn.serialize(inventoryGrnData);
 	
 	}
+	
+	@PUT
+	@Path("deallocate/{allocationId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String deAllocateHardware(@PathParam("allocationId") final Long id) {
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().deAllocate(id).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializerForItem.serialize(result);
+	}
 
 }

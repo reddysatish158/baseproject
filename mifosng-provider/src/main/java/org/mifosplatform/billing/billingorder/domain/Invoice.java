@@ -8,16 +8,11 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.joda.time.DateTime;
-import org.mifosplatform.billing.order.domain.OrderLine;
-import org.mifosplatform.billing.order.domain.OrderPrice;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.useradministration.domain.AppUser;
 
@@ -25,10 +20,7 @@ import org.mifosplatform.useradministration.domain.AppUser;
 @Entity
 @Table(name = "b_invoice")
 public class Invoice extends AbstractAuditableCustom<AppUser,Long>{
-/*	@Id
-	@GeneratedValue
-	@Column(name = "id")
-	private Long id;*/
+
 
 	@Column(name="client_id")
 	private Long clientId;

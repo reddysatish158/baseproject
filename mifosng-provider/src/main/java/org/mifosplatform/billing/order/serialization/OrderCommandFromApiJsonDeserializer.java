@@ -33,7 +33,7 @@ public final class OrderCommandFromApiJsonDeserializer {
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode",
     		"contractPeriod","billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid","disconnectionDate","ispaymentEnable",
-    		"paymentCode","amountPaid","paymentDate","receiptNo"));
+    		"paymentCode","amountPaid","paymentDate","receiptNo","promoId"));
     private final Set<String> retracksupportedParameters = new HashSet<String>(Arrays.asList("commandName","message","orderId"));
     private final FromJsonHelper fromApiJsonHelper;
 
@@ -140,6 +140,25 @@ public final class OrderCommandFromApiJsonDeserializer {
         	 final String message = fromApiJsonHelper.extractStringNamed("message", element);
              baseDataValidator.reset().parameter("message").value(message).notBlank().notExceedingLengthOf(160);
         }
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
+		
+	}
+
+	public void validateForPromo(String json) {
+		
+		if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
+
+        final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, supportedParameters);
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("order");
+        final JsonElement element = fromApiJsonHelper.parse(json);
+        
+        final Long promoId = fromApiJsonHelper.extractLongNamed("promoId", element);
+        baseDataValidator.reset().parameter("promoId").value(promoId).notBlank();
+      
+       
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 		
 	}
