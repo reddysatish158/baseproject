@@ -1942,4 +1942,12 @@ public CommandWrapperBuilder updateInventoryItem(final Long id) {
 
 }
 
+public CommandWrapperBuilder createPromotionCode() {
+	this.actionName = "CREATE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = null;
+	this.href = "/promotioncode";
+	return this;
+}
+
 }
