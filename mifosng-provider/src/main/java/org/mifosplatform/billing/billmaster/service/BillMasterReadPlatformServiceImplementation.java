@@ -60,8 +60,10 @@ public class BillMasterReadPlatformServiceImplementation implements
 			String transactionType = rs.getString("transType");
 			BigDecimal amount = rs.getBigDecimal("amount");
 			LocalDate transDate=JdbcSupport.getLocalDate(rs,"transDate");
+			String transactionCategory=rs.getString("tran_type");
+			boolean flag=rs.getBoolean("flag");
 
-			return new FinancialTransactionsData(transactionId,transDate,transactionType,null,null,amount,null);
+			return new FinancialTransactionsData(transactionId,transDate,transactionType,null,null,amount,null,transactionCategory,flag);
 		}
 
 		public String financialTransactionsSchema() {
@@ -144,13 +146,15 @@ public class BillMasterReadPlatformServiceImplementation implements
 			Long transactionId = rs.getLong("TransId");
 		//	Date transactionDate = rs.getDate("transDate");
 			String transactionType = rs.getString("TransType");
+			
 			BigDecimal debitAmount = rs.getBigDecimal("Dr_amt");
 			BigDecimal creditAmount =rs.getBigDecimal("Cr_amt");
 			String userName=rs.getString("username");
-			
+			String transactionCategory=rs.getString("tran_type");
+			boolean flag=rs.getBoolean("flag");
 			LocalDate transDate=JdbcSupport.getLocalDate(rs,"TransDate");
 
-			return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName);
+			return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName,transactionCategory,flag);
 		}
 
 		public String financialTransactionsSchema() {
@@ -451,16 +455,17 @@ public class BillMasterReadPlatformServiceImplementation implements
 				BigDecimal debitAmount = rs.getBigDecimal("DebitAmount");
 				BigDecimal creditAmount =rs.getBigDecimal("CreditAmount");
 				String userName=rs.getString("username");
-				
+				String transactionCategory=rs.getString("tran_type");
+				boolean flag=rs.getBoolean("flag");
 				LocalDate transDate=JdbcSupport.getLocalDate(rs,"TransDate");
 				
-				return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName);
+				return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName,transactionCategory,flag);
 			}
 
 			public String financialTypeSchema() {
 
 				return " ft.username as username,ft.TransId as TransId,ft.TransType as TransType,ft.Dr_amt as DebitAmount,ft.Cr_amt as CreditAmount,"
-						+"ft.TransDate as TransDate from fin_trans_vw as ft where client_id=? and transType like ?";
+						+"ft.tran_type as tran_type,ft.flag as flag,ft.TransDate as TransDate from fin_trans_vw as ft where client_id=? and transType like ?";
 
 				
 			}

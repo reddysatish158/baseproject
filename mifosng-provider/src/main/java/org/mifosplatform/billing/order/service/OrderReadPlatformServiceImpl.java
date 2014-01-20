@@ -713,8 +713,7 @@ return null;
 }
 
 	@Override
-	public List<org.mifosplatform.billing.order.data.OrderData> retrieveClientOrderDetails(
-			Long clientId) {
+	public List<OrderData> retrieveClientOrderDetails(Long clientId) {
 		try {
 			final ClientOrderMapper mapper = new ClientOrderMapper();
 
@@ -971,5 +970,21 @@ return null;
 						return new OrderDiscountData(id,priceId,discountCode,discountdescription,discountAmount,discountType,startDate,endDate);
 						}
 				}
+
+					@Override
+					public List<OrderData> retrieveClientActiveOrderDetails(Long clientId) {
+
+						try {
+							final ClientOrderMapper mapper = new ClientOrderMapper();
+
+							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.client_id= ? and o.is_deleted='n' and " +
+									" o.order_status=1 and o.contract_period = co.id order by o.id desc";
+							return jdbcTemplate.query(sql, mapper, new Object[] { clientId});
+							} catch (EmptyResultDataAccessException e) {
+							return null;
+							}
+
+							
+					}
 	}
 
