@@ -481,10 +481,15 @@ public class GenerateBill {
 
 		if (discountMasterData != null) {
 
-			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())||(this.getDiscountEndDateIfNull(discountMasterData).before(chargeEndDate.toDate()))) {
-				isDiscountApplicable = true;	 
+			/*if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())||(this.getDiscountEndDateIfNull(discountMasterData).before(chargeEndDate.toDate()))) {
 				isDiscountApplicable = true;	
-			}
+			}*/
+			
+			   if(chargeStartDate.toDate().after(discountMasterData.getDiscountStartDate().toDate()) &&
+				    	chargeStartDate.toDate().before(this.getDiscountEndDateIfNull(discountMasterData, chargeEndDate))){
+				    	
+				    	isDiscountApplicable = true;
+				    }
 		}
 		
 		return isDiscountApplicable;
@@ -493,10 +498,10 @@ public class GenerateBill {
 
 	// Discount End Date calculation if null
 	@SuppressWarnings("deprecation")
-	public Date getDiscountEndDateIfNull(DiscountMasterData discountMasterData) {
+	public Date getDiscountEndDateIfNull(DiscountMasterData discountMasterData,LocalDate chargeEndDate) {
 		Date discountDate = discountMasterData.getDiscountEndDate();
 		if (discountMasterData.getDiscountEndDate() == null) {
-			discountDate = new Date(2099, 0, 01);
+			discountDate = chargeEndDate.toDate();
 		}
 		return discountDate;
 
