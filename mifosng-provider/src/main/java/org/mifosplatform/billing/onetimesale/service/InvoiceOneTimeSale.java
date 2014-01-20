@@ -207,7 +207,8 @@ public class InvoiceOneTimeSale {
 	public DiscountMasterData calculateDiscount(DiscountMasterData discountMasterData,BigDecimal discountAmount,BigDecimal chargePrice){
 		if(isDiscountPercentage(discountMasterData)){
 			
-			if(discountMasterData.getdiscountRate().compareTo(new BigDecimal(100)) ==-1){
+			if(discountMasterData.getdiscountRate().compareTo(new BigDecimal(100)) ==-1 ||
+			 discountMasterData.getdiscountRate().compareTo(new BigDecimal(100)) == 0){
 				
 			discountAmount = this.calculateDiscountPercentage(discountMasterData.getdiscountRate(), chargePrice);
 			discountMasterData.setDiscountAmount(discountAmount);

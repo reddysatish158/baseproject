@@ -253,6 +253,7 @@ public DiscountMasterData mapRow(ResultSet rs, int rowNum)
 	String discountType = rs.getString("discountType");
 	BigDecimal discountRate = rs.getBigDecimal("discountRate");
 	String isDeleted = rs.getString("isDeleted");
+	
 
 	return new DiscountMasterData(discountMasterid, orderPriceId,orderDiscountId, 
 			new LocalDate(discountStartDate), discountEndDate,discountType, discountRate, isDeleted);

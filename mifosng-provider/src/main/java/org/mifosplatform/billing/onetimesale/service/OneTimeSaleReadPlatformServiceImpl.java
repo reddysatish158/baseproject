@@ -82,8 +82,9 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 			RowMapper<OneTimeSaleData> {
 
 		public String schema() {
-			return "o.id AS id,i.item_code AS itemCode, i.item_class as itemClass, o.sale_date as saleDate,o.charge_code AS chargeCode,"
-					+ "o.quantity as quantity,o.total_price as totalPrice,o.hardware_allocated as hardwareAllocated  FROM b_item_master i,b_onetime_sale o";
+			return "o.id AS id,i.item_code AS itemCode, i.item_class as itemClass, a.serial_no as serialNo,o.sale_date as saleDate,o.charge_code AS chargeCode,"
+					+ "o.quantity as quantity,o.total_price as totalPrice,o.hardware_allocated as hardwareAllocated  FROM b_item_master i,b_onetime_sale o" +
+					" left join b_allocation a on a.order_id=o.id ";
 
 		}
 
@@ -99,8 +100,8 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 			BigDecimal totalPrice = rs.getBigDecimal("totalPrice");
 			String haardwareAllocated = rs.getString("hardwareAllocated");
 			String itemClass = rs.getString("itemClass");
-			return new OneTimeSaleData(id, saleDate, itemCode, chargeCode,
-					quantity, totalPrice,haardwareAllocated,itemClass);
+			String serialNo = rs.getString("serialNo");
+			return new OneTimeSaleData(id, saleDate, itemCode, chargeCode,quantity, totalPrice,haardwareAllocated,itemClass,serialNo);
 
 		}
 

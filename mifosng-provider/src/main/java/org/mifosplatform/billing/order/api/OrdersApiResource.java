@@ -56,7 +56,8 @@ public class OrdersApiResource {
 	private static final String CONFIG_PROPERTY = "renewal";
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","cancelledStatus","status","contractPeriod","nextBillDate","flag",
 	           "currentDate","plan_code","units","service_code","allowedtypes","data","servicedata","billing_frequency", "start_date", "contract_period",
-	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes","orderServices","orderDiscountDatas"));
+	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes","orderServices","orderDiscountDatas",
+	           "discountstartDate","discountEndDate"));
 	
 	  private final String resourceNameForPermissions = "ORDER";
 	  private final PlatformSecurityContext context;
@@ -278,5 +279,15 @@ public class OrdersApiResource {
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 		}	 
+	   
+	       @PUT
+	 		@Path("applypromo/{orderId}")
+	 		@Consumes({ MediaType.APPLICATION_JSON })
+	 		@Produces({ MediaType.APPLICATION_JSON })
+	 		public String applyPromoCodeToOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+	         final CommandWrapper commandRequest = new CommandWrapperBuilder().applyPromo(orderId).withJson(apiRequestBodyAsJson).build();
+	 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	 		return this.toApiJsonSerializer.serialize(result);
+	 		}	   
 	 
 }
