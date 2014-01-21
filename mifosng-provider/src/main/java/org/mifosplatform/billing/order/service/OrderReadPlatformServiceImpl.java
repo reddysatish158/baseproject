@@ -952,7 +952,8 @@ return null;
 
 						public String orderDiscountLookupSchema() {
 						return "od.id as id,od.orderprice_id as priceId,od.discount_rate as discountAmount,d.discount_code as discountCode," +
-								"d.discount_description as discountdescription,d.discount_type as discountType  FROM b_order_discount od, b_discount_master d" +
+								"d.discount_description as discountdescription,d.discount_type as discountType,od.discount_startdate as startDate," +
+								" od.discount_enddate as endDate  FROM b_order_discount od, b_discount_master d" +
 								" where od.discount_id=d.id and od.is_deleted='N' and od.order_id=?";
 						}
 
@@ -964,8 +965,10 @@ return null;
 						final String discountCode=rs.getString("discountCode");
 						final String discountdescription=rs.getString("discountdescription");
 						final String discountType=rs.getString("discountType");
+						final LocalDate startDate=JdbcSupport.getLocalDate(rs,"startDate");
+						final LocalDate endDate=JdbcSupport.getLocalDate(rs,"endDate");
 						final BigDecimal discountAmount=rs.getBigDecimal("discountAmount");						
-						return new OrderDiscountData(id,priceId,discountCode,discountdescription,discountAmount,discountType);
+						return new OrderDiscountData(id,priceId,discountCode,discountdescription,discountAmount,discountType,startDate,endDate);
 						}
 				}
 	}

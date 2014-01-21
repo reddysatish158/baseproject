@@ -519,6 +519,8 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("reconnectOrderCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isChangePlan()) {
 				handler = applicationContext.getBean("changePlanCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isApplyPormo()) {
+				handler = applicationContext.getBean("orderPromoCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isRetrackOsdMessageOrder()) {
 				handler = applicationContext.getBean("retrackOsdMessageOrderCommandHandler",NewCommandSourceHandler.class);
 			}
@@ -619,7 +621,10 @@ public class SynchronousCommandProcessingService implements
 				if(wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryItemAllocationCommandHandler",NewCommandSourceHandler.class);
 				}
-			} else if (wrapper.isUploadStatusResource()) {
+			}else if (wrapper.isDeAllocateHardwareResource()) {
+				
+					handler = applicationContext.getBean("deAllocateItemCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isUploadStatusResource()) {
 	        	if (wrapper.isCreate()) {
 					handler = applicationContext.getBean("uploadStatusWritePlatformService", NewCommandSourceHandler.class);
 				}	
@@ -783,7 +788,14 @@ public class SynchronousCommandProcessingService implements
 				   }else{
 			           throw new UnsupportedCommandException(wrapper.commandName());
 			       }
+		    }else if(wrapper.isPromotionCodeResource()){
+        		 if(wrapper.isCreatePromotionCode()) {
+		        		handler = applicationContext.getBean("createPromotionCodeCommandHandler",NewCommandSourceHandler.class);
+				   }else{
+			           throw new UnsupportedCommandException(wrapper.commandName());
+			       }
 		    }
+			
 			else if(wrapper.isMRN()){
 			           if(wrapper.isCreateMRN()){
 			               handler = applicationContext.getBean("createMRNDetailsCommandHandler",NewCommandSourceHandler.class);

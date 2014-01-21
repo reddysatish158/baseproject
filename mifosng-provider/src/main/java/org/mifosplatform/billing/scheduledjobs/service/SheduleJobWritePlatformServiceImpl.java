@@ -39,6 +39,9 @@ import org.mifosplatform.billing.message.service.BillingMessageDataWritePlatform
 import org.mifosplatform.billing.message.service.BillingMesssageReadPlatformService;
 import org.mifosplatform.billing.message.service.MessagePlatformEmailService;
 import org.mifosplatform.billing.order.data.OrderData;
+import org.mifosplatform.billing.order.domain.Order;
+import org.mifosplatform.billing.order.domain.OrderPrice;
+import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
 import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
@@ -59,7 +62,6 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
-import org.mifosplatform.infrastructure.dataqueries.service.GenericDataService;
 import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
@@ -99,6 +101,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final ScheduleJob scheduleJob;
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final ReadReportingService readExtraDataAndReportingService;
+	private final OrderRepository orderRepository;
 	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
@@ -111,7 +114,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
 			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final PlatformSecurityContext context) {
+			final PlatformSecurityContext context,final OrderRepository orderRepository) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -134,6 +137,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
 		this.context=context;
+		this.orderRepository=orderRepository;
 	}
 	
 	
@@ -508,9 +512,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      						
 		      						 JSONObject jsonobject = new JSONObject();
 		      					     if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
-		      					    	 
 		      					    
-		      					     boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId);
+		      					    Order  order=this.orderRepository.findOne(orderData.getId());
+		      					    
+		      					    List<OrderPrice> orderPrice=order.getPrice();
+		      					    
+		      					     boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
 		          				     
 		      					     if(isSufficientAmountForRenewal){
 		      					    	 

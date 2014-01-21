@@ -3,18 +3,14 @@ package org.mifosplatform.billing.order.domain;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
@@ -98,6 +94,17 @@ public class OrderDiscount extends AbstractPersistable<Long> {
 
 	public OrderPrice getOrderpriceid() {
 		return orderpriceid;
+	}
+
+	public void updateDates(BigDecimal discountRate, String discountType, LocalDate enddate) {
+         
+		  this.discountStartdate=new Date();
+		  if(enddate != null){
+		  this.discountEndDate=enddate.toDate();
+		  }
+		  this.discountRate=discountRate;
+		  this.discountType=discountType;
+		
 	}
 
 

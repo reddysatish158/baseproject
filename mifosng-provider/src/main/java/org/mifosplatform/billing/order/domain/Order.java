@@ -229,12 +229,10 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 		this.startDate=startDate.toDate();
 	}
 
-
 	public void setStatus(Long statusId) {
 		this.status=statusId;
 		
 	}
-
 
 	public void setuserAction(String actionType) {
 		this.userAction=actionType;
@@ -258,4 +256,30 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 		return sb.toString();
 	}
 
+
+	public char getIsDeleted() {
+		return isDeleted;
+	}
+
+
+	public char getBillingAlign() {
+		return billingAlign;
+	}
+
+
+	public String getDisconnectReason() {
+		return disconnectReason;
+	}
+
+
+	public String getUserAction() {
+		return userAction;
+	}
+
+
+	public List<OrderDiscount> getOrderDiscount() {
+		return orderDiscount;
+	}
+	
+	
 }
