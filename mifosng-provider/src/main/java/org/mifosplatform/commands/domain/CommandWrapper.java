@@ -939,8 +939,12 @@ public class CommandWrapper {
 		public boolean isCreatePromotionCode() {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
 		}
-
-
+		public boolean isUpdatePromotionCode() {
+			return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
+		}
+		public boolean isDeletePrmotionCode() {
+			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
+		}
 		public boolean isApplyPormo() {
 			
 			return this.actionName.equalsIgnoreCase("APPLYPROMO") && this.entityName.equalsIgnoreCase("ORDER");

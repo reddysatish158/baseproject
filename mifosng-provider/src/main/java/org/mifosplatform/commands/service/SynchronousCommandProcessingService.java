@@ -791,7 +791,12 @@ public class SynchronousCommandProcessingService implements
 		    }else if(wrapper.isPromotionCodeResource()){
         		 if(wrapper.isCreatePromotionCode()) {
 		        		handler = applicationContext.getBean("createPromotionCodeCommandHandler",NewCommandSourceHandler.class);
-				   }else{
+				   }else if(wrapper.isUpdatePromotionCode()) {
+		        		handler = applicationContext.getBean("updatePromotionCodeCommandHandler",NewCommandSourceHandler.class);	
+				   }else if(wrapper.isDeletePrmotionCode()) {
+		        		handler = applicationContext.getBean("deletePromotionCodeCommandHandler",NewCommandSourceHandler.class);	
+				   }
+				   else{
 			           throw new UnsupportedCommandException(wrapper.commandName());
 			       }
 		    }

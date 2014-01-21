@@ -7,8 +7,6 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -80,54 +78,73 @@ public class PromotionCode extends AbstractPersistable<Long> {
 
 	public static PromotionCode fromJson(JsonCommand command) {
 			
-	/*	this.promotionCode=promotionCode;
-		   this.promotionDescription=promotionDescription;
-		   this.durationType=durationType;
-		   this.duration=duration;
-		   this.discountType=discountType;
-		   this.discountRate=discountRate;
-		   this.startDate=startDate;
-		   this.validUntil=validUntil;*/
-		
-		 	final String promotionCode = command.stringValueOfParameterNamed("promotioncode");
+		 	final String promotionCode = command.stringValueOfParameterNamed("promotionCode");
 		    final String promotionDescription = command.stringValueOfParameterNamed("description");
-		    final String durationType = command.stringValueOfParameterNamed("durationtype");
+		    final String durationType = command.stringValueOfParameterNamed("durationType");
 		    final Long duration=command.longValueOfParameterNamed("duration");
-		    final String discountType = command.stringValueOfParameterNamed("discounttype");
-		    final BigDecimal discountRate=command.bigDecimalValueOfParameterNamed("discountrate");
-		    final LocalDate startDate=command.localDateValueOfParameterNamed("startdate");
+		    final String discountType = command.stringValueOfParameterNamed("discountType");
+		    final BigDecimal discountRate=command.bigDecimalValueOfParameterNamed("discountRate");
+		    final LocalDate startDate=command.localDateValueOfParameterNamed("startDate");
 		    //final Date validUntil=command.DateValueOfParameterNamed("");
 		    
 		return new PromotionCode(promotionCode,promotionDescription,durationType,duration,discountType,discountRate,startDate);
 	}
 
-	/*public Map<String, Object> update(JsonCommand command) {
+	public Map<String, Object> update(JsonCommand command) {
 		 final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
-		  final String eventParamName = "event";
-	        if (command.isChangeInStringParameterNamed(eventParamName, this.eventName)) {
-	            final String newValue = command.stringValueOfParameterNamed(eventParamName);
-	            actualChanges.put(eventParamName, newValue);
-	            this.eventName = StringUtils.defaultIfEmpty(newValue, null);
+		  final String promotionCodeParamName = "promotionCode";
+	        if (command.isChangeInStringParameterNamed(promotionCodeParamName, this.promotionCode)) {
+	            final String newValue = command.stringValueOfParameterNamed(promotionCodeParamName);
+	            actualChanges.put(promotionCodeParamName, newValue);
+	            this.promotionCode = StringUtils.defaultIfEmpty(newValue, null);
 	        }
 	        
-	        final String actionParamName = "action";
-	        if (command.isChangeInStringParameterNamed(actionParamName, this.actionName)) {
-	            final String newValue = command.stringValueOfParameterNamed(actionParamName);
-	            actualChanges.put(actionParamName, newValue);
-	            this.actionName = StringUtils.defaultIfEmpty(newValue, null);
+	        final String descriptionParamName = "description";
+	        if (command.isChangeInStringParameterNamed(descriptionParamName, this.promotionDescription)) {
+	            final String newValue = command.stringValueOfParameterNamed(descriptionParamName);
+	            actualChanges.put(descriptionParamName, newValue);
+	            this.promotionDescription = StringUtils.defaultIfEmpty(newValue, null);
 	        }
 	        
-	        
-	        final String processParam = "process";
-	        if (command.isChangeInStringParameterNamed(processParam, this.process)) {
-	            final String newValue = command.stringValueOfParameterNamed(processParam);
-	            actualChanges.put(processParam, newValue);
-	            this.process = StringUtils.defaultIfEmpty(newValue, null);
+	        final String durationTypeParam = "durationType";
+	        if (command.isChangeInStringParameterNamed(durationTypeParam, this.durationType)) {
+	            final String newValue = command.stringValueOfParameterNamed(durationTypeParam);
+	            actualChanges.put(durationTypeParam, newValue);
+	            this.durationType = StringUtils.defaultIfEmpty(newValue, null);
 	        }
+	        
+	        final String durationParam = "duration";
+	        if (command.isChangeInLongParameterNamed(durationParam, this.duration)) {
+	            final Long newValue = command.longValueOfParameterNamed(durationParam);
+	            actualChanges.put(durationParam, newValue);
+	            this.duration = newValue;
+	        }
+	        
+	        final String discountTypeParam = "discountType";
+	        if (command.isChangeInStringParameterNamed(discountTypeParam, this.discountType)) {
+	            final String newValue = command.stringValueOfParameterNamed(discountTypeParam);
+	            actualChanges.put(discountTypeParam, newValue);
+	            this.discountType = StringUtils.defaultIfEmpty(newValue, null);
+	        }
+	        
+	        final String discountRateParamName = "discountRate";
+			if (command.isChangeInBigDecimalParameterNamed(discountRateParamName,this.discountRate)) {
+				final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(discountRateParamName);
+				actualChanges.put(discountRateParamName, newValue);
+				this.discountRate=newValue;
+			}
+			
+			final String startDateParamName = "startDate";
+			if (command.isChangeInLocalDateParameterNamed(startDateParamName,
+					new LocalDate(this.startDate))) {
+				final LocalDate newValue = command
+						.localDateValueOfParameterNamed(startDateParamName);
+				actualChanges.put(startDateParamName, newValue);
+			}
 	        				
 	        return actualChanges;
 
-	}*/
+	}
 
 	public void delete() {
 		
