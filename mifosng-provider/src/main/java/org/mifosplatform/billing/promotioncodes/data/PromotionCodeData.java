@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.contract.data.PeriodData;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
@@ -24,6 +25,8 @@ public class PromotionCodeData {
 	 private Collection<MCodeData> discounTypeData;
 	 private List<McodeData> actionData;
 	 private List<McodeData> eventData;
+	private List<PeriodData> durationTypes;
+	
 	public PromotionCodeData(Long id,String promotionCode,String promotionDescription,String durationType,Long duration,String promotionType,BigDecimal discountRate,List<PromotionCodeData> actionData,List<PromotionCodeData> eventData) {
 		// TODO Auto-generated constructor stub
 		this.id=id;
@@ -43,9 +46,7 @@ public class PromotionCodeData {
 		this.discountType = discountType;
 	}*/
 
-	public PromotionCodeData() {
-		// TODO Auto-generated constructor stub
-	}
+	
 
 	public PromotionCodeData(List<McodeData> actionData,
 			List<McodeData> eventData) {
@@ -53,9 +54,10 @@ public class PromotionCodeData {
 		this.actionData=actionData;
 		this.eventData=eventData;
 	}
-	public PromotionCodeData(Collection<MCodeData> discountTypeDate) {
+	public PromotionCodeData(Collection<MCodeData> discountTypeDate, List<PeriodData> subscriptionDatas) {
        
         this.discounTypeData=discountTypeDate;
+        this.durationTypes=subscriptionDatas;
 	
 	}
 	/*public String getBatchName() {

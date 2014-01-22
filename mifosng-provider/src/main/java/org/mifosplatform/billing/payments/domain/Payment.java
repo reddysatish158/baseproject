@@ -130,6 +130,18 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		public String getReceiptNo() {
 			return receiptNo;
 		}
+
+		public int getPaymodeId() {
+			return paymodeId;
+		}
+
+		public String getTransactionId() {
+			return transactionId;
+		}
+
+		public String getCancelRemark() {
+			return cancelRemark;
+		}
 		
 		
 

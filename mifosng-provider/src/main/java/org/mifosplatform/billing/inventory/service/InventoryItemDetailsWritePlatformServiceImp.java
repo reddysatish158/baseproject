@@ -394,8 +394,18 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   
         	   InventoryItemDetailsAllocation inventoryItemDetailsAllocation=this.deAllocateHardware(serialNo, clientId);
         	   
+        	   OneTimeSale oneTimeSale=this.oneTimeSaleRepository.findOne(inventoryItemDetailsAllocation.getOrderId());
+        	   
+        	   oneTimeSale.setStatus();
+        	   this.oneTimeSaleRepository.save(oneTimeSale);
+        	   String itemCode=null;
+        	   if(!associationDatas.isEmpty()){
+        		   itemCode=associationDatas.get(0).getItemCode();
+        	   }else{
+        		   itemCode=oneTimeSale.getItemId().toString();
+        	   }
         		transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "RETURN DEVICE", new Date(),"Serial Number :"
-	    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+associationDatas.get(0).getItemCode(),"Order Id: "+inventoryItemDetailsAllocation.getOrderId());
+	    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+itemCode,"Order Id: "+inventoryItemDetailsAllocation.getOrderId());
         	   
         	   return new CommandProcessingResult(command.entityId());
            }catch(DataIntegrityViolationException exception){

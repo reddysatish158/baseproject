@@ -150,5 +150,10 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 		this.hardwareAllocated = hardwareAllocated;
 	}
 
+	public void setStatus() {
+		this.hardwareAllocated = "UNALLOCATED";
+		
+	}
+
 
 }

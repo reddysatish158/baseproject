@@ -266,6 +266,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			    		   if(!allocationDetailsDatas.isEmpty())
 			    		   {
 			    				this.associationWriteplatformService.createNewHardwareAssociation(clientId,plan.getId(),allocationDetailsDatas.get(0).getSerialNo(),order.getId());
+			    				
 			    				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Implicit Association", new Date(),"Serial No:"
 			    				+allocationDetailsDatas.get(0).getSerialNo(),"Item:"+allocationDetailsDatas.get(0).getItemDescription(),"Plan Code:"+plan.getPlanCode());
 			    				
