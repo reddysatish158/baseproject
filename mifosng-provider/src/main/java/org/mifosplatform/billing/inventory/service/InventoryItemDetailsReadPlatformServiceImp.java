@@ -235,10 +235,8 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 			
 			Long id = rs.getLong("id");
 			Long clientId = rs.getLong("clientId");
-			Long saleId = rs.getLong("id");
-			Long allocationId = rs.getLong("clientId");
 			String quality = rs.getString("quality");
-			return new AllocationHardwareData(id,clientId,saleId,allocationId,quality);
+			return new AllocationHardwareData(id,clientId,quality);
 		}
 	}  
 	

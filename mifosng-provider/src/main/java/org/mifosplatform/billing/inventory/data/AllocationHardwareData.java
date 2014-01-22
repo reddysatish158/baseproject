@@ -40,6 +40,12 @@ public class AllocationHardwareData {
 
 }
 
+	public AllocationHardwareData(Long id, Long clientId, String quality) {
+		this.itemDetailsId = id;
+		this.clientId = clientId;
+		this.quality = quality;
+	}
+
 	public List<InventoryItemSerialNumberData> getSrialNumbers() {
 		return serialNumbers;
 	}

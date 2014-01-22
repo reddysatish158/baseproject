@@ -176,7 +176,8 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 
 	        logger.error(dve.getMessage(), dve);   	
 	}
-
+		@Transactional
+		@Override
 		public CommandProcessingResult updateItem(Long id,JsonCommand command)
 		{
 	        try{
@@ -206,7 +207,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 		          return itemId;	
 		}
 
-
+		@Transactional
 		@Override
 		public CommandProcessingResult allocateHardware(JsonCommand command) {
 			Long id = null;
@@ -236,24 +237,23 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 							if(allocationHardwareData == null){
 								throw new PlatformDataIntegrityException("invalid.serial.no", "invalid.serial.no","serialNumber");
 							}
-							
-							
+														
 							if(allocationHardwareData.getClientId()!=null){
 								if(allocationHardwareData.getClientId()>0){
-									throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already exist.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already exist.","serialNumber"+i);	
+									throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);	
 								}else{
 									if(!allocationHardwareData.getQuality().equalsIgnoreCase("Good")){
 										throw new PlatformDataIntegrityException("product.not.in.good.condition", "product.not.in.good.condition","product.not.in.good.condition");
 					        		}
 								}
-							}else{
-								throw new PlatformDataIntegrityException("invalid.serial.number2", "invalid.serial.number2","invalid.serial.number2");
+								throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);
 							}
 							}catch(EmptyResultDataAccessException e){
 								throw new PlatformDataIntegrityException("SerialNumber SerialNumber"+i+" doest not exist.","SerialNumber SerialNumber"+i+" doest not exist.","serialNumber"+i);
 							}
 			        	
 			        	inventoryItemDetails = inventoryItemDetailsRepository.findOne(allocationHardwareData.getItemDetailsId());
+			        	
 						inventoryItemDetails.setItemMasterId(inventoryItemDetailsAllocation.getItemMasterId());
 						inventoryItemDetails.setClientId(inventoryItemDetailsAllocation.getClientId());
 						inventoryItemDetails.setStatus("Used");
