@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
@@ -96,7 +95,7 @@ public class PaymentGatewayApiResource {
             builder
                 .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
                 .append("<response>")
-                .append("<receipt>"+result.resourceId())
+                .append("<receipt>"+Receipt)
                 .append("</receipt>")
                  .append("<result>"+result.getTransactionId())
                 .append("</result>")
@@ -108,16 +107,21 @@ public class PaymentGatewayApiResource {
            }
 	}catch(ReceiptNoDuplicateException e){
 		 Long id=this.paymentGatewayReadPlatformService.GetReceiptNoId(Receipt);
-		StringBuilder failurebuilder = new StringBuilder();
-		failurebuilder
-            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-            .append("<response>")
-            .append("<receipt>"+id)
-            .append("</receipt>")
-            .append("<result>"+"DUPLICATE_TXN")
-            .append("</result>")
-            .append("</response>");
-        return failurebuilder.toString();
+		 if(id!=null){
+			StringBuilder failurebuilder = new StringBuilder();
+			failurebuilder
+	            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+	            .append("<response>")
+	            .append("<receipt>"+Receipt)
+	            .append("</receipt>")
+	            .append("<result>"+"DUPLICATE_TXN")
+	            .append("</result>")
+	            .append("</response>");
+	        return failurebuilder.toString();
+		 }else{
+			 return null;
+		 }
+		 
 	} catch (Exception e) {
 		return null;		
 	}
