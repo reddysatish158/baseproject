@@ -38,8 +38,8 @@ public final class PromotionCodeCommandFromApiJsonDeserializer {
     /**
      * The parameters supported for this command.
      */
-    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("promotioncode","description","durationtype",
-    		"duration","discounttype","discountrate","startdate","locale","dateFormat"));
+    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("promotionCode","description","durationType",
+    		"duration","discountType","discountRate","startDate","locale","dateFormat"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -58,22 +58,22 @@ public final class PromotionCodeCommandFromApiJsonDeserializer {
 
         final JsonElement element = fromApiJsonHelper.parse(json);
 
-        final String promotioncode = fromApiJsonHelper.extractStringNamed("promotioncode", element);
+        final String promotioncode = fromApiJsonHelper.extractStringNamed("promotionCode", element);
         baseDataValidator.reset().parameter("promotioncode").value(promotioncode).notBlank();
      
         final String description = fromApiJsonHelper.extractStringNamed("description", element);
         baseDataValidator.reset().parameter("description").value(description).notBlank();
         
-        final String durationtype=fromApiJsonHelper.extractStringNamed("durationtype", element);
+        final String durationtype=fromApiJsonHelper.extractStringNamed("durationType", element);
         baseDataValidator.reset().parameter("durationtype").value(durationtype).notBlank();
         
         final Long duration=fromApiJsonHelper.extractLongNamed("duration", element);
         baseDataValidator.reset().parameter("duration").value(duration).notBlank();
         
-        final String discounttype=fromApiJsonHelper.extractStringNamed("discounttype", element);
+        final String discounttype=fromApiJsonHelper.extractStringNamed("discountType", element);
         baseDataValidator.reset().parameter("discounttype").value(discounttype).notBlank();
         
-        final BigDecimal discountRate=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("discountrate", element);
+        final BigDecimal discountRate=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("discountRate", element);
         baseDataValidator.reset().parameter("discountRate").value(discountRate).notBlank();
         
         throwExceptionIfValidationWarningsExist(dataValidationErrors);

@@ -7,8 +7,8 @@ public interface PromotionCodeWritePlatformService {
 
 	CommandProcessingResult createPromotionCode(JsonCommand command);
 
-/*	CommandProcessingResult updateEventActionMapping(Long id, JsonCommand command);
+	CommandProcessingResult updatePromotionCode(Long id, JsonCommand command);
 
-	CommandProcessingResult deleteEventActionMapping(Long id);*/
+	CommandProcessingResult deletePromotionCode(Long id);
 
 }

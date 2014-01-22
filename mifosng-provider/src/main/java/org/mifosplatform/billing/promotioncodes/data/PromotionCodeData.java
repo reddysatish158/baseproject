@@ -8,9 +8,6 @@ import java.util.List;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.contract.data.PeriodData;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
-import org.mifosplatform.billing.paymode.data.McodeData;
-import org.mifosplatform.infrastructure.core.data.EnumOptionData;
-
 public class PromotionCodeData {
 	
 	
@@ -19,101 +16,116 @@ public class PromotionCodeData {
 	 String promotionDescription;
 	 String durationType;
 	 Long duration;
-	 String promotionType;
+	 String discountType;
 	 private LocalDate discountStartDate;
 	 private BigDecimal discountRate;
 	 private Collection<MCodeData> discounTypeData;
-	 private List<McodeData> actionData;
-	 private List<McodeData> eventData;
-	private List<PeriodData> durationTypes;
-	
-	public PromotionCodeData(Long id,String promotionCode,String promotionDescription,String durationType,Long duration,String promotionType,BigDecimal discountRate,List<PromotionCodeData> actionData,List<PromotionCodeData> eventData) {
-		// TODO Auto-generated constructor stub
+
+	 private List<PeriodData> contractTypedata;
+
+	public PromotionCodeData(Long id,String promotionCode,String promotionDescription,String durationType,Long duration,String discountType,BigDecimal discountRate) {
+
 		this.id=id;
 		this.promotionCode=promotionCode;
 		this.promotionDescription=promotionDescription;
 		this.durationType=durationType;
 		this.duration=duration;
-		this.promotionType=promotionType;
+		this.discountType=discountType;
 		this.discountRate=discountRate;
 	}
-	
-	/*public String getCodeValue() {
-		return discountType;
-	}
 
-	public void setCodeValue(String discountType) {
-		this.discountType = discountType;
-	}*/
-
-	
-
-	public PromotionCodeData(List<McodeData> actionData,
-			List<McodeData> eventData) {
+	public PromotionCodeData() {
 		// TODO Auto-generated constructor stub
-		this.actionData=actionData;
-		this.eventData=eventData;
 	}
-	public PromotionCodeData(Collection<MCodeData> discountTypeDate, List<PeriodData> subscriptionDatas) {
+
+	public PromotionCodeData(Collection<MCodeData> discountTypeDate,List<PeriodData> contractTypedata) {
        
         this.discounTypeData=discountTypeDate;
-        this.durationTypes=subscriptionDatas;
+        this.contractTypedata=contractTypedata;
+
 	
 	}
-	/*public String getBatchName() {
-		return promotionCode;
-	}
 	
-	public void setBatchName(String promotionCode) {
-		this.promotionCode = promotionCode;
-	}*/
 	public Long getId() {
 		return id;
 	}
 	
+	public String getPromotionCode() {
+		return promotionCode;
+	}
+
+	public void setPromotionCode(String promotionCode) {
+		this.promotionCode = promotionCode;
+	}
+
+	public String getPromotionDescription() {
+		return promotionDescription;
+	}
+
+	public void setPromotionDescription(String promotionDescription) {
+		this.promotionDescription = promotionDescription;
+	}
+
+	public String getDurationType() {
+		return durationType;
+	}
+
+	public void setDurationType(String durationType) {
+		this.durationType = durationType;
+	}
+
+	public Long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
+
+	public String getPromotionType() {
+		return discountType;
+	}
+
+	public void setPromotionType(String discountType) {
+		this.discountType = discountType;
+	}
+
+	public LocalDate getDiscountStartDate() {
+		return discountStartDate;
+	}
+
+	public void setDiscountStartDate(LocalDate discountStartDate) {
+		this.discountStartDate = discountStartDate;
+	}
+
+	public BigDecimal getDiscountRate() {
+		return discountRate;
+	}
+
+	public void setDiscountRate(BigDecimal discountRate) {
+		this.discountRate = discountRate;
+	}
+
+	public Collection<MCodeData> getDiscounTypeData() {
+		return discounTypeData;
+	}
+
+	public void setDiscounTypeData(Collection<MCodeData> discounTypeData) {
+		this.discounTypeData = discounTypeData;
+	}
+
+	public List<PeriodData> getContractTypedata() {
+		return contractTypedata;
+	}
+
+	public void setContractTypedata(List<PeriodData> contractTypedata) {
+		this.contractTypedata = contractTypedata;
+	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getProcess() {
-		return promotionCode;
-	}
-
-	public void setProcess(String process) {
-		this.promotionCode = promotionCode;
-	}
-
-	public String getEventName() {
-		return promotionType;
-	}
-
-	public void setEventName(String eventName) {
-		this.promotionType = promotionType;
-	}
-
-	public String getActionName() {
-		return promotionDescription;
-	}
-
-	public void setActionName(String promotionDescription) {
-		this.promotionDescription = promotionDescription;
-	}
-
-	public List<McodeData> getActionData() {
-		return actionData;
-	}
-
-	public void setActionData(List<McodeData> actionData) {
-		this.actionData = actionData;
-	}
-
-	public List<McodeData> getEventData() {
-		return eventData;
-	}
-
-	public void setEventData(List<McodeData> eventData) {
-		this.eventData = eventData;
-	}
 
 	
 }

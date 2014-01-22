@@ -1,9 +1,3 @@
-/*package org.mifosplatform.billing.promotioncodes.api;
-
-public class PromotionCodesApiResource {
-
-}
-*/
 package org.mifosplatform.billing.promotioncodes.api;
 
 import java.util.Arrays;
@@ -13,16 +7,18 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.contract.data.PeriodData;
-import org.mifosplatform.billing.contract.data.SubscriptionData;
 import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
 import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
@@ -49,31 +45,28 @@ import org.springframework.stereotype.Component;
 public class PromotionCodesApiResource {
 	
 	
-	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "action","event","process"));
-	 private final String resourceNameForPermissions = "EVENTACTIONMAP";
+	  private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "action","event","process"));
+	  private final String resourceNameForPermissions = "EVENTACTIONMAP";
 	  private final PlatformSecurityContext context;
-	    private final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer;
-	    private final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1;
-	    private final ApiRequestParameterHelper apiRequestParameterHelper;
-	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-	    private final EventActionMappingReadPlatformService eventActionMappingReadPlatformService;
-	    private final PromotionCodeReadPlatformService promotionCodeReadPlatformService;
-	    private final PlanReadPlatformService planReadPlatformService;
-	    private final MCodeReadPlatformService mCodeReadPlatformService;
-	    private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
+	  private final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer;
+	  private final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1;
+	  private final ApiRequestParameterHelper apiRequestParameterHelper;
+	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	  private final PromotionCodeReadPlatformService promotionCodeReadPlatformService;
+	  private final MCodeReadPlatformService mCodeReadPlatformService;
+	  private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	    
 	    @Autowired
 	    public PromotionCodesApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer,
 	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-	    		final EventActionMappingReadPlatformService eventActionMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService,final MCodeReadPlatformService codeReadPlatformService,
-	    		final PromotionCodeReadPlatformService promotionCodeReadPlatformService,final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1,
-	    		final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
+	    		final EventActionMappingReadPlatformService eventActionMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService,
+	    		final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1,final MCodeReadPlatformService codeReadPlatformService,
+	    		final PromotionCodeReadPlatformService promotionCodeReadPlatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
+
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
-		        this.eventActionMappingReadPlatformService=eventActionMappingReadPlatformService;
-		        this.planReadPlatformService=planReadPlatformService;
 		        this.mCodeReadPlatformService=codeReadPlatformService;
 		        this.promotionCodeReadPlatformService =promotionCodeReadPlatformService;
 		        this.toApiJsonSerializer1=toApiJsonSerializer1;
@@ -99,8 +92,9 @@ public class PromotionCodesApiResource {
 			 context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 			 
 			Collection<MCodeData> discountTypeData = mCodeReadPlatformService.getCodeValue("type");
-			List<PeriodData> subscriptionDatas=contractPeriodReadPlatformService.retrieveAllPlatformPeriod();
-			PromotionCodeData  data= new PromotionCodeData(discountTypeData,subscriptionDatas);
+			List<PeriodData> contractTypedata=contractPeriodReadPlatformService.retrieveAllPlatformPeriod();
+			PromotionCodeData  data= new PromotionCodeData(discountTypeData,contractTypedata);
+
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 		
@@ -115,62 +109,41 @@ public class PromotionCodesApiResource {
 			final CommandProcessingResult result=this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			return this.toApiJsonSerializer.serialize(result);
 		}
-		
-		/* @GET
-			@Path("template")
-			@Consumes({ MediaType.APPLICATION_JSON })
-			@Produces({ MediaType.APPLICATION_JSON })
-			public String retrieveDiscountTemplate(@Context final UriInfo uriInfo) { 
-		    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		    	PromotionCodeData discountMasterData=handleTemplateData();
-				final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-				return this.toApiJsonSerializer.serialize(settings, discountMasterData, RESPONSE_DATA_PARAMETERS);
-			
-			}
-			private PromotionCodeData handleTemplateData() {
-			     Collection<MCodeData> discountTypeData = mCodeReadPlatformService.getCodeValue("type");
-			     return new PromotionCodeData(discountTypeData);
-			}*/
 	
-	
-		
-	/*	@GET
+		@GET
 		@Path("{id}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public String retrieveSingleDiscountDetails(@PathParam("id") final Long id,@Context final UriInfo uriInfo) {
-			
+		public String retrieveSinglePromotionCodeDetails(@PathParam("id") final Long id,@Context final UriInfo uriInfo) {
 			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-			EventActionMappingData discountMasterData= this.eventActionMappingReadPlatformService.retrieveEventActionDetail(id);
-			List<McodeData> actionData = this.eventActionMappingReadPlatformService.retrieveEventMapData("Action");
-		     List<McodeData> eventData = this.eventActionMappingReadPlatformService.retrieveEventMapData("Events");
-		     discountMasterData.setEventData(eventData);
-		     discountMasterData.setActionData(actionData);
+			PromotionCodeData promotionCodeData=this.promotionCodeReadPlatformService.retriveSingleRecord(id);
+			Collection<MCodeData> discountTypeData = mCodeReadPlatformService.getCodeValue("type");
+			List<PeriodData> contractTypedata=contractPeriodReadPlatformService.retrieveAllPlatformPeriod();
+			promotionCodeData.setDiscounTypeData(discountTypeData);
+			promotionCodeData.setContractTypedata(contractTypedata);
 		     final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-			 return this.toApiJsonSerializer.serialize(settings, discountMasterData, RESPONSE_DATA_PARAMETERS);
-		}*/
+			 return this.toApiJsonSerializer.serialize(settings, promotionCodeData, RESPONSE_DATA_PARAMETERS);
+		}
 		
-		
-		/*@PUT
+		@PUT
 		@Path("{id}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public String updateEventAction(@PathParam("id") final Long id,final String apiRequestBodyAsJson) {
-			 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateEventActionMapping(id).withJson(apiRequestBodyAsJson).build();
+		public String updatePromotionCode(@PathParam("id") final Long id,final String apiRequestBodyAsJson) {
+			 final CommandWrapper commandRequest = new CommandWrapperBuilder().updatePromotionCode(id).withJson(apiRequestBodyAsJson).build();
 			 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			  return this.toApiJsonSerializer.serialize(result);
 		}
 		
-	
 		 @DELETE
 			@Path("{id}")
 			@Consumes({MediaType.APPLICATION_JSON})
 			@Produces({MediaType.APPLICATION_JSON})
 			public String deleteEventAction(@PathParam("id") final Long id) {
-			 final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteEventActionMapping(id).build();
+			 final CommandWrapper commandRequest = new CommandWrapperBuilder().deletePromotionCode(id).build();
 	     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	     return this.toApiJsonSerializer.serialize(result);
 
-			}*/
+			}
 
 }

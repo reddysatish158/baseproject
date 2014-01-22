@@ -1968,4 +1968,20 @@ public CommandWrapperBuilder deAllocate(Long id) {
 	return this;
 }
 
+public CommandWrapperBuilder updatePromotionCode(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = id;
+	this.href = "/promotioncode";
+	return this;
+}
+
+public CommandWrapperBuilder deletePromotionCode(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = id;
+	this.href = "/promotioncode";
+	return this;
+}
+
 }

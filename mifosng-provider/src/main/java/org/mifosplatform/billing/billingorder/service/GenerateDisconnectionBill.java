@@ -162,7 +162,8 @@ public class GenerateDisconnectionBill {
 		price = billingOrderData.getPrice();
 		if (billingOrderData.getInvoiceTillDate() != null) {
 			
-           if(discountMasterData.getdiscountRate() !=null){
+           if(discountMasterData.getdiscountRate() !=null&& (billingOrderData.getBillStartDate().after(discountMasterData.getDiscountStartDate().toDate())
+        		   ||(billingOrderData.getBillStartDate().compareTo(discountMasterData.getDiscountStartDate().toDate())==0))){
 
     		if (discountMasterData.getDiscounType().equalsIgnoreCase("percentage")){
     			discountAmount = price.multiply(discountMasterData.getdiscountRate().divide(new BigDecimal(100)));
@@ -176,7 +177,7 @@ public class GenerateDisconnectionBill {
 			this.startDate = disconnectionDate;
 			this.endDate = new LocalDate(billingOrderData.getInvoiceTillDate());
 			invoiceTillDate = new LocalDate(billingOrderData.getInvoiceTillDate());
-			int maxDaysOfMonth =invoiceTillDate.dayOfMonth().withMaximumValue().getDayOfMonth();
+			int maxDaysOfMonth =startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
 			 int  maximumDaysInYear = startDate.dayOfYear().withMaximumValue().getDayOfYear();
 			int numberOfMonths = Months.monthsBetween(disconnectionDate, invoiceTillDate).getMonths();
 			System.out.println(numberOfMonths);
@@ -284,7 +285,8 @@ public class GenerateDisconnectionBill {
 
 		if (billingOrderData.getInvoiceTillDate() != null) {
 			
-			  if(discountMasterData.getdiscountRate() !=null){
+			  if(discountMasterData.getdiscountRate() !=null && (billingOrderData.getBillStartDate().after(discountMasterData.getDiscountStartDate().toDate())
+	        		   ||(billingOrderData.getBillStartDate().compareTo(discountMasterData.getDiscountStartDate().toDate())==0))){
 
 		    		if (discountMasterData.getDiscounType().equalsIgnoreCase("percentage")){
 		    			discountAmount = price.multiply(discountMasterData.getdiscountRate().divide(new BigDecimal(100)));
