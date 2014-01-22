@@ -75,33 +75,7 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 		this.details=details;
 	}
 
-
-	/*public static PaymentGateway fromJson(JsonCommand command) {
-		
-		final String deviceId=command.stringValueOfParameterNamed("KEY_ID");
-		final String partyId=command.stringValueOfParameterNamed("PARTY_ID");
-		final String paymentDate = command.stringValueOfParameterNamed("PAYMENT_DATE");
-		final BigDecimal amountPaid = command.bigDecimalValueOfParameterNamed("AMOUNT_PAID");
-		final String receiptNo = command.stringValueOfParameterNamed("RECEIPT_NO");
-		final String source = command.stringValueOfParameterNamed("SOURCE");
-		final String paymentId=command.stringValueOfParameterNamed("PAYMENT_ID");
-		final String details=command.stringValueOfParameterNamed("DETIALS");
-		DateFormat readFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		  Date date = null;
-		    try {
-		       date = readFormat.parse(paymentDate);
-		    } catch ( ParseException e ) {
-		        e.printStackTrace();
-		    }
-		return new PaymentGateway(deviceId, partyId, date, amountPaid, receiptNo, source,
-				paymentId, details);
-
-	}*/
-
 	public Map<String, Object> fromJson(JsonCommand command) {
-		
-		/* String remarks = command.stringValueOfParameterNamed("remarks");
-		 String status = command.stringValueOfParameterNamed("status");*/
 		 
 		final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
 		 final String remarks = "remarks";
