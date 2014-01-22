@@ -13,6 +13,8 @@ import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 public interface PromotionCodeReadPlatformService {
 
 	List<PromotionCodeData> retrieveAllEventMapping();
+
+	PromotionCodeData retriveSingleRecord(Long id);
 	
 /*	List<McodeData> retrieveEventMapData(String str);
 	

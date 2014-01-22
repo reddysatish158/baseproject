@@ -612,8 +612,11 @@ public class SynchronousCommandProcessingService implements
 	        	}
 	        	else if(wrapper.isUpdateInventoryItem()){
 	        		handler = applicationContext.getBean("updateInventoryItemsCommandHandler", NewCommandSourceHandler.class);
-	        	}
-			} else if (wrapper.isGrnResource()) {
+	        	} else if (wrapper.isDeAllocateHardwareResource()) {
+					
+					handler = applicationContext.getBean("deAllocateItemCommandHandler",NewCommandSourceHandler.class);
+			    }
+			}else if (wrapper.isGrnResource()) {
 				if (wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryGrnCommandHandler", NewCommandSourceHandler.class);
 				}
@@ -621,9 +624,6 @@ public class SynchronousCommandProcessingService implements
 				if(wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryItemAllocationCommandHandler",NewCommandSourceHandler.class);
 				}
-			}else if (wrapper.isDeAllocateHardwareResource()) {
-				
-					handler = applicationContext.getBean("deAllocateItemCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isUploadStatusResource()) {
 	        	if (wrapper.isCreate()) {
 					handler = applicationContext.getBean("uploadStatusWritePlatformService", NewCommandSourceHandler.class);
@@ -791,7 +791,12 @@ public class SynchronousCommandProcessingService implements
 		    }else if(wrapper.isPromotionCodeResource()){
         		 if(wrapper.isCreatePromotionCode()) {
 		        		handler = applicationContext.getBean("createPromotionCodeCommandHandler",NewCommandSourceHandler.class);
-				   }else{
+				   }else if(wrapper.isUpdatePromotionCode()) {
+		        		handler = applicationContext.getBean("updatePromotionCodeCommandHandler",NewCommandSourceHandler.class);	
+				   }else if(wrapper.isDeletePrmotionCode()) {
+		        		handler = applicationContext.getBean("deletePromotionCodeCommandHandler",NewCommandSourceHandler.class);	
+				   }
+				   else{
 			           throw new UnsupportedCommandException(wrapper.commandName());
 			       }
 		    }
