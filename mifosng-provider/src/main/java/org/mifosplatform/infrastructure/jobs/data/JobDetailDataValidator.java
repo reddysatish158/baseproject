@@ -180,6 +180,40 @@ public class JobDetailDataValidator {
                 baseDataValidator.reset().parameter(SchedulerJobApiConstants.jobExipiryDate).value(exipiryDate).notBlank();
             }
         	
+        }else if(jobName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_REPORTEMAIL)){
+        	
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_EmailId, element)) {
+                atLeastOneParameterPassedForUpdate = true;
+                final String emailId = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_EmailId, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_EmailId).value(emailId).notBlank();
+            }
+        	
+        }else if(jobName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_MiddleWare)){
+        	
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_ProvSystem, element)) {
+                atLeastOneParameterPassedForUpdate = true;
+                final String ProvSystem = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_ProvSystem, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_ProvSystem).value(ProvSystem).notBlank();
+            }
+        	
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_URL, element)) {
+                atLeastOneParameterPassedForUpdate = true;
+                final String url = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_URL, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_URL).value(url).notBlank();
+            }
+        	
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_Username, element)) {
+                atLeastOneParameterPassedForUpdate = true;
+                final String username = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_Username, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_Username).value(username).notBlank();
+            }
+        	
+        	if (this.fromApiJsonHelper.parameterExists(SchedulerJobApiConstants.JOB_Password, element)) {
+                atLeastOneParameterPassedForUpdate = true;
+                final String password = this.fromApiJsonHelper.extractStringNamed(SchedulerJobApiConstants.JOB_Password, element);
+                baseDataValidator.reset().parameter(SchedulerJobApiConstants.JOB_Password).value(password).notBlank();
+            }
+        	
         }
        
         if (!atLeastOneParameterPassedForUpdate) {

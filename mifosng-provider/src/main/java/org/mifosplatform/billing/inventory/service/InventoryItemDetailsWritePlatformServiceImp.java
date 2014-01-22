@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.engine.profile.Association;
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.data.HardwareAssociationData;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
@@ -16,6 +18,7 @@ import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsAllocation;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsAllocationRepository;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsRepository;
+import org.mifosplatform.billing.inventory.exception.ActivePlansFoundException;
 import org.mifosplatform.billing.inventory.exception.OrderQuantityExceedsException;
 import org.mifosplatform.billing.inventory.mrn.domain.InventoryTransactionHistory;
 import org.mifosplatform.billing.inventory.mrn.domain.InventoryTransactionHistoryJpaRepository;
@@ -27,7 +30,9 @@ import org.mifosplatform.billing.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.billing.onetimesale.domain.OneTimeSale;
 import org.mifosplatform.billing.onetimesale.domain.OneTimeSaleRepository;
 import org.mifosplatform.billing.onetimesale.service.OneTimeSaleReadPlatformService;
+import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.exceptions.NoGrnIdFoundException;
+import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.billing.uploadstatus.domain.UploadStatus;
 import org.mifosplatform.billing.uploadstatus.domain.UploadStatusRepository;
@@ -71,8 +76,10 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	private HardwareAssociationReadplatformService associationReadplatformService;
 	private HardwareAssociationWriteplatformService associationWriteplatformService;
 	private final ItemRepository itemRepository;
-    private final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService; 	
-	 public final static String CONFIG_PROPERTY="Implicit Association";
+    private final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService;
+    private final OrderReadPlatformService orderReadPlatformService;
+    
+	public final static String CONFIG_PROPERTY="Implicit Association";
 	@Autowired
 	public InventoryItemDetailsWritePlatformServiceImp(final InventoryItemDetailsReadPlatformService inventoryItemDetailsReadPlatformService, 
 			final PlatformSecurityContext context, final InventoryGrnRepository inventoryitemRopository,
@@ -82,7 +89,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 			final UploadStatusRepository uploadStatusRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
 			final InventoryTransactionHistoryJpaRepository inventoryTransactionHistoryJpaRepository,final GlobalConfigurationRepository  configurationRepository,
 			final HardwareAssociationReadplatformService associationReadplatformService,final HardwareAssociationWriteplatformService associationWriteplatformService,
-			final ItemRepository itemRepository) 
+			final ItemRepository itemRepository,final OrderReadPlatformService orderReadPlatformService) 
 	{
 		this.inventoryItemDetailsReadPlatformService = inventoryItemDetailsReadPlatformService;
 		this.context=context;
@@ -101,6 +108,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 		this.associationReadplatformService=associationReadplatformService;
 		this.associationWriteplatformService=associationWriteplatformService;
 		this.itemRepository=itemRepository;
+		this.orderReadPlatformService=orderReadPlatformService;
 		
 	}
 	
@@ -368,6 +376,37 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 		}
 
 
+		@Override
+		public CommandProcessingResult deAllocateHardware(JsonCommand command) {
+
+           try{
+        	   
+        	   String serialNo=command.stringValueOfParameterNamed("serialNo");
+        	   Long clientId=command.longValueOfParameterNamed("clientId");
+        	    List<OrderData> orderDatas=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId);
+        	   
+        	   if(!orderDatas.isEmpty()){
+        		   throw new ActivePlansFoundException();
+        	   }
+        	   List<AssociationData> associationDatas=this.associationReadplatformService.retrieveClientAssociationDetails(clientId);
+        	    
+        	   for(AssociationData associationData:associationDatas ){
+        		   
+        		   this.associationWriteplatformService.deAssociationHardware(associationData.getId());
+        		   
+        	   }
+        	   
+        	   InventoryItemDetailsAllocation inventoryItemDetailsAllocation=this.deAllocateHardware(serialNo, clientId);
+        	   
+        		transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "RETURN DEVICE", new Date(),"Serial Number :"
+	    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+associationDatas.get(0).getItemCode(),"Order Id: "+inventoryItemDetailsAllocation.getOrderId());
+        	   
+        	   return new CommandProcessingResult(command.entityId());
+           }catch(DataIntegrityViolationException exception){
+        	   
+        	   return null;
+           }
+		}
 }
 
 

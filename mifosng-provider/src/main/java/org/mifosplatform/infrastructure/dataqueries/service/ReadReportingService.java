@@ -36,4 +36,11 @@ public interface ReadReportingService {
 	Collection<ReportParameterData> getAllowedParameters();
 
 	ReportData retrieveReport(final Long id);
+	
+	String generateEmailReport(String name, String type,
+			Map<String, String> extractedQueryParams, String fileLocation);
+	
+	
+	GenericResultsetData generateEmailResultset(String name, String type,
+			Map<String, String> extractedQueryParams);
 }

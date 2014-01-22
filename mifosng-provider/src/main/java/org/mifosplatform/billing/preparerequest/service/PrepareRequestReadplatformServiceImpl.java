@@ -107,13 +107,10 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 			public List<Long> retrieveRequestClientOrderDetails(Long clientId) {
 				try {
 				
-				
 			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
-			        
-			        
-				OrderIdMapper planIdMapper = new OrderIdMapper();
-				String sql = "select" + planIdMapper.planIdSchema();
-				return jdbcTemplate.query(sql, planIdMapper,new Object[] { clientId });
+				   OrderIdMapper planIdMapper = new OrderIdMapper();
+				   String sql = "select" + planIdMapper.planIdSchema();
+				  return jdbcTemplate.query(sql, planIdMapper,new Object[] { clientId });
 				
 			
 			} catch (EmptyResultDataAccessException e) {
@@ -199,6 +196,40 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 					 }
 	              
 				}
+
+
+			@Override
+			public List<Long> getPrepareRequestDetails(Long id) {
+
+				try {
+				
+			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+				   PrepareRequestIdMapper planIdMapper = new PrepareRequestIdMapper();
+				   String sql = "select" + planIdMapper.planIdSchema();
+				  return jdbcTemplate.query(sql, planIdMapper,new Object[] { id });
+				
+			
+			} catch (EmptyResultDataAccessException e) {
+				return null;
+				}
+			}
+			private static final class PrepareRequestIdMapper implements RowMapper<Long> {
+
+				@Override
+				public Long  mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+//					
+					return resultSet.getLong("id");
+				}
+				
+
+				public String planIdSchema() {
+					return " pr.id as id from b_prepare_request pr " +
+							" where pr.order_id=? and pr.is_provisioning ='N' and pr.request_type='ACTIVATION'";
+							
+				}
+				
+				
+			}
 				
 			
 }

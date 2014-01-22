@@ -1921,14 +1921,17 @@ public CommandWrapperBuilder cancelPayment(Long paymentId) {
 	this.entityId = paymentId;
 	this.href = "/payments/cancelpayment"+this.entityId;
 	return this;
+
 }
 
 public CommandWrapperBuilder changePlan(Long orderId) {
+
 
     this.actionName="CHANGEPLAN";
     this.entityName="ORDER";
     this.entityId=orderId;
     this.href="orders/changePlan"+orderId;
+
     
    return this;
 }
@@ -1938,6 +1941,45 @@ public CommandWrapperBuilder updateInventoryItem(final Long id) {
 	this.entityId = id;
 	this.href = "/itemdetails/template";
 	return this;
+}
 
+public CommandWrapperBuilder createPromotionCode() {
+	this.actionName = "CREATE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = null;
+	this.href = "/promotioncode";
+	return this;
+}
+
+public CommandWrapperBuilder applyPromo(Long orderId) {
+	this.actionName = "APPLYPROMO";
+	this.entityName = "ORDER";
+	this.entityId = orderId;
+	this.href = "/orders/applyPromo";
+	return this;
+}
+
+public CommandWrapperBuilder deAllocate(Long id) {
+	this.actionName = "DEALLOCATE";
+	this.entityName = "INVENTORY";
+	this.entityId = id;
+	this.href = "/itemdetails/template";
+	return this;
+}
+
+public CommandWrapperBuilder updatePromotionCode(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = id;
+	this.href = "/promotioncode";
+	return this;
+}
+
+public CommandWrapperBuilder deletePromotionCode(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = id;
+	this.href = "/promotioncode";
+	return this;
 }
 }

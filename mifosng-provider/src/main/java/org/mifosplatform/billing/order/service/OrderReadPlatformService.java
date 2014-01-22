@@ -27,6 +27,8 @@ public interface OrderReadPlatformService {
 	String checkRetrackInterval(Long entityId);
 	List<OrderLineData> retrieveOrderServiceDetails(Long orderId);
 	List<OrderDiscountData> retrieveOrderDiscountDetails(Long orderId);
+
+	List<OrderData> retrieveClientActiveOrderDetails(Long clientId);
 	
 
 }

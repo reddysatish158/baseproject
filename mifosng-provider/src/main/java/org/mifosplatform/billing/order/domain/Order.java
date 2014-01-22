@@ -229,15 +229,57 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 		this.startDate=startDate.toDate();
 	}
 
-
 	public void setStatus(Long statusId) {
 		this.status=statusId;
 		
 	}
 
-
 	public void setuserAction(String actionType) {
 		this.userAction=actionType;
 	}
+	/*
+	 * this method is written for retriving price data and for storing that data in transaction hsitory table
+	 * */
+	public String getAllPriceAsString(){
+		StringBuilder sb = new StringBuilder();
+		for(OrderPrice p:getPrice()){
+			sb.append(String.format("%.2f", p.getPrice())+", ");
+		}
+		return sb.toString();
+	}
+	
+	public String getAllServicesAsString(){
+		StringBuilder sb = new StringBuilder();
+		for(OrderLine ol:services){
+			sb.append(ol.getServiceType()+", ");
+		}
+		return sb.toString();
+	}
 
+
+	public char getIsDeleted() {
+		return isDeleted;
+	}
+
+
+	public char getBillingAlign() {
+		return billingAlign;
+	}
+
+
+	public String getDisconnectReason() {
+		return disconnectReason;
+	}
+
+
+	public String getUserAction() {
+		return userAction;
+	}
+
+
+	public List<OrderDiscount> getOrderDiscount() {
+		return orderDiscount;
+	}
+	
+	
 }

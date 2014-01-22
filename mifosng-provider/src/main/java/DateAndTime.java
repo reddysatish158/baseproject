@@ -1,21 +1,22 @@
-
-
-import java.io.File;
-import java.io.FileWriter;
-import java.math.BigDecimal;
 import java.util.Date;
 
-import org.joda.time.LocalDate;
+
+
 
 public class DateAndTime {
 
     public static void main(String[] args) throws Exception {
 
-    	BigDecimal clientBal=new BigDecimal(-100);
-    	BigDecimal price=new BigDecimal(50);
-     BigDecimal result=clientBal.add(price);
-     
-     System.out.println(result.compareTo(BigDecimal.ZERO));
+    	Date chargedate=new Date();
+    	Date date2=new Date();
+    	@SuppressWarnings("deprecation")
+		Date chargeEnddate=new Date(2014,2,20);
+    	
+    	int res=chargeEnddate.compareTo(date2);
+    	
+    	if(res == 0 || res == 1){
+    		System.out.println(res);
+    	}
     	
 }
 }

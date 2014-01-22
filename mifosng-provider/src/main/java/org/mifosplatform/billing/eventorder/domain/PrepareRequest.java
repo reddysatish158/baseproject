@@ -138,6 +138,13 @@ public class PrepareRequest extends AbstractAuditableCustom<AppUser, Long>{
 	public void setProvisioningSystem(String provisioningSystem) {
 		this.provisioningSystem = provisioningSystem;
 	}
+
+
+	public void setCancelStatus(String cancelStatus) {
+		this.status=cancelStatus;
+		this.isProvisioning='C';
+		
+	}
 	
 	
 

@@ -12,7 +12,7 @@ import org.mifosplatform.billing.plan.data.PlanCodeData;
 public class OrderData {
 	private Long id;
 	private Long pdid;
-	private Long pcid;
+	private Long orderPriceId;
 	private Long clientId;
 	private String service_code;
 	private String planCode;
@@ -56,7 +56,7 @@ public class OrderData {
 			this.planCode = data.getPlan_code();
 			this.status = null;
 			this.period = data.getPeriod();
-			this.pcid = data.getPcid();
+			this.orderPriceId = data.getOrderPriceId();
 			this.service_code = null;
 
 			this.startDate = data.getStartDate();
@@ -70,9 +70,9 @@ public class OrderData {
 
 	}
 
-	public OrderData(Long id, Long planId, String plancode, String status,
-			LocalDate startDate, LocalDate endDate, double price,
-			String contractPeriod, String isprepaid, String allowtopup,String userAction,String provisioningSys) {
+	public OrderData(Long id, Long planId, String plancode, String status,LocalDate startDate, LocalDate endDate,
+			double price,String contractPeriod, String isprepaid, String allowtopup,String userAction,
+			String provisioningSys) {
 		this.id = id;
 		this.pdid = planId;
 		this.planCode = plancode;
@@ -82,7 +82,7 @@ public class OrderData {
 		this.startDate = startDate;
 		this.currentDate = new LocalDate();
 		this.endDate = endDate;
-		this.pcid = null;
+		this.orderPriceId = null;
 		this.service_code = null;
 		this.price = price;
 		this.variant = null;
@@ -154,8 +154,8 @@ public class OrderData {
 		return orderPriceData;
 	}
 
-	public Long getPcid() {
-		return pcid;
+	public Long getOrderPriceId() {
+		return orderPriceId;
 	}
 
 	public String getService_code() {

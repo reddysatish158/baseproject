@@ -162,6 +162,36 @@ public class JobParameters extends AbstractPersistable<Long>{
 	    	String date = simpleDateFormat.format(exipiryDate.toDate());
 	    	this.paramValue=date;
 	      }
+	    
+	    final String ReportEmailParamName = "emailId";
+	    final String ReportEmail = command.stringValueOfParameterNamed(ReportEmailParamName);
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_EmailId) && ReportEmail!=null){
+	    	this.paramValue=ReportEmail;
+	      }
+	    
+	    final String ProvisioningParamName = "ProvSystem";
+	    final String Provisioning = command.stringValueOfParameterNamed(ProvisioningParamName);
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_ProvSystem) && Provisioning!=null){
+	    	this.paramValue=Provisioning;
+	      }
+	    
+	    final String UrlParamName = "URL";
+	    final String url = command.stringValueOfParameterNamed(UrlParamName);
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_URL) && url!=null){
+	    	this.paramValue=url;
+	      }
+	    
+	    final String UsernameParamName = "Username";
+	    final String Username = command.stringValueOfParameterNamed(UsernameParamName);
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_Username) && Username!=null){
+	    	this.paramValue=Username;
+	      }
+	    
+	    final String PasswordParamName = "Password";
+	    final String Password = command.stringValueOfParameterNamed(PasswordParamName);
+	    if(this.paramName.equalsIgnoreCase(SchedulerJobApiConstants.JOB_Password) && Password!=null){
+	    	this.paramValue=Password;
+	      }
 	}
 
 

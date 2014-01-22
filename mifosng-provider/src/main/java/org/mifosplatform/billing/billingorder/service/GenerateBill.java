@@ -115,8 +115,8 @@ public class GenerateBill {
 
 	}
 
-	public BillingOrderCommand getNextMonthBill(
-			BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
+	public BillingOrderCommand getNextMonthBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
+		
 		BigDecimal discountAmount = BigDecimal.ZERO;
 		LocalDate startDate = null;
 		LocalDate endDate = null;
@@ -478,13 +478,15 @@ public class GenerateBill {
 	// Discount Applicable Logic
 	public Boolean isDiscountApplicable(LocalDate chargeStartDate,DiscountMasterData discountMasterData,LocalDate chargeEndDate) {
 		boolean isDiscountApplicable = false;
-
+		
 		if (discountMasterData != null) {
-
-			if (this.getDiscountEndDateIfNull(discountMasterData).after(chargeStartDate.toDate())||(this.getDiscountEndDateIfNull(discountMasterData).before(chargeEndDate.toDate()))) {
-				isDiscountApplicable = true;	 
-				isDiscountApplicable = true;	
-			}
+			
+				    	
+			 if((chargeStartDate.toDate().after(discountMasterData.getDiscountStartDate().toDate())||(chargeStartDate.toDate().compareTo(discountMasterData.getDiscountStartDate().toDate())==0)) &&
+				       chargeStartDate.toDate().before(this.getDiscountEndDateIfNull(discountMasterData, chargeEndDate))){
+	
+				    	isDiscountApplicable = true;
+				    }
 		}
 		
 		return isDiscountApplicable;
@@ -493,10 +495,10 @@ public class GenerateBill {
 
 	// Discount End Date calculation if null
 	@SuppressWarnings("deprecation")
-	public Date getDiscountEndDateIfNull(DiscountMasterData discountMasterData) {
+	public Date getDiscountEndDateIfNull(DiscountMasterData discountMasterData,LocalDate chargeEndDate) {
 		Date discountDate = discountMasterData.getDiscountEndDate();
 		if (discountMasterData.getDiscountEndDate() == null) {
-			discountDate = new Date(2099, 0, 01);
+			discountDate = chargeEndDate.toDate();
 		}
 		return discountDate;
 
