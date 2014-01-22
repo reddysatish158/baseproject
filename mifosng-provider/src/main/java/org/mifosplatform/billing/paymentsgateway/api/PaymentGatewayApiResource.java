@@ -18,6 +18,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
@@ -31,6 +32,7 @@ import org.mifosplatform.infrastructure.codes.data.CodeData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
@@ -80,6 +82,7 @@ public class PaymentGatewayApiResource {
 	@Consumes({ MediaType.WILDCARD })
 	@Produces({ MediaType.APPLICATION_XML })
 	public String mpesaPayment(final String apiRequestBodyAsJson)  {
+		
 		 CommandProcessingResult result=null;
 		 String Receipt = null;
 	try{
@@ -90,24 +93,23 @@ public class PaymentGatewayApiResource {
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
 			result = this.writePlatformService.logCommandSource(commandRequest);
 			
-			if("Success".equalsIgnoreCase(result.getTransactionId())){
-            StringBuilder builder = new StringBuilder();
-            builder
-                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-                .append("<response>")
-                .append("<receipt>"+Receipt)
-                .append("</receipt>")
-                 .append("<result>"+result.getTransactionId())
-                .append("</result>")
-                .append("</response>");
-            return builder.toString();
+			if(result==null ){
+               return null;
+			}else{
+				 StringBuilder builder = new StringBuilder();
+		            builder
+		                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+		                .append("<response>")
+		                .append("<receipt>"+Receipt)
+		                .append("</receipt>")
+		                 .append("<result>"+"Success")
+		                .append("</result>")
+		                .append("</response>");
+		            return builder.toString();
 			}
-			else {	
-            return null;
-           }
+			
 	}catch(ReceiptNoDuplicateException e){
-		 Long id=this.paymentGatewayReadPlatformService.GetReceiptNoId(Receipt);
-		 if(id!=null){
+		
 			StringBuilder failurebuilder = new StringBuilder();
 			failurebuilder
 	            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
@@ -117,14 +119,12 @@ public class PaymentGatewayApiResource {
 	            .append("<result>"+"DUPLICATE_TXN")
 	            .append("</result>")
 	            .append("</response>");
-	        return failurebuilder.toString();
-		 }else{
-			 return null;
-		 }
-		 
-	} catch (Exception e) {
-		return null;		
-	}
+	        return failurebuilder.toString();	 
+	} catch (JSONException e) {
+		    return e.getCause().toString();	 
+	} catch (PlatformDataIntegrityException e) {
+	        return null;
+    }  
 	
 	
 		 
