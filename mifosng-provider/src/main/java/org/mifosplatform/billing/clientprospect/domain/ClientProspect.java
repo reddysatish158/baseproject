@@ -340,14 +340,16 @@ public class ClientProspect extends AbstractAuditableCustom<AppUser, Long> {
 			clientProspect.setEmail(email);
 		}
 		
-		if(fromJsonHelper.parameterExists("sourceOfPublicity", element)){
+		if(fromJsonHelper.parameterExists("sourceOfPublicity", element)|| fromJsonHelper.parameterExists("sourceOther", element)){
 			String sourceOfPublicity = command.stringValueOfParameterNamed("sourceOfPublicity");
-			/*String sourceOther = command.stringValueOfParameterNamed("sourceOther");
-			if(!(sourceOther == "" || sourceOther == null || sourceOther.equals(""))){
-				sourceOfPublicity = sourceOther;
-			}*/
 			
-			clientProspect.setSourceOfPublicity(sourceOfPublicity);
+			if(sourceOfPublicity.equalsIgnoreCase("Other")){
+				String sourceOther = command.stringValueOfParameterNamed("sourceOther");
+				clientProspect.setSourceOfPublicity(sourceOther);
+			}else{
+				clientProspect.setSourceOfPublicity(sourceOfPublicity);
+			}
+			
 		}
 		
 		
@@ -429,6 +431,7 @@ public class ClientProspect extends AbstractAuditableCustom<AppUser, Long> {
 	        final String preferredPlan = "preferredPlan";
 	        final String preferredCallingTime = "preferredCallingTime"; 
 	        final String note = "note";
+	        final String sourceOther = "sourceOther";
 	        
 	        
 	        if (command.isChangeInIntegerParameterNamed(prospectType, new Integer(this.prospectType))) {
@@ -501,11 +504,25 @@ public class ClientProspect extends AbstractAuditableCustom<AppUser, Long> {
 	            actualChanges.put(zipCode, newValue);
 	            this.zipCode = newValue;
 	        }
-	        if (command.isChangeInStringParameterNamed(sourceOfPublicity, this.sourceOfPublicity)) {
+	       /* if (command.isChangeInStringParameterNamed(sourceOfPublicity, this.sourceOfPublicity)) {
 	        	final String newValue = command.stringValueOfParameterNamed("sourceOfPublicity");
 	            actualChanges.put(sourceOfPublicity, newValue);
 	            this.sourceOfPublicity = newValue;
+	        }*/
+	        
+	        if (command.isChangeInStringParameterNamed(sourceOfPublicity, this.sourceOfPublicity)||command.isChangeInStringParameterNamed(sourceOther, this.sourceOfPublicity)) {
+	        	final String newValue = command.stringValueOfParameterNamed("sourceOfPublicity");
+	            if(newValue.equalsIgnoreCase("Other")){
+	            	final String otherSource = command.stringValueOfParameterNamed("sourceOther");
+	            	actualChanges.put(sourceOfPublicity, otherSource);
+		            this.sourceOfPublicity = otherSource;
+	            }else{
+	            	actualChanges.put(sourceOfPublicity, newValue);
+		            this.sourceOfPublicity = newValue;
+	            }
 	        }
+	        
+	        
 	        if (command.isChangeInStringParameterNamed(preferredPlan, this.preferredPlan)) {
 	        	final String newValue = command.stringValueOfParameterNamed("preferredPlan");
 	            actualChanges.put(preferredPlan, newValue);

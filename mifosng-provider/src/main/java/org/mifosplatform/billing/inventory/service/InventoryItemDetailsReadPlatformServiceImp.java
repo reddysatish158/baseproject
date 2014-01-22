@@ -233,9 +233,8 @@ public class InventoryItemDetailsReadPlatformServiceImp implements InventoryItem
 			
 			Long id = rs.getLong("id");
 			Long clientId = rs.getLong("clientId");
-			Long saleId = rs.getLong("id");
-			Long allocationId = rs.getLong("clientId");
-			return new AllocationHardwareData(id,clientId,saleId,allocationId);
+			String quality = rs.getString("quality");
+			return new AllocationHardwareData(id,clientId,quality);
 		}
 	}  
 	
@@ -298,7 +297,7 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 			
 		context.authenticatedUser();
 		ItemDetailMapper rowMapper = new ItemDetailMapper();
-		String sql = "SELECT i.id,i.client_id AS clientId FROM b_item_detail i WHERE  i.serial_no = ? and i.status='NEW'";
+		String sql = "SELECT i.id,i.client_id AS clientId,i.quality as quality FROM b_item_detail i WHERE  i.serial_no = ? and i.status='NEW'";
 		  return this.jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{serialNumber});
 		 }catch(EmptyResultDataAccessException accessException){
 			return null;
