@@ -735,13 +735,12 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	public CommandProcessingResult changePlan(JsonCommand command, Long entityId) {
 		
 		try{
+			
 			this.context.authenticatedUser();
-			
 			Order order=this.orderRepository.findOne(entityId);
-			
 			this.disconnectOrder(command, entityId);
-			this.createOrder(order.getClientId(), command);
-			
+			CommandProcessingResult result=this.createOrder(order.getClientId(), command);
+			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"CHANGE_PLAN", new Date(),"Old Order "+entityId,"New OrderId"+result.resourceId());
 			return new CommandProcessingResult(entityId);
 			
 			
