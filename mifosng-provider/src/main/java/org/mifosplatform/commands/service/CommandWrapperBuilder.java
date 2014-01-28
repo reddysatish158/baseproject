@@ -1982,4 +1982,21 @@ public CommandWrapperBuilder deletePromotionCode(Long id) {
 	this.href = "/promotioncode";
 	return this;
 }
+public CommandWrapperBuilder updateUsermessage(Long meesageId) {
+	
+	this.actionName = "UPDATE";
+	this.entityName = "USERCHATMESSAGE";
+	this.entityId = meesageId;
+	this.href = "/userchats/"+this.entityId;
+	return this;
+}
+
+public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
+
+	this.actionName = "DELETE";
+	this.entityName = "USERCHATMESSAGE";
+	this.entityId = meesageId;
+	this.href = "/userchats/"+this.entityId;
+	return this;
+}
 }

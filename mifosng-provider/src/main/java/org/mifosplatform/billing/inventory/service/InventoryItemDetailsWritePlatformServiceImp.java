@@ -385,9 +385,9 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   
         	   String serialNo=command.stringValueOfParameterNamed("serialNo");
         	   Long clientId=command.longValueOfParameterNamed("clientId");
-        	    List<OrderData> orderDatas=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId);
+        	 Long activeorders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId,serialNo);
         	   
-        	   if(!orderDatas.isEmpty()){
+        	   if(activeorders!= 0){
         		   throw new ActivePlansFoundException();
         	   }
         	   List<AssociationData> associationDatas=this.associationReadplatformService.retrieveClientAssociationDetails(clientId);

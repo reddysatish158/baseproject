@@ -39,7 +39,7 @@ public class SmartSearchReadplatformServiceImpl implements SmartSearchReadplatfo
 
         public String schema() {
             return " p.id AS id, p.payment_date AS paymentDate,p.client_id as clientId,p.amount_paid as amount," +
-            		" p.receipt_no as receiptNo,c.firstname as clientName,mc.code_value as paymodeType  " +
+            		" p.receipt_no as receiptNo,c.display_name as clientName,mc.code_value as paymodeType  " +
             		"FROM b_payments p, m_client c, m_code_value mc WHERE  p.client_id=c.id and p.paymode_id=mc.id ";
         }
 
@@ -68,9 +68,9 @@ public class SmartSearchReadplatformServiceImpl implements SmartSearchReadplatfo
         int arrayPos = 0;
 
         if (searchText != null ) {
-            sql += " and p.receipt_no =?";
-            objectArray[arrayPos] = searchText;
-            arrayPos = arrayPos + 1;
+            sql += " and p.receipt_no like '%"+searchText+"%'";
+          /*  objectArray[arrayPos] = searchText;
+            arrayPos = arrayPos + 1;*/
         }
 
         if (fromDate != null || toDate != null) {
@@ -99,15 +99,15 @@ public class SmartSearchReadplatformServiceImpl implements SmartSearchReadplatfo
         }
 
         sql += "  order by p.payment_date limit "+limit+" offset "+offset;
-        objectArray[arrayPos] = limit;
+       /* objectArray[arrayPos] = limit;
         arrayPos = arrayPos + 1;
         objectArray[arrayPos] = offset;
         arrayPos = arrayPos + 1;
         objectArray[arrayPos] = offset;
-
+*/
         final Object[] finalObjectArray = Arrays.copyOf(objectArray, arrayPos);
       //  return this.jdbcTemplate.query(sql, rm, "SELECT FOUND_ROWS()", finalObjectArray);
-        return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql,new Object[] { finalObjectArray }, rm);
+        return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql, finalObjectArray, rm);
     }
 
    

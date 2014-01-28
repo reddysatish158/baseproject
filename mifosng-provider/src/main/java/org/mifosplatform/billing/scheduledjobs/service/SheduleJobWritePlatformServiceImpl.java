@@ -646,7 +646,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				byte[] encoded = Base64.encodeBase64(credentials.getBytes());
 				HttpClient httpClient = new DefaultHttpClient();
 	
-				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100));
+				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem());
 	            if(!entitlementDataForProcessings.isEmpty()){
 	            	String path=FileUtils.generateLogFileDirectory()+ JobName.Middleware.toString() + File.separator +"middleware_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 	            	 File fileHandler = new File(path.trim());
@@ -723,6 +723,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							final String status1 = fromApiJsonHelper.extractStringNamed("status", ele);
 							 fw.append("status of the output is : "+ status1+" \r\n");
 							if (status1.equalsIgnoreCase("ERROR")) {
+								
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
 								fw.append("error of the output is : "+ error+" \r\n");
 								ReceiveMessage = "failure :" + error;
@@ -793,7 +794,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	}
 	
-	@Transactional
+	 @Transactional
 	 @Override
 	 @CronTarget(jobName = JobName.EVENT_ACTION_PROCESSOR)
 	 public void eventActionProcessor() {
@@ -830,7 +831,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	 }
 	
-	@Transactional
+	 @Transactional
 	 @Override
 	 @CronTarget(jobName = JobName.REPORT_EMAIL)
 	 public void reportEmail() {

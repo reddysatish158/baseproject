@@ -44,6 +44,9 @@ public class ProcessRequestDetails extends AbstractAuditableCustom<AppUser, Long
 	@Column(name = "received_status")
 	private String receivedStatus;
 	
+	@Column(name="request_type")
+	private String requestType;
+	
 	@Column(name = "sent_date")
 	private Date sentDate;
 
@@ -62,16 +65,15 @@ public class ProcessRequestDetails extends AbstractAuditableCustom<AppUser, Long
 	}
 	
 
-	public ProcessRequestDetails(Long orderlinId, Long serviceId, String sentMessage,
-			String recievedMessage,String hardwareId,Date startDate,
-			Date endDate,Date sentDate,Date recievedDate,char isDeleted) {
+	public ProcessRequestDetails(Long orderlinId, Long serviceId, String sentMessage,String recievedMessage,String hardwareId,Date startDate,
+			Date endDate,Date sentDate,Date recievedDate,char isDeleted,String requestType) {
          
 	          this.orderlinId=orderlinId;
 	          this.serviceId=serviceId;
 	          this.sentMessage=sentMessage;
 	          this.receiveMessage=recievedMessage;
 	          this.isDeleted=isDeleted;
-	         
+	          this.requestType=requestType;
 	          this.hardwareId=hardwareId;
 	          this.startDate=startDate;
 	          this.endDate=endDate;

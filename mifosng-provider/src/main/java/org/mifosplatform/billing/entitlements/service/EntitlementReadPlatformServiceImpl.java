@@ -31,17 +31,20 @@ public class EntitlementReadPlatformServiceImpl implements
 	}
 
 	@Override
-	public List<EntitlementsData> getProcessingData(Long id) {
+	public List<EntitlementsData> getProcessingData(Long id,String provisioningSys) {
 		// TODO Auto-generated method stub
 		String sql = "";
 		ServicesMapper mapper = new ServicesMapper();
-		if (id == null) {
-			sql = "select " + mapper.schema();
-		} else {
-			sql = "select " + mapper.schema() + " and pr.id limit " + id;
+		
+		sql = "select " + mapper.schema();
+		if (id != null) {
+			sql = "select " + mapper.schema()+ " and pr.id limit " + id;
+		} else if(provisioningSys != null){
+			sql = "select " + mapper.schema()+ " and p.provisioing_system " + provisioningSys;
 		}
-		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,
-				new Object[] {});
+		
+		
+		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,new Object[] {});
 
 		return detailsDatas;
 	}

@@ -15,6 +15,7 @@ public class AssociationData {
 		
 		private String provisionNumber;
 		private Long saleId;
+		private Long itemId;
 		
 	
 	public AssociationData(Long orderId,Long id, String planCode, String itemCode,String serialNum,Long planId) {
@@ -36,7 +37,7 @@ public class AssociationData {
 	}
 
 	public AssociationData(Long orderId, String planCode, String provisionNumber,Long id, Long planId, Long clientId, 
-			String serialNum, String itemCode, Long saleId) {
+			String serialNum, String itemCode, Long saleId, Long itemId) {
 		this.orderId=orderId;
 		this.planCode=planCode;
 		this.serialNum=serialNum;
@@ -46,6 +47,7 @@ public class AssociationData {
 		this.provisionNumber=provisionNumber;
 		this.itemCode=itemCode;
 		this.saleId=saleId;
+		this.itemId=itemId;
 	}
 	
 	public AssociationData(Long planId, String planCode, Long id) {

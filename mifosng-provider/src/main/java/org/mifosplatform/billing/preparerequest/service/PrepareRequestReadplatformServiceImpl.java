@@ -13,10 +13,12 @@ import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderLine;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
+import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.billing.scheduledjobs.service.JobParametersConstants;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
@@ -82,7 +84,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 			return " pr.id AS id,pr.client_id AS clientId,pr.order_id AS orderId,pr.provisioning_sys AS provisioningSystem,c.firstname AS userName," +
 					"p.is_hw_req AS hwRequired,pw.plan_code AS planName,pr.request_type AS requestType FROM b_prepare_request pr,m_client c,b_hw_plan_mapping pw," +
 					" b_orders o,b_association asoc,b_plan_master p  WHERE pr.client_id = c.id  AND o.plan_id = p.id  AND p.plan_code = pw.plan_code  AND pr.order_id = o.id" +
-					" AND o.id=asoc.order_id  AND (pr.is_provisioning = 'N' OR pr.status = 'PENDING')  GROUP BY pr.order_id DESC";
+					" AND o.id=asoc.order_id  AND (pr.is_provisioning = 'N' OR pr.status = 'PENDING') ";
 
 			}
 
@@ -139,45 +141,50 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 			@Override
 			public void processingClientDetails(PrepareRequestData requestData) {
 
-				
-					
-				/*	 final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default");
-				        ThreadLocalContextUtil.setTenant(tenant);*/
-				        
+					String requestType=null;			        
 					  Order order=this.orderRepository.findOne(requestData.getOrderId());
 					 AllocationDetailsData detailsData=this.allocationReadPlatformService.getTheHardwareItemDetails(requestData.getOrderId());
 					 
+					 requestType=requestData.getRequestType();
 					 if(requestData.getIshardwareReq().equalsIgnoreCase("Y") && detailsData == null){
 						 
-						  PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
-						  
+						      PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
 						      String status=OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getValue().toString();
-         	                         prepareRequest.setStatus(status);
-	                             this.prepareRequsetRepository.save(prepareRequest);
+         	                  prepareRequest.setStatus(status);
+	                          this.prepareRequsetRepository.save(prepareRequest);
 	                         
 	                         //Update Order Status
 	                         order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 	                         this.orderRepository.saveAndFlush(order);
 						 
-					 }else if(requestData.getProvisioningSystem().equalsIgnoreCase(PROVISIONGSYS_COMVENIENT)){
+					 }else {
 
 						 ProcessRequest processRequest=new ProcessRequest(order.getClientId(), order.getId(), requestData.getProvisioningSystem(),
-								 'N',requestData.getUserName(),requestData.getRequestType(),requestData.getRequestId());
+								 'N',requestData.getUserName(),requestType,requestData.getRequestId());
 					  
 					          List<OrderLine> orderLineData=order.getServices();
-					          for(OrderLine orderLine:orderLineData){
-						  
-						  //ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),"Sent","Recieved",'N');
-						  String HardWareId=null;
+					          
+					       for(OrderLine orderLine:orderLineData){
+						    String HardWareId=null;
 						  if(detailsData!=null){
 							  HardWareId=detailsData.getSerialNo();
 						  }
 						  
 						  ProvisionServiceDetails provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+						
 						  if(provisionServiceDetails!=null){
 							  
+                              if(requestData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DEVICE_SWAP.toString())){
+                            	  
+                            	   requestType=UserActionStatusTypeEnum.ACTIVATION.toString();
+                            		 AllocationDetailsData allocationDetailsData=this.allocationReadPlatformService.getDisconnectedHardwareItemDetails(requestData.getOrderId(),requestData.getClientId());
+                            		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
+                            				 allocationDetailsData.getSerialNo(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.DISCONNECTION.toString());
+                            		 processRequest.add(processRequestDetails);
+                              }
+                           
 						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
-								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N');
+								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
 						  processRequest.add(processRequestDetails);
 						  }
 					  }
@@ -185,18 +192,15 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 	                       PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
                            prepareRequest.updateProvisioning();
                            this.prepareRequsetRepository.save(prepareRequest);
-                         //UPdate Order Status After Activating the Order
-                         //  order.setStatus(StatusTypeEnum.ACTIVE.getValue().longValue());
-                          // this.orderRepository.save(order);
+                         
                            
-				}
+				  }
 					 if(requestData.getProvisioningSystem().equalsIgnoreCase("None")){
 						 order.setStatus(new Long(1));
 						 this.orderRepository.save(order);
 					 }
 	              
 				}
-
 
 			@Override
 			public List<Long> getPrepareRequestDetails(Long id) {
