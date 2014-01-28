@@ -241,7 +241,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				for (int i = 0; i < MessageColumndata.size(); i++) {
 					data.add(i, MessageColumndata.get(i).toString());
 				}
-				if (n > 0 && data.size() >0 && n==data.size()-1) {	
+				if (n==data.size()-1) {	
 					for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
 						String name = param.get(i).getParameter();
 						String value = data.get(k).toString();
