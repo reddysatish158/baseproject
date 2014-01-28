@@ -32,6 +32,7 @@ import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSourc
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -51,14 +52,13 @@ public class BillingMesssageReadPlatformServiceImpl implements
 	private static ProcessRequestRepository processRequestRepository;
 	private static Long messageId;
 	private static String messagingType;
+	private static BillingMesssageReadPlatformService billingMesssageReadPlatformService;
 
 	@Autowired
 	public BillingMesssageReadPlatformServiceImpl(
-			final PlatformSecurityContext context,
-			final TenantAwareRoutingDataSource dataSource,
-			MessageDataRepository messageDataRepository,
-			final FromJsonHelper fromApiJsonHelper,final ProcessRequestRepository processRequestRepository,
-			BillingMessageTemplateRepository messageTemplateRepository) {
+			final PlatformSecurityContext context,final TenantAwareRoutingDataSource dataSource,
+			final MessageDataRepository messageDataRepository,final FromJsonHelper fromApiJsonHelper,
+			final ProcessRequestRepository processRequestRepository,final BillingMessageTemplateRepository messageTemplateRepository) {
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.fromApiJsonHelper = fromApiJsonHelper;
@@ -174,15 +174,14 @@ public class BillingMesssageReadPlatformServiceImpl implements
 
 	// for messageData
 	@Override
-	public List<BillingMessageData> retrieveData(Long id, String query,
-			BillingMessageData templateData,
-			List<BillingMessageData> messageparam) {
+	public List<BillingMessageData> retrieveData(Long id, String query,BillingMessageData templateData,
+			List<BillingMessageData> messageparam,BillingMesssageReadPlatformService billingMesssageReadPlatformService) {
 		// TODO Auto-generated method stub
 		// context.authenticatedUser();
 		this.messageparam = messageparam;
 		this.templateData = templateData;
 		this.messageId = id;
-
+        this.billingMesssageReadPlatformService=billingMesssageReadPlatformService;
 		BillingMessageDataMapper mapper = new BillingMessageDataMapper();
 
 		return this.jdbcTemplate.query(query, mapper, new Object[] {});
@@ -259,7 +258,8 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				}else{
 					handleCodeDataIntegrityIssues(); 
 				}
-				if (messgeType=='E' || messgeType=='M') {					
+				if (messgeType=='E' || messgeType=='M') {
+					
 						 String messageTo = data.get(0).toString();
 						 BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
 						 BillingMessage billingMessage = new BillingMessage(header,body, footer, messageFrom,
@@ -268,8 +268,10 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				}					    
 		            
 				if (messgeType=='O') {	
-			             String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();		            	
-			             Long clientId=Long.parseLong(data.get(1).toString());
+					
+			             String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();		            				            
+			             Long clientId=billingMesssageReadPlatformService.retrieveClientId(data.get(0).toString());
+			             
 			             ProcessRequest processRequest = new ProcessRequest(clientId,
 			 						new Long(0),"Comvenient", 'N', null, requstStatus,new Long(0));
 			 				
@@ -387,6 +389,16 @@ public class BillingMesssageReadPlatformServiceImpl implements
 	        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
 	                "Unknown data integrity issue with resource: message params count is lessthan or greaterthan to sending query parameters count ");
 		
+	}
+	
+	@Override
+	public Long retrieveClientId(String hardwareId) {
+		try{			
+		    String sql = "select b.client_id as clientId from b_item_detail b where b.provisioning_serialno = '"+hardwareId+"' ";
+		    return jdbcTemplate.queryForLong(sql);
+		} catch(EmptyResultDataAccessException e){
+			return null;
+		}
 	}
 
 }
