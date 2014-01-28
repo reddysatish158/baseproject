@@ -1,7 +1,6 @@
 package org.mifosplatform.billing.clientbalance.handler;
 
 import org.mifosplatform.billing.clientbalance.service.ClientBalanceWritePlatformService;
-import org.mifosplatform.billing.clientprospect.service.ClientProspectWritePlatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;

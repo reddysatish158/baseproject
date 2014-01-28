@@ -123,11 +123,13 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 				return null;
         	    
 	       }catch (DataIntegrityViolationException  e) {
+
 	    	  if(e.toString().contains("receipt_no")){
 		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);	    	     	 
 		    	  throw new ReceiptNoDuplicateException(receiptNo);	    	  	    	  
 	    	  }else{
 	    		  return null;
+
 	    	  }
 		   }catch (ReceiptNoDuplicateException  e) {
 		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);

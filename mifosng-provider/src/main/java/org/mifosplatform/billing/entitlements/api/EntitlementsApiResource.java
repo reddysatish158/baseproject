@@ -74,10 +74,11 @@ public class EntitlementsApiResource {
 	@GET
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-   public String retrievedata(@QueryParam("no") final Long No,	@Context final UriInfo uriInfo)
+   public String retrievedata(@QueryParam("no") final Long No,@QueryParam("provisioningSystem") final String provisioningSystem,
+		                     @Context final UriInfo uriInfo)
 	{
 	       context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	        List<EntitlementsData> data=this.entitlementReadPlatformService.getProcessingData(No);
+	        List<EntitlementsData> data=this.entitlementReadPlatformService.getProcessingData(No,provisioningSystem);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 	}

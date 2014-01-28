@@ -17,12 +17,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+
 import org.mifosplatform.billing.contract.data.PeriodData;
 import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
+import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
+import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.billing.promotioncodes.data.PromotionCodeData;
 import org.mifosplatform.billing.promotioncodes.service.PromotionCodeReadPlatformService;
+import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -41,28 +45,31 @@ import org.springframework.stereotype.Component;
 public class PromotionCodesApiResource {
 	
 	
-	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "action","event","process"));
-	 private final String resourceNameForPermissions = "EVENTACTIONMAP";
+	  private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "action","event","process"));
+	  private final String resourceNameForPermissions = "EVENTACTIONMAP";
 	  private final PlatformSecurityContext context;
-	    private final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer;
-	   // private final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1;
-	    private final ApiRequestParameterHelper apiRequestParameterHelper;
-	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-	    private final PromotionCodeReadPlatformService promotionCodeReadPlatformService;
-	    private final MCodeReadPlatformService mCodeReadPlatformService;
-	    private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
+	  private final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer;
+	  private final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1;
+	  private final ApiRequestParameterHelper apiRequestParameterHelper;
+	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	  private final PromotionCodeReadPlatformService promotionCodeReadPlatformService;
+	  private final MCodeReadPlatformService mCodeReadPlatformService;
+	  private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	    
 	    @Autowired
 	    public PromotionCodesApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer,
 	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-	    		final MCodeReadPlatformService codeReadPlatformService,
+	    		final EventActionMappingReadPlatformService eventActionMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService,
+	    		final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1,final MCodeReadPlatformService codeReadPlatformService,
 	    		final PromotionCodeReadPlatformService promotionCodeReadPlatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
+
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.mCodeReadPlatformService=codeReadPlatformService;
 		        this.promotionCodeReadPlatformService =promotionCodeReadPlatformService;
+		        this.toApiJsonSerializer1=toApiJsonSerializer1;
 		        this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 		    }		
 	    
@@ -87,6 +94,7 @@ public class PromotionCodesApiResource {
 			Collection<MCodeData> discountTypeData = mCodeReadPlatformService.getCodeValue("type");
 			List<PeriodData> contractTypedata=contractPeriodReadPlatformService.retrieveAllPlatformPeriod();
 			PromotionCodeData  data= new PromotionCodeData(discountTypeData,contractTypedata);
+
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 		

@@ -266,6 +266,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			    		   if(!allocationDetailsDatas.isEmpty())
 			    		   {
 			    				this.associationWriteplatformService.createNewHardwareAssociation(clientId,plan.getId(),allocationDetailsDatas.get(0).getSerialNo(),order.getId());
+			    				
 			    				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Implicit Association", new Date(),"Serial No:"
 			    				+allocationDetailsDatas.get(0).getSerialNo(),"Item:"+allocationDetailsDatas.get(0).getItemDescription(),"Plan Code:"+plan.getPlanCode());
 			    				
@@ -694,11 +695,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 						if (message == null) {
 							message = provisionServiceDetails.getServiceIdentification();
 						}
-						ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
-								orderLine.getId(), orderLine.getServiceId(),
-								message, "Recieved", HardWareId,
-								order.getStartDate(), order.getEndDate(), null,
-								null, 'N');
+						ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(orderLine.getId(), orderLine.getServiceId(),message, "Recieved",
+								HardWareId,order.getStartDate(), order.getEndDate(), null,null, 'N',requstStatus);
 						processRequest.add(processRequestDetails);
 					}
 				}
@@ -751,7 +749,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		}
 		
 	}
-
+    
+	@Transactional
 	@Override
 	public CommandProcessingResult applyPromo(JsonCommand command) {
 		
@@ -759,6 +758,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			String username=this.context.authenticatedUser().getUsername();
 			this.fromApiJsonDeserializer.validateForPromo(command.json());			
 			final Long promoId=command.longValueOfParameterNamed("promoId");
+			final LocalDate startDate=command.localDateValueOfParameterNamed("startDate");
 			
 			Promotion promotion=this.promotionRepository.findOne(promoId);
 			if(promotion == null){
@@ -766,7 +766,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			}
 			Order order=this.orderRepository.findOne(command.entityId());
 			List<OrderDiscount> orderDiscounts=order.getOrderDiscount();
-			LocalDate enddate=this.calculateEndDate(new LocalDate(),promotion.getDurationType(),promotion.getDuration());
+			LocalDate enddate=this.calculateEndDate(startDate,promotion.getDurationType(),promotion.getDuration());
 			for(OrderDiscount orderDiscount:orderDiscounts){
 				   
 				orderDiscount.updateDates(promotion.getDiscountRate(),promotion.getDiscountType(),enddate);

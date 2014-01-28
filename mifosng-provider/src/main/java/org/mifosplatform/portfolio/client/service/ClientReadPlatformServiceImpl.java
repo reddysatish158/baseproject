@@ -332,11 +332,12 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String hwSerial = rs.getString("HW_Serial");
             final BigDecimal clientBalance = rs.getBigDecimal("balanceAmount");
             final String currency=rs.getString("currency");
+           
 
             return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode, clientBalance,hwSerial,currency);
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode,
+                    clientBalance,hwSerial,currency);
         }
-
     }
 
     private static final class ParentGroupsMapper implements RowMapper<GroupGeneralData> {

@@ -275,9 +275,8 @@ public class BillingMesssageReadPlatformServiceImpl implements
 			 				
 			 			 processRequest.setNotify();
 			 			 Long id=new Long(0);
-			 			 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
-			 						id, id,body, "Recieved", data.get(0).toString(),
-									new Date(), null, null,null, 'N');
+			 			 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(id, id,body, "Recieved", data.get(0).toString(),
+									new Date(), null, null,null, 'N',requstStatus);
 						 processRequest.add(processRequestDetails);
 						 processRequestRepository.save(processRequest);
 				}

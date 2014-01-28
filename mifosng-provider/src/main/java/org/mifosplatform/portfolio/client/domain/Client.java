@@ -132,13 +132,13 @@ public final class Client extends AbstractPersistable<Long> {
 	    if(email.isEmpty()){
 	    	email=null;
 	    }
-        ClientStatus status =  ClientStatus.ACTIVE;
+        ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
 
         LocalDate activationDate = null;
         if (active) {
-            status = ClientStatus.ACTIVE;
+            status = ClientStatus.NEW;
             activationDate =new LocalDate(); //command.localDateValueOfParameterNamed(ClientApiConstants.activationDateParamName);
         }
 
@@ -266,11 +266,11 @@ public final class Client extends AbstractPersistable<Long> {
     }
 
     public boolean isNotPending() {
-        return !isPending();
+        return !isNew();
     }
 
-    public boolean isPending() {
-        return ClientStatus.fromInt(this.status).isPending();
+    public boolean isNew() {
+        return ClientStatus.fromInt(this.status).isNew();
     }
 
     private boolean isDateInTheFuture(final LocalDate localDate) {
@@ -545,6 +545,11 @@ public final class Client extends AbstractPersistable<Long> {
 	}
 	public void setOffice(Office office) {
 		this.office = office;
+	}
+
+	public void setStatus(Integer status) {
+		this.status=status;
+		
 	}
     
 }

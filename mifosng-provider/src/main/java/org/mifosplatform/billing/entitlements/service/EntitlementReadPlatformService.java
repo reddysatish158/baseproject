@@ -10,7 +10,7 @@ import org.mifosplatform.billing.entitlements.data.StakerData;
 public interface EntitlementReadPlatformService {
 	
 
-	List<EntitlementsData> getProcessingData(Long id);
+	List<EntitlementsData> getProcessingData(Long id, String provisioningSystem);
 
 	ClientEntitlementData getClientData(Long clientId);
 

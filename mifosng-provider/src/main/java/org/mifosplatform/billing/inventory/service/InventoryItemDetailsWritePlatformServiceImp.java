@@ -246,15 +246,17 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 								throw new PlatformDataIntegrityException("invalid.serial.no", "invalid.serial.no","serialNumber");
 							}
 														
-							if(allocationHardwareData.getClientId()!=null){
+							if(allocationHardwareData.getClientId()!=null && allocationHardwareData.getClientId()!=0){
+								
 								if(allocationHardwareData.getClientId()>0){
 									throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);	
+								
 								}else{
 									if(!allocationHardwareData.getQuality().equalsIgnoreCase("Good")){
 										throw new PlatformDataIntegrityException("product.not.in.good.condition", "product.not.in.good.condition","product.not.in.good.condition");
 					        		}
 								}
-								throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);
+								//throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);
 							}
 							}catch(EmptyResultDataAccessException e){
 								throw new PlatformDataIntegrityException("SerialNumber SerialNumber"+i+" doest not exist.","SerialNumber SerialNumber"+i+" doest not exist.","serialNumber"+i);
@@ -383,9 +385,9 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   
         	   String serialNo=command.stringValueOfParameterNamed("serialNo");
         	   Long clientId=command.longValueOfParameterNamed("clientId");
-        	    List<OrderData> orderDatas=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId);
+        	 Long activeorders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId,serialNo);
         	   
-        	   if(!orderDatas.isEmpty()){
+        	   if(activeorders!= 0){
         		   throw new ActivePlansFoundException();
         	   }
         	   List<AssociationData> associationDatas=this.associationReadplatformService.retrieveClientAssociationDetails(clientId);
@@ -398,8 +400,18 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   
         	   InventoryItemDetailsAllocation inventoryItemDetailsAllocation=this.deAllocateHardware(serialNo, clientId);
         	   
+        	   OneTimeSale oneTimeSale=this.oneTimeSaleRepository.findOne(inventoryItemDetailsAllocation.getOrderId());
+        	   
+        	   oneTimeSale.setStatus();
+        	   this.oneTimeSaleRepository.save(oneTimeSale);
+        	   String itemCode=null;
+        	   if(!associationDatas.isEmpty()){
+        		   itemCode=associationDatas.get(0).getItemCode();
+        	   }else{
+        		   itemCode=oneTimeSale.getItemId().toString();
+        	   }
         		transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "RETURN DEVICE", new Date(),"Serial Number :"
-	    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+associationDatas.get(0).getItemCode(),"Order Id: "+inventoryItemDetailsAllocation.getOrderId());
+	    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+itemCode,"Order Id: "+inventoryItemDetailsAllocation.getOrderId());
         	   
         	   return new CommandProcessingResult(command.entityId());
            }catch(DataIntegrityViolationException exception){
