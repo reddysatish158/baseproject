@@ -81,7 +81,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 	
 	private final SheduleJobReadPlatformService sheduleJobReadPlatformService;
 	private final InvoiceClient invoiceClient;
-	private final PlatformSecurityContext context;
 	private final BillingMasterApiResourse billingMasterApiResourse;
 	private final OrderWritePlatformService orderWritePlatformService;
 	private final FromJsonHelper fromApiJsonHelper;
@@ -114,7 +113,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
 			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final PlatformSecurityContext context,final OrderRepository orderRepository) {
+			final OrderRepository orderRepository) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -136,7 +135,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.scheduleJob=scheduleJob;
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
-		this.context=context;
 		this.orderRepository=orderRepository;
 	}
 	
@@ -154,13 +152,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 			
 			Date date=new Date();  
 			String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
-			 String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+
+			String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+
 			 "_"+dateTime+".log";
-			 File fileHandler = new File(path.trim());
-			 fileHandler.createNewFile();
-			 FileWriter fw = new FileWriter(fileHandler);
-		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-		     List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+			File fileHandler = new File(path.trim());
+			fileHandler.createNewFile();
+			FileWriter fw = new FileWriter(fileHandler);
+		    FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+		    List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
 					    
 		    	         if(sheduleDatas.isEmpty()){
 				 				fw.append("ScheduleJobData Empty \r\n");
@@ -173,7 +171,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	 			if(clientIds.isEmpty()){
 		    	 				fw.append("Invoicing clients are not found \r\n");
 		    	 			}
-		    	 			
 		    	 			else{
 		    	 				fw.append("Invoicing the clients..... \r\n");
 		    	 			}
@@ -199,9 +196,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	    	 fw.append("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier()+"\r\n");
 		    	    	 fw.flush();
 		    	    	 fw.close();
-		    	    	 
 		    	 		System.out.println("Invoices are Generated....."+ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-		    	
 		    }
 	
 	}catch(DataIntegrityViolationException exception)
@@ -212,7 +207,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 	}
 	}
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
-
 	}
 
 	@Transactional
@@ -234,7 +228,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
 			    fw.append("Processing Request Details.......");
-
 			    for (PrepareRequestData requestData : data) {
 			    	
 					fw.append("Prepare Request id="+requestData.getRequestId()+" ,clientId="+requestData.getClientId()+" ,orderId="
@@ -250,10 +243,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 			}
 			
 			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-			
-		} catch (DataIntegrityViolationException exception) {
+		} catch (Exception exception) {
 
-		} catch (IOException exception) {
+		
 			exception.printStackTrace();
 		}
 	}
@@ -469,12 +461,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			     
 			    fw.append("Processing Auto Exipiry Details....... \r\n");
 			      
 				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
 				LocalDate exipirydate=null;
-				
 				if(sheduleDatas.isEmpty()){
 	 				fw.append("ScheduleJobData Empty \r\n");
 	 		    }
@@ -571,13 +561,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    	fw.close();
 				
 		}
-            
             System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		
 		} 
 		}catch (Exception dve) {
 			handleCodeDataIntegrityIssues(null, dve);
-
 		}
 	}
 
