@@ -31,21 +31,22 @@ public class EntitlementReadPlatformServiceImpl implements
 	}
 	
 	@Override
-	 public List<EntitlementsData> getProcessingData(Long id,String provisioningSys) {
-	  // TODO Auto-generated method stub
-	  String sql = "";
-	  ServicesMapper mapper = new ServicesMapper();
-	  sql = "select " + mapper.schema();
-	  
-	  if(provisioningSys != null){
-	   sql = sql + " and p.provisioing_system = '" + provisioningSys + "' ";
-	  }
-	  if (id != null) {
-	   sql = sql + " and pr.id limit " + id;
-	  } 
-	  List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,new Object[] {});
-	  return detailsDatas;
-	 }
+
+	public List<EntitlementsData> getProcessingData(Long id,String provisioningSys) {
+		// TODO Auto-generated method stub
+		String sql = "";
+		ServicesMapper mapper = new ServicesMapper();		
+		sql = "select " + mapper.schema();		
+		if(provisioningSys != null){
+			sql = sql + " and p.provisioing_system = '" + provisioningSys + "' ";
+		}		
+		if (id != null) {
+			sql = sql + " and pr.id limit " + id;
+		} 				
+		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,new Object[] {});
+		return detailsDatas;
+	}
+
 
 	protected static final class ServicesMapper implements
 			RowMapper<EntitlementsData> {
