@@ -262,7 +262,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final LocalDate activationDate = JdbcSupport.getLocalDate(rs, "activationDate");
             final String imageKey = rs.getString("imageKey");
             final String officeName = rs.getString("officeName");
-            final Long categoryType=rs.getLong("categoryType");
+            final String categoryType=rs.getString("categoryType");
             final String email = rs.getString("email");
             final String phone = rs.getString("phone");
             final String homePhoneNumber = rs.getString("homePhoneNumber");
@@ -291,8 +291,8 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("from m_client c ");
             builder.append("join m_office o on o.id = c.office_id ");
             builder.append("left outer join b_client_balance b on  b.client_id = c.id ");
-            builder.append("left outer join b_client_balance b on  b.client_id = c.id ");
-            builder.append("left outer join  m_code_value mc on  mc.id =c.category_type ");
+            builder.append("left outer join  m_code_value mc on  mc.id =c.category_type  ");
+            builder.append("left outer join b_client_address a on  a.client_id = c.id ");
             builder.append("left outer join b_country_currency bc on  bc.country = a.country ");
             this.schema = builder.toString();
         }
@@ -320,7 +320,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final LocalDate activationDate = JdbcSupport.getLocalDate(rs, "activationDate");
             final String imageKey = rs.getString("imageKey");
             final String officeName = rs.getString("officeName");
-            final Long categoryType=rs.getLong("categoryType");
+            final String categoryType=rs.getString("categoryType");
             final String email = rs.getString("email");
             final String phone = rs.getString("phone");
             final String homePhoneNumber = rs.getString("homePhoneNumber");

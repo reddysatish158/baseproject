@@ -310,7 +310,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
 	                		+detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
 					ProcessRequest processRequest = this.processRequestRepository.findOne(detailsData.getId());
-					processRequest.setProcessStatus();
+					processRequest.setProcessStatus('Y');
 					this.processRequestRepository.save(processRequest);
 	
 				}

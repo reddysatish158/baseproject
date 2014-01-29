@@ -8,14 +8,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.DataBindingException;
-
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.media.domain.MediaEnum;
 import org.mifosplatform.billing.media.domain.MediaTypeEnumaration;
 import org.mifosplatform.billing.message.data.BillingMessageData;
 import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
@@ -28,23 +24,18 @@ import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
-import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
-import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-
-import com.google.gson.JsonElement;
 
 @Service
 public class BillingMesssageReadPlatformServiceImpl implements
@@ -210,7 +201,6 @@ public class BillingMesssageReadPlatformServiceImpl implements
 		public BillingMessageData mapRow(ResultSet rs, int rowNum)
 				throws SQLException {
 
-
 			try {
 				Date date = new Date();
 				String dateTime = date.getHours() + "" + date.getMinutes() + ""+ date.getSeconds();
@@ -305,7 +295,6 @@ public class BillingMesssageReadPlatformServiceImpl implements
 									data.get(0).toString(), new Date(), null, null,null, 'N', requstStatus);
 							processRequest.add(processRequestDetails);
 							processRequestRepository.save(processRequest);
-
 						}
 						else{
 							fw.append("rowNo:"+j+" failed and provisioningSerialNo is= "+data.get(0).toString()+ " . \r\n");
