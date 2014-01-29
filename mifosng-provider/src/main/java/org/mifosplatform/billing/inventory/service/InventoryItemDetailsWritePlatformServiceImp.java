@@ -245,19 +245,19 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 							if(allocationHardwareData == null){
 								throw new PlatformDataIntegrityException("invalid.serial.no", "invalid.serial.no","serialNumber");
 							}
+							
+							if(!allocationHardwareData.getQuality().equalsIgnoreCase("Good")){
+								throw new PlatformDataIntegrityException("product.not.in.good.condition", "product.not.in.good.condition","product.not.in.good.condition");
+			        		}
 														
 							if(allocationHardwareData.getClientId()!=null && allocationHardwareData.getClientId()!=0){
 								
 								if(allocationHardwareData.getClientId()>0){
 									throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);	
 								
-								}else{
-									if(!allocationHardwareData.getQuality().equalsIgnoreCase("Good")){
-										throw new PlatformDataIntegrityException("product.not.in.good.condition", "product.not.in.good.condition","product.not.in.good.condition");
-					        		}
-								}
+								
 								//throw new PlatformDataIntegrityException("SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+" already allocated.", "SerialNumber "+inventoryItemDetailsAllocation.getSerialNumber()+ "already allocated.","serialNumber"+i);
-							}
+								}}
 							}catch(EmptyResultDataAccessException e){
 								throw new PlatformDataIntegrityException("SerialNumber SerialNumber"+i+" doest not exist.","SerialNumber SerialNumber"+i+" doest not exist.","serialNumber"+i);
 							}

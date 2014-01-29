@@ -102,4 +102,58 @@ public class ProcessRequestDetails extends
 		}
 	}
 
+	public ProcessRequest getProcessRequest() {
+		return processRequest;
+	}
+
+	public Long getOrderlinId() {
+		return orderlinId;
+	}
+
+	public Long getServiceId() {
+		return serviceId;
+	}
+
+	public String getSentMessage() {
+		return sentMessage;
+	}
+
+	public String getReceiveMessage() {
+		return receiveMessage;
+	}
+
+	public char getIsDeleted() {
+		return isDeleted;
+	}
+
+	public String getHardwareId() {
+		return hardwareId;
+	}
+
+	public String getReceivedStatus() {
+		return receivedStatus;
+	}
+
+	public String getRequestType() {
+		return requestType;
+	}
+
+	public Date getSentDate() {
+		return sentDate;
+	}
+
+	public Date getReceivedDate() {
+		return receivedDate;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	
+
 }
