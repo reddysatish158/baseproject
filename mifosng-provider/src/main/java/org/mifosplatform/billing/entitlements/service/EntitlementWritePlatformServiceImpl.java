@@ -41,7 +41,7 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 		}
 		List<ProcessRequestDetails> details=request.getProcessRequestDetails();
 		
-		for(ProcessRequestDetails processRequestDetails:details){			   
+		for(ProcessRequestDetails processRequestDetails:details){			    
 			 	processRequestDetails.updateStatus(command);
 		}
 		
