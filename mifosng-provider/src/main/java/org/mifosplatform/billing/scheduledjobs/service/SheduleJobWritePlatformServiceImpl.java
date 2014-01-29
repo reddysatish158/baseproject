@@ -431,7 +431,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
 		    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
 	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
-		    	   fw.append("Selected Message Template Name is :" +data.getDefaultValue()+" \r\n");
+		    	   fw.append("Selected Message Template Name is :" +data.getMessageTemplate()+" \r\n");
 				   Long messageId = this.sheduleJobReadPlatformService.getMessageId(data.getMessageTemplate());
 				   fw.append("Selected Message Template id is :" +messageId+" \r\n");
 					if(messageId!=null){
