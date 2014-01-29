@@ -54,12 +54,10 @@ public class ReportsApiResource {
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
 
 	@Autowired
-	public ReportsApiResource(
-			final PlatformSecurityContext context,
-			final ReadReportingService readReportingService,
-			final ToApiJsonSerializer<ReportData> toApiJsonSerializer,
-			PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+	public ReportsApiResource(final PlatformSecurityContext context,final ReadReportingService readReportingService,
+			final ToApiJsonSerializer<ReportData> toApiJsonSerializer,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 			final ApiRequestParameterHelper apiRequestParameterHelper) {
+		
 		this.context = context;
 		this.readReportingService = readReportingService;
 		this.toApiJsonSerializer = toApiJsonSerializer;
@@ -72,40 +70,26 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveReportList(@Context final UriInfo uriInfo) {
 
-		context.authenticatedUser().validateHasReadPermission(
-				resourceNameForPermissions);
-
-		final Collection<ReportData> result = this.readReportingService
-				.retrieveReportList();
-
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper
-				.process(uriInfo.getQueryParameters());
-		return this.toApiJsonSerializer.serialize(settings, result,
-				RESPONSE_DATA_PARAMETERS);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		final Collection<ReportData> result = this.readReportingService.retrieveReportList();
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, result,RESPONSE_DATA_PARAMETERS);
 	}
 
 	@GET
 	@Path("{id}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String retrieveReport(@PathParam("id") final Long id,
-			@Context final UriInfo uriInfo) {
+	public String retrieveReport(@PathParam("id") final Long id,@Context final UriInfo uriInfo) {
 
-		context.authenticatedUser().validateHasReadPermission(
-				resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 
-		final ReportData result = this.readReportingService
-				.retrieveReport(id);
-
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper
-				.process(uriInfo.getQueryParameters());
-
+		final ReportData result = this.readReportingService.retrieveReport(id);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		if (settings.isTemplate()) {
-			result.appendedTemplate(this.readReportingService
-					.getAllowedParameters());
+			result.appendedTemplate(this.readReportingService.getAllowedParameters());
 		}
-		return this.toApiJsonSerializer.serialize(settings, result,
-				RESPONSE_DATA_PARAMETERS);
+		return this.toApiJsonSerializer.serialize(settings, result,RESPONSE_DATA_PARAMETERS);
 	}
 
 	@GET
@@ -114,17 +98,12 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveOfficeTemplate(@Context final UriInfo uriInfo) {
 
-		context.authenticatedUser().validateHasReadPermission(
-				resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 
 		ReportData result = new ReportData();
-		result.appendedTemplate(this.readReportingService
-				.getAllowedParameters());
-
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper
-				.process(uriInfo.getQueryParameters());
-		return this.toApiJsonSerializer.serialize(settings, result,
-				RESPONSE_DATA_PARAMETERS);
+		result.appendedTemplate(this.readReportingService.getAllowedParameters());
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, result,RESPONSE_DATA_PARAMETERS);
 	}
 
 	@POST
@@ -132,12 +111,8 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String createReport(final String apiRequestBodyAsJson) {
 
-		final CommandWrapper commandRequest = new CommandWrapperBuilder()
-				.createReport().withJson(apiRequestBodyAsJson).build();
-
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService
-				.logCommandSource(commandRequest);
-
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createReport().withJson(apiRequestBodyAsJson).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}
 
@@ -148,12 +123,8 @@ public class ReportsApiResource {
 	public String updateReport(@PathParam("id") final Long id,
 			final String apiRequestBodyAsJson) {
 
-		final CommandWrapper commandRequest = new CommandWrapperBuilder()
-				.updateReport(id).withJson(apiRequestBodyAsJson).build();
-
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService
-				.logCommandSource(commandRequest);
-
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().updateReport(id).withJson(apiRequestBodyAsJson).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}
 
@@ -163,12 +134,8 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String deleteReport(@PathParam("id") final Long id) {
 
-		final CommandWrapper commandRequest = new CommandWrapperBuilder()
-				.deleteReport(id).build();
-
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService
-				.logCommandSource(commandRequest);
-
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteReport(id).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}
 

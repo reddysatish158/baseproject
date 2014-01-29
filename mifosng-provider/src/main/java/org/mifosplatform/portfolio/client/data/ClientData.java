@@ -66,7 +66,7 @@ final public class ClientData implements Comparable<ClientData> {
     private final Collection<OfficeData> officeOptions;
     
     private final Collection<ClientCategoryData> clientCategoryDatas;
-	private final Long categoryType;
+	private final String categoryType;
 	private AddressData addressTemplateData;
     private final List<String> hardwareDetails;
     private GlobalConfigurationProperty configurationProperty;
@@ -110,7 +110,7 @@ final public class ClientData implements Comparable<ClientData> {
 
     public static ClientData instance(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName,final Long id, 
     		final String firstname, final String middlename, final String lastname, final String fullname,final String displayName, final String externalId,
-    		final LocalDate activationDate, final String imageKey,final Long categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,
+    		final LocalDate activationDate, final String imageKey,final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,
     		final String city,final String state,final String country,final String zip,final BigDecimal balanceAmount,final String hwSerialNumber,final String currency) {
     	
         return new ClientData(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
@@ -121,7 +121,7 @@ final public class ClientData implements Comparable<ClientData> {
     private ClientData(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName, final Long id,final String firstname,
     		final String middlename, final String lastname, final String fullname, final String displayName,final String externalId, final LocalDate activationDate, 
     		final String imageKey, final Collection<OfficeData> allowedOffices,final Collection<GroupGeneralData> groups, Collection<ClientCategoryData> clientCategoryDatas,
-    		final Long categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,final String state,
+    		final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,final String state,
     		final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,final String currency) {
         this.accountNo = accountNo;
         this.status = status;

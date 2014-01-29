@@ -325,9 +325,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			//For Order History
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Update Price",userId);
-	
 			this.orderHistoryRepository.save(orderHistory);
-		 
 		 
          return new CommandProcessingResultBuilder() //
          .withCommandId(command.commandId()) //
@@ -388,6 +386,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 
 		return new CommandProcessingResult(order.getId());
 	}
+	
     @Transactional
 	@Override
 	public CommandProcessingResult disconnectOrder(JsonCommand command,Long orderId ) {

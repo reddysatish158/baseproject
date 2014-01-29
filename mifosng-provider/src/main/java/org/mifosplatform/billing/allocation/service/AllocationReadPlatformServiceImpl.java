@@ -54,7 +54,7 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 			
 			public String clientDeAssociationLookupSchema() {
 				return " a.id AS id, a.order_id AS orderId,a.client_id AS clientId,i.provisioning_serialno as serialNum FROM b_association a, b_item_detail i  " +
-						" WHERE order_id = ? and a.hw_serial_no=i.serial_no AND a.id = (SELECT MAX(id) FROM b_association a WHERE  a.order_id =?  and a.is_deleted = 'Y')  limit 1";
+						" WHERE order_id = ? and a.hw_serial_no=i.serial_no AND a.id = (SELECT MAX(id) FROM b_association a WHERE  a.client_id =?  and a.is_deleted = 'Y')  limit 1";
 
 
 				}
