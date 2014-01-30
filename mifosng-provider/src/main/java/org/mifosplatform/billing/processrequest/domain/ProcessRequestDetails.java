@@ -95,11 +95,8 @@ public class ProcessRequestDetails extends
 	}
 
 	public void updateStatus(JsonCommand command) {
-		Long id = command.longValueOfParameterNamed("serviceId");
-		if (this.serviceId == id) {
-			this.receivedStatus = command.stringValueOfParameterNamed("receivedStatus");
-			this.receiveMessage = command.stringValueOfParameterNamed("receiveMessage");
-		}
+		this.receivedStatus = command.stringValueOfParameterNamed("receivedStatus");
+		this.receiveMessage = command.stringValueOfParameterNamed("receiveMessage");		
 	}
 
 	public ProcessRequest getProcessRequest() {
