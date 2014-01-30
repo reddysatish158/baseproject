@@ -57,19 +57,19 @@ public class EntitlementReadPlatformServiceImpl implements
 			Long id = rs.getLong("id");
 			Long serviceId = rs.getLong("serviceId");
 			String product = rs.getString("sentMessage");
-			Long prepareReqId = rs.getLong("prepareRequestId");
+			Long prdetailsId = rs.getLong("prdetailsId");
 			String requestType = rs.getString("requestType");
 			String hardwareId = rs.getString("hardwareId");
 			String provisioingSystem = rs.getString("provisioingSystem");
 			Long clientId = rs.getLong("clientId");
 
-			return new EntitlementsData(id, prepareReqId, requestType,
+			return new EntitlementsData(id, prdetailsId, requestType,
 					hardwareId, provisioingSystem, product, serviceId, clientId);
 
 		}
 
 		public String schema() {
-			return "p.id AS id,p.client_id as clientId,p.prepareRequest_id as prepareRequestId,p.provisioing_system as provisioingSystem,pr.service_id as serviceId, pr.sent_message as sentMessage,pr.hardware_id as hardwareId, pr.request_type AS requestType "
+			return "p.id AS id,p.client_id as clientId,p.provisioing_system as provisioingSystem,pr.service_id as serviceId,pr.id as prdetailsId, pr.sent_message as sentMessage,pr.hardware_id as hardwareId, pr.request_type AS requestType "
 					+ " FROM b_process_request p,b_process_request_detail pr WHERE p.id=pr.processrequest_id AND p.is_processed = 'N' ";
 		}
 

@@ -4,7 +4,7 @@ package org.mifosplatform.billing.entitlements.data;
 public class EntitlementsData {
 
 	private Long id;
-	private Long prepareReqId;
+	private Long prdetailsId;
 	private String requestType;
 	private String hardwareId;
 	private String provisioingSystem;
@@ -17,10 +17,10 @@ public class EntitlementsData {
 	
 	
 
-	public EntitlementsData(Long id,Long prepareReqId, String requestType, String hardwareId, String provisioingSystem, String product, Long serviceId, Long clientId) {
+	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product, Long serviceId, Long clientId) {
 		
           this.id=id;
-          this.prepareReqId=prepareReqId;
+          this.prdetailsId=prdetailsId;
           this.product=product;
           this.requestType=requestType;
           this.hardwareId=hardwareId;
@@ -37,9 +37,8 @@ public class EntitlementsData {
 		return id;
 	}
 
-
-	public Long getPrepareReqId() {
-		return prepareReqId;
+	public Long getPrdetailsId() {
+		return prdetailsId;
 	}
 
 	public String getRequestType() {

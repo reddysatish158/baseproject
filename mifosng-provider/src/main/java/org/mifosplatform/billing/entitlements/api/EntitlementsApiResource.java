@@ -16,6 +16,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mifosplatform.billing.entitlements.data.ClientEntitlementData;
 import org.mifosplatform.billing.entitlements.data.EntitlementsData;
 import org.mifosplatform.billing.entitlements.data.StakerData;
@@ -48,7 +50,6 @@ public class EntitlementsApiResource {
     private final String resourceNameForPermissions = "CREATE_ENTITLEMENT";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<EntitlementsData> toApiJsonSerializer;
-	private final DefaultToApiJsonSerializer<StakerData> toJsonSerializer;
 	private final DefaultToApiJsonSerializer<ClientEntitlementData> toSerializer;
    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
@@ -59,15 +60,14 @@ public class EntitlementsApiResource {
 	 public EntitlementsApiResource(final PlatformSecurityContext context,  final DefaultToApiJsonSerializer<EntitlementsData> toApiJsonSerializer,
 	 final ApiRequestParameterHelper apiRequestParameterHelper, final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 	 final EntitlementReadPlatformService comvenientReadPlatformService,final DaoAuthenticationProvider customAuthenticationProvider,
-	 final DefaultToApiJsonSerializer<StakerData> toJsonSerializer,final DefaultToApiJsonSerializer<ClientEntitlementData> toSerializer)
+	 final DefaultToApiJsonSerializer<ClientEntitlementData> toSerializer)
 	{
 				        this.context = context;
 				        this.toApiJsonSerializer = toApiJsonSerializer;
 				        this.apiRequestParameterHelper = apiRequestParameterHelper;
 				        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 				        this.entitlementReadPlatformService=comvenientReadPlatformService;
-				        this.customAuthenticationProvider=customAuthenticationProvider;
-				        this.toJsonSerializer=toJsonSerializer;
+				        this.customAuthenticationProvider=customAuthenticationProvider;				     
 				        this.toSerializer=toSerializer;
 	}	
 	
@@ -94,25 +94,32 @@ public class EntitlementsApiResource {
 		   return this.toApiJsonSerializer.serialize(result);
 		}
 
-	@SuppressWarnings("null")
 	@GET
 	@Path("/getuser")
     @Produces({ MediaType.APPLICATION_JSON })
    public String retrieveDeviceData(@Context final UriInfo uriInfo,@QueryParam("mac") final String Mac)
 	{
-	        StakerData data=this.entitlementReadPlatformService.getData(Mac);
-	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-	        EntitlementsData datas=new EntitlementsData();
-	        if(data==null){
-	        	 data.setStatus("ERROR");
-	        	 data.setError("Does not have any orders"); 
-	        	 data.setResults(null);
-	         return this.toJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
-	        }else{
-	        datas.setStatus("OK");
-	        datas.setResults(data);  
-	        return this.toApiJsonSerializer.serialize(settings, datas, RESPONSE_DATA_PARAMETERS);
-	        }             
+		try {
+		       StakerData data=this.entitlementReadPlatformService.getData(Mac);
+		       final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		       EntitlementsData datas=new EntitlementsData();
+		        if(data==null){			   
+			        JSONObject object=new JSONObject();	     
+			        object.put("error", "Does not have any orders");
+			        object.put("status", "ERROR");	
+			        object.put("results", JSONObject.NULL);
+					        		        		       	     
+			        return object.toString();
+		        }else{
+			        datas.setStatus("OK");
+			        datas.setResults(data);  
+			        return this.toApiJsonSerializer.serialize(settings, datas, RESPONSE_DATA_PARAMETERS);
+		        }  
+	        } catch (JSONException e) {
+	        	return e.getMessage();
+			} catch (Exception e) {
+	        	return e.getMessage();
+			}      
 	}
 	
 	@GET
@@ -121,9 +128,9 @@ public class EntitlementsApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
    public String retrieveAuthorizeData(@QueryParam("login") final String username, @QueryParam("password") final String password,@Context final UriInfo uriInfo)
 	{
+		try {
 		    logger.info("Request comming for Authentication");
 	        ClientEntitlementData data=null;
-	        StakerData stakerdata=new StakerData();
 	        Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
 	        Authentication authenticationCheck = this.customAuthenticationProvider.authenticate(authentication);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -136,13 +143,19 @@ public class EntitlementsApiResource {
 		        logger.info("Authentication Successful");
 		        return this.toSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 	        }else{
-	        	stakerdata.setStatus("ERROR");
-	        	stakerdata.setError("Authentication Failed: 401 unauthorized exception"); 
-	        	stakerdata.setResults(null);
-	        	logger.info("Output - status : "+stakerdata.getStatus()+" , error : "+stakerdata.getError()+" ,result : "+stakerdata.getResults());
+	        	JSONObject object=new JSONObject();	     
+		        object.put("error", "Does not have any orders");
+		        object.put("results", JSONObject.NULL);
+				object.put("status", "ERROR");	        		        		       	     	        
+	        	logger.info("Output - status : ERROR , error : Does not have any orders ,result : null");
 	        	logger.info("Authentication Failure");
-	        	return this.toJsonSerializer.serialize(settings, stakerdata, RESPONSE_DATA_PARAMETERS);
+	        	return object.toString();
 	        }
+		} catch (JSONException e) {
+        	return e.getMessage();
+		} catch (Exception e) {
+        	return e.getMessage();
+		} 
 	     
 	      
 	}
