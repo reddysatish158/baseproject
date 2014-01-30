@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.message.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.mifosplatform.billing.message.data.BillingMessageData;
@@ -24,7 +25,7 @@ List<BillingMessageDataForProcessing> retrieveMessageDataForProcessing();
 
 BillingMessageData retrieveTemplate();
 
-Long retrieveClientId(String hardwareId);
+Long retrieveClientId(String hardwareId) throws IOException;
 
 
 

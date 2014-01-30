@@ -202,9 +202,14 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				throws SQLException {
 
 			try {
+				String fileUploadLocation=FileUtils.generateLogFileDirectory()+ JobName.MESSAGE_MERGE.toString()+File.separator+"BillingMessage";
+				File file = new File(fileUploadLocation);			
+				if(!file.isDirectory()){
+					file.mkdirs();
+				}
 				Date date = new Date();
 				String dateTime = date.getHours() + "" + date.getMinutes() + ""+ date.getSeconds();
-				String path = FileUtils.generateLogFileDirectory()+ JobName.ALL.toString() + File.separator+ "Messanger_"+ new LocalDate().toString().replace("-", "") + "_" + dateTime + ".log";
+				String path = fileUploadLocation + File.separator+ "billingMessage_"+ new LocalDate().toString().replace("-", "") + "_" + dateTime + ".log";
 				File fileHandler = new File(path.trim());
 				fileHandler.createNewFile();
 				fw = new FileWriter(fileHandler);
@@ -297,7 +302,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 							processRequestRepository.save(processRequest);
 						}
 						else{
-							fw.append("rowNo:"+j+" failed and provisioningSerialNo is= "+data.get(0).toString()+ " . \r\n");
+							fw.append("rowNo:"+j+" failed . \r\n");
 						}
 						
 					}
@@ -421,14 +426,15 @@ public class BillingMesssageReadPlatformServiceImpl implements
 	}
 
 	@Override
-	public Long retrieveClientId(String hardwareId) {
+	public Long retrieveClientId(String hardwareId) throws IOException {
 		try {
-			String sql = "select b.client_id as clientId from b_item_detail b where b.provisioning_serialno = '"
-					+ hardwareId + "' ";
+			String sql = "select b.client_id as clientId from b_item_detail b where b.provisioning_serialno = '"+ hardwareId + "' ";
 			return jdbcTemplate.queryForLong(sql);
 		} catch (EmptyResultDataAccessException e) {
+			fw.append("provisioningSerialNo is= "+hardwareId+ " Failed. Exception Reason is: "+e.getMessage()+ " .\r\n");
 			return null;
 		} catch (Exception e) {
+			fw.append("provisioningSerialNo is= "+hardwareId+ " Failed. Exception Reason is: "+e.getMessage()+ " .\r\n");
 			return null;
 		}
 
