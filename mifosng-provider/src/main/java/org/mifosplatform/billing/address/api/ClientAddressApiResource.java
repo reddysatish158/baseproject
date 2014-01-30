@@ -127,17 +127,7 @@ public class ClientAddressApiResource {
 	        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	        return this.toApiJsonSerializer.serialize(result);
 	}
-	/*@POST
-	@Path("{clientId}")
-	@Consumes({MediaType.APPLICATION_JSON})
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response createAddress(@PathParam("clientId") final Long clientId, final String jsonRequestBody) {
 
-		AddressCommand command = this.apiDataConversionService.convertJsonToAddressCommand(null,clientId, jsonRequestBody);
-
-		CommandProcessingResult userId = this.addressWritePlatformService.createAddress(command);
-		return Response.ok().entity(userId).build();
-	}*/
 	
 	@PUT
 	@Path("{addrId}")
@@ -149,17 +139,7 @@ public class ClientAddressApiResource {
 		  return this.toApiJsonSerializer.serialize(result);
 
 	}
-	/*@PUT
-	@Path("{addrId}")
-	@Consumes({MediaType.APPLICATION_JSON})
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response updateClientAddress(@PathParam("addrId") final Long addrId, final String jsonRequestBody){
 
-		final AddressCommand command = this.apiDataConversionService.convertJsonToAddressCommand(null, addrId, jsonRequestBody);
-		CommandProcessingResult entityIdentifier=this.addressWritePlatformService.updateAddress(addrId,command);
-		return Response.ok().entity(entityIdentifier).build();
-	}*/
-	
 	
 	@POST
 	@Path("{entityType}/new")
@@ -169,9 +149,6 @@ public class ClientAddressApiResource {
 		 final CommandWrapper commandRequest = new CommandWrapperBuilder().createNewRecord(entityType).withJson(jsonRequestBody).build();
 	        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	        return this.toApiJsonSerializer.serialize(result);
-		/* EntityTypecommand command= this.apiDataConversionService.convertJsonToEntityTypeCommand(null,jsonRequestBody);
-
-		 CommandProcessingResult userId = this.addressWritePlatformService.createNewRecord(command,entityType);
-		return Response.ok().entity(userId).build();*/
+	
 	}
 }

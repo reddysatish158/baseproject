@@ -100,17 +100,19 @@ public class EntitlementsApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
    public String retrieveDeviceData(@Context final UriInfo uriInfo,@QueryParam("mac") final String Mac)
 	{
-	        StakerData data=this.entitlementReadPlatformService.getData(Mac);
+	        StakerData data1=this.entitlementReadPlatformService.getData(Mac);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        EntitlementsData datas=new EntitlementsData();
-	        if(data==null){
+	       
+	        if(data1==null){
+	        	StakerData data=new StakerData();
 	        	 data.setStatus("ERROR");
 	        	 data.setError("Does not have any orders"); 
 	        	 data.setResults(null);
 	         return this.toJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 	        }else{
 	        datas.setStatus("OK");
-	        datas.setResults(data);  
+	        datas.setResults(data1);  
 	        return this.toApiJsonSerializer.serialize(settings, datas, RESPONSE_DATA_PARAMETERS);
 	        }             
 	}
