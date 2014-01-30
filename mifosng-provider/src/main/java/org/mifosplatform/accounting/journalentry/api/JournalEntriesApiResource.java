@@ -90,8 +90,7 @@ public class JournalEntriesApiResource {
             toDate = toDateParam.getDate();
         }
         if (StringUtils.isBlank(transactionId)) {
-            glJournalEntryDatas = this.journalEntryReadPlatformService.retrieveAllGLJournalEntries(officeId, glAccountId,
-                    onlyManualEntries, fromDate, toDate);
+            glJournalEntryDatas = this.journalEntryReadPlatformService.retrieveAllGLJournalEntries(officeId, glAccountId,onlyManualEntries, fromDate, toDate);
              glJournalEntryData = new JournalEntryData(glJournalEntryDatas);
           //  glJournalEntryData.setJournalData(glJournalEntryDatas);
         } else {

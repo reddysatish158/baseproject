@@ -1921,15 +1921,17 @@ public CommandWrapperBuilder cancelPayment(Long paymentId) {
 	this.entityId = paymentId;
 	this.href = "/payments/cancelpayment"+this.entityId;
 	return this;
+
 }
 
-
 public CommandWrapperBuilder changePlan(Long orderId) {
+
 
     this.actionName="CHANGEPLAN";
     this.entityName="ORDER";
     this.entityId=orderId;
     this.href="orders/changePlan"+orderId;
+
     
    return this;
 }
@@ -1939,9 +1941,7 @@ public CommandWrapperBuilder updateInventoryItem(final Long id) {
 	this.entityId = id;
 	this.href = "/itemdetails/template";
 	return this;
-
 }
-
 
 public CommandWrapperBuilder createPromotionCode() {
 	this.actionName = "CREATE";
@@ -1964,7 +1964,6 @@ public CommandWrapperBuilder deAllocate(Long id) {
 	this.entityName = "INVENTORY";
 	this.entityId = id;
 	this.href = "/itemdetails/template";
-
 	return this;
 }
 
@@ -1983,5 +1982,21 @@ public CommandWrapperBuilder deletePromotionCode(Long id) {
 	this.href = "/promotioncode";
 	return this;
 }
+public CommandWrapperBuilder updateUsermessage(Long meesageId) {
+	
+	this.actionName = "UPDATE";
+	this.entityName = "USERCHATMESSAGE";
+	this.entityId = meesageId;
+	this.href = "/userchats/"+this.entityId;
+	return this;
+}
 
+public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
+
+	this.actionName = "DELETE";
+	this.entityName = "USERCHATMESSAGE";
+	this.entityId = meesageId;
+	this.href = "/userchats/"+this.entityId;
+	return this;
+}
 }

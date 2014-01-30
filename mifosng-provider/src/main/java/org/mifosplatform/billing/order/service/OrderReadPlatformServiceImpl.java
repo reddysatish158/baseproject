@@ -713,8 +713,7 @@ return null;
 }
 
 	@Override
-	public List<org.mifosplatform.billing.order.data.OrderData> retrieveClientOrderDetails(
-			Long clientId) {
+	public List<OrderData> retrieveClientOrderDetails(Long clientId) {
 		try {
 			final ClientOrderMapper mapper = new ClientOrderMapper();
 
@@ -969,6 +968,38 @@ return null;
 						final LocalDate endDate=JdbcSupport.getLocalDate(rs,"endDate");
 						final BigDecimal discountAmount=rs.getBigDecimal("discountAmount");						
 						return new OrderDiscountData(id,priceId,discountCode,discountdescription,discountAmount,discountType,startDate,endDate);
+						}
+				}
+
+					@Override
+					public Long retrieveClientActiveOrderDetails(Long clientId,String serialNo) {
+
+						try {
+							final ClientActiveOrderMapper mapper = new ClientActiveOrderMapper();
+                          
+							String sql="select "+mapper.activeOrderLookupSchema();
+							if(serialNo !=null){
+								sql="select "+mapper.activeOrderLookupSchema()+" and a.hw_serial_no='"+serialNo+"'";
+							}
+							return jdbcTemplate.queryForObject(sql, mapper, new Object[] { clientId});
+							} catch (EmptyResultDataAccessException e) {
+							return null;
+							}
+
+							
+					}
+					
+					private static final class ClientActiveOrderMapper implements RowMapper<Long> {
+						
+						public String activeOrderLookupSchema() {
+							return "count(*) as orders from b_orders o, b_association a where  o.id = a.order_id and o.client_id = ? " +
+									" and  o.order_status=1 ";
+							}
+
+						@Override
+						public Long mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+					    final Long activeOrdersCount = rs.getLong("orders");
+						 return activeOrdersCount;
 						}
 				}
 	}

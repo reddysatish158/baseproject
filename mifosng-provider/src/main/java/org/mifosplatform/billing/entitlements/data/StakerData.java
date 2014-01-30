@@ -11,8 +11,6 @@ public class StakerData {
 	private String end_date;
 	private String tariff;
 	private String base64EncodedAuthenticationKey;
-	private Long results;
-	private String error;
 	
 	
 	public StakerData(String mac, Long ls, String status, String fname,
@@ -26,14 +24,7 @@ public class StakerData {
 		this.end_date=end_date;
 		this.tariff=tariff;
 	}
-
-
-	public StakerData() {
-		// TODO Auto-generated constructor stub
-		
-	}
-
-
+	
 	public String getMac() {
 		return mac;
 	}
@@ -79,37 +70,11 @@ public class StakerData {
 		this.base64EncodedAuthenticationKey = base64EncodedAuthenticationKey;
 	}
 
-
-	public Long getResults() {
-		return results;
-	}
-
-
-	public String getError() {
-		return error;
-	}
-
-
 	public void setStatus(String status) {
 		// TODO Auto-generated method stub
 		this.status=status;
 		
 	}
-
-
-	public void setError(String error) {
-		// TODO Auto-generated method stub
-		this.error=error;
-		
-	}
-
-
-	public void setResults(Long value) {
-		// TODO Auto-generated method stub
-		this.results=value;
-		
-	}
-	
 	
 	
 	

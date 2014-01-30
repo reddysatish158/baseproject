@@ -97,7 +97,7 @@ public class SearchReadPlatformServiceImpl implements SearchReadPlatformService 
 
             String deviceMatchSql = " (select distinct 'DEVICE' as entityType, c.id as entityId, c.display_name as entityName, c.external_id as entityExternalId, c.account_no as entityAccountNo "
                     + " , c.office_id as parentId,c.email as email,c.phone as phone,o.name AS parentName,ca.address_no as addr1,ca.street as street   FROM m_client c JOIN m_office o" +
-                    " ON o.id = c.office_id JOIN b_client_address ca ON ca.client_id = c.id  join  (select client_id,serial_no from b_allocation  union all  select client_id,serial_number from b_owned_hardware) hw " 
+                    " ON o.id = c.office_id JOIN b_client_address ca ON ca.client_id = c.id  join  (select client_id,serial_no from b_allocation where  is_deleted='N' union all  select client_id,serial_number from b_owned_hardware) hw " 
                     + " on  (hw.client_id=c.id)  where  o.hierarchy like :hierarchy and hw.serial_no like :partialSearch) ";
 
             StringBuffer sql = new StringBuffer();

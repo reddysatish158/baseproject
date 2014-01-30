@@ -34,20 +34,40 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 		//context.authenticatedUser();
 		ProcessRequest request=this.entitlementRepository.findOne(command.entityId());
 		String receiveMessage = command.stringValueOfParameterNamed("receiveMessage");
+		char status;
 		if(receiveMessage.contains("failure :")){
-		request.setProcessFailureStatus();
+		         status='F';
 		}else{
-			request.setProcessStatus();
+			status='Y';
 		}
+		
 		List<ProcessRequestDetails> details=request.getProcessRequestDetails();
 		
-		for(ProcessRequestDetails processRequestDetails:details){
-			processRequestDetails.updateStatus(command);
+		for(ProcessRequestDetails processRequestDetails:details){			    			 			 	
+			 	Long id = command.longValueOfParameterNamed("prdetailsId");
+				if (processRequestDetails.getId().longValue() == id.longValue()) {
+					processRequestDetails.updateStatus(command);	
+				}
 		}
+		
+		if(request.getRequestType().equalsIgnoreCase("DEVICE_SWAP") && !checkProcessDetailsUpdated(details)){
+			status='F';
+		}
+		request.setProcessStatus(status);
 		
 		this.entitlementRepository.save(request);
 		return new CommandProcessingResult(request.getId());
 		
+	}
+
+	private boolean checkProcessDetailsUpdated(List<ProcessRequestDetails> details) {
+		boolean flag=true;
+		//for(ProcessRequestDetails processRequestDetails:details){
+			if(details.get(0).getReceiveMessage().contains("failure : Exce")){
+				flag=false;
+			}
+		//}
+		return flag;
 	}
 
 	

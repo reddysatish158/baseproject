@@ -262,7 +262,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final LocalDate activationDate = JdbcSupport.getLocalDate(rs, "activationDate");
             final String imageKey = rs.getString("imageKey");
             final String officeName = rs.getString("officeName");
-            final Long categoryType=rs.getLong("categoryType");
+            final String categoryType=rs.getString("categoryType");
             final String email = rs.getString("email");
             final String phone = rs.getString("phone");
             final String homePhoneNumber = rs.getString("homePhoneNumber");
@@ -283,7 +283,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("c.office_id as officeId, o.name as officeName, ");
             builder.append("c.office_id as officeId, o.name as officeName, ");
             builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
-            builder.append("c.fullname as fullname, c.display_name as displayName,c.category_type as categoryType, ");
+            builder.append("c.fullname as fullname, c.display_name as displayName,mc.code_value as categoryType, ");
             builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
             builder.append(" a.zip as zipcode,b.balance_amount as balanceAmount,bc.currency as currency,");
@@ -291,6 +291,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("from m_client c ");
             builder.append("join m_office o on o.id = c.office_id ");
             builder.append("left outer join b_client_balance b on  b.client_id = c.id ");
+            builder.append("left outer join  m_code_value mc on  mc.id =c.category_type  ");
             builder.append("left outer join b_client_address a on  a.client_id = c.id ");
             builder.append("left outer join b_country_currency bc on  bc.country = a.country ");
             this.schema = builder.toString();
@@ -319,7 +320,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final LocalDate activationDate = JdbcSupport.getLocalDate(rs, "activationDate");
             final String imageKey = rs.getString("imageKey");
             final String officeName = rs.getString("officeName");
-            final Long categoryType=rs.getLong("categoryType");
+            final String categoryType=rs.getString("categoryType");
             final String email = rs.getString("email");
             final String phone = rs.getString("phone");
             final String homePhoneNumber = rs.getString("homePhoneNumber");
@@ -332,11 +333,12 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String hwSerial = rs.getString("HW_Serial");
             final BigDecimal clientBalance = rs.getBigDecimal("balanceAmount");
             final String currency=rs.getString("currency");
+           
 
             return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode, clientBalance,hwSerial,currency);
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode,
+                    clientBalance,hwSerial,currency);
         }
-
     }
 
     private static final class ParentGroupsMapper implements RowMapper<GroupGeneralData> {

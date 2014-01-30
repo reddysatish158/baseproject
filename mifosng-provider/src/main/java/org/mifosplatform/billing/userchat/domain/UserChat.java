@@ -12,35 +12,56 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @Table(name = "b_userchat")
 public class UserChat extends AbstractPersistable<Long>{
 
-	
+
+
 	@Column(name = "username")
 	private String username;
 
 	@Column(name = "message_date")
 	private Date messageDate;
 
-	@Column(name ="message")
+	@Column(name = "message")
 	private String message;
 
 	@Column(name = "createdby_user")
 	private String createdbyUser;
-	
-	@Column(name = "read")
-	private String read="N";	
 
-	public UserChat() {
-		// TODO Auto-generated constructor stub
-			
-	}
-
-		public UserChat(String userName, Date messageDate, String message,String user) {
-		
-			 this.username=userName;
-			 this.messageDate=messageDate;
-			 this.message=message;
-			 this.createdbyUser=user;
-		}
- 
 	
+	@Column(name = "is_read", nullable = false)
+	private char read='n';
+	
+	@Column(name = "is_deleted", nullable = false)
+	private char isDeleted='N';
+	
+
+public UserChat(){
 	
 }
+	
+	public UserChat(String userName, Date messageDate, String message, String user) {
+		  this.username=userName;
+		  this.messageDate=messageDate;
+		  this.message=message;
+		  this.createdbyUser=user;
+		
+	}
+
+	public void update() {
+		
+		this.read='Y';
+		
+	}
+
+	public void delete() {
+
+     this.isDeleted='Y';
+		
+	}
+
+		
+	}
+
+	
+
+	
+

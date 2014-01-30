@@ -37,7 +37,7 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 		try {
 			
 			final ClientOrderMapper mapper = new ClientOrderMapper();
-			final String sql = "select " + mapper.clientOrderLookupSchema();
+			final String sql = "select " + mapper.clientAssociationLookupSchema();
 			return jdbcTemplate.queryForObject(sql, mapper, new Object[] {  orderId });
 			} catch (EmptyResultDataAccessException e) {
 			return null;
@@ -47,10 +47,17 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 
 			private static final class ClientOrderMapper implements RowMapper<AllocationDetailsData> {
 
-			public String clientOrderLookupSchema() {
+			public String clientAssociationLookupSchema() {
 			return " a.id AS id,a.order_id AS orderId,id.provisioning_serialno AS serialNum,a.client_id AS clientId FROM b_association a, b_item_detail id" +
 					" WHERE a.order_id =? and id.serial_no=a.hw_serial_no and a.is_deleted='N'";
 			}
+			
+			public String clientDeAssociationLookupSchema() {
+				return " a.id AS id, a.order_id AS orderId,a.client_id AS clientId,i.provisioning_serialno as serialNum FROM b_association a, b_item_detail i  " +
+						" WHERE order_id = ? and a.hw_serial_no=i.serial_no AND a.id = (SELECT MAX(id) FROM b_association a WHERE  a.client_id =?  and a.is_deleted = 'Y')  limit 1";
+
+
+				}
 
 			@Override
 			public AllocationDetailsData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
@@ -129,6 +136,20 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 						return serialNum;
 						}
 				}
+
+					@Override
+					public AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId) {
+
+						try {
+							
+							final ClientOrderMapper mapper = new ClientOrderMapper();
+							final String sql = "select " + mapper.clientDeAssociationLookupSchema();
+							return jdbcTemplate.queryForObject(sql, mapper, new Object[] {  orderId,clientId });
+							} catch (EmptyResultDataAccessException e) {
+							return null;
+							}
+
+					}
 			
 
 	

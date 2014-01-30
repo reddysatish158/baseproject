@@ -84,10 +84,9 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 					    Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
 					    
 						if(clientId != null){
-
 							Long paymodeId=this.paymodeReadPlatformService.getOnlinePaymode();
 							if(paymodeId==null){
-								paymodeId=new Long(27);
+								paymodeId=new Long(83);
 							}
 							String remarks="customerName: "+details+" ,PhoneNo:"+phoneNo+" ,Biller account Name : "+SOURCE;
 							SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
@@ -116,21 +115,21 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 						}else{						
 							paymentGateway.setStatus("Failure");    	
 					    	this.paymentGatewayRepository.save(paymentGateway);
-					    	return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withTransactionId("Failure").build();
+					    	return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paymentGateway.getId()).build();					    	 
 						}					  		               
 				   }	 
-				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(result.resourceId()).withTransactionId("Success").build();
+				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(result.resourceId()).build();
 			}catch ( ParseException e ) {
-        	    return new CommandProcessingResult(Long.valueOf(-1));
+				return null;
         	    
 	       }catch (DataIntegrityViolationException  e) {
-	    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
-	    	  String receiptNO=this.paymentGatewayReadPlatformService.findReceiptNo(receiptNo);
-	    	  if(receiptNO!=null){
-	    	  throw new ReceiptNoDuplicateException(receiptNo);
-	    	  }
-	    	  else{
-	    		  return new CommandProcessingResult(Long.valueOf(-1));
+
+	    	  if(e.toString().contains("receipt_no")){
+		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);	    	     	 
+		    	  throw new ReceiptNoDuplicateException(receiptNo);	    	  	    	  
+	    	  }else{
+	    		  return null;
+
 	    	  }
 		   }catch (ReceiptNoDuplicateException  e) {
 		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
@@ -139,7 +138,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 		    	  throw new ReceiptNoDuplicateException(receiptNo);
 		    	  }
 		    	  else{
-		    		  return new CommandProcessingResult(Long.valueOf(-1));
+		    		   return null;
 		    	  }
 			   } catch (Exception dve) {
 				    handleCodeDataIntegrityIssues(element, dve);

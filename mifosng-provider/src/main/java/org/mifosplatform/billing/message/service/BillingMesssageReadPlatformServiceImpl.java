@@ -1,17 +1,17 @@
 package org.mifosplatform.billing.message.service;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.DataBindingException;
-
-import org.mifosplatform.billing.media.domain.MediaEnum;
+import org.joda.time.LocalDate;
 import org.mifosplatform.billing.media.domain.MediaTypeEnumaration;
 import org.mifosplatform.billing.message.data.BillingMessageData;
 import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
@@ -24,19 +24,18 @@ import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
-import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
+import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
+import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-
-import com.google.gson.JsonElement;
 
 @Service
 public class BillingMesssageReadPlatformServiceImpl implements
@@ -51,19 +50,22 @@ public class BillingMesssageReadPlatformServiceImpl implements
 	private static ProcessRequestRepository processRequestRepository;
 	private static Long messageId;
 	private static String messagingType;
+	private static BillingMesssageReadPlatformService billingMesssageReadPlatformService;
+	private static FileWriter fw;
 
 	@Autowired
 	public BillingMesssageReadPlatformServiceImpl(
 			final PlatformSecurityContext context,
 			final TenantAwareRoutingDataSource dataSource,
-			MessageDataRepository messageDataRepository,
-			final FromJsonHelper fromApiJsonHelper,final ProcessRequestRepository processRequestRepository,
-			BillingMessageTemplateRepository messageTemplateRepository) {
+			final MessageDataRepository messageDataRepository,
+			final FromJsonHelper fromApiJsonHelper,
+			final ProcessRequestRepository processRequestRepository,
+			final BillingMessageTemplateRepository messageTemplateRepository) {
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.fromApiJsonHelper = fromApiJsonHelper;
 		this.messageDataRepository = messageDataRepository;
-		this.processRequestRepository=processRequestRepository;
+		this.processRequestRepository = processRequestRepository;
 		this.messageTemplateRepository = messageTemplateRepository;
 	}
 
@@ -174,15 +176,18 @@ public class BillingMesssageReadPlatformServiceImpl implements
 
 	// for messageData
 	@Override
-	public List<BillingMessageData> retrieveData(Long id, String query,
+	public List<BillingMessageData> retrieveData(
+			Long id,
+			String query,
 			BillingMessageData templateData,
-			List<BillingMessageData> messageparam) {
+			List<BillingMessageData> messageparam,
+			BillingMesssageReadPlatformService billingMesssageReadPlatformService) {
 		// TODO Auto-generated method stub
 		// context.authenticatedUser();
 		this.messageparam = messageparam;
 		this.templateData = templateData;
 		this.messageId = id;
-
+		this.billingMesssageReadPlatformService = billingMesssageReadPlatformService;
 		BillingMessageDataMapper mapper = new BillingMessageDataMapper();
 
 		return this.jdbcTemplate.query(query, mapper, new Object[] {});
@@ -195,99 +200,126 @@ public class BillingMesssageReadPlatformServiceImpl implements
 		@Override
 		public BillingMessageData mapRow(ResultSet rs, int rowNum)
 				throws SQLException {
-			ArrayList<String> rowdata = new ArrayList<String>();
-			ArrayList<String> columndata = new ArrayList<String>();
-	        //To know the number of rows		
-			rs.last();
-			int Rows = rs.getRow();
-			//Resultset object pointer position to before first record.
-			rs.beforeFirst();
-			
-			//To know the column count of a Row
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int columnCount = rsmd.getColumnCount();
 
-			//processing each row and save the row as record in b_message_data table
-			for (int j = 1; j <= Rows; j++) {
-				//resultset pointing to first position/next position
-				rs.next();
-				for (int i = 1; i <= columnCount; i++) {
-					String name = rs.getString(i);
-					columndata.add(name);					
+			try {
+				String fileUploadLocation=FileUtils.generateLogFileDirectory()+ JobName.MESSAGE_MERGE.toString()+File.separator+"BillingMessage";
+				File file = new File(fileUploadLocation);			
+				if(!file.isDirectory()){
+					file.mkdirs();
 				}
+				Date date = new Date();
+				String dateTime = date.getHours() + "" + date.getMinutes() + ""+ date.getSeconds();
+				String path = fileUploadLocation + File.separator+ "billingMessage_"+ new LocalDate().toString().replace("-", "") + "_" + dateTime + ".log";
+				File fileHandler = new File(path.trim());
+				fileHandler.createNewFile();
+				fw = new FileWriter(fileHandler);
 
-				rowdata.addAll(columndata);
-				
-				//Assign rowdata to BillingMessageData bean class 
-				BillingMessageData MessageRowdata = new BillingMessageData(rowdata);
-				ArrayList<String> MessageColumndata = new ArrayList<String>();
-				MessageColumndata = MessageRowdata.getMessageColumndata();
+				ArrayList<String> rowdata = new ArrayList<String>();
+				ArrayList<String> columndata = new ArrayList<String>();
+				// To know the number of rows
+				rs.last();
+				int Rows = rs.getRow();
+				fw.append("Total Number Of Rows for Processing is= "+Rows+" . \r\n");
+				// Resultset object pointer position to before first record.
+				rs.beforeFirst();
 
-				// For Retrieving no.of params for the MessageTemplate
-				ArrayList<BillingMessageData> param = new ArrayList<BillingMessageData>();
-				for (BillingMessageData params : messageparam) {
-					param.add(params);
-				}
-				
-				//getting the MessageTemplate data
-				String header = templateData.getHeader();
-				String footer = templateData.getFooter();
-				String body = templateData.getBody();
-				String subject = templateData.getSubject();
-				char messgeType = templateData.getMessageType();
-				String status = "N";
-				String messageFrom = "OBS";
-				int n = param.size();
-				ArrayList<String> data = new ArrayList<String>();
-				for (int i = 0; i < MessageColumndata.size(); i++) {
-					data.add(i, MessageColumndata.get(i).toString());
-				}
-				if (n > 0 && data.size() >0 && n==data.size()-1) {	
-					for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
-						String name = param.get(i).getParameter();
-						String value = data.get(k).toString();
-						if(!org.apache.commons.lang.StringUtils.isBlank(body)){
-							body = body.replaceAll(name, value);
-						}				
-						if(!org.apache.commons.lang.StringUtils.isBlank(header)){
-							header = header.replaceAll(name, value);
-						}
-						if(!org.apache.commons.lang.StringUtils.isBlank(footer)){
-							footer = footer.replaceAll(name, value);
-						}
+				// To know the column count of a Row
+				ResultSetMetaData rsmd = rs.getMetaData();
+				int columnCount = rsmd.getColumnCount();
+
+				// processing each row and save the row as record in
+				// b_message_data table
+				for (int j = 1; j <= Rows; j++) {
+					// resultset pointing to first position/next position
+					rs.next();
+					for (int i = 1; i <= columnCount; i++) {
+						String name = rs.getString(i);
+						columndata.add(name);
 					}
-				}else{
-					handleCodeDataIntegrityIssues(); 
-				}
-				if (messgeType=='E' || messgeType=='M') {					
-						 String messageTo = data.get(0).toString();
-						 BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
-						 BillingMessage billingMessage = new BillingMessage(header,body, footer, messageFrom,
-								 messageTo, subject,status, billingMessageTemplate, messgeType);
-						 messageDataRepository.save(billingMessage);
-				}					    
-		            
-				if (messgeType=='O') {	
-			             String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();		            	
-			             Long clientId=Long.parseLong(data.get(1).toString());
-			             ProcessRequest processRequest = new ProcessRequest(clientId,
-			 						new Long(0),"Comvenient", 'N', null, requstStatus,new Long(0));
-			 				
-			 			 processRequest.setNotify();
-			 			 Long id=new Long(0);
-			 			 ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(
-			 						id, id,body, "Recieved", data.get(0).toString(),
-									new Date(), null, null,null, 'N');
-						 processRequest.add(processRequestDetails);
-						 processRequestRepository.save(processRequest);
-				}
-				
-				rowdata.removeAll(rowdata);
-				columndata.removeAll(columndata);
-				
-			}// for Rows
-			return new BillingMessageData(messageId);
-			
+
+					rowdata.addAll(columndata);
+
+					// Assign rowdata to BillingMessageData bean class
+					BillingMessageData MessageRowdata = new BillingMessageData(
+							rowdata);
+					ArrayList<String> MessageColumndata = new ArrayList<String>();
+					MessageColumndata = MessageRowdata.getMessageColumndata();
+
+					// For Retrieving no.of params for the MessageTemplate
+					ArrayList<BillingMessageData> param = new ArrayList<BillingMessageData>();
+					for (BillingMessageData params : messageparam) {
+						param.add(params);
+					}
+
+					// getting the MessageTemplate data
+					String header = templateData.getHeader();
+					String footer = templateData.getFooter();
+					String body = templateData.getBody();
+					String subject = templateData.getSubject();
+					char messgeType = templateData.getMessageType();
+					String status = "N";
+					String messageFrom = "OBS";
+					int n = param.size();
+					ArrayList<String> data = new ArrayList<String>();
+					for (int i = 0; i < MessageColumndata.size(); i++) {
+						data.add(i, MessageColumndata.get(i).toString());
+					}
+					if (n == data.size() - 1) {
+						for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
+							String name = param.get(i).getParameter();
+							String value = data.get(k).toString();
+							if (!org.apache.commons.lang.StringUtils.isBlank(body)) {
+								body = body.replaceAll(name, value);
+							}
+							if (!org.apache.commons.lang.StringUtils.isBlank(header)) {
+								header = header.replaceAll(name, value);
+							}
+							if (!org.apache.commons.lang.StringUtils.isBlank(footer)) {
+								footer = footer.replaceAll(name, value);
+							}
+						}
+					} else {
+						handleCodeDataIntegrityIssues();
+					}
+					if (messgeType == 'E' || messgeType == 'M') {
+						String messageTo = data.get(0).toString();
+						BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
+						BillingMessage billingMessage = new BillingMessage(header, body, footer, messageFrom, messageTo,
+								subject, status, billingMessageTemplate,messgeType);
+						messageDataRepository.save(billingMessage);
+					}
+
+					if (messgeType == 'O') {
+						String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
+						Long clientId = billingMesssageReadPlatformService.retrieveClientId(data.get(0).toString());
+						if(clientId!=null){
+							ProcessRequest processRequest = new ProcessRequest(clientId, new Long(0), "Comvenient", 'N', null,requstStatus, new Long(0));
+							processRequest.setNotify();
+							Long id = new Long(0);
+							ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(id, id, body, "Recieved", 
+									data.get(0).toString(), new Date(), null, null,null, 'N', requstStatus);
+							processRequest.add(processRequestDetails);
+							processRequestRepository.save(processRequest);
+						}
+						else{
+							fw.append("rowNo:"+j+" failed . \r\n");
+						}
+						
+					}
+					 
+					rowdata.removeAll(rowdata);
+					columndata.removeAll(columndata);
+
+				}// for Rows
+				fw.append("messages are created successfully . \r\n");
+		    	fw.flush();
+			    fw.close();
+				return new BillingMessageData(messageId);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				return null;
+			}
+
 		}
 	}
 
@@ -378,16 +410,34 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				.enummessageData(EnumMessageType.Message);
 		MediaEnumoptionData osdMessage = MediaTypeEnumaration
 				.enummessageData(EnumMessageType.OSDMESSAGE);
-		List<MediaEnumoptionData> categotyType = Arrays.asList(email, message,osdMessage);
+		List<MediaEnumoptionData> categotyType = Arrays.asList(email, message,
+				osdMessage);
 		BillingMessageData messagedata = new BillingMessageData();
 		messagedata.setMessageType(categotyType);
 		return messagedata;
 
 	}
+
 	private static void handleCodeDataIntegrityIssues() {
-	        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
-	                "Unknown data integrity issue with resource: message params count is lessthan or greaterthan to sending query parameters count ");
-		
+		throw new PlatformDataIntegrityException(
+				"error.msg.cund.unknown.data.integrity.issue",
+				"Unknown data integrity issue with resource: message params count is lessthan or greaterthan to sending query parameters count ");
+
+	}
+
+	@Override
+	public Long retrieveClientId(String hardwareId) throws IOException {
+		try {
+			String sql = "select b.client_id as clientId from b_item_detail b where b.provisioning_serialno = '"+ hardwareId + "' ";
+			return jdbcTemplate.queryForLong(sql);
+		} catch (EmptyResultDataAccessException e) {
+			fw.append("provisioningSerialNo is= "+hardwareId+ " Failed. Exception Reason is: "+e.getMessage()+ " .\r\n");
+			return null;
+		} catch (Exception e) {
+			fw.append("provisioningSerialNo is= "+hardwareId+ " Failed. Exception Reason is: "+e.getMessage()+ " .\r\n");
+			return null;
+		}
+
 	}
 
 }

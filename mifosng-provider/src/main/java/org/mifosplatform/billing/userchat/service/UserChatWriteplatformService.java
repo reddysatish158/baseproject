@@ -7,4 +7,9 @@ public interface UserChatWriteplatformService {
 
 	CommandProcessingResult createUserChat(JsonCommand command);
 
+	CommandProcessingResult updateUserChatMessage(JsonCommand command,
+			Long entityId);
+
+	CommandProcessingResult deleteUserChatMessage(Long entityId);
+
 }

@@ -119,7 +119,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
             
     		
     		UserUnreadMessageMapper mapper = new UserUnreadMessageMapper();
-    		String sql = "select " + mapper.schema()+" where us.username = ?  and  us.read='N'";
+    		String sql = "select " + mapper.schema()+" where us.username = ?  and  us.is_read='N'";
     		return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { userName });
     		
     	 }catch(EmptyResultDataAccessException accessException){

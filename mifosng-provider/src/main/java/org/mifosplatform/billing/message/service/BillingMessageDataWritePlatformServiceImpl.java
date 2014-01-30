@@ -40,7 +40,7 @@ public class BillingMessageDataWritePlatformServiceImpl implements BillingMessag
 		//	context.authenticatedUser();
 		BillingMessageData templateData=this.billingMesssageReadPlatformService.retrieveMessageTemplate(id);
 		List<BillingMessageData> messageparam=this.billingMesssageReadPlatformService.retrieveMessageParams(id);
-		List<BillingMessageData> clientData=this.billingMesssageReadPlatformService.retrieveData(id,json,templateData,messageparam);
+		List<BillingMessageData> clientData=this.billingMesssageReadPlatformService.retrieveData(id,json,templateData,messageparam,billingMesssageReadPlatformService);
 		
 		return new CommandProcessingResultBuilder().withCommandId(id).withEntityId(id).build();
 

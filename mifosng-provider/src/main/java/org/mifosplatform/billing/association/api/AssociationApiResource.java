@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 public class AssociationApiResource {
 
 	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "planCode", "OrderId","hardware","serialNo","planCode",
-			"itemCode","saleId"));
+			"itemCode","saleId","itemId"));
 	
 	 private final String resourceNameForPermissions = "PLAN";
 	  private final PlatformSecurityContext context;

@@ -29,22 +29,24 @@ public class EntitlementReadPlatformServiceImpl implements
 			final TenantAwareRoutingDataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
-
+	
 	@Override
-	public List<EntitlementsData> getProcessingData(Long id) {
+
+	public List<EntitlementsData> getProcessingData(Long id,String provisioningSys) {
 		// TODO Auto-generated method stub
 		String sql = "";
-		ServicesMapper mapper = new ServicesMapper();
-		if (id == null) {
-			sql = "select " + mapper.schema();
-		} else {
-			sql = "select " + mapper.schema() + " and pr.id limit " + id;
-		}
-		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,
-				new Object[] {});
-
+		ServicesMapper mapper = new ServicesMapper();		
+		sql = "select " + mapper.schema();		
+		if(provisioningSys != null){
+			sql = sql + " and p.provisioing_system = '" + provisioningSys + "' ";
+		}		
+		if (id != null) {
+			sql = sql + " and pr.id limit " + id;
+		} 				
+		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,new Object[] {});
 		return detailsDatas;
 	}
+
 
 	protected static final class ServicesMapper implements
 			RowMapper<EntitlementsData> {
@@ -55,20 +57,20 @@ public class EntitlementReadPlatformServiceImpl implements
 			Long id = rs.getLong("id");
 			Long serviceId = rs.getLong("serviceId");
 			String product = rs.getString("sentMessage");
-			Long prepareReqId = rs.getLong("prepareRequestId");
+			Long prdetailsId = rs.getLong("prdetailsId");
 			String requestType = rs.getString("requestType");
 			String hardwareId = rs.getString("hardwareId");
 			String provisioingSystem = rs.getString("provisioingSystem");
 			Long clientId = rs.getLong("clientId");
 
-			return new EntitlementsData(id, prepareReqId, requestType,
+			return new EntitlementsData(id, prdetailsId, requestType,
 					hardwareId, provisioingSystem, product, serviceId, clientId);
 
 		}
 
 		public String schema() {
-			return "p.id AS id,p.client_id as clientId,p.prepareRequest_id as prepareRequestId,p.provisioing_system as provisioingSystem,pr.service_id as serviceId, pr.sent_message as sentMessage,pr.hardware_id as hardwareId, p.request_type AS requestType "
-					+ "FROM b_process_request p,b_process_request_detail pr WHERE p.id=pr.processrequest_id AND p.is_processed = 'N' ";
+			return "p.id AS id,p.client_id as clientId,p.provisioing_system as provisioingSystem,pr.service_id as serviceId,pr.id as prdetailsId, pr.sent_message as sentMessage,pr.hardware_id as hardwareId, pr.request_type AS requestType "
+					+ " FROM b_process_request p,b_process_request_detail pr WHERE p.id=pr.processrequest_id AND p.is_processed = 'N' ";
 		}
 
 	}

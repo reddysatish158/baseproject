@@ -19,6 +19,9 @@ import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
+import org.mifosplatform.portfolio.client.domain.ClientStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -38,12 +41,16 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	  private final OrderRepository orderRepository;
 	  private final ProcessRequestRepository processRequestRepository;
 	  private final PrepareRequsetRepository prepareRequsetRepository;
+	  private final ClientRepository clientRepository;
+	  
 	  
 
 	    @Autowired
 	    public ProcessRequestWriteplatformServiceImpl(final DataSourcePerTenantService dataSourcePerTenantService,final TenantDetailsService tenantDetailsService,
 	    		final PrepareRequestReadplatformService prepareRequestReadplatformService,final OrderReadPlatformService orderReadPlatformService,
-	    		final OrderRepository orderRepository,final ProcessRequestRepository processRequestRepository,final PrepareRequsetRepository prepareRequsetRepository) {
+	    		final OrderRepository orderRepository,final ProcessRequestRepository processRequestRepository,final PrepareRequsetRepository prepareRequsetRepository,
+	    		final ClientRepository clientRepository) {
+	    	
 	            this.dataSourcePerTenantService = dataSourcePerTenantService;
 	            this.tenantDetailsService = tenantDetailsService;
 	            this.prepareRequestReadplatformService=prepareRequestReadplatformService;
@@ -51,6 +58,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	            this.orderRepository=orderRepository;
 	            this.processRequestRepository=processRequestRepository;
 	            this.prepareRequsetRepository=prepareRequsetRepository;
+	            this.clientRepository=clientRepository;
 	             
 	    }
 
@@ -94,16 +102,30 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 				if(detailsData!=null){
 					
 				 Order order=this.orderRepository.findOne(detailsData.getOrderId());
+				 Client client=this.clientRepository.findOne(order.getClientId());
+				 
 				 if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.ACTIVATION.toString())){
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
+					 client.setStatus(ClientStatus.ACTIVE.getValue());
 					 
 				 }else if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DISCONNECTION.toString())){
+					 
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId());
+					 Long activeOrders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(order.getClientId(), null);
+					 if(activeOrders == 0){
+
+						 client.setStatus(ClientStatus.DEACTIVE.getValue());
+					 }
+					 
 					 
 				 }else{
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
+					
+					 client.setStatus(ClientStatus.ACTIVE.getValue());
+					 this.clientRepository.saveAndFlush(client);
 				 }
 				 this.orderRepository.save(order);
+				 this.clientRepository.saveAndFlush(client);
 				 
 				 ProcessRequest processRequest=this.processRequestRepository.findOne(detailsData.getId());
 				 processRequest.setNotify();

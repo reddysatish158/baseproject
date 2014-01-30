@@ -23,7 +23,7 @@ public class ClientProspectData{
 	private String mobileNumber;
 	private String email;
 	private String sourceOfPublicity;
-	private Long sourceOfPublicityInt;
+	private String sourceOfPublicityInt;
 	private String preferredPlan;
 	private Long preferredPlanInt;
 	private Date preferredCallingTime;
@@ -100,7 +100,7 @@ public class ClientProspectData{
 		this.workPhoneNumber = workPhoneNumber;
 		this.mobileNumber = mobileNumber;
 		this.email = email;
-		this.sourceOfPublicityInt = new Long(sourceOfPublicity);
+		this.sourceOfPublicityInt = sourceOfPublicity;
 		this.preferredPlanInt = new Long(preferredPlan);
 		this.preferredCallingTime = preferredCallingTime;
 		this.note = note;
