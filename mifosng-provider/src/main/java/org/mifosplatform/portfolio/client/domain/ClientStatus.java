@@ -11,9 +11,9 @@ package org.mifosplatform.portfolio.client.domain;
 public enum ClientStatus {
 
     INVALID(0, "clientStatusType.invalid"), //
-    PENDING(100, "clientStatusType.pending"), //
+    NEW(100, "clientStatusType.pending"), //
     ACTIVE(300, "clientStatusType.active"), //
-    CLOSED(600, "clientStatusType.closed");
+    DEACTIVE(600, "clientStatusType.closed");
 
     private final Integer value;
     private final String code;
@@ -23,13 +23,13 @@ public enum ClientStatus {
         ClientStatus enumeration = ClientStatus.INVALID;
         switch (statusValue) {
             case 100:
-                enumeration = ClientStatus.PENDING;
+                enumeration = ClientStatus.NEW;
             break;
             case 300:
                 enumeration = ClientStatus.ACTIVE;
             break;
             case 600:
-                enumeration = ClientStatus.CLOSED;
+                enumeration = ClientStatus.DEACTIVE;
             break;
         }
         return enumeration;
@@ -52,15 +52,15 @@ public enum ClientStatus {
         return code;
     }
 
-    public boolean isPending() {
-        return this.value.equals(ClientStatus.PENDING.getValue());
+    public boolean isNew() {
+        return this.value.equals(ClientStatus.NEW.getValue());
     }
 
     public boolean isActive() {
         return this.value.equals(ClientStatus.ACTIVE.getValue());
     }
 
-    public boolean isClosed() {
-        return this.value.equals(ClientStatus.CLOSED.getValue());
+    public boolean isDeactive() {
+        return this.value.equals(ClientStatus.DEACTIVE.getValue());
     }
 }

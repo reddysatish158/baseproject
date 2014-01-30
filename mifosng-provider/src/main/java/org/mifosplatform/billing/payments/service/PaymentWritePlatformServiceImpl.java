@@ -137,7 +137,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			//Perform Event Action
 		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());
 			
-			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Payment", payment.getPaymentDate(),"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payModeData.getPaymodeCode(),"Remarks:"+payment.getRemarks(),"ReceiptNo: "+payment.getReceiptNo());
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "PAYMENT", payment.getPaymentDate(),
+					"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payModeData.getPaymodeCode(),"Remarks:"+payment.getRemarks(),
+					"ReceiptNo: "+payment.getReceiptNo());
 			return payment.getId();
 
 		} catch (DataIntegrityViolationException dve) {
@@ -161,6 +163,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			ClientBalance clientBalance = clientBalanceRepository.findByClientId(payment.getClientId());
 			clientBalance.setBalanceAmount(clientBalance.getBalanceAmount().add(payment.getAmountPaid()));
 			this.clientBalanceRepository.save(clientBalance);
+			
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "CANCEL PAYMENT", payment.getPaymentDate(),
+					"Amount :"+payment.getAmountPaid(),"Remarks:"+payment.getCancelRemark(),"ReceiptNo: "+payment.getReceiptNo());
 			return new CommandProcessingResult(paymentId);
 			
 			

@@ -972,19 +972,35 @@ return null;
 				}
 
 					@Override
-					public List<OrderData> retrieveClientActiveOrderDetails(Long clientId) {
+					public Long retrieveClientActiveOrderDetails(Long clientId,String serialNo) {
 
 						try {
-							final ClientOrderMapper mapper = new ClientOrderMapper();
-
-							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.client_id= ? and o.is_deleted='n' and " +
-									" o.order_status=1 and o.contract_period = co.id order by o.id desc";
-							return jdbcTemplate.query(sql, mapper, new Object[] { clientId});
+							final ClientActiveOrderMapper mapper = new ClientActiveOrderMapper();
+                          
+							String sql="select "+mapper.activeOrderLookupSchema();
+							if(serialNo !=null){
+								sql="select "+mapper.activeOrderLookupSchema()+" and a.hw_serial_no='"+serialNo+"'";
+							}
+							return jdbcTemplate.queryForObject(sql, mapper, new Object[] { clientId});
 							} catch (EmptyResultDataAccessException e) {
 							return null;
 							}
 
 							
 					}
+					
+					private static final class ClientActiveOrderMapper implements RowMapper<Long> {
+						
+						public String activeOrderLookupSchema() {
+							return "count(*) as orders from b_orders o, b_association a where  o.id = a.order_id and o.client_id = ? " +
+									" and  o.order_status=1 ";
+							}
+
+						@Override
+						public Long mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+					    final Long activeOrdersCount = rs.getLong("orders");
+						 return activeOrdersCount;
+						}
+				}
 	}
 

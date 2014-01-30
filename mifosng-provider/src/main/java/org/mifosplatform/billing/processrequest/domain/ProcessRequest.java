@@ -87,15 +87,12 @@ public class ProcessRequest extends AbstractPersistable<Long>{
 
 
 
-	public void setProcessStatus() {
-		this.isProcessed='Y';
+	public void setProcessStatus(char status) {
+		this.isProcessed=status;
 		
 	}
 	
-	public void setProcessFailureStatus() {
-		this.isProcessed='F';
-		
-	}
+
 
 
 	public Long getClientId() {

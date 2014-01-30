@@ -20,10 +20,11 @@ public class PromotionCodeData {
 	 private LocalDate discountStartDate;
 	 private BigDecimal discountRate;
 	 private Collection<MCodeData> discounTypeData;
+
 	 private List<PeriodData> contractTypedata;
 
 	public PromotionCodeData(Long id,String promotionCode,String promotionDescription,String durationType,Long duration,String discountType,BigDecimal discountRate) {
-		// TODO Auto-generated constructor stub
+
 		this.id=id;
 		this.promotionCode=promotionCode;
 		this.promotionDescription=promotionDescription;
@@ -32,7 +33,7 @@ public class PromotionCodeData {
 		this.discountType=discountType;
 		this.discountRate=discountRate;
 	}
-	
+
 	public PromotionCodeData() {
 		// TODO Auto-generated constructor stub
 	}
@@ -41,6 +42,7 @@ public class PromotionCodeData {
        
         this.discounTypeData=discountTypeDate;
         this.contractTypedata=contractTypedata;
+
 	
 	}
 	

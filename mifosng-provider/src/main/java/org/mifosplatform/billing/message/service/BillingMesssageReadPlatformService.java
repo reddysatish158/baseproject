@@ -17,11 +17,14 @@ List<BillingMessageData> retrieveAllMessageTemplateParams();
 
 List<BillingMessageData> retrieveMessageParams(Long entityId);
 
-List<BillingMessageData> retrieveData(Long command,String json, BillingMessageData templateData, List<BillingMessageData> messageparam);
+List<BillingMessageData> retrieveData(Long command,String json, BillingMessageData templateData, List<BillingMessageData> messageparam,
+		                   BillingMesssageReadPlatformService billingMesssageReadPlatformService);
 
 List<BillingMessageDataForProcessing> retrieveMessageDataForProcessing();
 
 BillingMessageData retrieveTemplate();
+
+Long retrieveClientId(String hardwareId);
 
 
 

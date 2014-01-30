@@ -297,7 +297,7 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 			
 		context.authenticatedUser();
 		ItemDetailMapper rowMapper = new ItemDetailMapper();
-		String sql = "SELECT i.id,i.client_id AS clientId,i.quality as quality FROM b_item_detail i WHERE  i.serial_no = ? and i.status='NEW'";
+		String sql = "SELECT i.id,i.client_id AS clientId,i.quality as quality FROM b_item_detail i WHERE  i.serial_no = ? and i.status='NEW' and i.quality='Good' ";
 		  return this.jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{serialNumber});
 		 }catch(EmptyResultDataAccessException accessException){
 			return null;
