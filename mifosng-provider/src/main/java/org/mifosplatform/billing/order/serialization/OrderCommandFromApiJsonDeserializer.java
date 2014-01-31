@@ -59,6 +59,8 @@ public final class OrderCommandFromApiJsonDeserializer {
         baseDataValidator.reset().parameter("start_date").value(startDate).notBlank();
         final String paytermCode = fromApiJsonHelper.extractStringNamed("paytermCode", element);
         baseDataValidator.reset().parameter("paytermCode").value(paytermCode).notBlank();
+        final String contractPeriod = fromApiJsonHelper.extractStringNamed("contractPeriod", element);
+        baseDataValidator.reset().parameter("contractPeriod").value(contractPeriod).notBlank();
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }

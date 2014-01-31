@@ -14,15 +14,16 @@ public class UserChatData {
 	private final String createdByUser;
 	private List<UserChatData> userChatDatas;
 	private Collection<AppUserData> appUserDatas;
-	
+	private final Boolean isRead;
 	public UserChatData(Long id, String userName, LocalDate messageDate,
-			String message, String createdByUser) {
+			String message, String createdByUser,Boolean isRead) {
            
 		this.id=id;
 		this.userName=userName;
 		this.message=message;
 		this.messageDate=messageDate;
 		this.createdByUser=createdByUser;
+		this.isRead=isRead;
 	}
 	public UserChatData(List<UserChatData> userChatDatas,
 			Collection<AppUserData> appUserDatas) {
@@ -33,7 +34,7 @@ public class UserChatData {
 		this.createdByUser=null;
 		this.userChatDatas=userChatDatas;
 		this.appUserDatas=appUserDatas;
-  
+		this.isRead=null;
 	}
 	public Long getId() {
 		return id;

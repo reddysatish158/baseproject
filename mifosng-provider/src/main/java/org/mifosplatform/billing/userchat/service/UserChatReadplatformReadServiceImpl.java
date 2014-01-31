@@ -56,7 +56,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
     private static final class UserChatDataMapper implements RowMapper<UserChatData> {
 
 		public String schema() {
-			return " u.id AS id,u.username AS userName,u.message_date AS messageDate,u.message AS message, u.createdby_user AS createdbyUser" +
+			return " u.id AS id,u.username AS userName,u.message_date AS messageDate,u.message AS message, u.createdby_user AS createdbyUser,u.is_read As isRead" +
 					" FROM b_userchat u ";
 
 		}
@@ -70,8 +70,8 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
 			String message = rs.getString("message");
 			String createdByUser = rs.getString("createdbyUser");
 			LocalDate messageDate=JdbcSupport.getLocalDate(rs, "messageDate");
-
-			return new UserChatData(id,userName,messageDate,message,createdByUser);
+			Boolean isRead =rs.getBoolean("isRead");
+			return new UserChatData(id,userName,messageDate,message,createdByUser,isRead);
 
 		}
 	}
