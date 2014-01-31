@@ -176,7 +176,7 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 
 		public String schema() {
 			return " sb.id as id,sb.contract_period as subscription_type,sb.contract_duration as units "
-					+ " from b_contract_period sb where is_deleted=0";
+					+ " from b_contract_period sb where is_deleted='N'";
 
 		}
 

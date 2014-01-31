@@ -493,9 +493,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}					    
 		      			for (OrderData orderData : orderDatas) 
 		      			  {
-		      				fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
+		      				/*fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
 		      						+" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
-		      						orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");
+		      						orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
 		      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
 		      				 {
 		      					
@@ -504,9 +504,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      						
 		      						 JSONObject jsonobject = new JSONObject();
 		      					     if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
-		      					    
+		      					    	 
 		      					    Order  order=this.orderRepository.findOne(orderData.getId());
-		      					    
 		      					    List<OrderPrice> orderPrice=order.getPrice();
 		      					    
 		      					     boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
@@ -521,6 +520,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      									null,clientId, null, null, null,null, null, null);
 		      							fw.append("sending json data for Renewal  Order is : "+jsonobject.toString()+"\r\n");
 		      					    	this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
+		      					    	fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been renewaled for one month via  " +
+		      					    			"Auto Exipiry on Dated"+exipirydate);
 		           					
 		          				}else{
 				
@@ -537,6 +538,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 									final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
 											null,clientId, null, null, null,null, null, null);
 									this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+									fw.append("Client Id"+order.getClientId()+" With this Orde"+order.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
 								 }
 		      					    }else if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
 		      					     {
@@ -551,6 +553,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      							final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
 		      									null,clientId, null, null, null,null, null, null);
 		      							this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+		      							fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
 		      						     }
 		      				 }
 		      			  }

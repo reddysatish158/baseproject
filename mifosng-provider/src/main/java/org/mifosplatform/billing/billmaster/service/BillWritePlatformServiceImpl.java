@@ -537,7 +537,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 				new File(fileLocation).mkdirs();
 			}
 			
-			String jpath =  System.getProperty("user.home") + File.separator + fileLocation;
+			String jpath = fileLocation+File.separator+"jasper"; //System.getProperty("user.home") + File.separator + "billing";
 			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
 			//InputStream input = new FileInputStream(new File("/usr/hugotest/EmployeeReport.jasper"));
 			//JasperDesign jasperDesign = JRXmlLoader.load(input);

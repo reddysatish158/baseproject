@@ -102,8 +102,8 @@ public class ContractPeriodWritePlatformServiceImp implements ContractPeriodWrit
 			   context.authenticatedUser();
 
 		        final Contract contract = retrieveCodeBy(contractId);
-
-		        this.subscriptionRepository.delete(contract);
+                      contract.delete();
+		        this.subscriptionRepository.save(contract);
 
 		        return new CommandProcessingResultBuilder().withEntityId(contractId).build();
 		    }

@@ -60,10 +60,10 @@ public class BillMasterReadPlatformServiceImplementation implements
 			String transactionType = rs.getString("transType");
 			BigDecimal amount = rs.getBigDecimal("amount");
 			LocalDate transDate=JdbcSupport.getLocalDate(rs,"transDate");
-			String transactionCategory=rs.getString("tran_type");
-			boolean flag=rs.getBoolean("flag");
+			String transactionCategory=rs.getString("transType");
+			//boolean flag=rs.getBoolean("flag");
 
-			return new FinancialTransactionsData(transactionId,transDate,transactionType,null,null,amount,null,transactionCategory,flag);
+			return new FinancialTransactionsData(transactionId,transDate,transactionType,null,null,amount,null,transactionCategory,false);
 		}
 
 		public String financialTransactionsSchema() {
@@ -98,8 +98,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 	}
 
 	@Override
-	public Page<FinancialTransactionsData> retrieveInvoiceFinancialData(
-			SearchSqlQuery searchTransactionHistory,Long clientId) {
+	public Page<FinancialTransactionsData> retrieveInvoiceFinancialData(SearchSqlQuery searchTransactionHistory,Long clientId) {
 		FinancialInvoiceTransactionsMapper financialTransactionsMapper = new FinancialInvoiceTransactionsMapper();
 	//	String sql = "select " + financialTransactionsMapper.financialTransactionsSchema();
 		

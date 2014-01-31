@@ -26,7 +26,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
