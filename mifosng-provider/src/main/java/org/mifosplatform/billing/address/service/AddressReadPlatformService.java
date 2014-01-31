@@ -3,8 +3,11 @@ package org.mifosplatform.billing.address.service;
 import java.util.List;
 
 import org.mifosplatform.billing.address.data.AddressData;
+import org.mifosplatform.billing.address.data.AddressDetails;
 import org.mifosplatform.billing.address.data.CountryDetails;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.infrastructure.core.service.Page;
 
 public interface AddressReadPlatformService {
 
@@ -30,6 +33,8 @@ public interface AddressReadPlatformService {
 	List<CountryDetails> retrieveCountries();
 	
 	List<AddressData> retrieveClientAddressDetails(Long clientId);
+	
+	Page<AddressDetails> retrieveAllAddresses(SearchSqlQuery searchAddresses);
 	
 
 }
