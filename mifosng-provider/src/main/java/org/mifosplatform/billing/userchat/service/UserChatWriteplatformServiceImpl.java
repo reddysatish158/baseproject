@@ -114,7 +114,7 @@ try{
 	
 }
 	
-	return null;
+	return new CommandProcessingResult(entityId);
 }
 
 }

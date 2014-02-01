@@ -126,13 +126,13 @@ public class UserChatApiResource{
 	    }
 	    
 	    @DELETE
-	    @PathParam("{messageId}")
+	    @Path("{messageId}")
 	    @Consumes({ MediaType.APPLICATION_JSON })
 	    @Produces({ MediaType.APPLICATION_JSON })
-	    public String deleteUserChatMessage(@PathParam("{messageId}")Long meesageId) {
+	    public String deleteUserChatMessage(@PathParam("messageId") final Long meesageId) {
 
-	        final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteUserChatmessage(meesageId).withJson(null).build();
+	        final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteUserChatmessage(meesageId).build();
 	        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	        return this.toApiJsonSerializer.serialize(result);
-	    }  
+	    } 
 }
