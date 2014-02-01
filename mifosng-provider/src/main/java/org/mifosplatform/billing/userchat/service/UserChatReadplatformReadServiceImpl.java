@@ -42,7 +42,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
              
     		final String userName=this.context.authenticatedUser().getUsername();
     		UserChatDataMapper mapper = new UserChatDataMapper();
-    		String sql = "select " + mapper.schema()+" where u.username=?";
+    		String sql = "select " + mapper.schema()+" where u.username=? and u.is_deleted='N'";
     		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
     		
     		
