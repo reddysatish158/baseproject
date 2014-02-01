@@ -425,7 +425,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 		
 				StringBuilder sqlBuilder = new StringBuilder(200);
 		        sqlBuilder.append("select ");
-		        sqlBuilder.append(financialTypeMapper.financialTypeSchema());
+		        sqlBuilder.append(financialTypeMapper.financialTypeSchema()+"and transType like '%"+type+"%'");
 		   
 		        if (searchTransactionHistory.isLimited()) {
 		            sqlBuilder.append(" limit ").append(searchTransactionHistory.getLimit());
@@ -436,7 +436,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 		        }
 			
 				return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
-			            new Object[] {clientId,type}, financialTypeMapper);
+			            new Object[] {clientId}, financialTypeMapper);
 				
 
 		}
@@ -464,7 +464,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 			public String financialTypeSchema() {
 
 				return " ft.username as username,ft.TransId as TransId,ft.TransType as TransType,ft.Dr_amt as DebitAmount,ft.Cr_amt as CreditAmount,"
-						+"ft.tran_type as tran_type,ft.flag as flag,ft.TransDate as TransDate from fin_trans_vw as ft where client_id=? and transType like ?";
+						+"ft.tran_type as tran_type,ft.flag as flag,ft.TransDate as TransDate from fin_trans_vw as ft where client_id=? ";
 
 				
 			}
