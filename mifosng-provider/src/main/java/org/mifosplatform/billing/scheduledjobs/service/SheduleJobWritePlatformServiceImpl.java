@@ -429,6 +429,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					if(messageId!=null){
 					  fw.append("generating the message....... \r\n");
 					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery());
+					  fw.append("messages are generated successfully....... \r\n");
 					}
 				}	   
 		    fw.append("Messanger Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
@@ -575,6 +576,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	public void processNotify() {
 		try {
 			System.out.println("Processing Notify Details.......");
+			
 			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
     	    
 			if(!billingMessageDataForProcessings.isEmpty()){
@@ -585,20 +587,19 @@ public class SheduleJobWritePlatformServiceImpl implements
     			 fileHandler.createNewFile();
     			 FileWriter fw = new FileWriter(fileHandler);
     		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Notify Details....... \r\n");
-    	    	
+			    fw.append("Processing Notify Details....... \r\n");  	    	
 				for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
 					fw.append("BillingMessageData id="+emailDetail.getId()+" ,MessageTo="+emailDetail.getMessageTo()+" ,MessageType="
 							+emailDetail.getMessageType()+" ,MessageFrom="+emailDetail.getMessageFrom()+" ,Message="
 							+emailDetail.getBody()+"\r\n");
 	    	    	if(emailDetail.getMessageType()=='E'){
 	    	    		 String Result=this.messagePlatformEmailService.sendToUserEmail(emailDetail);
-	    	    		 fw.append(emailDetail.getId()+"-"+Result+" ... \r\n");
+	    	    		 fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result :"+Result+" ... \r\n");
 	    	    	}
 	    	    	else if(emailDetail.getMessageType()=='M'){
 	    	    		String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
-	    	    		String Result=this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());
-	    	    		 fw.append(emailDetail.getId()+"-"+Result+" ..\r\n");
+	    	    		String Result=this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());	    	    		
+	    	    		fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result:"+Result+" ... \r\n");
 	    	    	}
 	    	    	else{
 	    	    		 fw.append("Message Type Unknown ..\r\n");
@@ -608,8 +609,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 				fw.flush();
 				fw.close();
 				
-    	    }
-			System.out.println("Notify Job is Completed...");
+    	    }else{
+            	System.out.println("push Notification data is empty...");
+            }
+			System.out.println("Notify Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
 		} catch (IOException exception) {
@@ -753,9 +756,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}
 					}
 						JsonObject object = new JsonObject();
-						object.addProperty("serviceId",entitlementsData.getServiceId());
-						object.addProperty("receivedStatus", new Long(1));
-						
+						object.addProperty("prdetailsId",entitlementsData.getPrdetailsId());
+						object.addProperty("receivedStatus", new Long(1));						
 						object.addProperty("receiveMessage", ReceiveMessage);
 						String entityName = "ENTITLEMENT";
 						fw.append("sending json data to EntitlementApi is:"+object.toString()+"\r\n");
@@ -767,11 +769,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 						fw.append("Result From the EntitlementApi is:"+result+"\r\n");
 	
 					}
-				    fw.append("Middleware Job is Completed...");
+				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 				    fw.flush();
 				    fw.close();
 				    
+	            }else{
+	            	System.out.println("Middleware data is Empty...");
 	            }
+	             
 					httpClient.getConnectionManager().shutdown();
 					System.out.println("Middleware Job is Completed...");
 			}
@@ -810,7 +815,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	  this.actiondetailsWritePlatformService.ProcessEventActions(eventActionData);
 	 }
 	  
-	 System.out.println("Event Actions are Proccesed....");
+	 System.out.println("Event Actions are Processed....");
 	 fw.append("Event Actions are Completed....");
 	    fw.flush();
 	    fw.close();
@@ -842,16 +847,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 	      List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
 		   
 		    if(sheduleDatas.isEmpty()){
-				fw.append("ScheduleJobData Empty \r\n");
+				fw.append("ScheduleJobData Empty with this Stretchy_report :" + data.getBatchName() + "\r\n");
 		    }
 		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
 		    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
 	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+		    	
 		    	Map<String, String> reportParams = new HashMap<String, String>();
 		    	
 				String pdfFileName = this.readExtraDataAndReportingService.generateEmailReport(scheduleJobData.getBatchName(), "report",reportParams,fileLocation);
-		    	   fw.append("PDF file location is :" + pdfFileName +" \r\n");
+		    	   
 					if(pdfFileName!=null){
+					  fw.append("PDF file location is :" + pdfFileName +" \r\n");
 					  fw.append("Sending the Email....... \r\n");
 					  String result=this.messagePlatformEmailService.createEmail(pdfFileName,data.getEmailId());
 					  if(result.equalsIgnoreCase("Success")){
@@ -859,14 +866,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 					  }else{
 						  fw.append("Email sending failed to "+data.getEmailId()+", \r\n");
 					  }
+					}else if(pdfFileName.isEmpty()){
+						 fw.append("PDF file name is Empty and PDF file doesnot Create Properly \r\n");
+					}else{
+						fw.append("PDF file Creation Failed \r\n");
 					}
 				}	
 	      
-	        fw.append("Report Emails are Completed....");
+	        fw.append("Report Emails Job is Completed....");
 		    fw.flush();
 		    fw.close();
           }
-	 System.out.println("Report Emails are Proccesed....");
+	 System.out.println("Report Emails are Processed....");
 	 
 	  } catch (IOException e) {
 			e.printStackTrace();
