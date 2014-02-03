@@ -83,11 +83,13 @@ try{
 	
 	 this.context.authenticatedUser();
 	 final List<UserChatData> userChatDatas = this.userChatReadplatformReadService.getUserChatDetails();
-	 for(UserChatData userChatData:userChatDatas){
+	 /*for(UserChatData userChatData:userChatDatas){
 	 UserChat userChat=this.userChatRepository.findOne(userChatData.getId());
      userChat.update();
      this.userChatRepository.save(userChat);
-	 }
+	 }*/
+	 UserChat userChat=this.userChatRepository.findOne(entityId);
+	 userChat.update();
      return new CommandProcessingResult(entityId);
      
      
@@ -112,7 +114,7 @@ try{
 	
 }
 	
-	return null;
+	return new CommandProcessingResult(entityId);
 }
 
 }

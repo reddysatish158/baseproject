@@ -28,7 +28,8 @@ public class UserChat extends AbstractPersistable<Long>{
 
 	
 	@Column(name = "is_read", nullable = false)
-	private char read='n';
+	//private char read='n';
+	private Boolean read=false;
 	
 	@Column(name = "is_deleted", nullable = false)
 	private char isDeleted='N';
@@ -48,7 +49,7 @@ public UserChat(){
 
 	public void update() {
 		
-		this.read='Y';
+		this.read=true;
 		
 	}
 
