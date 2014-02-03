@@ -65,7 +65,6 @@ import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -154,6 +153,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 			String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+
 			 "_"+dateTime+".log";
+			System.out.println("file created location is:"+path);
 			File fileHandler = new File(path.trim());
 			fileHandler.createNewFile();
 			FileWriter fw = new FileWriter(fileHandler);
@@ -223,7 +223,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.REQUESTOR.toString()+ File.separator +"Requester_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				 File fileHandler = new File(path.trim());
+				System.out.println("file created location is:"+path);
+				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
@@ -263,7 +264,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+ JobName.RESPONSOR.toString()+ File.separator +"Responser_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				 File fileHandler = new File(path.trim());
+				System.out.println("file created location is:"+path);
+				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
@@ -299,7 +301,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.SIMULATOR.toString()+ File.separator +"Simulator_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				 File fileHandler = new File(path.trim());
+				System.out.println("file created location is:"+path);
+				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
@@ -408,6 +411,7 @@ public class SheduleJobWritePlatformServiceImpl implements
         	  Date date=new Date();
         	  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
         	  String path=FileUtils.generateLogFileDirectory()+ JobName.MESSAGE_MERGE.toString() + File.separator +"Messanger_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+        		System.out.println("file created location is:"+path);
         	  File fileHandler = new File(path.trim());
  			 fileHandler.createNewFile();
  			 FileWriter fw = new FileWriter(fileHandler);
@@ -458,6 +462,7 @@ public class SheduleJobWritePlatformServiceImpl implements
             	Date date=new Date();
             	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 	            String path=FileUtils.generateLogFileDirectory()+ JobName.AUTO_EXIPIRY.toString() + File.separator +"AutoExipiry_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+	        	System.out.println("file created location is:"+path);
 	            File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
@@ -583,7 +588,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
     	    	String path=FileUtils.generateLogFileDirectory()+JobName.PUSH_NOTIFICATION.toString() + File.separator +"PushNotification_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-    	    	 File fileHandler = new File(path.trim());
+    	    	System.out.println("file created location is:"+path);
+    	    	File fileHandler = new File(path.trim());
     			 fileHandler.createNewFile();
     			 FileWriter fw = new FileWriter(fileHandler);
     		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
@@ -640,7 +646,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem());
 	            if(!entitlementDataForProcessings.isEmpty()){
 	            	String path=FileUtils.generateLogFileDirectory()+ JobName.Middleware.toString() + File.separator +"middleware_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-	            	 File fileHandler = new File(path.trim());
+	            	System.out.println("file created location is:"+path);
+	            	File fileHandler = new File(path.trim());
 	    			 fileHandler.createNewFile();
 	    			 FileWriter fw = new FileWriter(fileHandler);
 	    		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
