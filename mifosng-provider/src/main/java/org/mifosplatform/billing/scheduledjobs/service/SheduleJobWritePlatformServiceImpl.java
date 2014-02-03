@@ -227,7 +227,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Request Details.......");
+			    fw.append("Processing Request Details....... \r\n");
 			    for (PrepareRequestData requestData : data) {
 			    	
 					fw.append("Prepare Request id="+requestData.getRequestId()+" ,clientId="+requestData.getClientId()+" ,orderId="
@@ -267,7 +267,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Response Details.......");
+			    fw.append("Processing Response Details....... \r\n");
 				for (ProcessingDetailsData detailsData : processingDetails) {
 	                fw.append("Process Response id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
 	                		+detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
@@ -304,7 +304,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
 			     
-			    fw.append("Processing Simulator Details.......");
+			    fw.append("Processing Simulator Details....... \r\n");
 				for (ProcessingDetailsData detailsData : processingDetails) {
 	                
 					fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
@@ -362,7 +362,7 @@ public class SheduleJobWritePlatformServiceImpl implements
     	 			}
 					 for(Long clientId:clientIds)
 					 {
-						    fw.append("processing clientId: "+clientId);
+						    fw.append("processing clientId: "+clientId+ " \r\n");
 						    JSONObject jsonobject = new JSONObject();
 						
 							DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
@@ -438,7 +438,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			
 	     }
           System.out.println("Messanger Job is Completed..."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
 		}
 		
 		catch (Exception dve) 
@@ -646,10 +646,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 	    		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
 	   		     
 				    fw.append("Processing Middleware Details....... \r\n");
-				    fw.append("Staker Server Details.....");
-				    fw.append("UserName of Staker:"+data.getUsername());
-				    fw.append("password of Staker: **************");
-				    fw.append("url of staker:"+data.getUrl());
+				    fw.append("Staker Server Details.....\r\n");
+				    fw.append("UserName of Staker:"+data.getUsername()+" \r\n");
+				    fw.append("password of Staker: ************** \r\n");
+				    fw.append("url of staker:"+data.getUrl()+" \r\n");
 				  
 				for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
 					fw.append("EntitlementsData id="+entitlementsData.getId()+" ,clientId="+entitlementsData.getClientId()+" ,HardwareId="
@@ -765,11 +765,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 						JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
 								entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
 						CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
-						System.out.println(result);
-						fw.append("Result From the EntitlementApi is:"+result+"\r\n");
+						System.out.println(result.resourceId()+" \r\n");
+						fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
 	
 					}
-				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" /r/n");
 				    fw.flush();
 				    fw.close();
 				    
@@ -816,7 +816,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 }
 	  
 	 System.out.println("Event Actions are Processed....");
-	 fw.append("Event Actions are Completed....");
+	 fw.append("Event Actions are Completed.... \r\n");
 	    fw.flush();
 	    fw.close();
 	  } catch (IOException e) {
@@ -850,6 +850,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				fw.append("ScheduleJobData Empty with this Stretchy_report :" + data.getBatchName() + "\r\n");
 		    }
 		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	   fw.append("Processing report email.....\r\n");
 		    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
 	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
 		    	
@@ -873,7 +874,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					}
 				}	
 	      
-	        fw.append("Report Emails Job is Completed....");
+	        fw.append("Report Emails Job is Completed....\r\n");
 		    fw.flush();
 		    fw.close();
           }
