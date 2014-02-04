@@ -80,12 +80,12 @@ public class PlansApiResource {
 		 context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
      List<ServiceData> data = this.planReadPlatformService.retrieveAllServices();
      List<BillRuleData> billData = this.planReadPlatformService.retrievebillRules();
-	 List<SubscriptionData> contractPeriod = this.planReadPlatformService.retrieveSubscriptionData();
-	 contractPeriod.remove(0);
+	 //List<SubscriptionData> contractPeriod = this.planReadPlatformService.retrieveSubscriptionData();
+	 //contractPeriod.remove(0);
 	 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 	 List<SystemData> provisionSysData = this.planReadPlatformService.retrieveSystemData();
 	 List<EnumOptionData> volumeType = this.planReadPlatformService.retrieveVolumeTypes();
-	 PlanData planData = new PlanData(data, billData, contractPeriod, status,null,null,provisionSysData,volumeType);
+	 PlanData planData = new PlanData(data, billData, null, status,null,null,provisionSysData,volumeType);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, planData, RESPONSE_DATA_PARAMETERS);
 	

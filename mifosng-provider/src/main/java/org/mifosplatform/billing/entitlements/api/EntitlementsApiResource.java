@@ -99,6 +99,7 @@ public class EntitlementsApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
    public String retrieveDeviceData(@Context final UriInfo uriInfo,@QueryParam("mac") final String Mac)
 	{
+
 		try {
 		       StakerData data=this.entitlementReadPlatformService.getData(Mac);
 		       final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -120,6 +121,7 @@ public class EntitlementsApiResource {
 			} catch (Exception e) {
 	        	return e.getMessage();
 			}      
+
 	}
 	
 	@GET

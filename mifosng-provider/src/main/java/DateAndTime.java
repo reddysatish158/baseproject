@@ -1,4 +1,6 @@
-import java.util.Date;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalTime;
+
 
 
 
@@ -6,17 +8,17 @@ import java.util.Date;
 public class DateAndTime {
 
     public static void main(String[] args) throws Exception {
-
-    	Date chargedate=new Date();
-    	Date date2=new Date();
-    	@SuppressWarnings("deprecation")
-		Date chargeEnddate=new Date(2014,2,20);
+/*
+    	 String string=String.format("%0" + 2 + "d", 6);
+    	 System.out.println(string);
     	
-    	int res=chargeEnddate.compareTo(date2);
-    	
-    	if(res == 0 || res == 1){
-    		System.out.println(res);
-    	}
+    	LocalTime date=new LocalTime();*/
+    	 final DateTimeZone zone = DateTimeZone.forID("Pacific/Fiji");
+    	  LocalTime date=new LocalTime(zone);
+    	System.out.println(date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute());
+	     //final DateTimeZone zone = DateTimeZone.forID("Pacific/Fiji");
+	     System.out.println(zone.toTimeZone());
+	   
     	
 }
 }

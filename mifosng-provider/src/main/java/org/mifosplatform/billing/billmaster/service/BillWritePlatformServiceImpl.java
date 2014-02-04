@@ -530,14 +530,14 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 	@Override
 	public void ireportPdf(Long billId) {
 		try {
-			String fileLocation = FileUtils.BILLING_BASE_DIR;
+			String fileLocation = FileUtils.MIFOSX_BASE_DIR;
 
 			/** Recursively create the directory if it does not exist **/
 			if (!new File(fileLocation).isDirectory()) {
 				new File(fileLocation).mkdirs();
 			}
 			
-			String jpath =  System.getProperty("user.home") + File.separator + "billing";
+			String jpath = fileLocation+File.separator+"jasper"; //System.getProperty("user.home") + File.separator + "billing";
 			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
 			//InputStream input = new FileInputStream(new File("/usr/hugotest/EmployeeReport.jasper"));
 			//JasperDesign jasperDesign = JRXmlLoader.load(input);

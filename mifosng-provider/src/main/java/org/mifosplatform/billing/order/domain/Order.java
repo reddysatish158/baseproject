@@ -16,6 +16,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
+import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
 import org.mifosplatform.useradministration.domain.AppUser;
 
 @Entity
@@ -67,6 +68,9 @@ public class Order extends AbstractAuditableCustom<AppUser, Long> {
 	
 	@Column(name ="user_action")
 	private String userAction;
+	
+	@Column(name ="order_no")
+	private String orderNo;
 
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "orders", orphanRemoval = true)
@@ -279,6 +283,12 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 
 	public List<OrderDiscount> getOrderDiscount() {
 		return orderDiscount;
+	}
+
+
+	public void updateOrderNum(String orderNo) {
+		this.orderNo=orderNo;
+		
 	}
 	
 	

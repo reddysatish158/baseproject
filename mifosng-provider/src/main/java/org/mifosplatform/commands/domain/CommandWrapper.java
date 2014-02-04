@@ -953,6 +953,10 @@ public class CommandWrapper {
 		public boolean isDeAllocateHardwareResource() {
 			return this.actionName.equalsIgnoreCase("DEALLOCATE") && this.entityName.equalsIgnoreCase("INVENTORY");
 		}
+
+		 public boolean isCacheResource() {
+            return this.entityName.equalsIgnoreCase("CACHE");
+        }
 		
 
 }

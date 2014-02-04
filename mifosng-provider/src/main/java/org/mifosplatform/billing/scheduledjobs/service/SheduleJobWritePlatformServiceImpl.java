@@ -21,7 +21,9 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jettison.json.JSONObject;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
@@ -59,6 +61,7 @@ import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
@@ -149,8 +152,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.INVOICE.toString());
 		if(data!=null){
 			
-			Date date=new Date();  
-			String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+			  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+				LocalTime date=new LocalTime(zone);
+				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 			String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+
 			 "_"+dateTime+".log";
 			System.out.println("file created location is:"+path);
@@ -217,11 +222,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 		try {
 			System.out.println("Processing Request Details.......");
 			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
-			
-			if(!data.isEmpty()){
 
-				Date date=new Date();
-				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+			if(!data.isEmpty()){
+				  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+				LocalTime date=new LocalTime(zone);
+				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();//date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.REQUESTOR.toString()+ File.separator +"Requester_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 				System.out.println("file created location is:"+path);
 				File fileHandler = new File(path.trim());
@@ -261,8 +267,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Response Details.......");
 			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
 			if(!processingDetails.isEmpty()){
-				Date date=new Date();
-				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+				  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+					final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+					LocalTime date=new LocalTime(zone);
+					String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 				String path=FileUtils.generateLogFileDirectory()+ JobName.RESPONSOR.toString()+ File.separator +"Responser_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 				System.out.println("file created location is:"+path);
 				File fileHandler = new File(path.trim());
@@ -298,8 +306,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Simulator Details.......");
 			List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveUnProcessingDetails();
 			if(!processingDetails.isEmpty()){
-				Date date=new Date();
-				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+				
+				  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+					final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+					LocalTime date=new LocalTime(zone);
+					String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 				String path=FileUtils.generateLogFileDirectory()+JobName.SIMULATOR.toString()+ File.separator +"Simulator_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 				System.out.println("file created location is:"+path);
 				File fileHandler = new File(path.trim());
@@ -338,8 +349,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing statement Details.......");
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
 		    if(data!=null){
-		    	Date date=new Date();
-		    	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+		    	
+		    	  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+					final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+					LocalTime date=new LocalTime(zone);
+					String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 		    	String path=FileUtils.generateLogFileDirectory()+ JobName.GENERATE_STATMENT.toString() + File.separator +"statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 		    	 File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
@@ -408,8 +422,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 		{
 		 JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.MESSAGE_MERGE.toString());
           if(data!=null){
-        	  Date date=new Date();
-        	  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+        	  
+        	  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+				LocalTime date=new LocalTime(zone);
+				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
         	  String path=FileUtils.generateLogFileDirectory()+ JobName.MESSAGE_MERGE.toString() + File.separator +"Messanger_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
         		System.out.println("file created location is:"+path);
         	  File fileHandler = new File(path.trim());
@@ -459,8 +476,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("Processing Auto Exipiry Details.......");
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
             if(data!=null){
-            	Date date=new Date();
-            	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+            	
+            	  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+  				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+  				LocalTime date=new LocalTime(zone);
+  				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 	            String path=FileUtils.generateLogFileDirectory()+ JobName.AUTO_EXIPIRY.toString() + File.separator +"AutoExipiry_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 	        	System.out.println("file created location is:"+path);
 	            File fileHandler = new File(path.trim());
@@ -499,9 +519,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}					    
 		      			for (OrderData orderData : orderDatas) 
 		      			  {
-		      				fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
+		      				/*fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
 		      						+" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
-		      						orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");
+		      						orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
 		      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
 		      				 {
 		      					
@@ -510,9 +530,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      						
 		      						 JSONObject jsonobject = new JSONObject();
 		      					     if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
-		      					    
+		      					    	 
 		      					    Order  order=this.orderRepository.findOne(orderData.getId());
-		      					    
 		      					    List<OrderPrice> orderPrice=order.getPrice();
 		      					    
 		      					     boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
@@ -527,6 +546,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      									null,clientId, null, null, null,null, null, null);
 		      							fw.append("sending json data for Renewal  Order is : "+jsonobject.toString()+"\r\n");
 		      					    	this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
+		      					    	fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been renewaled for one month via  " +
+		      					    			"Auto Exipiry on Dated"+exipirydate);
 		           					
 		          				}else{
 				
@@ -543,6 +564,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 									final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
 											null,clientId, null, null, null,null, null, null);
 									this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+									fw.append("Client Id"+order.getClientId()+" With this Orde"+order.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
 								 }
 		      					    }else if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
 		      					     {
@@ -557,6 +579,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      							final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
 		      									null,clientId, null, null, null,null, null, null);
 		      							this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+		      							fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
 		      						     }
 		      				 }
 		      			  }
@@ -585,8 +608,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
     	    
 			if(!billingMessageDataForProcessings.isEmpty()){
-				Date date=new Date();
-				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+				
+				  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+					final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+					LocalTime date=new LocalTime(zone);
+					String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
     	    	String path=FileUtils.generateLogFileDirectory()+JobName.PUSH_NOTIFICATION.toString() + File.separator +"PushNotification_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
     	    	System.out.println("file created location is:"+path);
     	    	File fileHandler = new File(path.trim());
@@ -637,8 +663,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 			JobParameterData data = this.sheduleJobReadPlatformService.getJobParameters(JobName.Middleware.toString());
 			
 			if(data!=null){
-				Date date=new Date();
-				String dateTime =date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+				
+				  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+					final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+					LocalTime date=new LocalTime(zone);
+					String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
+					
 				String credentials = data.getUsername().trim() + ":"+ data.getPassword().trim();
 				byte[] encoded = Base64.encodeBase64(credentials.getBytes());
 				HttpClient httpClient = new DefaultHttpClient();
@@ -840,8 +870,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 System.out.println("Processing Event Actions.....");
 	  try {
 		  
-		  Date date=new Date();
-		  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+		  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+			final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+			LocalTime date=new LocalTime(zone);
+			String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 	      
 		  //Retrieve Event Actions
 	 String path=FileUtils.generateLogFileDirectory()+ JobName.EVENT_ACTION_PROCESSOR.toString() + File.separator +"Activationprocess_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
@@ -879,8 +911,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 		  JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.REPORT_EMAIL.toString());
 		  
           if(data!=null){		  
-		  Date date=new Date();
-		  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
+        	  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+				LocalTime date=new LocalTime(zone);
+				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
 	      String fileLocation=FileUtils.MIFOSX_BASE_DIR+ File.separator + JobName.REPORT_EMAIL.toString() + File.separator +"ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime;
 		  //Retrieve Event Actions
 		  String path=FileUtils.generateLogFileDirectory()+ JobName.REPORT_EMAIL.toString() + File.separator +"ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
