@@ -153,6 +153,10 @@ public class SchedulerJobApiResource {
             @QueryParam(SchedulerJobApiConstants.COMMAND) final String commandParam) {
     	File file = null;
 		String fileUploadLocation = FileUtils.generateLogFileDirectory();
+		File filelocation = new File(fileUploadLocation);			
+		if(!filelocation.isDirectory()){
+			filelocation.mkdirs();
+		}
 		for (JobName status : JobName.values()) {
 			String name=status.toString();
 			file = new File(fileUploadLocation+ File.separator + name);			

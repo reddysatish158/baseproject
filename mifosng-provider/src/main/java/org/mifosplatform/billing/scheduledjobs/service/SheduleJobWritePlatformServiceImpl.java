@@ -65,7 +65,6 @@ import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -154,6 +153,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 			String path=FileUtils.generateLogFileDirectory()+ JobName.INVOICE.toString() + File.separator +"Invoice_"+new LocalDate().toString().replace("-","")+
 			 "_"+dateTime+".log";
+			System.out.println("file created location is:"+path);
 			File fileHandler = new File(path.trim());
 			fileHandler.createNewFile();
 			FileWriter fw = new FileWriter(fileHandler);
@@ -223,11 +223,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.REQUESTOR.toString()+ File.separator +"Requester_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				 File fileHandler = new File(path.trim());
+				System.out.println("file created location is:"+path);
+				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Request Details.......");
+			    fw.append("Processing Request Details....... \r\n");
 			    for (PrepareRequestData requestData : data) {
 			    	
 					fw.append("Prepare Request id="+requestData.getRequestId()+" ,clientId="+requestData.getClientId()+" ,orderId="
@@ -263,11 +264,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+ JobName.RESPONSOR.toString()+ File.separator +"Responser_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				 File fileHandler = new File(path.trim());
+				System.out.println("file created location is:"+path);
+				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Response Details.......");
+			    fw.append("Processing Response Details....... \r\n");
 				for (ProcessingDetailsData detailsData : processingDetails) {
 	                fw.append("Process Response id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
 	                		+detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
@@ -299,12 +301,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.SIMULATOR.toString()+ File.separator +"Simulator_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				 File fileHandler = new File(path.trim());
+				System.out.println("file created location is:"+path);
+				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
 			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
 			     
-			    fw.append("Processing Simulator Details.......");
+			    fw.append("Processing Simulator Details....... \r\n");
 				for (ProcessingDetailsData detailsData : processingDetails) {
 	                
 					fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
@@ -362,7 +365,7 @@ public class SheduleJobWritePlatformServiceImpl implements
     	 			}
 					 for(Long clientId:clientIds)
 					 {
-						    fw.append("processing clientId: "+clientId);
+						    fw.append("processing clientId: "+clientId+ " \r\n");
 						    JSONObject jsonobject = new JSONObject();
 						
 							DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
@@ -408,6 +411,7 @@ public class SheduleJobWritePlatformServiceImpl implements
         	  Date date=new Date();
         	  String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
         	  String path=FileUtils.generateLogFileDirectory()+ JobName.MESSAGE_MERGE.toString() + File.separator +"Messanger_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+        		System.out.println("file created location is:"+path);
         	  File fileHandler = new File(path.trim());
  			 fileHandler.createNewFile();
  			 FileWriter fw = new FileWriter(fileHandler);
@@ -429,6 +433,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					if(messageId!=null){
 					  fw.append("generating the message....... \r\n");
 					  this.billingMessageDataWritePlatformService.createMessageData(messageId,scheduleJobData.getQuery());
+					  fw.append("messages are generated successfully....... \r\n");
 					}
 				}	   
 		    fw.append("Messanger Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
@@ -437,7 +442,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			
 	     }
           System.out.println("Messanger Job is Completed..."
-					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
 		}
 		
 		catch (Exception dve) 
@@ -457,6 +462,7 @@ public class SheduleJobWritePlatformServiceImpl implements
             	Date date=new Date();
             	String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 	            String path=FileUtils.generateLogFileDirectory()+ JobName.AUTO_EXIPIRY.toString() + File.separator +"AutoExipiry_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+	        	System.out.println("file created location is:"+path);
 	            File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
@@ -575,30 +581,31 @@ public class SheduleJobWritePlatformServiceImpl implements
 	public void processNotify() {
 		try {
 			System.out.println("Processing Notify Details.......");
+			
 			List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
     	    
 			if(!billingMessageDataForProcessings.isEmpty()){
 				Date date=new Date();
 				String dateTime=date.getHours()+""+date.getMinutes()+""+date.getSeconds();
     	    	String path=FileUtils.generateLogFileDirectory()+JobName.PUSH_NOTIFICATION.toString() + File.separator +"PushNotification_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-    	    	 File fileHandler = new File(path.trim());
+    	    	System.out.println("file created location is:"+path);
+    	    	File fileHandler = new File(path.trim());
     			 fileHandler.createNewFile();
     			 FileWriter fw = new FileWriter(fileHandler);
     		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Notify Details....... \r\n");
-    	    	
+			    fw.append("Processing Notify Details....... \r\n");  	    	
 				for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
 					fw.append("BillingMessageData id="+emailDetail.getId()+" ,MessageTo="+emailDetail.getMessageTo()+" ,MessageType="
 							+emailDetail.getMessageType()+" ,MessageFrom="+emailDetail.getMessageFrom()+" ,Message="
 							+emailDetail.getBody()+"\r\n");
 	    	    	if(emailDetail.getMessageType()=='E'){
 	    	    		 String Result=this.messagePlatformEmailService.sendToUserEmail(emailDetail);
-	    	    		 fw.append(emailDetail.getId()+"-"+Result+" ... \r\n");
+	    	    		 fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result :"+Result+" ... \r\n");
 	    	    	}
 	    	    	else if(emailDetail.getMessageType()=='M'){
 	    	    		String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
-	    	    		String Result=this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());
-	    	    		 fw.append(emailDetail.getId()+"-"+Result+" ..\r\n");
+	    	    		String Result=this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());	    	    		
+	    	    		fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result:"+Result+" ... \r\n");
 	    	    	}
 	    	    	else{
 	    	    		 fw.append("Message Type Unknown ..\r\n");
@@ -608,8 +615,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 				fw.flush();
 				fw.close();
 				
-    	    }
-			System.out.println("Notify Job is Completed...");
+    	    }else{
+            	System.out.println("push Notification data is empty...");
+            }
+			System.out.println("Notify Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (DataIntegrityViolationException exception) {
 
 		} catch (IOException exception) {
@@ -637,25 +646,27 @@ public class SheduleJobWritePlatformServiceImpl implements
 				List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem());
 	            if(!entitlementDataForProcessings.isEmpty()){
 	            	String path=FileUtils.generateLogFileDirectory()+ JobName.Middleware.toString() + File.separator +"middleware_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-	            	 File fileHandler = new File(path.trim());
+	            	System.out.println("file created location is:"+path);
+	            	File fileHandler = new File(path.trim());
 	    			 fileHandler.createNewFile();
 	    			 FileWriter fw = new FileWriter(fileHandler);
 	    		     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
 	   		     
 				    fw.append("Processing Middleware Details....... \r\n");
-				    fw.append("Staker Server Details.....");
-				    fw.append("UserName of Staker:"+data.getUsername());
-				    fw.append("password of Staker: **************");
-				    fw.append("url of staker:"+data.getUrl());
+				    fw.append("Staker Server Details.....\r\n");
+				    fw.append("UserName of Staker:"+data.getUsername()+" \r\n");
+				    fw.append("password of Staker: ************** \r\n");
+				    fw.append("url of staker:"+data.getUrl()+" \r\n");
 				  
 				for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
 					fw.append("EntitlementsData id="+entitlementsData.getId()+" ,clientId="+entitlementsData.getClientId()+" ,HardwareId="
 							+entitlementsData.getHardwareId()+" ,RequestType="+entitlementsData.getRequestType()+"\r\n");
 					Long clientId = entitlementsData.getClientId();
 					ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
-					ReceiveMessage = "Success";
+					ReceiveMessage = "";
+					
 					if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
-					    String status="";
+					    String status="";					    
 						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
 								+ "&account_number="+ clientId + "&tariff_plan=1&status=1&&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
@@ -665,10 +676,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 						postRequest.setHeader("Authorization", "Basic " + new String(encoded));
 						postRequest.setEntity(se);
 						HttpResponse response = httpClient.execute(postRequest);
-						if (response.getStatusLine().getStatusCode() != 200) {
+						
+						if (response.getStatusLine().getStatusCode() == 404) {
+							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/ is not Found. \r\n");
+							return;
+						}else if (response.getStatusLine().getStatusCode() == 401) {
+							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							return;
+						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
-							return;
+							continue;
 						}
 						BufferedReader br1 = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
 						String output;
@@ -682,6 +702,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
 								fw.append("error of the output is : "+ error+" \r\n");
 								ReceiveMessage = "failure :" + error;
+							}else{
+								fw.append("Client Activation SuccessFully Completed. \r\n");
+								ReceiveMessage = "ActivationSuccessOnly";
 							}
 						}
 						
@@ -696,10 +719,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 						putRequest.setHeader("Authorization", "Basic " + new String(encoded));
 						putRequest.setEntity(se1);
 						HttpResponse response1 = httpClient.execute(putRequest);
-						if (response1.getStatusLine().getStatusCode() != 200) {
-							System.out.println("Failed : HTTP error code : " + response1.getStatusLine().getStatusCode());
-							fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
+						if (response1.getStatusLine().getStatusCode() == 404) {
+							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"account_subscription/"+clientId+" is not Found. \r\n");
 							return;
+						}else if (response1.getStatusLine().getStatusCode() == 401) {
+							System.out.println("AuthenticationFailed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("AuthenticationFailed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							return;
+						}else if (response1.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
+							continue;
 						}
 						BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
 	
@@ -710,11 +741,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 							final JsonElement ele = fromApiJsonHelper.parse(output2);
 							final String status1 = fromApiJsonHelper.extractStringNamed("status", ele);
 							 fw.append("status of the output is : "+ status1+" \r\n");
-							if (status1.equalsIgnoreCase("ERROR")) {
-								
+							if (status1.equalsIgnoreCase("ERROR")) {			
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
 								fw.append("error of the output is : "+ error+" \r\n");
 								ReceiveMessage = "failure :" + error;
+							}
+							else{
+								fw.append("Client account_subscription request SuccessFully Completed. \r\n");
+								ReceiveMessage = "Success";
 							}
 						}
 	                   }
@@ -723,21 +757,28 @@ public class SheduleJobWritePlatformServiceImpl implements
 						String query = "status= " + new Long(0);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
+						//String url=""+data.getUrl() + "accounts/" + clientId ;
 						String url=""+data.getUrl() + "accounts/123";
 						fw.append("Url for DISCONNECTION request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
 						putrequest.setHeader("Authorization", "Basic " + new String(encoded));
-						
-						
-						HttpResponse putresponse = httpClient.execute(putrequest);
-						if (putresponse.getStatusLine().getStatusCode() != 200) {
-							System.out.println("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode());
-							fw.append("Failed : HTTP error code : "+ putresponse.getStatusLine().getStatusCode()+" \r\n");
+						HttpResponse response = httpClient.execute(putrequest);
+						if (response.getStatusLine().getStatusCode() == 404) {
+							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/123(hardcoded) is not Found. \r\n");
 							return;
+						}else if (response.getStatusLine().getStatusCode() == 401) {
+							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							return;
+						}else if (response.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
+							continue;
 						}
 						BufferedReader br = new BufferedReader(
-								new InputStreamReader((putresponse.getEntity().getContent())));
+								new InputStreamReader((response.getEntity().getContent())));
 						String output="";
 						while ((output = br.readLine()) != null) {
 							System.out.println(output);
@@ -749,13 +790,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
 								fw.append("error of the output is : "+ error+" \r\n");
 								ReceiveMessage = "failure :" + error;
+							}else{
+								fw.append("Client DisConnection SuccessFully Completed. \r\n");
+								ReceiveMessage = "Success";
 							}
 						}
+					}else{
+						fw.append("Request Type is:"+entitlementsData.getRequestType());
+						fw.append("Unknown Request Type for Stalker (or) This Request Type is Not Handle in Middleware Job");
+						continue;
 					}
 						JsonObject object = new JsonObject();
-						object.addProperty("serviceId",entitlementsData.getServiceId());
-						object.addProperty("receivedStatus", new Long(1));
-						
+						object.addProperty("prdetailsId",entitlementsData.getPrdetailsId());
+						object.addProperty("receivedStatus", new Long(1));						
 						object.addProperty("receiveMessage", ReceiveMessage);
 						String entityName = "ENTITLEMENT";
 						fw.append("sending json data to EntitlementApi is:"+object.toString()+"\r\n");
@@ -763,15 +810,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 						JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
 								entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
 						CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
-						System.out.println(result);
-						fw.append("Result From the EntitlementApi is:"+result+"\r\n");
+						System.out.println(result.resourceId()+" \r\n");
+						fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
 	
 					}
-				    fw.append("Middleware Job is Completed...");
+				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" /r/n");
 				    fw.flush();
 				    fw.close();
 				    
+	            }else{
+	            	System.out.println("Middleware data is Empty...");
 	            }
+	             
 					httpClient.getConnectionManager().shutdown();
 					System.out.println("Middleware Job is Completed...");
 			}
@@ -810,8 +860,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 	  this.actiondetailsWritePlatformService.ProcessEventActions(eventActionData);
 	 }
 	  
-	 System.out.println("Event Actions are Proccesed....");
-	 fw.append("Event Actions are Completed....");
+	 System.out.println("Event Actions are Processed....");
+	 fw.append("Event Actions are Completed.... \r\n");
 	    fw.flush();
 	    fw.close();
 	  } catch (IOException e) {
@@ -842,16 +892,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 	      List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobDetails(data.getBatchName());
 		   
 		    if(sheduleDatas.isEmpty()){
-				fw.append("ScheduleJobData Empty \r\n");
+				fw.append("ScheduleJobData Empty with this Stretchy_report :" + data.getBatchName() + "\r\n");
 		    }
 		    for (ScheduleJobData scheduleJobData : sheduleDatas) {
+		    	   fw.append("Processing report email.....\r\n");
 		    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
 	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+		    	
 		    	Map<String, String> reportParams = new HashMap<String, String>();
 		    	
 				String pdfFileName = this.readExtraDataAndReportingService.generateEmailReport(scheduleJobData.getBatchName(), "report",reportParams,fileLocation);
-		    	   fw.append("PDF file location is :" + pdfFileName +" \r\n");
+		    	   
 					if(pdfFileName!=null){
+					  fw.append("PDF file location is :" + pdfFileName +" \r\n");
 					  fw.append("Sending the Email....... \r\n");
 					  String result=this.messagePlatformEmailService.createEmail(pdfFileName,data.getEmailId());
 					  if(result.equalsIgnoreCase("Success")){
@@ -859,14 +912,18 @@ public class SheduleJobWritePlatformServiceImpl implements
 					  }else{
 						  fw.append("Email sending failed to "+data.getEmailId()+", \r\n");
 					  }
+					}else if(pdfFileName.isEmpty()){
+						 fw.append("PDF file name is Empty and PDF file doesnot Create Properly \r\n");
+					}else{
+						fw.append("PDF file Creation Failed \r\n");
 					}
 				}	
 	      
-	        fw.append("Report Emails are Completed....");
+	        fw.append("Report Emails Job is Completed....\r\n");
 		    fw.flush();
 		    fw.close();
           }
-	 System.out.println("Report Emails are Proccesed....");
+	 System.out.println("Report Emails are Processed....");
 	 
 	  } catch (IOException e) {
 			e.printStackTrace();
