@@ -33,6 +33,7 @@ import org.mifosplatform.portfolio.group.data.GroupGeneralData;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -59,6 +60,10 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         this.officeReadPlatformService = officeReadPlatformService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
+    
+    public PlatformSecurityContext getContext() {
+        return this.context;
+    }
 
     @Override
     public ClientData retrieveTemplate() {
@@ -74,6 +79,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
     }
 
     @Override
+    @Cacheable(value = "clients", key = "T(org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy())")
     public Page<ClientData> retrieveAll(final SearchParameters searchParameters) {
 
         final AppUser currentUser = context.authenticatedUser();

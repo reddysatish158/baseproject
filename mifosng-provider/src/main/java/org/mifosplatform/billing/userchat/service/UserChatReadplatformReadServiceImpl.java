@@ -42,7 +42,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
              
     		final String userName=this.context.authenticatedUser().getUsername();
     		UserChatDataMapper mapper = new UserChatDataMapper();
-    		String sql = "select " + mapper.schema()+" where u.username=? and u.is_deleted='N'";
+    		String sql = "select " + mapper.schema()+" where u.username=? and u.is_deleted='N'  order by u.message_date desc ";
     		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
     		
     		
@@ -103,13 +103,13 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
              
     		final String userName=this.context.authenticatedUser().getUsername();
     		UserChatDataMapper mapper = new UserChatDataMapper();
-    		String sql = "select " + mapper.schema()+" where u.createdby_user = ?";
+    		String sql = "select " + mapper.schema()+" where u.createdby_user = ?  order by u.message_date desc";
     		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
     	}catch(EmptyResultDataAccessException accessException){
     		return null;
     	}
 		
-    
+     
     }
 
 

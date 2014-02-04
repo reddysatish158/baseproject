@@ -1999,4 +1999,11 @@ public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
 	this.href = "/userchats/"+this.entityId;
 	return this;
 }
+
+   public CommandWrapperBuilder updateCache() {
+        this.actionName = "UPDATE";
+        this.entityName = "CACHE";
+        this.href = "/cache";
+        return this;
+    }
 }

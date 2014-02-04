@@ -167,7 +167,7 @@ dependencies {
  	        	[group: 'org.springframework.integration', name:'spring-integration-ws', version:'2.2.4.RELEASE'],
 	   			
 	   			[group: 'org.springframework.integration', name:'spring-integration-stream', version:'2.2.0.RELEASE'],
-
+                [group: 'net.sf.ehcache', name: 'ehcache', version: '2.7.2'],
 	            [group: 'com.lowagie', name: 'itext', version: '2.1.7'],
 	            [group: 'com.lowagie', name: 'itext-rtf', version: '2.1.7'],
 				[group: 'org.mnode.ical4j', name: 'ical4j', version: '1.0.4'],
