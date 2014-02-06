@@ -698,11 +698,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 					if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
 					    String status="";					    
 						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
-								+ "&account_number="+ clientId + "&tariff_plan=1&status=1&&stb_mac="+ entitlementsData.getHardwareId();
+								+ "&account_number="+ clientId + "&tariff_plan=1&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());
 						fw.append("Url for Activation request:"+data.getUrl() + "accounts/" +"\r\n");
-						HttpPost postRequest = new HttpPost(data.getUrl() + "accounts/");
+						HttpPost postRequest = new HttpPost(data.getUrl() + "accounts/");						
 						postRequest.setHeader("Authorization", "Basic " + new String(encoded));
 						postRequest.setEntity(se);
 						HttpResponse response = httpClient.execute(postRequest);
@@ -710,10 +710,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/ is not Found. \r\n");
+							fw.flush();
+						    fw.close();
 							return;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							fw.flush();
+						    fw.close();
 							return;
 						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
@@ -752,10 +756,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response1.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"account_subscription/"+clientId+" is not Found. \r\n");
+							fw.flush();
+						    fw.close();
 							return;
 						}else if (response1.getStatusLine().getStatusCode() == 401) {
 							System.out.println("AuthenticationFailed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
 							fw.append("AuthenticationFailed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							fw.flush();
+						    fw.close();
 							return;
 						}else if (response1.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
@@ -787,8 +795,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 						String query = "status= " + new Long(0);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
-						//String url=""+data.getUrl() + "accounts/" + clientId ;
-						String url=""+data.getUrl() + "accounts/123";
+						String url=""+data.getUrl() + "accounts/" + clientId ;
+						//String url=""+data.getUrl() + "accounts/123";
 						fw.append("Url for DISCONNECTION request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
@@ -797,10 +805,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/123(hardcoded) is not Found. \r\n");
+							fw.flush();
+						    fw.close();
 							return;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							fw.flush();
+						    fw.close();
 							return;
 						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
