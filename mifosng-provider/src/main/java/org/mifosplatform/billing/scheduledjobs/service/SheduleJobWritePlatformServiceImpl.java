@@ -698,7 +698,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					if(entitlementsData.getRequestType().equalsIgnoreCase("ACTIVATION")){
 					    String status="";					    
 						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
-								+ "&account_number="+ clientId + "&tariff_plan=1&status=1&stb_mac="+ entitlementsData.getHardwareId();
+								+ "&account_number="+ clientId + "&tariff_plan=FULL&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());
 						fw.append("Url for Activation request:"+data.getUrl() + "accounts/" +"\r\n");
@@ -791,6 +791,52 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}
 	                   }
 					  
+					}else if(entitlementsData.getRequestType().equalsIgnoreCase("RECONNECTION")){
+						String query = "status= " + new Long(1);
+						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
+						StringEntity se = new StringEntity(query.trim());					
+						String url=""+data.getUrl() + "accounts/" + clientId ;
+						//String url=""+data.getUrl() + "accounts/123";
+						fw.append("Url for RECONNECTION request:"+ url +"\r\n");
+						HttpPut putrequest = new HttpPut(url.trim());
+						putrequest.setEntity(se);
+						putrequest.setHeader("Authorization", "Basic " + new String(encoded));
+						HttpResponse response = httpClient.execute(putrequest);
+						if (response.getStatusLine().getStatusCode() == 404) {
+							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/123(hardcoded) is not Found. \r\n");
+							fw.flush();
+						    fw.close();
+							return;
+						}else if (response.getStatusLine().getStatusCode() == 401) {
+							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
+							fw.flush();
+						    fw.close();
+							return;
+						}else if (response.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
+							continue;
+						}
+						BufferedReader br = new BufferedReader(
+								new InputStreamReader((response.getEntity().getContent())));
+						String output="";
+						while ((output = br.readLine()) != null) {
+							System.out.println(output);
+							fw.append("Output From Staker : "+ output+" \r\n");
+							final JsonElement ele = fromApiJsonHelper.parse(output);
+							final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+							 fw.append("status of the output is : "+ status+" \r\n");
+							if (status.equalsIgnoreCase("ERROR")) {
+								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+								fw.append("error of the output is : "+ error+" \r\n");
+								ReceiveMessage = "failure :" + error;
+							}else{
+								fw.append("Client ReConnection SuccessFully Completed. \r\n");
+								ReceiveMessage = "Success";
+							}
+						}
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase("DISCONNECTION")){
 						String query = "status= " + new Long(0);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
