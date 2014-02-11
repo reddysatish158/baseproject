@@ -215,49 +215,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 	}
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
 	}
-
-	/*@Transactional
-	@Override
-	@CronTarget(jobName = JobName.REQUESTOR)
-	public void processRequest() {
-
-		try {
-			System.out.println("Processing Request Details.......");
-			List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
-
-			if(!data.isEmpty()){
-				  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
-				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
-				LocalTime date=new LocalTime(zone);
-				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();//date.getHours()+""+date.getMinutes()+""+date.getSeconds();
-				String path=FileUtils.generateLogFileDirectory()+JobName.REQUESTOR.toString()+ File.separator +"Requester_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-				System.out.println("file created location is:"+path);
-				File fileHandler = new File(path.trim());
-				 fileHandler.createNewFile();
-				 FileWriter fw = new FileWriter(fileHandler);
-			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Request Details....... \r\n");
-			    for (PrepareRequestData requestData : data) {
-			    	
-					fw.append("Prepare Request id="+requestData.getRequestId()+" ,clientId="+requestData.getClientId()+" ,orderId="
-					+requestData.getOrderId()+" ,HardwareId="+requestData.getHardwareId()+" ,planName="+requestData.getPlanName()+
-					" ,Provisiong system="+requestData.getProvisioningSystem()+"\r\n");
-					
-					this.prepareRequestReadplatformService.processingClientDetails(requestData);
-					
-				}
-				fw.append(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+"\r\n");
-				fw.flush();
-				fw.close();
-			}
-			
-			System.out.println(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-		} catch (Exception exception) {
-
-		
-			exception.printStackTrace();
-		}
-	}*/
 	
 	@Transactional
 	@Override
