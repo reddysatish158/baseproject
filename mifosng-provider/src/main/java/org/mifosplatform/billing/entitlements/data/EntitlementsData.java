@@ -14,10 +14,11 @@ public class EntitlementsData {
 	private String status;
 	private StakerData results;
 	private String error;
+	private Long planId;
 	
 	
 
-	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product, Long serviceId, Long clientId) {
+	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product, Long serviceId, Long clientId, Long planId) {
 		
           this.id=id;
           this.prdetailsId=prdetailsId;
@@ -27,6 +28,7 @@ public class EntitlementsData {
           this.provisioingSystem=provisioingSystem;
           this.serviceId=serviceId;
           this.clientId=clientId;
+          this.planId=planId;
 	}
 	
 	public EntitlementsData(){
@@ -88,6 +90,11 @@ public class EntitlementsData {
 	public void setError(String error) {
 		this.error = error;
 	}
+
+	public Long getPlanId() {
+		return planId;
+	}
+	
 	
 	
 }
