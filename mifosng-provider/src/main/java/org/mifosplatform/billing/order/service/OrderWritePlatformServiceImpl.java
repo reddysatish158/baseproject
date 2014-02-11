@@ -502,7 +502,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
                   
                   if(orderDetails.getStatus().equals(StatusTypeEnum.DISCONNECTED.getValue()) && (!plan.getProvisionSystem().equalsIgnoreCase("None"))){
                 	  
-          			this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,requstStatus);
+          			this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,UserActionStatusTypeEnum.ACTIVATION.toString());
           			orderDetails.setStatus(StatusTypeEnum.PENDING.getValue().longValue());
           			orderDetails.setuserAction(requstStatus);
       			}else{
@@ -747,10 +747,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			order.updateDisconnectionstate();
 			this.orderRepository.save(order);
 			CommandProcessingResult result=this.createOrder(order.getClientId(), command);
-			Plan plan=this.planRepository.findOne(order.getPlanId());
+			Order newOrder=this.orderRepository.findOne(result.resourceId());
+			Plan plan=this.planRepository.findOne(newOrder.getPlanId());
 			
 			//Prepare a Requset For Order
-		     CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,UserActionStatusTypeEnum.CHANGE_PLAN.toString());
+		     CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(newOrder,plan,UserActionStatusTypeEnum.CHANGE_PLAN.toString());
 		     
 		   //For Order History
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),processingResult.commandId(),UserActionStatusTypeEnum.CHANGE_PLAN.toString(),userId);
