@@ -3,6 +3,7 @@ package org.mifosplatform.billing.action.service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,16 +85,31 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			  String resource=(String)out.get("strjson");
 			  
 			  boolean isCheck=false;
+			  String orderresource=null;
+			  String actionName=null;
 			  Long orderId=null;
-			  if(result.equalsIgnoreCase("true")){
+			  String planId=null;
+			  if(result.equalsIgnoreCase("true") && resource != null){
 
 				  isCheck=true;
+				  String[] resultdatas=resource.split(",");
+				  Map<String,String> map=new HashMap<String, String>();
+				   
+				  for(String resultData:resultdatas){
+					   String[] data=resultData.split(":");
+					   map.put(data[0],data[1]);
+					   
+				   }
+				  
+				  actionName=map.get("action");
+				  orderresource=map.get("orderid");
+				  planId=map.get("planid");
 			  }
-			  if(resource!=null){
-  		orderId=Long.parseLong(resource);
+			  if(orderresource !=null){
+  		   orderId=Long.parseLong(orderresource);
 			  }
 			  
-  		return new EventActionProcedureData(isCheck,orderId);
+  		return new EventActionProcedureData(isCheck,orderId,actionName,planId);
 	}
 
 
