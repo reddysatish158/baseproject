@@ -1155,7 +1155,7 @@ public class CommandWrapperBuilder {
 	}
 
 	public CommandWrapperBuilder updateAddress(final Long addrId) {
-		this.actionName = "UPDATE";
+		this.actionName = "CREATE";
 		this.entityName = "ADDRESS";
 		this.entityId = addrId;
 		this.href = "/address/" + addrId;
@@ -1999,4 +1999,21 @@ public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
 	this.href = "/userchats/"+this.entityId;
 	return this;
 }
+public CommandWrapperBuilder updateNewRecord(final String entityType,Long entityId) {
+	this.actionName = "UPDATE";
+	this.entityName = entityType;
+	this.entityId = entityId;
+	this.href = "/address/" + entityType+"/"+entityId;
+	return this;
+}
+
+public CommandWrapperBuilder deleteNewRecord(final String entityType, Long entityId) {
+	this.actionName = "DELETE";
+	this.entityName = entityType;
+	this.entityId = entityId;
+	this.href = "/address/" + entityType+"/"+entityId;
+	return this;
+}
+
+
 }
