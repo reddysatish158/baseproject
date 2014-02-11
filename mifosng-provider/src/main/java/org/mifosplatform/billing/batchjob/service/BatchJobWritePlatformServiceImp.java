@@ -3,7 +3,6 @@
  */
 package org.mifosplatform.billing.batchjob.service;
 
-import org.hibernate.engine.jdbc.batch.spi.Batch;
 import org.mifosplatform.billing.batchjob.domain.BatchJob;
 import org.mifosplatform.billing.batchjob.domain.BatchJobJpaRepository;
 import org.mifosplatform.billing.batchjob.serialization.BatchJobFromApiJsonDeserializer;

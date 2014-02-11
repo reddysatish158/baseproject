@@ -20,7 +20,7 @@ public class Contract extends AbstractPersistable<Long> {
 	private String subscriptionPeriod;
 
 	@Column(name = "is_deleted", nullable = false)
-	private boolean deleted = false;
+	private char deleted = 'N';
 
 	@Column(name = "contract_type", length = 100)
 	private String subscriptionType;
@@ -55,12 +55,8 @@ public class Contract extends AbstractPersistable<Long> {
 	
 
 	public void delete() {
-		if (deleted) {
-
-		} else {
-			this.deleted = true;
-
-		}
+		
+			this.deleted = 'Y';
 	}
 	public static Contract fromJson(final JsonCommand command) {
 	    final String subscriptionPeriod = command.stringValueOfParameterNamed("subscriptionPeriod");

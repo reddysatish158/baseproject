@@ -832,7 +832,13 @@ public class SynchronousCommandProcessingService implements
 			            }else {
 			                throw new UnsupportedCommandException(wrapper.commandName());
 			            }
-			}else if(wrapper.isEntitlementResource()){
+			} else if (wrapper.isCacheResource()) {
+	            if (wrapper.isUpdateOperation()) {
+	                handler = this.applicationContext.getBean("updateCacheCommandHandler", NewCommandSourceHandler.class);
+	            } else {
+	                throw new UnsupportedCommandException(wrapper.commandName());
+	            }
+	        } else if(wrapper.isEntitlementResource()){
 		                 if(wrapper.isCreateEntitlement()) {
 		                     handler = applicationContext.getBean("createEntitlementCommandHandler",NewCommandSourceHandler.class);
 		                 }

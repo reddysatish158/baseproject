@@ -1999,6 +1999,7 @@ public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
 	this.href = "/userchats/"+this.entityId;
 	return this;
 }
+
 public CommandWrapperBuilder updateNewRecord(final String entityType,Long entityId) {
 	this.actionName = "UPDATE";
 	this.entityName = entityType;
@@ -2015,5 +2016,11 @@ public CommandWrapperBuilder deleteNewRecord(final String entityType, Long entit
 	return this;
 }
 
+   public CommandWrapperBuilder updateCache() {
+        this.actionName = "UPDATE";
+        this.entityName = "CACHE";
+        this.href = "/cache";
+        return this;
+    }
 
 }
