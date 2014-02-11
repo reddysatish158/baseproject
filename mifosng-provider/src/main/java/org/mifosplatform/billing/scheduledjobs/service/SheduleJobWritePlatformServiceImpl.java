@@ -780,7 +780,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							if (status1.equalsIgnoreCase("ERROR")) {			
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
 								fw.append("error of the output is : "+ error+" \r\n");
-								ReceiveMessage = "failure :" + error;
+								ReceiveMessage = ReceiveMessage+", And account_subscription failure :" + error;
 							}
 							else{
 								boolean results= fromApiJsonHelper.extractBooleanNamed("results", ele);
@@ -789,7 +789,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 								    ReceiveMessage = "Success";
 								}else{
 									fw.append("Client account_subscription request Failed. \r\n");
-									ReceiveMessage = "Failure: the result[]= "+ results;
+									ReceiveMessage = ReceiveMessage+", And account_subscription Failure: the result[]= "+ results;
 								}
 								
 							}
