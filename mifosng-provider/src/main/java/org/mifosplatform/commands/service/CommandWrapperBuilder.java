@@ -1155,7 +1155,7 @@ public class CommandWrapperBuilder {
 	}
 
 	public CommandWrapperBuilder updateAddress(final Long addrId) {
-		this.actionName = "CREATE";
+		this.actionName = "UPDATE";
 		this.entityName = "ADDRESS";
 		this.entityId = addrId;
 		this.href = "/address/" + addrId;
