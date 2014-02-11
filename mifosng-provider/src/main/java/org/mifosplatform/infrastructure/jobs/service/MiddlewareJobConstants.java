@@ -6,7 +6,7 @@ public interface MiddlewareJobConstants {
 	 public static final String ReConnection = "RECONNECTION";
 	 public static final String DisConnection = "DISCONNECTION";
 	 public static final String Message = "MESSAGE";
-	 public static final String ChangePlan = "CHANGEPLAN";
-	 public static final String STBChange = "STBCHANGE";
+	 public static final String ChangePlan = "CHANGE_PLAN";
+	 public static final String STBChange = "DEVICE_SWAP";
 	 
 }
