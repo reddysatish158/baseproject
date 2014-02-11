@@ -16,8 +16,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.billing.message.data.BillingMessageData;
@@ -27,8 +27,6 @@ import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.billing.processscheduledjobs.service.SheduleJobReadPlatformService;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
-import org.mifosplatform.billing.uploadstatus.domain.UploadStatus;
-import org.mifosplatform.billing.uploadstatus.domain.UploadStatusRepository;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -67,12 +65,12 @@ public class SchedulerJobApiResource {
     private final PlanReadPlatformService planReadPlatformService;
 
     @Autowired
-    public SchedulerJobApiResource(final SchedulerJobRunnerReadService schedulerJobRunnerReadService,
-            final JobRegisterService jobRegisterService, final ToApiJsonSerializer<JobDetailData> toApiJsonSerializer,
-            final ApiRequestParameterHelper apiRequestParameterHelper,final ToApiJsonSerializer<ScheduleJobData> serializer,
-            final ToApiJsonSerializer<JobDetailHistoryData> jobHistoryToApiJsonSerializer,final SheduleJobReadPlatformService sheduleJobReadPlatformService,
-            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final BillingMesssageReadPlatformService billingMesssageReadPlatformService,
-            final PlanReadPlatformService planReadPlatformService) {
+    public SchedulerJobApiResource(final SchedulerJobRunnerReadService schedulerJobRunnerReadService,final JobRegisterService jobRegisterService,
+    		final ToApiJsonSerializer<JobDetailData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
+    		final ToApiJsonSerializer<ScheduleJobData> serializer,final ToApiJsonSerializer<JobDetailHistoryData> jobHistoryToApiJsonSerializer,
+    		final SheduleJobReadPlatformService sheduleJobReadPlatformService,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+    		final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
+    	
         this.schedulerJobRunnerReadService = schedulerJobRunnerReadService;
         this.jobRegisterService = jobRegisterService;
         this.toApiJsonSerializer = toApiJsonSerializer;
@@ -117,8 +115,6 @@ public class SchedulerJobApiResource {
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, jobDetailData, SchedulerJobApiConstants.JOB_DETAIL_RESPONSE_DATA_PARAMETERS);
     }
-
-    
     @GET
     @Path("template")
     @Consumes({ MediaType.APPLICATION_JSON })
@@ -129,8 +125,6 @@ public class SchedulerJobApiResource {
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.serializer.serialize(settings, jobData, SchedulerJobApiConstants.JOB_DETAIL_RESPONSE_DATA_PARAMETERS);
     }
-
-    
     @GET
     @Path("{" + SchedulerJobApiConstants.JOB_ID + "}/" + SchedulerJobApiConstants.JOB_RUN_HISTORY)
     @Consumes({ MediaType.APPLICATION_JSON })
@@ -204,7 +198,6 @@ public class SchedulerJobApiResource {
     	    	  final Collection<BillingMessageData> templateData = this.billingMesssageReadPlatformService.retrieveAllMessageTemplates();
     	    	  jobDetailData.setMessageData(templateData);
 		       }
-    	
     	
 		return jobDetailData;
 	}

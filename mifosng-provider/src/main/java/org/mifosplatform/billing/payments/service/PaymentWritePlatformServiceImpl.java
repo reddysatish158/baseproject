@@ -69,6 +69,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		this.paymodeReadPlatformService=paymodeReadPlatformService;
 	}
 
+	@Transactional
 	@Override
 	public CommandProcessingResult createPayment(JsonCommand command) {
 		try {

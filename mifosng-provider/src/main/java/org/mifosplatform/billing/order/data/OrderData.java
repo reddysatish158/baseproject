@@ -30,21 +30,23 @@ public class OrderData {
 	private List<PaytermData> paytermdata;
 	private List<SubscriptionData> subscriptiondata;
 	private List<OrderPriceData> orderPriceData;
-	private String cancelledStatus;
+	
 	private String contractPeriod;
-	private boolean flag;
+//	private boolean flag;
 	private Collection<McodeData> disconnectDetails;
 	private List<OrderHistoryData> orderHistory;
 	private String isPrepaid;
 	private String allowtopup;
 	private List<OrderData> clientOrders;
 	private String userAction;
+	private String orderNo;
 	private OrderData orderData;
 	private String provisioningSys;
 	private boolean ispaymentEnable;
 	private Collection<McodeData> paymodes;
 	private List<OrderLineData> orderServices;
 	private List<OrderDiscountData> orderDiscountDatas;
+	private LocalDate invoiceTilldate;
 	
 
 	public OrderData(List<PlanCodeData> allowedtypes,List<PaytermData> paytermData,
@@ -72,12 +74,11 @@ public class OrderData {
 
 	public OrderData(Long id, Long planId, String plancode, String status,LocalDate startDate, LocalDate endDate,
 			double price,String contractPeriod, String isprepaid, String allowtopup,String userAction,
-			String provisioningSys) {
+			String provisioningSys, String orderNo, LocalDate invoiceTillDate) {
 		this.id = id;
 		this.pdid = planId;
 		this.planCode = plancode;
 		this.status = status;
-		this.cancelledStatus = "DISCONNECTED";
 		this.period = null;
 		this.startDate = startDate;
 		this.currentDate = new LocalDate();
@@ -95,9 +96,11 @@ public class OrderData {
 		this.allowtopup=allowtopup;
 		this.userAction=userAction;
         this.provisioningSys=provisioningSys;
-		if (startDate.equals(currentDate)) {
+        this.orderNo=orderNo;
+        this.invoiceTilldate=invoiceTillDate;
+		/*if (startDate.equals(currentDate)) {
 			this.flag = true;
-		}
+		}*/
 
 	}
 

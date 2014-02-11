@@ -14,6 +14,8 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
+import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
@@ -109,6 +111,7 @@ public class Order extends AbstractAuditableCustom<AppUser, Long> {
 		this.billingAlign=billalign;
 		this.isDeleted='n';
 		this.userAction=userAction;
+		this.orderNo="";
 	}
 
 public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode, char billAlign,LocalDate startdate) {
@@ -288,6 +291,14 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 
 	public void updateOrderNum(String orderNo) {
 		this.orderNo=orderNo;
+		
+	}
+
+
+	public void updateDisconnectionstate() {
+		this.endDate =new Date();
+		this.disconnectReason="Not Interested";
+		this.status = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId();
 		
 	}
 	
