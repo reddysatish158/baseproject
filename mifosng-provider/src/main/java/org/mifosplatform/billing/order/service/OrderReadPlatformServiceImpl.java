@@ -730,8 +730,8 @@ return null;
 
 			public String clientOrderLookupSchema() {
 			return "o.id AS id,o.plan_id AS plan_id, o.start_date AS start_date,o.order_status AS order_status,p.plan_code AS plan_code,"
-					+"o.end_date AS end_date,co.contract_period as contractPeriod ,o.user_action AS userAction,p.is_prepaid as isprepaid,p.allow_topup as allowTopUp,  " +
-					"(SELECT sum(ol.price) AS price FROM b_order_price ol"
+					+"o.end_date AS end_date,co.contract_period as contractPeriod,o.order_no as orderNo,o.user_action AS userAction,p.is_prepaid as isprepaid,p.allow_topup as allowTopUp,  " +
+					"date_sub(o.next_billable_day,INTERVAL 1 DAY) as invoiceTillDate,(SELECT sum(ol.price) AS price FROM b_order_price ol"
 					+" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co";
 			}
 
@@ -745,15 +745,17 @@ return null;
 			final int statusId = rs.getInt("order_status");
 			LocalDate startDate=JdbcSupport.getLocalDate(rs,"start_date");
 			LocalDate endDate=JdbcSupport.getLocalDate(rs,"end_date");
+			LocalDate invoiceTillDate=JdbcSupport.getLocalDate(rs,"invoiceTillDate");
 			final double price=rs.getDouble("price");
             final String isprepaid=rs.getString("isprepaid");
             final String allowtopup=rs.getString("allowTopUp");
             final String userAction=rs.getString("userAction");
             final String provSys=rs.getString("provSys");
+            final String orderNo=rs.getString("orderNo");
 			EnumOptionData Enumstatus=OrderStatusEnumaration.OrderStatusType(statusId);
 			String status=Enumstatus.getValue();
 
-			return new OrderData(id, planId, plancode, status, startDate,endDate,price,contractPeriod,isprepaid,allowtopup,userAction,provSys);
+			return new OrderData(id, planId, plancode, status, startDate,endDate,price,contractPeriod,isprepaid,allowtopup,userAction,provSys,orderNo,invoiceTillDate);
 			}
 			}
 

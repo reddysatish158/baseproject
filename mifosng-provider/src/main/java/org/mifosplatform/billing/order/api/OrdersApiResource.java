@@ -199,10 +199,19 @@ public class OrdersApiResource {
     @Produces({MediaType.APPLICATION_JSON})
     public String retrieveRenewalOrderDetails(@Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-    	List<SubscriptionData> contractPeriod=this.planReadPlatformService.retrieveSubscriptionData();
+    	List<SubscriptionData> contractPeriods=this.planReadPlatformService.retrieveSubscriptionData();
     	GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
-    	contractPeriod.remove(0);
-    	OrderData orderData=new OrderData(null,contractPeriod,configurationProperty.isEnabled());
+    
+    //	List<SubscriptionData> datas=contractPeriods;
+    	//for(SubscriptionData data : datas){
+    	for(int i=0;i<contractPeriods.size();i++){
+    		if(contractPeriods.get(i).getContractdata().equalsIgnoreCase("Perpetual")){
+    			contractPeriods.remove(contractPeriods.get(i));
+    			
+    		}
+    		
+    	}
+    	OrderData orderData=new OrderData(null,contractPeriods,configurationProperty.isEnabled());
     	if(configurationProperty.isEnabled()){
     		Collection<McodeData> data = this.paymodeReadPlatformService.retrievemCodeDetails("Payment Mode");
     		orderData.setPaymodeData(data);

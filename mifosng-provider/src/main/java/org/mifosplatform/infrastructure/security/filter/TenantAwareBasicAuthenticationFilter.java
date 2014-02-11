@@ -64,7 +64,10 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
     private AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
    
+    @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
+    
+    @Autowired
     private AuthenticationManager authenticationManager;
     private TenantDetailsService tenantDetailsService;
     private ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
@@ -77,6 +80,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
     public TenantAwareBasicAuthenticationFilter(final AuthenticationManager authenticationManager,final AuthenticationEntryPoint authenticationEntryPoint,
     		final ConfigurationDomainService configurationDomainService,final CacheWritePlatformService cacheWritePlatformService,
     		final TenantDetailsService tenantDetailsService,final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer) {
+    	
         super(authenticationManager, authenticationEntryPoint);
         this.configurationDomainService=configurationDomainService;
         this.cacheWritePlatformService=cacheWritePlatformService;

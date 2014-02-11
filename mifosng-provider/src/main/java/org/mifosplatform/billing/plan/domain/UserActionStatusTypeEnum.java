@@ -10,7 +10,8 @@ public enum UserActionStatusTypeEnum {
 	RENEWAL_BEFORE_AUTOEXIPIRY(5,"CategoryType.renewal before autoexipiry"),
 	RENEWAL_AFTER_AUTOEXIPIRY(6,"CategoryType.renewal after autoexipiry"),
 	DEVICE_SWAP(7,"CategoryType.device swap"),
-	INVALID(8, "CategoryType.invalid");
+	CHANGE_PLAN(8,"CategoryType.change plan"),
+	INVALID(9, "CategoryType.invalid");
 
 
     private final Integer value;
@@ -54,7 +55,10 @@ public enum UserActionStatusTypeEnum {
 			actionStatusTypeEnum = UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY;
 			
 		case 7:
-			actionStatusTypeEnum = UserActionStatusTypeEnum.DEVICE_SWAP;	
+			actionStatusTypeEnum = UserActionStatusTypeEnum.DEVICE_SWAP;
+		
+		case 8:
+			actionStatusTypeEnum = UserActionStatusTypeEnum.CHANGE_PLAN;
 			
 		default:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.INVALID;

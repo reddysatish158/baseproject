@@ -144,7 +144,6 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 					String requestType=null;			        
 					  Order order=this.orderRepository.findOne(requestData.getOrderId());
 					 AllocationDetailsData detailsData=this.allocationReadPlatformService.getTheHardwareItemDetails(requestData.getOrderId());
-					 
 					 requestType=requestData.getRequestType();
 					 if(requestData.getIshardwareReq().equalsIgnoreCase("Y") && detailsData == null){
 						 
@@ -173,7 +172,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 						  ProvisionServiceDetails provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 						
 						  if(provisionServiceDetails!=null){
-							  
+							 /* 
                               if(requestData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DEVICE_SWAP.toString())){
                             	  
                             	   requestType=UserActionStatusTypeEnum.ACTIVATION.toString();
@@ -181,7 +180,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
                             		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
                             				 allocationDetailsData.getSerialNo(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.DISCONNECTION.toString());
                             		 processRequest.add(processRequestDetails);
-                              }
+                              }*/
                            
 						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
 								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
