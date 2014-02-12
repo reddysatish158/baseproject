@@ -537,6 +537,12 @@ public class CommandWrapper {
 		return this.entityName.equalsIgnoreCase("address") || this.entityName.equalsIgnoreCase("city") ||
 				this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country");
 	}
+	public boolean isTreeAddressResource() {
+		return this.entityName.equalsIgnoreCase("editCity") ||
+				this.entityName.equalsIgnoreCase("editState") ||
+				this.entityName.equalsIgnoreCase("editCountry") ;
+				
+	}
 
 	public boolean isOrderPriceResource() {
 		 return this.entityName.equalsIgnoreCase("ORDERPRICE");
@@ -624,6 +630,19 @@ public class CommandWrapper {
 		public boolean isNewRecord() {
 			return this.actionName.equalsIgnoreCase("UPDATE") || this.entityName.equalsIgnoreCase("city") 
 					||this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country");
+		}
+		public boolean isUpdateNewRecord() {
+			return  this.actionName.equalsIgnoreCase("UPDATE")&&
+					(this.entityName.equalsIgnoreCase("editCity") 
+							||this.entityName.equalsIgnoreCase("editState") 
+							|| this.entityName.equalsIgnoreCase("editCountry"));
+		}
+		
+		public boolean isdeleteNewRecord() {
+			return this.actionName.equalsIgnoreCase("DELETE")&&
+						(this.entityName.equalsIgnoreCase("editCity") 
+						   ||this.entityName.equalsIgnoreCase("editState") 
+							|| this.entityName.equalsIgnoreCase("editCountry"));
 		}
 
 		public boolean isEventOrderResource() {
@@ -957,6 +976,5 @@ public class CommandWrapper {
 		 public boolean isCacheResource() {
             return this.entityName.equalsIgnoreCase("CACHE");
         }
-		
 
 }
