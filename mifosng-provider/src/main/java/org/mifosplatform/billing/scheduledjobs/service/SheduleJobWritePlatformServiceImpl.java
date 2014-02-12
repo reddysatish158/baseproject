@@ -706,11 +706,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 						HttpResponse response = httpClient.execute(postRequest);
 						
 						if (response.getStatusLine().getStatusCode() == 404) {
+							
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/ is not Found. \r\n");
 							fw.flush();
 						    fw.close();
 							return;
+							
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
@@ -1155,6 +1157,15 @@ public class SheduleJobWritePlatformServiceImpl implements
 			e.printStackTrace();
 		}
 	 }
+	 
+	    /*@Transactional
+		@Override
+		@CronTarget(jobName = JobName.MESSAGE_MERGE)
+		public void processInstances() {
+	    	
+	    	System.out.println("Just Instance of Message......");
+		 
+	 }*/
 }
 
 	

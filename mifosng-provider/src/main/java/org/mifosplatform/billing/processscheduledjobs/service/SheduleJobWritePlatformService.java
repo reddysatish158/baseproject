@@ -15,6 +15,7 @@ public interface SheduleJobWritePlatformService {
 	void processMiddleware();
 	void eventActionProcessor();
 	void reportEmail();
+	//void processInstances();
     
 
 
