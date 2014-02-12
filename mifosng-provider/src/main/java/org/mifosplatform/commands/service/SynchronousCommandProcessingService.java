@@ -548,6 +548,13 @@ public class SynchronousCommandProcessingService implements
 			}else if (wrapper.isNewRecord()) {
 				handler = applicationContext.getBean("createNewRecordCommandHandler",NewCommandSourceHandler.class);
 			}
+		}else if (wrapper.isTreeAddressResource()) {
+			if (wrapper.isUpdateNewRecord()) {
+				handler = applicationContext.getBean("updateNewRecordCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isdeleteNewRecord()) {
+				handler = applicationContext.getBean("deleteNewRecordCommandHandler",NewCommandSourceHandler.class);
+			}
+			
 		}
 
 		else if (wrapper.isItemResource()) {

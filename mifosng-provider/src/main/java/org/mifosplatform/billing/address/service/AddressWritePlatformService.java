@@ -12,5 +12,9 @@ public interface AddressWritePlatformService {
 	CommandProcessingResult createNewRecord(JsonCommand command,String entityType);
 
 	CommandProcessingResult createAddress(Long clientId, JsonCommand command);
+	
+	CommandProcessingResult updateNewRecord(JsonCommand command,String entityType,Long id);
+
+	CommandProcessingResult deleteNewRecord(JsonCommand command,String entityType, Long id);
 
 }

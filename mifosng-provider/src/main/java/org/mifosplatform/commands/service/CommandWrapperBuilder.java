@@ -2000,10 +2000,27 @@ public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
 	return this;
 }
 
+public CommandWrapperBuilder updateNewRecord(final String entityType,Long entityId) {
+	this.actionName = "UPDATE";
+	this.entityName = entityType;
+	this.entityId = entityId;
+	this.href = "/address/" + entityType+"/"+entityId;
+	return this;
+}
+
+public CommandWrapperBuilder deleteNewRecord(final String entityType, Long entityId) {
+	this.actionName = "DELETE";
+	this.entityName = entityType;
+	this.entityId = entityId;
+	this.href = "/address/" + entityType+"/"+entityId;
+	return this;
+}
+
    public CommandWrapperBuilder updateCache() {
         this.actionName = "UPDATE";
         this.entityName = "CACHE";
         this.href = "/cache";
         return this;
     }
+
 }
