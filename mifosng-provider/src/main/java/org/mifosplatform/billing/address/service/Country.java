@@ -1,10 +1,14 @@
 package org.mifosplatform.billing.address.service;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -54,6 +58,9 @@ public void setIsActive(String isActive) {
 	this.isActive = isActive;
 }
 
+public Country(){
+	// TODO Auto-generated constructor stub
+}
 
 public Country(String entityCode, String entityName) {
 this.countryCode=entityCode;
@@ -69,4 +76,31 @@ public static Country fromJson(JsonCommand command) {
     final String cityName = command.stringValueOfParameterNamed("entityName");
      return new Country(cityCode,cityName);
 }
+public Map<String, Object> update(JsonCommand command) {
+	final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
+	final String countryCodeParamName="entityCode";
+	if (command.isChangeInStringParameterNamed(countryCodeParamName,this.countryCode)){
+		final String newValue = command.stringValueOfParameterNamed(countryCodeParamName);
+		actualChanges.put(countryCodeParamName, newValue);
+		this.countryCode = StringUtils.defaultIfEmpty(newValue, null);
+	}
+	final String countryNameParamName="entityName";
+	if (command.isChangeInStringParameterNamed(countryNameParamName,this.countryName)){
+		final String newValue = command.stringValueOfParameterNamed(countryNameParamName);
+		actualChanges.put(countryNameParamName, newValue);
+		this.countryName = StringUtils.defaultIfEmpty(newValue, null);
+	}
+	
+    return actualChanges;
+}
+
+
+public void delete() {
+	// TODO Auto-generated method stub
+	if(this.isActive.equalsIgnoreCase(isActive)){
+		this.isActive="N";
+	}
+	
+}
+
 }

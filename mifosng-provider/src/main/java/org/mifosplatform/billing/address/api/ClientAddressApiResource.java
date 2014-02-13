@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -166,4 +167,25 @@ public class ClientAddressApiResource {
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		 return this.toApiJsonSerializer.serialize(addresses);
 	}
+	@PUT
+	@Path("{entityType}/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String updateNewRecord(@PathParam("entityType") final String entityType,@PathParam("id") final Long id, final String apiRequestBodyAsJson){
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateNewRecord(entityType,id).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializer.serialize(result);
+
+	}
+	@DELETE
+	@Path("{entityType}/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String deleteNewRecord(@PathParam("entityType") final String entityType,@PathParam("id") final Long id, final String apiRequestBodyAsJson){
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteNewRecord(entityType,id).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializer.serialize(result);
+
+	}
+	
 }

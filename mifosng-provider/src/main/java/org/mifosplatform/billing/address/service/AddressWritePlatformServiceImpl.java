@@ -7,6 +7,9 @@ import java.util.Map;
 import org.mifosplatform.billing.address.data.AddressData;
 import org.mifosplatform.billing.address.domain.Address;
 import org.mifosplatform.billing.address.domain.AddressRepository;
+import org.mifosplatform.billing.address.exception.CityNotFoundException;
+import org.mifosplatform.billing.address.exception.CountryNotFoundException;
+import org.mifosplatform.billing.address.exception.StateNotFoundException;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -31,6 +34,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	public static final String ADDRESSTYPE="addressType";
 	
 	
+	
 
 
 	@Autowired
@@ -43,6 +47,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 		this.stateRepository=stateRepository;
 		this.countryRepository=countryRepository;
 		this.addressReadPlatformService=addressReadPlatformService;
+		
 		
 
 	}
@@ -160,5 +165,96 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	}
 
 	}
+	@Override
+	public CommandProcessingResult updateNewRecord(JsonCommand command,String entityType, Long id) {
+	  try{
+		this.context.authenticatedUser();
+		if(entityType.equalsIgnoreCase("editCity")){
+		   City city=cityObjectRetrieveById(id);
+		   final Map<String, Object> changes = city.update(command);
+		   	if(!changes.isEmpty()){
+		   		this.cityRepository.save(city);
+		   	}
+		   	return new CommandProcessingResult(id);
+      	}else if(entityType.equalsIgnoreCase("editState")){
+			  
+  			State state=stateObjectRetrieveById(id);
+  			final Map<String, Object> changes = state.update(command);
+	  
+  			if(!changes.isEmpty()){
+  				this.stateRepository.save(state);
+  			}
+  			return new CommandProcessingResult(id);
+  	 	}else {
+			  
+  	 		Country country=countryObjectRetrieveById(id);
+  			final Map<String, Object> changes = country.update(command);
+	  
+  				if(!changes.isEmpty()){
+  					this.countryRepository.save(country);
+  				}
+  				return new CommandProcessingResult(id);
+  	 		}
+		  
+	  	}catch (DataIntegrityViolationException dve) {
+			handleCodeDataIntegrityIssues(command, dve);
+			return null;
+	  	}
+	}
+
+	private City cityObjectRetrieveById(Long id){
+		City city=this.cityRepository.findOne(id);
+		if (city== null) { throw new CityNotFoundException(id.toString()); }
+		return city;
+	}
+	private State stateObjectRetrieveById(Long id){
+		State state=this.stateRepository.findOne(id);
+		if (state== null) { throw new StateNotFoundException(id.toString()); }
+		return state;
+	}
+	private Country countryObjectRetrieveById(Long id){
+		Country country=this.countryRepository.findOne(id);
+		if (country== null) { throw new CountryNotFoundException(id.toString()); }
+		return country;
+	}
+
+	@Override
+	public CommandProcessingResult deleteNewRecord(JsonCommand command,String entityType, Long id) {
+		
+		try{
+	    	 this.context.authenticatedUser();
+	    	 if(entityType.equalsIgnoreCase("editCity")){
+	    		 City city = this.cityRepository.findOne(id);
+	    		 if(city==null){
+	        		 throw new CityNotFoundException(id.toString());
+	        	 }
+	    		 city.delete();
+	    		 this.cityRepository.save(city);
+	    		 return new CommandProcessingResult(id);
+	        	 
+	    	 }else if(entityType.equalsIgnoreCase("editState")){
+	    		 State state = this.stateRepository.findOne(id);
+	    		 if(state==null){
+	        		 throw new StateNotFoundException(id.toString());
+	        	 }
+	    		 state.delete();
+	    		 this.stateRepository.save(state);
+	    		 return new CommandProcessingResult(id);
+	        	 
+	    	 }else{
+	    		 Country country = this.countryRepository.findOne(id);
+	    			if (country== null) { 
+	    				throw new CountryNotFoundException(id.toString()); 
+	    			}
+	    			country.delete();
+	    			this.countryRepository.save(country);
+	    		 return new CommandProcessingResult(id);
+	        	 
+	    	 }
+	}catch (DataIntegrityViolationException dve) {
+		handleCodeDataIntegrityIssues(command, dve);
+		return null;
+  	}
+  }
 }
 

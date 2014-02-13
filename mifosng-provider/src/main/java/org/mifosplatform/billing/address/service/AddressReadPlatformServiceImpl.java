@@ -323,19 +323,28 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 		public static final class AddressActionMapper implements RowMapper<AddressDetails>{
 			public String schema() {
 				
-				return "city.id as id,city.createdby_id as countryId,city.parent_code as stateId,country.country_name as counryName,state.state_name as stateName,city.city_name as cityName from b_country country  left join b_state state on (state.parent_code=country.id)left join  b_city city on (city.parent_code=state.id)";
+				return "country.id as countryId,country.country_code as countryCode,country.country_name as counryName,"+
+						"state.id as stateId,state.state_code as stateCode,state.state_name as stateName,"+
+						"city.id as cityId,city.city_code as cityCode,city.city_name as cityName "+ 
+						"from b_country country "+  
+						"left join b_state state on (state.parent_code=country.id and state.is_delete='N') "+
+						"left join  b_city city on (city.parent_code=state.id and state.is_delete='N' and city.is_delete='N')"+
+						"where country.is_active='Y'";
 				
 			}
 			@Override
 			public AddressDetails mapRow(final ResultSet rs,@SuppressWarnings("unused") final int rowNum)  throws SQLException {
 				
+					String countryCode=rs.getString("countryCode");
 					String countryName=rs.getString("counryName");
+					String cityCode=rs.getString("cityCode");
 					String cityName=rs.getString("cityName");
+					String stateCode=rs.getString("stateCode");
 					String stateName=rs.getString("stateName");
-					Long cityId=rs.getLong("id");
+					Long cityId=rs.getLong("cityId");
 					Long countryId=rs.getLong("countryId");
 					Long stateId=rs.getLong("stateId");
-					return new AddressDetails(countryName,cityName,stateName,countryId,stateId,cityId);
+					return new AddressDetails(countryCode,countryName,cityCode,cityName,stateCode,stateName,countryId,stateId,cityId);
 				}
 			}
 
