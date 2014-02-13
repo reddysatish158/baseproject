@@ -796,7 +796,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}
 	                   }					  
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.ReConnection)){
-						String query = "status= " + new Long(1);
+						String query = "status= " + new Long(0);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
 						String url=""+data.getUrl() + "accounts/" + clientId ;
