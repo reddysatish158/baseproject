@@ -547,14 +547,11 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("deleteAddressCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isNewRecord()) {
 				handler = applicationContext.getBean("createNewRecordCommandHandler",NewCommandSourceHandler.class);
-			}
-		}else if (wrapper.isTreeAddressResource()) {
-			if (wrapper.isUpdateNewRecord()) {
+			}else if (wrapper.isUpdateNewRecord()) {
 				handler = applicationContext.getBean("updateNewRecordCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isdeleteNewRecord()) {
 				handler = applicationContext.getBean("deleteNewRecordCommandHandler",NewCommandSourceHandler.class);
 			}
-			
 		}
 
 		else if (wrapper.isItemResource()) {
