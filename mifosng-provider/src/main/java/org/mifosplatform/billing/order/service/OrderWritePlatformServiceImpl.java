@@ -159,6 +159,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	
 		try{
 			//context.authenticatedUser().
+			 LocalDate endDate = null;
+			 Long orderStatus=null;
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			List<OrderLine> serviceDetails = new ArrayList<OrderLine>();
 			List<OrderPrice> orderprice = new ArrayList<OrderPrice>();
@@ -170,63 +172,56 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			   
 			List<ServiceData> details = obj.retrieveAllServices(order.getPlanId());
 			datas=obj.retrieveAllPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
-			
 			 if(datas.isEmpty()){
 				 datas=obj.retrieveDefaultPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
 			  }
-			 
 			 if(datas.isEmpty()){
 				  throw new NoRegionalPriceFound();
 			  }
 			
-			 LocalDate endDate = null;
 			Contract subscriptionData = this.subscriptionRepository.findOne(order.getContarctPeriod());
 			LocalDate startDate=new LocalDate(order.getStartDate());
-			Long orderStatus=null;
-
 			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 			orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId();
 			
 			}else{
 			orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
 			}
+		
 			
 			//Calculate EndDate
 			endDate = calculateEndDate(startDate,subscriptionData.getSubscriptionType(),subscriptionData.getUnits());
+		
 			order=new Order(order.getClientId(),order.getPlanId(),orderStatus,null,order.getBillingFrequency(),startDate, endDate,
 					order.getContarctPeriod(), serviceDetails, orderprice,order.getbillAlign(),UserActionStatusTypeEnum.ACTIVATION.toString());
 			BigDecimal priceforHistory=BigDecimal.ZERO;
 			for (PriceData data : datas) {
-				
+
 				LocalDate billstartDate = startDate;
 				LocalDate billEndDate = null;
-				
-				
-				// end date is null for rc
-				if (data.getChagreType().equalsIgnoreCase("RC")	&& endDate != null) {
+   				//end date is null for rc
+				  if (data.getChagreType().equalsIgnoreCase("RC")	&& endDate != null) {
 					billEndDate = endDate;
-				} else if(data.getChagreType().equalsIgnoreCase("NRC")) {
+				   
+				  } else if(data.getChagreType().equalsIgnoreCase("NRC")) {
 					billEndDate = billstartDate;
-				}
+				   }
+				  
 				  final DiscountMaster discountMaster=this.discountMasterRepository.findOne(data.getDiscountId());
 				  if(discountMaster == null){
 					  throw new DiscountMasterNoRecordsFoundException();
 				  }
-				  
-					  //If serviceId Not Exist
-					  
-				 OrderPrice price = new OrderPrice(data.getServiceId(),data.getChargeCode(), data.getCharging_variant(),
-						data.getPrice(), null, data.getChagreType(),data.getChargeDuration(), data.getDurationType(),
-						billstartDate.toDate(), billEndDate,data.isTaxInclusive());
-				order.addOrderDeatils(price);
-				priceforHistory=priceforHistory.add(data.getPrice());
+
+				 //If serviceId Not Exist
+				 OrderPrice price = new OrderPrice(data.getServiceId(),data.getChargeCode(), data.getCharging_variant(),data.getPrice(), null, data.getChagreType(),
+						 data.getChargeDuration(), data.getDurationType(),billstartDate.toDate(), billEndDate,data.isTaxInclusive());
+				 order.addOrderDeatils(price);
+				 priceforHistory=priceforHistory.add(data.getPrice());
 				
 				//discount Order
-				OrderDiscount orderDiscount=new OrderDiscount(order,price,discountMaster.getId(),discountMaster.getStartDate(),null,
-						discountMaster.getDiscountType(),discountMaster.getDiscountRate());
+				OrderDiscount orderDiscount=new OrderDiscount(order,price,discountMaster.getId(),discountMaster.getStartDate(),null,discountMaster.getDiscountType(),
+						discountMaster.getDiscountRate());
 				price.addOrderDiscount(orderDiscount);
-				
-				
 			}
 
 			for (ServiceData data : details) {
@@ -236,8 +231,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		     
 			this.orderRepository.save(order);
 			
-			final AccountNumberGenerator orderNoGenerator = this.accountIdentifierGeneratorFactory
-                    .determineClientAccountNoGenerator(order.getId());
+			final AccountNumberGenerator orderNoGenerator = this.accountIdentifierGeneratorFactory.determineClientAccountNoGenerator(order.getId());
 			order.updateOrderNum(orderNoGenerator.generate());
 			this.orderRepository.save(order);
 
@@ -269,7 +263,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				this.orderHistoryRepository.save(orderHistory);
 			}
 			
-          //For Plan And HardWare Association
+            //For Plan And HardWare Association
 			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
 			
 			if(configurationProperty.isEnabled()){
@@ -284,7 +278,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			    }
 		}
 			return new CommandProcessingResult(order.getId());	
-	
 	}catch (DataIntegrityViolationException dve) {
 		handleCodeDataIntegrityIssues(command, dve);
 		return new CommandProcessingResult(Long.valueOf(-1));
@@ -312,17 +305,16 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
  
 		return contractEndDate;
 	}
-
 	private void handleCodeDataIntegrityIssues(JsonCommand command,DataIntegrityViolationException dve) {
 	}
 	
+    @Transactional
 	@Override
 	public CommandProcessingResult updateOrderPrice(Long orderId,JsonCommand command) {
 		try
 		{
 		 context.authenticatedUser();
 	     final Order order = retrieveOrderBy(orderId);
-	     
 	     Long orderPriceId=command.longValueOfParameterNamed("priceId");
 	     OrderPrice orderPrice=this.OrderPriceRepository.findOne(orderPriceId);
 	            orderPrice.setPrice(command);

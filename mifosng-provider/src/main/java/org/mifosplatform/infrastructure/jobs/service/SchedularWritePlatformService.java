@@ -34,7 +34,6 @@ public interface SchedularWritePlatformService {
 
 	public CommandProcessingResult deleteJob(Long entityId);
 
-	public CommandProcessingResult updateJobParametersDetail(Long entityId,
-			JsonCommand command);
+	public CommandProcessingResult updateJobParametersDetail(Long entityId,JsonCommand command);
 
 }

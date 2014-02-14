@@ -475,7 +475,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
             if(data!=null){
             	
-            	  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+            	MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
   				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
   				LocalTime date=new LocalTime(zone);
   				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
@@ -520,6 +520,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		      				/*fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
 		      						+" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
 		      						orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
+		      				
 		      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
 		      				 {
 		      					
@@ -696,7 +697,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Activation)){
 					    String status="";					    
 						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
-								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getPlanId() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
+								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getProduct() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());
 						fw.append("Url for Activation request:"+data.getUrl() + "accounts/" +"\r\n");
@@ -798,10 +799,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}
 	                   }					  
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.ReConnection)){
-						String query = "status= " + new Long(1);
+						String query = "status=" + new Long(1);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
-						String url=""+data.getUrl() + "accounts/" + clientId ;
+						String url=""+data.getUrl() + "stb/" + clientId ;
 						fw.append("Url for RECONNECTION request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
@@ -844,10 +845,10 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.DisConnection)){
 						
-						String query = "status= " + new Long(0);
+						String query = "status=" + new Long(0);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
-						String url=""+data.getUrl() + "accounts/" + clientId ;
+						String url=""+data.getUrl() + "stb/" + clientId ;
 						fw.append("Url for DISCONNECTION request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
@@ -976,7 +977,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							}
 						}
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.ChangePlan)){
-						String query = "tariff_plan="+entitlementsData.getPlanId();
+						String query = "tariff_plan="+entitlementsData.getProduct();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
 						String url=""+data.getUrl() + "accounts/" + clientId ;

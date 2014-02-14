@@ -81,6 +81,7 @@ public class PlansApiResource {
      List<ServiceData> data = this.planReadPlatformService.retrieveAllServices();
      List<BillRuleData> billData = this.planReadPlatformService.retrievebillRules();
 	 List<SubscriptionData> contractPeriods = this.planReadPlatformService.retrieveSubscriptionData();
+	
 	 for(int i=0;i<contractPeriods.size();i++){
  		if(contractPeriods.get(i).getContractdata().equalsIgnoreCase("Perpetual")){
  			contractPeriods.remove(contractPeriods.get(i));

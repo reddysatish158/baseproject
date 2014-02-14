@@ -117,10 +117,8 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 						 client.setStatus(ClientStatus.DEACTIVE.getValue());
 					 }
 					 
-					 
 				 }else{
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
-					
 					 client.setStatus(ClientStatus.ACTIVE.getValue());
 					 this.clientRepository.saveAndFlush(client);
 				 }

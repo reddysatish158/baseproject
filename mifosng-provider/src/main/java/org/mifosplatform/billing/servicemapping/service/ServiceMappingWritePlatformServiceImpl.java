@@ -82,7 +82,7 @@ private final static Logger logger = (Logger) LoggerFactory.getLogger(ServiceMap
 		 Throwable realCause = dve.getMostSpecificCause();
 	        if (realCause.getMessage().contains("service_code_key")) {
 	            final String name = command.stringValueOfParameterNamed("serviceId");
-	            throw new PlatformDataIntegrityException("error.msg.configuration.duplicate.name", "A code with name '" + name + "' already exists");
+	            throw new PlatformDataIntegrityException("error.msg.service.mapping.duplicate", "A code with name '" + name + "' already exists");
 	        }
 
 	        logger.error(dve.getMessage(), dve);

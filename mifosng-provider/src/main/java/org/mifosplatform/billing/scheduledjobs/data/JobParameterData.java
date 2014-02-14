@@ -70,7 +70,7 @@ public class JobParameterData {
 
             }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_IS_RENEWAL)){
                 
-            	this.isAutoRenewal=parameter.isDynamic();
+            	this.isAutoRenewal=parameter.getParamValue();
             	
            }else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_EMAIL)){
 		          this.emailId=parameter.getParamValue();	

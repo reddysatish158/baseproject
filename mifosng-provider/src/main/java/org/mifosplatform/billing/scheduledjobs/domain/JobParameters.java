@@ -146,11 +146,11 @@ public class JobParameters extends AbstractPersistable<Long>{
 		    final boolean isAutoRenewal= command.booleanPrimitiveValueOfParameterNamed(isAutoRenewalParamName);
 		    
 		    	if(isAutoRenewal){
-		    //	this.isDynamic="Y";
-		    	this.paramDefaultValue="Y";
+		    	this.isDynamic="Y";
+		    //	this.paramValue="Y";
 		    	}else
-		    	//	this.isDynamic="N";
-		    	this.paramDefaultValue="N";
+		    		this.isDynamic="N";
+		    	//this.paramValue="N";
 		     
 	    
 	    final String messageParamName = "promotionalMessage";
