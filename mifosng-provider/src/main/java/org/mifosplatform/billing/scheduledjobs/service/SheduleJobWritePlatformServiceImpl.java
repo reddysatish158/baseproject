@@ -335,6 +335,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		} catch (DataIntegrityViolationException exception) {
 
 		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 			exception.printStackTrace();
 		}
 	}
@@ -407,6 +408,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			System.out.println("statement Job is Completed..."
 					+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 			exception.printStackTrace();
 		}
 	}
@@ -462,6 +464,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		
 		catch (Exception dve) 
 		{
+			System.out.println(dve.getMessage());
 			handleCodeDataIntegrityIssues(null, dve);
 		}
 	  }
@@ -592,7 +595,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 		
 		} 
 		}catch (Exception dve) {
+			System.out.println(dve.getMessage());
 			handleCodeDataIntegrityIssues(null, dve);
+			
 		}
 	}
 
@@ -646,7 +651,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		} catch (DataIntegrityViolationException exception) {
 
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			System.out.println(exception.getMessage());
 		}
 	}
 
@@ -688,7 +693,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				  
 				for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
 					fw.append("EntitlementsData id="+entitlementsData.getId()+" ,clientId="+entitlementsData.getClientId()+" ,HardwareId="
-							+entitlementsData.getHardwareId()+" ,RequestType="+entitlementsData.getRequestType()+" ,PlanId="+(null==entitlementsData.getPlanId()?0:entitlementsData.getPlanId())+"\r\n");
+							+entitlementsData.getHardwareId()+" ,RequestType="+entitlementsData.getRequestType()+" ,PlanId(IIn ServiceMapping)="+(null==entitlementsData.getProduct()?0:entitlementsData.getProduct())+"\r\n");
 					Long clientId = entitlementsData.getClientId();
 					ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
 					ReceiveMessage = "";
@@ -696,7 +701,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 					if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Activation)){
 					    String status="";					    
 						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
-								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getPlanId() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
+								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getProduct() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());
 						fw.append("Url for Activation request:"+data.getUrl() + "accounts/" +"\r\n");
@@ -708,12 +713,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/ is not Found. \r\n");
-							fw.flush();
-						    fw.close();
-							return;
-						}else if (response.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
 							fw.flush();
 						    fw.close();
 							return;
@@ -757,12 +756,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.flush();
 						    fw.close();
 							return;
-						}else if (response1.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
-							fw.flush();
-						    fw.close();
-							return;
 						}else if (response1.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
 							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
@@ -796,10 +789,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 						}
 	                   }					  
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.ReConnection)){
-						String query = "status= " + new Long(1);
+						
+						String query = "status=" + new Long(1);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
-						String url=""+data.getUrl() + "accounts/" + clientId ;
+						String url=""+data.getUrl() + "stb/" + clientId ;
 						fw.append("Url for RECONNECTION request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
@@ -810,12 +804,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 							fw.close();
-							return;
-						}else if (response.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
-							fw.flush();
-						    fw.close();
 							return;
 						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
@@ -840,12 +828,48 @@ public class SheduleJobWritePlatformServiceImpl implements
 								ReceiveMessage = "Success";
 							}
 						}
+				 
+						// Updating Plan	
+						
+						fw.append("PlanData is Updating For Current Mac Id: "+ entitlementsData.getHardwareId()+" \r\n");					
+						String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
+						fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
+						StringEntity se1 = new StringEntity(query1.trim());					
+						String url1=""+data.getUrl() + "accounts/" + clientId ;
+						HttpPut putrequest1 = new HttpPut(url1.trim());
+						putrequest1.setEntity(se1);
+						putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
+						HttpResponse response1 = httpClient.execute(putrequest1);
+						if (response1.getStatusLine().getStatusCode() == 404) {
+							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
+							fw.flush();
+						    fw.close();
+							return;
+						}else if (response1.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
+							continue;
+						}
+						BufferedReader br1 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+						String output1="";
+						while ((output1 = br1.readLine()) != null) {							
+							final JsonElement ele = fromApiJsonHelper.parse(output1);
+							final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+							 fw.append("status of the output is : "+ status+" \r\n");
+							if (status.equalsIgnoreCase("ERROR")) {
+								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+								fw.append("error of the output is : "+ error+" \r\n");
+								fw.append("Plan Updation Failed \r\n");
+							}
+						}
+			
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.DisConnection)){
 						
-						String query = "status= " + new Long(0);
+						String query = "status=" + new Long(0);
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
-						String url=""+data.getUrl() + "accounts/" + clientId ;
+						String url=""+data.getUrl() + "stb/" + clientId ;
 						fw.append("Url for DISCONNECTION request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
@@ -856,12 +880,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 							fw.close();
-							return;
-						}else if (response.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
-							fw.flush();
-						    fw.close();
 							return;
 						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
@@ -885,6 +903,42 @@ public class SheduleJobWritePlatformServiceImpl implements
 								ReceiveMessage = "Success";
 							}
 						}
+						
+                        // Updating Plan	
+						
+						fw.append("PlanData is Updating For Current Mac Id: "+ entitlementsData.getHardwareId()+" \r\n");					
+						String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
+						fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
+						StringEntity se1 = new StringEntity(query1.trim());					
+						String url1=""+data.getUrl() + "accounts/" + clientId ;
+						HttpPut putrequest1 = new HttpPut(url1.trim());
+						putrequest1.setEntity(se1);
+						putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
+						HttpResponse response1 = httpClient.execute(putrequest1);
+						if (response1.getStatusLine().getStatusCode() == 404) {
+							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
+							fw.flush();
+						    fw.close();
+							return;
+						}else if (response1.getStatusLine().getStatusCode() != 200) {
+							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
+							continue;
+						}
+						BufferedReader br1 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+						String output1="";
+						while ((output1 = br1.readLine()) != null) {							
+							final JsonElement ele = fromApiJsonHelper.parse(output1);
+							final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+							 fw.append("status of the output is : "+ status+" \r\n");
+							if (status.equalsIgnoreCase("ERROR")) {
+								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+								fw.append("error of the output is : "+ error+" \r\n");
+								fw.append("Plan Updation Failed \r\n");
+							}
+						}
+						
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Message)){
 						String query = "msg= "+URLEncoder.encode(entitlementsData.getProduct(), "UTF-8");
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
@@ -898,12 +952,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
-							fw.flush();
-						    fw.close();
-							return;
-						}else if (response.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
 							fw.flush();
 						    fw.close();
 							return;
@@ -930,11 +978,11 @@ public class SheduleJobWritePlatformServiceImpl implements
 							}
 						}
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.STBChange)){
-						String query = "stb_mac="+ entitlementsData.getHardwareId();
+						String query = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
 						String url=""+data.getUrl() + "accounts/" + clientId ;
-						fw.append("Url for Change plan request:"+ url +"\r\n");
+						fw.append("Url for Change Hardware/STB request:"+ url +"\r\n");
 						HttpPut putrequest = new HttpPut(url.trim());
 						putrequest.setEntity(se);
 						putrequest.setHeader("Authorization", "Basic " + new String(encoded));
@@ -942,12 +990,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
-							fw.flush();
-						    fw.close();
-							return;
-						}else if (response.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
 							fw.flush();
 						    fw.close();
 							return;
@@ -969,12 +1011,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 								fw.append("error of the output is : "+ error+" \r\n");
 								ReceiveMessage = "failure :" + error;
 							}else{
-								fw.append("Message Sent SuccessFully Completed. \r\n");
+								fw.append("STB Change SuccessFully Completed. \r\n");
 								ReceiveMessage = "Success";
 							}
 						}
 					}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.ChangePlan)){
-						String query = "tariff_plan="+entitlementsData.getPlanId();
+						String query = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());					
 						String url=""+data.getUrl() + "accounts/" + clientId ;
@@ -986,12 +1028,6 @@ public class SheduleJobWritePlatformServiceImpl implements
 						if (response.getStatusLine().getStatusCode() == 404) {
 							System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
-							fw.flush();
-						    fw.close();
-							return;
-						}else if (response.getStatusLine().getStatusCode() == 401) {
-							System.out.println("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode());
-							fw.append("AuthenticationFailed : HTTP error code : "+ response.getStatusLine().getStatusCode()+", stalker system Username or password is incorrect. \r\n");
 							fw.flush();
 						    fw.close();
 							return;
@@ -1013,7 +1049,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 								fw.append("error of the output is : "+ error+" \r\n");
 								ReceiveMessage = "failure :" + error;
 							}else{
-								fw.append("Message Sent SuccessFully Completed. \r\n");
+								fw.append("Plan Change SuccessFully Completed. \r\n");
 								ReceiveMessage = "Success";
 							}
 						}
@@ -1050,7 +1086,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 		} catch (DataIntegrityViolationException exception) {
 
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			System.out.println(exception.getMessage());
+			
 		}
 	}
 	
@@ -1089,7 +1126,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 	    fw.flush();
 	    fw.close();
 	  } catch (Exception e) {
-			e.printStackTrace();
+		  System.out.println(e.getMessage());
+			
 		}
 	 }
 	
@@ -1152,7 +1190,8 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 System.out.println("Report Emails are Processed....");
 	 
 	  } catch (Exception e) {
-			e.printStackTrace();
+		  System.out.println(e.getMessage());
+			
 		}
 	 }
 }
