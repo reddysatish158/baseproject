@@ -537,12 +537,6 @@ public class CommandWrapper {
 		return this.entityName.equalsIgnoreCase("address") || this.entityName.equalsIgnoreCase("city") ||
 				this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country");
 	}
-	public boolean isTreeAddressResource() {
-		return this.entityName.equalsIgnoreCase("editCity") ||
-				this.entityName.equalsIgnoreCase("editState") ||
-				this.entityName.equalsIgnoreCase("editCountry") ;
-				
-	}
 
 	public boolean isOrderPriceResource() {
 		 return this.entityName.equalsIgnoreCase("ORDERPRICE");
@@ -628,21 +622,15 @@ public class CommandWrapper {
         return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("EVENTPRICE");
        }
 		public boolean isNewRecord() {
-			return this.actionName.equalsIgnoreCase("UPDATE") || this.entityName.equalsIgnoreCase("city") 
-					||this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country");
+			return this.actionName.equalsIgnoreCase("NEW") && (this.entityName.equalsIgnoreCase("city") 
+					||this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country"));
 		}
 		public boolean isUpdateNewRecord() {
-			return  this.actionName.equalsIgnoreCase("UPDATE")&&
-					(this.entityName.equalsIgnoreCase("editCity") 
-							||this.entityName.equalsIgnoreCase("editState") 
-							|| this.entityName.equalsIgnoreCase("editCountry"));
+			return  this.actionName.equalsIgnoreCase("MODIFY") && this.entityId != null;
 		}
 		
 		public boolean isdeleteNewRecord() {
-			return this.actionName.equalsIgnoreCase("DELETE")&&
-						(this.entityName.equalsIgnoreCase("editCity") 
-						   ||this.entityName.equalsIgnoreCase("editState") 
-							|| this.entityName.equalsIgnoreCase("editCountry"));
+			return this.actionName.equalsIgnoreCase("DROP") && this.entityId != null;
 		}
 
 		public boolean isEventOrderResource() {

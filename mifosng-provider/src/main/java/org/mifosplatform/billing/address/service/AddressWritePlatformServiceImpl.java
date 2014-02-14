@@ -169,14 +169,14 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	public CommandProcessingResult updateNewRecord(JsonCommand command,String entityType, Long id) {
 	  try{
 		this.context.authenticatedUser();
-		if(entityType.equalsIgnoreCase("editCity")){
+		if(entityType.equalsIgnoreCase("city")){
 		   City city=cityObjectRetrieveById(id);
 		   final Map<String, Object> changes = city.update(command);
 		   	if(!changes.isEmpty()){
 		   		this.cityRepository.save(city);
 		   	}
 		   	return new CommandProcessingResult(id);
-      	}else if(entityType.equalsIgnoreCase("editState")){
+      	}else if(entityType.equalsIgnoreCase("state")){
 			  
   			State state=stateObjectRetrieveById(id);
   			final Map<String, Object> changes = state.update(command);
@@ -223,7 +223,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 		
 		try{
 	    	 this.context.authenticatedUser();
-	    	 if(entityType.equalsIgnoreCase("editCity")){
+	    	 if(entityType.equalsIgnoreCase("city")){
 	    		 City city = this.cityRepository.findOne(id);
 	    		 if(city==null){
 	        		 throw new CityNotFoundException(id.toString());
@@ -232,7 +232,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	    		 this.cityRepository.save(city);
 	    		 return new CommandProcessingResult(id);
 	        	 
-	    	 }else if(entityType.equalsIgnoreCase("editState")){
+	    	 }else if(entityType.equalsIgnoreCase("state")){
 	    		 State state = this.stateRepository.findOne(id);
 	    		 if(state==null){
 	        		 throw new StateNotFoundException(id.toString());
