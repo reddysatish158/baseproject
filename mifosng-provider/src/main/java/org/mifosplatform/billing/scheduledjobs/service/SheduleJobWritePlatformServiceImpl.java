@@ -693,7 +693,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 				  
 				for (EntitlementsData entitlementsData : entitlementDataForProcessings) {
 					fw.append("EntitlementsData id="+entitlementsData.getId()+" ,clientId="+entitlementsData.getClientId()+" ,HardwareId="
-							+entitlementsData.getHardwareId()+" ,RequestType="+entitlementsData.getRequestType()+" ,PlanId="+(null==entitlementsData.getProduct()?0:entitlementsData.getProduct())+"\r\n");
+							+entitlementsData.getHardwareId()+" ,RequestType="+entitlementsData.getRequestType()+" ,PlanId(In ServiceMapping)="+(null==entitlementsData.getProduct()?0:entitlementsData.getProduct())+"\r\n");
 					Long clientId = entitlementsData.getClientId();
 					ClientEntitlementData clientdata = this.entitlementReadPlatformService.getClientData(clientId);
 					ReceiveMessage = "";
