@@ -53,6 +53,7 @@ public class ProcessRequestDetails extends
 	@Column(name = "received_date")
 	private Date receivedDate;
 
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "start_date")
 	private Date startDate;
 
