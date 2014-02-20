@@ -45,9 +45,7 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 		try{
 		context.authenticatedUser();
 		AddressMapper mapper = new AddressMapper();
-
 		String sql = "select " + mapper.schema()+" where is_deleted='n' and a.address_key='PRIMARY' and a.client_id="+clientId;
-
 		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
 		}catch (final EmptyResultDataAccessException e) {
 			return null;
@@ -57,9 +55,8 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 	private static final class AddressMapper implements RowMapper<AddressData> {
 
 		public String schema() {
-			return "a.address_id as id,a.client_id as clientId,a.address_key as addressKey,"
-				+"a.address_no as addressNo,a.street as street,a.zip as zip,a.city as city,"
-				+"a.state as state,a.country as country from b_client_address a";
+			return "a.address_id as id,a.client_id as clientId,a.address_key as addressKey,a.address_no as addressNo,a.street as street,a.zip as zip,a.city as city,"
+				  +"a.state as state,a.country as country from b_client_address a";
 
 		}
 
@@ -77,10 +74,7 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 			String city = rs.getString("city");
 			String state = rs.getString("state");
 			String country = rs.getString("country");
-			//EnumOptionData value=AddressStatusEnumaration.enumOptionData(AddressEnum.valueOf(addressKey));
-			//=value.toString();
-		//	Long addressTypeId=new Long(addressKey);
-			//String serviceDescription = rs.getString("service_description");
+			
 			return new AddressData(id,clientId,null,addressNo,street,zip,city,state, country,addressKey,null);
 
 		}

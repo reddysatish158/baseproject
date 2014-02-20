@@ -545,13 +545,16 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("updateAddressCommandHandler",NewCommandSourceHandler.class);
 			} else if (wrapper.isDelete()) {
 				handler = applicationContext.getBean("deleteAddressCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isNewRecord()) {
-				handler = applicationContext.getBean("createNewRecordCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isUpdateNewRecord()) {
-				handler = applicationContext.getBean("updateNewRecordCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isdeleteNewRecord()) {
-				handler = applicationContext.getBean("deleteNewRecordCommandHandler",NewCommandSourceHandler.class);
 			}
+		}else if(wrapper.isAddressMappingResource()){
+			if (wrapper.isNewRecord()) {
+				handler = applicationContext.getBean("createNewLocationCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isUpdateNewRecord()) {
+				handler = applicationContext.getBean("updateLocationCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isdeleteNewRecord()) {
+				handler = applicationContext.getBean("deleteLocationCommandHandler",NewCommandSourceHandler.class);
+			}
+			
 		}
 
 		else if (wrapper.isItemResource()) {

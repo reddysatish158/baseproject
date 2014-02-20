@@ -9,17 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UpdateNewRecordCommandHandler implements NewCommandSourceHandler {
+public class UpdateLocationCommandHandler implements NewCommandSourceHandler {
 	 private final AddressWritePlatformService writePlatformService;
 	 
 	 @Autowired
-	    public UpdateNewRecordCommandHandler(final AddressWritePlatformService writePlatformService){
+	    public UpdateLocationCommandHandler(final AddressWritePlatformService writePlatformService){
 	        this.writePlatformService = writePlatformService;
 	    }
-	 @Transactional
+	  
+	   @Transactional
 	    @Override
 	    public CommandProcessingResult processCommand(final JsonCommand command) {
-		 return this.writePlatformService.updateNewRecord(command,command.entityName(),command.entityId());
+		 return this.writePlatformService.updateLocation(command,command.getSupportedEntityType(),command.entityId());
 	 }
 
 }

@@ -36,6 +36,9 @@ public class Invoice extends AbstractAuditableCustom<AppUser,Long>{
 
 	@Column(name="tax_amount")
 	private BigDecimal taxAmount;
+	
+	@Column(name="due_amount")
+	private BigDecimal dueAmount;
 
 	@Column(name="invoice_status")
 	private String invoiceStatus;
@@ -65,6 +68,7 @@ public class Invoice extends AbstractAuditableCustom<AppUser,Long>{
 		this.netChargeAmount = netChargeAmount;
 		this.taxAmount = taxAmount;
 		this.invoiceStatus = invoiceStatus;
+		this.dueAmount= invoiceAmount;
       
 	}
 
@@ -129,6 +133,11 @@ public class Invoice extends AbstractAuditableCustom<AppUser,Long>{
 
 	public List<BillingOrder> getCharges(){
 		return this.charges;
+	}
+	
+	public void updateAmount(BigDecimal amountPaid) {
+		this.dueAmount=this.invoiceAmount.subtract(amountPaid);
+		
 	}
 	}
 

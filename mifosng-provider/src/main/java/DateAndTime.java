@@ -1,14 +1,16 @@
+import java.math.BigDecimal;
 
 
-import java.io.PrintWriter;
+
 
 public class DateAndTime {
-	 private static PrintWriter printWriter;
-	public static void main(String[] args) throws Exception {}
+	
+	public static void main(String[] args) {
+		
+		BigDecimal bigDecimal=new BigDecimal(-5000);
+		BigDecimal bigDecimal2=new BigDecimal(500);
+		System.out.println(bigDecimal.subtract(bigDecimal2));
+	}
 
 }
 
-/*#https://localhost:8443/mifosng-provider/api/v1/entitlements/
-#https://192.168.1.101:8443/mifosng-provider/api/v1/entitlements/
-#https://spark.openbillingsystem.com:8443/mifosng-provider/api/v1/entitlements/
-*/

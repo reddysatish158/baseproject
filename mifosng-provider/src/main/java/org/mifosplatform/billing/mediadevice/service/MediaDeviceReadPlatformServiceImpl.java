@@ -44,7 +44,7 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 	private static final class EventMasterMapper implements RowMapper<MediaDeviceData> {
 		public String eventMasterSchema() {
 			return "SELECT a.id AS deviceId,a.client_id AS clientId,mc.code_value AS clientType,mc.id AS clientTypeId FROM b_allocation a, m_client c, m_code_value mc" +
-					" WHERE a.client_id = c.id AND mc.id = c.category_type AND serial_no = ? UNION SELECT a.id,a.client_id,mc.code_value,mc.id FROM b_owned_hardware a, " +
+					" WHERE a.client_id = c.id AND mc.id = c.category_type AND serial_no = ?  and a.is_deleted='N'  UNION SELECT a.id,a.client_id,mc.code_value,mc.id FROM b_owned_hardware a, " +
 					" m_client c, m_code_value mc WHERE a.client_id = c.id AND mc.id = c.category_type AND serial_number =? "; 
   
 		}

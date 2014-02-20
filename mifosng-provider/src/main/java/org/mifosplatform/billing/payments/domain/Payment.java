@@ -49,17 +49,18 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	
 	@Column(name = "receipt_no")
 	private String receiptNo;
+	
+	@Column(name = "invoice_id", nullable = false)
+	private Long invoiceId;
 
 	public Payment() {
 	}
 
-	public Payment(final Long clientId, final Long paymentId,final Long externalId, final BigDecimal amountPaid,final Long statmentId, final LocalDate paymentDate,
-
-			final String remark, final Long paymodeCode, String transId,String receiptNo) {
+	public Payment(final Long clientId, final Long paymentId,final Long externalId, final BigDecimal amountPaid,final Long statmentId,
+			final LocalDate paymentDate,final String remark, final Long paymodeCode, String transId,String receiptNo, Long invoiceId) {
 
 
 		this.clientId = clientId;
-
 		this.statementId = statmentId;
 		this.amountPaid = amountPaid;
 		this.paymentDate = paymentDate.toDate();
@@ -67,6 +68,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		this.paymodeId = paymodeCode.intValue();
 		this.transactionId=transId;
 		this.receiptNo=receiptNo;
+		this.invoiceId=invoiceId;
 
 	}
 
@@ -79,9 +81,9 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 		final String remarks = command.stringValueOfParameterNamed("remarks");
 		final String txtid=command.stringValueOfParameterNamed("txn_id");
 		final String receiptNo=command.stringValueOfParameterNamed("receiptNo");
+		final Long invoiceId=command.longValueOfParameterNamed("invoiceId");
 
-		return new Payment(clientid, null, null, amountPaid, null, paymentDate,
-				remarks, paymentCode,txtid,receiptNo);
+		return new Payment(clientid, null, null, amountPaid, null, paymentDate,remarks, paymentCode,txtid,receiptNo,invoiceId);
 
 
 	}
@@ -100,6 +102,12 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 
 	public boolean isDeleted() {
 		return deleted;
+	}
+	
+	
+
+	public Long getInvoiceId() {
+		return invoiceId;
 	}
 
 	public Date getPaymentDate() {

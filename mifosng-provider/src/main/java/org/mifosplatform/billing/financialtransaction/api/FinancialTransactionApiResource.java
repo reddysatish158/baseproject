@@ -66,7 +66,7 @@ public class FinancialTransactionApiResource {
 	
 	final SearchSqlQuery searchFinancialTransaction =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 	Page<FinancialTransactionsData> transactionData = this.billMasterReadPlatformService.retrieveInvoiceFinancialData(searchFinancialTransaction,clientId);
-	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	//final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	return this.toApiJsonSerializer.serialize(transactionData);    
 	}
 	

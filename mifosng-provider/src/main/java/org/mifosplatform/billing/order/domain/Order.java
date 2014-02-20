@@ -18,17 +18,13 @@ import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
-import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
 import org.mifosplatform.useradministration.domain.AppUser;
 
 @Entity
 @Table(name = "b_orders")
 public class Order extends AbstractAuditableCustom<AppUser, Long> {
 
-	/*@Id
-	@GeneratedValue
-	@Column(name = "id")
-	private Long id;*/
+	
 
 	@Column(name = "client_id")
 	private Long clientId;
@@ -54,6 +50,10 @@ public class Order extends AbstractAuditableCustom<AppUser, Long> {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "end_date")
 	private Date endDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "active_date")
+	private Date activeDate;
 
 	@Column(name = "contract_period")
 	private Long contarctPeriod;
@@ -112,6 +112,7 @@ public class Order extends AbstractAuditableCustom<AppUser, Long> {
 		this.isDeleted='n';
 		this.userAction=userAction;
 		this.orderNo="";
+		this.activeDate=startDate.toDate();
 	}
 
 public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode, char billAlign,LocalDate startdate) {
@@ -121,6 +122,7 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 	    this.billingFrequency=paytermCode;
 	    this.billingAlign=billAlign;
 	    this.startDate=startdate.toDate();
+	    this.activeDate=startdate.toDate();
 	}
 	public Long getClientId() {
 		return clientId;
@@ -231,6 +233,16 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 	}
 
 
+	public Date getActiveDate() {
+		return activeDate;
+	}
+
+
+	public String getOrderNo() {
+		return orderNo;
+	}
+
+
 	public void setStartDate(LocalDate startDate) {
 
 		this.startDate=startDate.toDate();
@@ -297,8 +309,22 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 
 	public void updateDisconnectionstate() {
 		this.endDate =new Date();
-		this.disconnectReason="Not Interested";
+		this.disconnectReason="Change Plan";
+		this.isDeleted='Y';
 		this.status = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId();
+		
+	}
+
+
+	public void setRenewalDate(Date date) {
+		this.startDate=date;
+		
+	}
+
+
+	public void updateActivationDate(Date activeDate) {
+	  this.activeDate=activeDate;	
+	 
 		
 	}
 	

@@ -43,18 +43,21 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class ClientAddressApiResource {
+	
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("addressid","clientId",
             "addressNo","street","zipCode","city","state","country","datas","countryData","stateData","cityData","addressOptionsData"));
     private final String resourceNameForPermissions = "ADDRESS";
-	  private final PlatformSecurityContext context;
-	    private final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer;
-	    private final ApiRequestParameterHelper apiRequestParameterHelper;
-	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-	    private final AddressReadPlatformService addressReadPlatformService;
+	private final PlatformSecurityContext context;
+	private final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer;
+	private final ApiRequestParameterHelper apiRequestParameterHelper;
+	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	private final AddressReadPlatformService addressReadPlatformService;
 
-		 @Autowired
-	    public ClientAddressApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AddressReadPlatformService addressReadPlatformService) {
+	@Autowired
+	public ClientAddressApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer, 
+			final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+			final AddressReadPlatformService addressReadPlatformService) {
+		
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -96,8 +99,8 @@ public class ClientAddressApiResource {
     public String retrieveClientAddress( @PathParam("clientId") final Long clientId , @Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
         List<AddressData> addressdata = this.addressReadPlatformService.retrieveAddressDetails(clientId);
-        List<String> countryData = this.addressReadPlatformService.retrieveCountryDetails();
-        List<String> statesData = this.addressReadPlatformService.retrieveStateDetails();
+     //  List<String> countryData = this.addressReadPlatformService.retrieveCountryDetails();
+      //  List<String> statesData = this.addressReadPlatformService.retrieveStateDetails();
         List<String> citiesData = this.addressReadPlatformService.retrieveCityDetails();
         List<EnumOptionData> enumOptionDatas = this.addressReadPlatformService.addressType();
         AddressData data=new AddressData(addressdata,null,null,citiesData,enumOptionDatas);
@@ -111,7 +114,7 @@ public class ClientAddressApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveAddress(@PathParam("Name") final String Name , @Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-        String city=null;
+      
         AddressData Data = this.addressReadPlatformService.retrieveName(Name);
 //        city =Data.getCity();
      
@@ -151,7 +154,7 @@ public class ClientAddressApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String NewRecord(@PathParam("entityType") final String entityType, final String jsonRequestBody) {
-		 final CommandWrapper commandRequest = new CommandWrapperBuilder().createNewRecord(entityType).withJson(jsonRequestBody).build();
+		    final CommandWrapper commandRequest = new CommandWrapperBuilder().createNewRecord(entityType).withJson(jsonRequestBody).build();
 	        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	        return this.toApiJsonSerializer.serialize(result);
 	
@@ -186,6 +189,17 @@ public class ClientAddressApiResource {
 		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		  return this.toApiJsonSerializer.serialize(result);
 
+	}
+	
+	@GET
+	@Path("countrydetails")
+	@Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveCountryDetails(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<String> countryData = this.addressReadPlatformService.retrieveCountryDetails();
+		//final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		 return this.toApiJsonSerializer.serialize(countryData);
 	}
 	
 }

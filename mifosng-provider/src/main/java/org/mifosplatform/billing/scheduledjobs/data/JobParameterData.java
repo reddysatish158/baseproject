@@ -30,6 +30,7 @@ public class JobParameterData {
 			
 			if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_BATCH)){
 				   this.batchName=parameter.getParamValue();
+				   this.isDynamic=parameter.isDynamic();
 			}
 
 			
@@ -43,18 +44,18 @@ public class JobParameterData {
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_PROCESSDATE) && parameter.getParamValue()!=null){
 				    this.processDate= DateTimeFormat.forPattern("dd MMMM yyyy").parseLocalDate(parameter.getParamValue());
-				    this.isDynamic=parameter.isDynamic();
+				  //  this.isDynamic=parameter.isDynamic();
 			
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_DUEDATE) && parameter.getParamValue()!=null){
 			    this.dueDate= DateTimeFormat.forPattern("dd MMMM yyyy")
 		                 .parseLocalDate(parameter.getParamValue());
-			    this.isDynamic=parameter.isDynamic();
+			  //  this.isDynamic=parameter.isDynamic();
 
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_EXIPIRYDATE) && parameter.getParamValue()!=null){
 			    this.exipiryDate= DateTimeFormat.forPattern("dd MMMM yyyy")
 		                 .parseLocalDate(parameter.getParamValue());
 
-			    this.isDynamic=parameter.isDynamic();
+			   // this.isDynamic=parameter.isDynamic();
 			}else if(parameter.getParamName().equalsIgnoreCase(JobParametersConstants.PARAM_URL)){
 			     this.url=parameter.getParamValue();
 					
@@ -78,6 +79,8 @@ public class JobParameterData {
 		   }else{
 				 this.batchName=parameter.getParamValue();
 				 this.defaultValue=parameter.getParamDefaultValue();
+				 this.isDynamic=parameter.isDynamic();
+				 
 			}
 			/*if(parameter.isDynamic() == "Y" && parameter.getParamValue() == null){
 				

@@ -6,6 +6,8 @@ import org.mifosplatform.billing.action.data.ActionDetaislData;
 import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.action.service.EventActionConstants;
+import org.mifosplatform.billing.billingorder.domain.Invoice;
+import org.mifosplatform.billing.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalance;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
@@ -20,7 +22,6 @@ import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.payments.serialization.PaymentCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
-import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformServiceImpl;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -49,13 +50,15 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
 	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
 	private final PaymodeReadPlatformService paymodeReadPlatformService ;
+	private final InvoiceRepository invoiceRepository;
 
 	@Autowired
 	public PaymentWritePlatformServiceImpl(final PlatformSecurityContext context,final PaymentRepository paymentRepository,
 			final PaymentCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ClientBalanceReadPlatformService clientBalanceReadPlatformService,
 			final ClientBalanceRepository clientBalanceRepository,final ChequePaymentRepository chequePaymentRepository,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-			final UpdateClientBalance updateClientBalance,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
+			final UpdateClientBalance updateClientBalance,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final PaymodeReadPlatformService paymodeReadPlatformService,
+			final InvoiceRepository invoiceRepository) {
 		this.context = context;
 		this.paymentRepository = paymentRepository;
 		this.fromApiJsonDeserializer = fromApiJsonDeserializer;
@@ -67,6 +70,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService; 
 		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
 		this.paymodeReadPlatformService=paymodeReadPlatformService;
+		this.invoiceRepository=invoiceRepository;
 	}
 
 	@Transactional
@@ -125,7 +129,6 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			clientBalance = clientBalanceRepository.findOne(clientBalanceid);
 
 			if(clientBalance != null){
-
 				clientBalance = updateClientBalance.doUpdatePaymentClientBalance(clientid,command,clientBalance);
 
 			}else if(clientBalance == null){
@@ -134,6 +137,15 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			}
 
 			updateClientBalance.saveClientBalanceEntity(clientBalance);
+			
+			//Update Invoice Amount
+			if(payment.getInvoiceId() != null){
+				
+				Invoice invoice=this.invoiceRepository.findOne(payment.getInvoiceId());
+				invoice.updateAmount(payment.getAmountPaid());
+				this.invoiceRepository.save(invoice);
+				
+			}
 			
 			//Perform Event Action
 		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());

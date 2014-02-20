@@ -176,8 +176,8 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 		BigDecimal totalChargeAmount = BigDecimal.ZERO;
 		BigDecimal netTaxAmount = BigDecimal.ZERO;
 		
-		LocalDate invoiceDate = new LocalDate();
-		List<BillingOrder> charges = new ArrayList<BillingOrder>();
+		//LocalDate invoiceDate = new LocalDate();
+	//	List<BillingOrder> charges = new ArrayList<BillingOrder>();
 		
 	   Invoice invoice = new Invoice(billingOrderCommands.get(0).getClientId(),new LocalDate().toDate(), invoiceAmount, 
 			   invoiceAmount, netTaxAmount,"active");

@@ -266,6 +266,12 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 ""+" (select b.supplier_description from b_grn a, b_supplier b where a.supplier_id=b.id and a.id=from_office) as source,"+ 
 ""+" (select name from m_office where id=to_office) as destination from b_item_history where ref_type='Item Detail'"+
 ""+" union all"+
+""+" select id as id, ref_id as mrnId, ref_type as refType," +
+  " (select item_description from b_item_master where id=item_master_id) as itemDescription," +
+  " serial_number as serialNumber, transaction_date as transactionDate, 'From Client to To Office' movement," +
+  " (select b.supplier_description from b_grn a, b_supplier b where a.supplier_id=b.id and a.id=from_office) as source," +
+  " (select name from m_office where id=to_office) as destination from b_item_history where ref_type='De Allocation'" +
+  " union all" +
 ""+" select id as id, ref_id as mrnId, ref_type as refType,"+ 
 ""+" (select item_description from b_item_master where id=item_master_id) as itemDescription,"+ 
 ""+" serial_number as serialNumber, transaction_date as transactionDate, 'From Office to To Client' movement,"+

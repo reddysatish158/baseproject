@@ -1163,9 +1163,10 @@ public class CommandWrapperBuilder {
 	}
 
 	public CommandWrapperBuilder createNewRecord(final String entityType) {
-		this.actionName = "NEW";
+		this.actionName = "CREATE";
 		// this.entityName = "ADDRESS";
-		this.entityName = entityType;
+		this.entityName = "LOCATION";
+		this.supportedEntityType=entityType;
 		this.href = "/address/" + entityType;
 		return this;
 	}
@@ -2001,17 +2002,19 @@ public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
 }
 
 public CommandWrapperBuilder updateNewRecord(final String entityType,Long entityId) {
-	this.actionName = "MODIFY";
-	this.entityName = entityType;
+	this.actionName = "UPDATE";
+	this.entityName = "LOCATION";
 	this.entityId = entityId;
+	this.supportedEntityType=entityType;
 	this.href = "/address/" + entityType+"/"+entityId;
 	return this;
 }
 
 public CommandWrapperBuilder deleteNewRecord(final String entityType, Long entityId) {
-	this.actionName = "DROP";
-	this.entityName = entityType;
+	this.actionName = "DELETE";
+	this.entityName = "LOCATION";
 	this.entityId = entityId;
+	this.supportedEntityType=entityType;
 	this.href = "/address/" + entityType+"/"+entityId;
 	return this;
 }

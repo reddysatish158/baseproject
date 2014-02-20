@@ -15,17 +15,29 @@ public interface OrderReadPlatformService {
 	List<PlanCodeData> retrieveAllPlatformData(Long planId);
 
 	List<PaytermData> retrieveAllPaytermData();
+	
 	List<OrderPriceData> retrieveOrderPriceData(Long orderId);
+	
 	List<PaytermData> getChargeCodes(Long planCode);
+	
 	List<OrderPriceData> retrieveOrderPriceDetails(Long orderId, Long clientId);
+	
 	List<OrderData> retrieveClientOrderDetails(Long clientId);
+	
 	List<OrderHistoryData> retrieveOrderHistoryDetails(Long orderId);
+	
 	List<OrderData> getActivePlans(Long clientId, String planType);
+	
 	OrderData retrieveOrderDetails(Long orderId);
+	
 	Long getRetrackId(Long entityId);
+	
 	String getOSDTransactionType(Long id);
+	
 	String checkRetrackInterval(Long entityId);
+	
 	List<OrderLineData> retrieveOrderServiceDetails(Long orderId);
+	
 	List<OrderDiscountData> retrieveOrderDiscountDetails(Long orderId);
 
 	Long retrieveClientActiveOrderDetails(Long clientId, String serialNo);
