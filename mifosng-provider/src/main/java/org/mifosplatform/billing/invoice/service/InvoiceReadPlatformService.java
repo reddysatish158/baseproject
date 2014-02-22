@@ -1,0 +1,13 @@
+
+package org.mifosplatform.billing.invoice.service;
+
+import java.util.List;
+
+import org.mifosplatform.billing.invoice.data.InvoiceData;
+
+
+public interface InvoiceReadPlatformService {
+
+	List<InvoiceData> retrieveInvoiceDetails(Long id);
+
+}
