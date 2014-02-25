@@ -12,4 +12,7 @@ public interface OwnedHardwareWritePlatformService {
 	
 	public CommandProcessingResult createOwnedHardware(JsonCommand command, Long clientId);
 	public List<OwnedHardwareData> getOwnedHardware();
+	public CommandProcessingResult updateOwnedHardware(JsonCommand command,
+			Long entityId);
+	public CommandProcessingResult deleteOwnedHardware(Long entityId);
 }
