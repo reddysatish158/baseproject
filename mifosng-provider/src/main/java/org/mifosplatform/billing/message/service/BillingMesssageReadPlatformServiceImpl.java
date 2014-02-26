@@ -214,8 +214,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 				fileHandler.createNewFile();
 				fw = new FileWriter(fileHandler);
 
-				ArrayList<String> rowdata = new ArrayList<String>();
-				ArrayList<String> columndata = new ArrayList<String>();
+				
 				// To know the number of rows
 				rs.last();
 				int Rows = rs.getRow();
@@ -229,6 +228,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 
 				// processing each row and save the row as record in
 				// b_message_data table
+				ArrayList<String> columndata = new ArrayList<String>();
 				for (int j = 1; j <= Rows; j++) {
 					// resultset pointing to first position/next position
 					rs.next();
@@ -237,37 +237,19 @@ public class BillingMesssageReadPlatformServiceImpl implements
 						columndata.add(name);
 					}
 
-					rowdata.addAll(columndata);
-
-					// Assign rowdata to BillingMessageData bean class
-					BillingMessageData MessageRowdata = new BillingMessageData(
-							rowdata);
-					ArrayList<String> MessageColumndata = new ArrayList<String>();
-					MessageColumndata = MessageRowdata.getMessageColumndata();
-
-					// For Retrieving no.of params for the MessageTemplate
-					ArrayList<BillingMessageData> param = new ArrayList<BillingMessageData>();
-					for (BillingMessageData params : messageparam) {
-						param.add(params);
-					}
-
 					// getting the MessageTemplate data
 					String header = templateData.getHeader();
 					String footer = templateData.getFooter();
 					String body = templateData.getBody();
 					String subject = templateData.getSubject();
-					char messgeType = templateData.getMessageType();
+					char messgeType = templateData.getMessageType();					
 					String status = "N";
 					String messageFrom = "OBS";
-					int n = param.size();
-					ArrayList<String> data = new ArrayList<String>();
-					for (int i = 0; i < MessageColumndata.size(); i++) {
-						data.add(i, MessageColumndata.get(i).toString());
-					}
-					if (n == data.size() - 1) {
-						for (int i = 0, k = 1; i < n & k < data.size(); i++, k++) {
-							String name = param.get(i).getParameter();
-							String value = data.get(k).toString();
+					
+					if (messageparam.size() == columndata.size() - 1) {
+						for (int i = 0, k = 1; i < messageparam.size() & k < columndata.size(); i++, k++) {
+							String name = messageparam.get(i).getParameter();
+							String value = columndata.get(k).toString();
 							if (!org.apache.commons.lang.StringUtils.isBlank(body)) {
 								body = body.replaceAll(name, value);
 							}
@@ -282,7 +264,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 						handleCodeDataIntegrityIssues();
 					}
 					if (messgeType == 'E' || messgeType == 'M') {
-						String messageTo = data.get(0).toString();
+						String messageTo = columndata.get(0).toString();
 						BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
 						BillingMessage billingMessage = new BillingMessage(header, body, footer, messageFrom, messageTo,
 								subject, status, billingMessageTemplate,messgeType);
@@ -291,13 +273,13 @@ public class BillingMesssageReadPlatformServiceImpl implements
 
 					if (messgeType == 'O') {
 						String requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
-						Long clientId = billingMesssageReadPlatformService.retrieveClientId(data.get(0).toString());
+						Long clientId = billingMesssageReadPlatformService.retrieveClientId(columndata.get(0).toString());
 						if(clientId!=null){
 							ProcessRequest processRequest = new ProcessRequest(clientId, new Long(0), "Comvenient", 'N', null,requstStatus, new Long(0));
 							processRequest.setNotify();
 							Long id = new Long(0);
 							ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(id, id, body, "Recieved", 
-									data.get(0).toString(), new Date(), null, null,null, 'N', requstStatus);
+									columndata.get(0).toString(), new Date(), null, null,null, 'N', requstStatus);
 							processRequest.add(processRequestDetails);
 							processRequestRepository.save(processRequest);
 						}
@@ -307,7 +289,6 @@ public class BillingMesssageReadPlatformServiceImpl implements
 						
 					}
 					 
-					rowdata.removeAll(rowdata);
 					columndata.removeAll(columndata);
 
 				}// for Rows
@@ -316,7 +297,6 @@ public class BillingMesssageReadPlatformServiceImpl implements
 			    fw.close();
 				return new BillingMessageData(messageId);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				return null;
 			}
 
