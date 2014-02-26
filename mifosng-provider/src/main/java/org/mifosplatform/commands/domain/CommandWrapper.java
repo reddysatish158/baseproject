@@ -106,7 +106,15 @@ public class CommandWrapper {
     public boolean isCreate() {
         return this.actionName.equalsIgnoreCase("CREATE");
     }
-
+    
+    public boolean isOwnUpdate() {
+        return this.actionName.equalsIgnoreCase("UPDATE");
+    }
+    
+    public boolean isOwnDelete() {
+        return this.actionName.equalsIgnoreCase("DELETE");
+    }
+    
     public String getTaskPermissionName() {
         return this.taskPermissionName;
     }
@@ -729,7 +737,7 @@ public class CommandWrapper {
 		}
 		
 		public boolean isOwnedHardware(){
-			return this.entityName.equalsIgnoreCase("OWNEDHARDWARE") && this.actionName.equalsIgnoreCase("CREATE");
+			return this.entityName.equalsIgnoreCase("OWNEDHARDWARE");/* && this.actionName.equalsIgnoreCase("CREATE")*/
 		}
 
 		public boolean isCountryCurrencyResource() {

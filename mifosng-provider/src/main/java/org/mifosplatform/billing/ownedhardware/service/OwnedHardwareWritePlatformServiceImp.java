@@ -1,12 +1,15 @@
 package org.mifosplatform.billing.ownedhardware.service;
 
 import java.util.List;
+import java.util.Map;
 
+import org.mifosplatform.billing.eventactionmapping.domain.EventActionMapping;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsReadPlatformService;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardwareData;
 import org.mifosplatform.billing.ownedhardware.domain.OwnedHardwareJpaRepository;
 import org.mifosplatform.billing.ownedhardware.serialization.OwnedHardwareFromApiJsonDeserializer;
+import org.mifosplatform.infrastructure.codes.exception.DiscountNotFoundException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -88,4 +91,57 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
         throw new PlatformDataIntegrityException("error.msg.charge.unknown.data.integrity.issue",
                 "Unknown data integrity issue with resource: " + realCause.getMessage());
     }
+
+	@Override
+	public CommandProcessingResult updateOwnedHardware(JsonCommand command,Long id)
+	{
+        try{
+        	  
+        	this.context.authenticatedUser();
+        	this.apiJsonDeserializer.validateForCreate(command.json());
+        	
+        	OwnedHardware ownedHardware=OwnedHardwareretrieveById(id);
+        	final Map<String, Object> changes = ownedHardware.update(command);  
+        	
+        	if(!changes.isEmpty()){
+        		this.ownedHardwareJpaRepository.save(ownedHardware);
+        	}
+        	
+        	return new CommandProcessingResult(id);
+        	
+        }catch(DataIntegrityViolationException dve){
+        	handleDataIntegrityIssues(command, dve);
+        	return CommandProcessingResult.empty();     
+        	}
+		
+         
+}
+
+	private OwnedHardware OwnedHardwareretrieveById(Long id) {
+             
+		OwnedHardware ownedHardware=this.ownedHardwareJpaRepository.findOne(id);
+              if (ownedHardware== null) { throw new DiscountNotFoundException(id.toString()); }
+	          return ownedHardware;	
+	}
+
+	@Override
+	public CommandProcessingResult deleteOwnedHardware(Long id) {
+
+     try{
+    	 this.context.authenticatedUser();
+    	 OwnedHardware ownedHardware=this.ownedHardwareJpaRepository.findOne(id);
+    	 
+    	 if(ownedHardware==null){
+    		 throw new DiscountNotFoundException(id.toString());
+    	 }
+    	 
+    	 ownedHardware.delete();
+    	 this.ownedHardwareJpaRepository.save(ownedHardware);
+    	 return new CommandProcessingResult(id);
+    	 
+    	 
+     }catch(Exception exception){
+    	 return null;
+     }
+	}
 }
