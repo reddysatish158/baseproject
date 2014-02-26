@@ -94,6 +94,7 @@ public class Invoice extends AbstractAuditableCustom<AppUser,Long>{
 
 	public void setInvoiceAmount(BigDecimal invoiceAmount) {
 		this.invoiceAmount = invoiceAmount;
+		this.dueAmount=invoiceAmount;
 	}
 
 	public BigDecimal getNetChargeAmount() {
