@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -93,5 +95,40 @@ public class OwnedHardwareApiResource {
 		ItemData itemCode = new ItemData(itemCodes);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.apiJsonSerializerForItemCode.serialize(settings,itemCode,SUPPORTED_RESPONSE_PARAMETERS_ITEMCODE);
+	}
+	
+	@PUT
+	@Path("own/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String updateOwnedHardware(@PathParam("id") final Long id,final String JsonRequestBody){
+		
+		CommandWrapper command = new CommandWrapperBuilder().updateOwnedHardware(id).withJson(JsonRequestBody).build();
+		final CommandProcessingResult result = portfolioCommandSourceWritePlatformService.logCommandSource(command);
+		return apiJsonSerializer.serialize(result);
+	}
+	
+	@DELETE
+	@Path("own/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String deleteOwnHardware(@PathParam("id") final Long id) {
+	 final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteOwnHardware(id).build();
+	 final CommandProcessingResult result = this.portfolioCommandSourceWritePlatformService.logCommandSource(commandRequest);
+	 return this.apiJsonSerializer.serialize(result);
+
+	}
+	
+	@GET
+	@Path("own/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retriveOwnedHardwareSingleData(@PathParam("id") final Long id, @Context final UriInfo uriInfo){
+		this.context.authenticatedUser().validateHasReadPermission(resourceType);
+		List<ItemData> itemCodes = ownedHardwareReadPlatformService.retriveTemplate();
+		List<OwnedHardwareData> ownedHardwareDatas = ownedHardwareReadPlatformService.retriveSingleOwnedHardwareData(id);
+		OwnedHardwareData ss=new OwnedHardwareData(itemCodes,ownedHardwareDatas);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.apiJsonSerializer.serialize(settings,ss,SUPPORTED_RESPONSE_PARAMETERS);
 	}
 }

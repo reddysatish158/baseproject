@@ -1544,6 +1544,22 @@ public CommandWrapperBuilder createOwnedHardware(final Long clientId){
 	return this;
 }
 
+public CommandWrapperBuilder updateOwnedHardware(final Long id){
+	this.actionName = "UPDATE";
+	this.entityName = "OWNEDHARDWARE";
+	this.entityId = id;
+	this.href = "/ownedhardware";
+	return this;
+}
+
+public CommandWrapperBuilder deleteOwnHardware(final Long id){
+	this.actionName = "DELETE";
+	this.entityName = "OWNEDHARDWARE";
+	this.entityId = id;
+	this.href = "/ownedhardware";
+	return this;
+}
+
 public CommandWrapperBuilder createCountryCurrency() {
 	this.actionName = "CREATE";
 	this.entityName = "COUNTRYCURRENCY";

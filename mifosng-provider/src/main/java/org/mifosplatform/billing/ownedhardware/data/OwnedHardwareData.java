@@ -1,6 +1,9 @@
 package org.mifosplatform.billing.ownedhardware.data;
 
+import java.util.List;
+
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.item.data.ItemData;
 
 
 public class OwnedHardwareData {
@@ -14,8 +17,8 @@ public class OwnedHardwareData {
 	private LocalDate allocationDate;
 	private String status;
 	private String itemType;
-	
-	
+	private List<ItemData> itemDatas;
+	private List<OwnedHardwareData> ownedHardwareDatas;
 	
 	public OwnedHardwareData() {
 		
@@ -34,6 +37,13 @@ public class OwnedHardwareData {
 	
 	
 	
+	public OwnedHardwareData(List<ItemData> itemCodes,
+			List<OwnedHardwareData> ownedHardwareDatas) {
+			this.itemDatas=itemCodes;
+			this.ownedHardwareDatas=ownedHardwareDatas;
+	}
+
+
 	public Long getId() {
 		return id;
 	}

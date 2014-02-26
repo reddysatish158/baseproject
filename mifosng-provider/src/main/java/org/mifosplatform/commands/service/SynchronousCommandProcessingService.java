@@ -732,6 +732,12 @@ public class SynchronousCommandProcessingService implements
 				    	   if(wrapper.isCreate()){
 				    		   handler = applicationContext.getBean("createOwnedHardwareCommandHandler",NewCommandSourceHandler.class);
 				    	   }
+				    	   if(wrapper.isOwnUpdate()){
+				    		   handler = applicationContext.getBean("updateOwnedHardwareCommandHandler",NewCommandSourceHandler.class);
+				    	   }
+				    	   if(wrapper.isOwnDelete()){
+				    		   handler = applicationContext.getBean("deleteOwnedHardwareCommandHandler",NewCommandSourceHandler.class);
+				    	   }
 			} else if(wrapper.isSchedulling()){
 						if(wrapper.isCreate()){
 							handler = applicationContext.getBean("createBatchJobSchedulingCommandHandler", NewCommandSourceHandler.class);

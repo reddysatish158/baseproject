@@ -38,7 +38,7 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 	@Override
 	public List<OwnedHardwareData> retriveOwnedHardwareData(Long clientId) {
 		OwnedHardwareMapper mapper = new OwnedHardwareMapper();
-		String sql = "select "+mapper.schema()+" where oh.client_id = ?";
+		String sql = "select "+mapper.schema()+" where oh.client_id = ? and oh.is_deleted='N'";
 		return jdbcTemplate.query(sql, mapper, new Object[]{clientId});
 	}
 	
@@ -99,6 +99,13 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 			String sql = "select im.id as id, im.item_description as itemDescription from b_item_master im order by id asc";
 			return sql;
 		}
+	}
+
+	@Override
+	public List<OwnedHardwareData> retriveSingleOwnedHardwareData(Long id) {
+		OwnedHardwareMapper mapper = new OwnedHardwareMapper();
+		String sql = "select "+mapper.schema()+" where oh.id = ?";
+		return jdbcTemplate.query(sql, mapper, new Object[]{id});
 	}
 	
 	
