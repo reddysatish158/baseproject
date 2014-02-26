@@ -10,4 +10,6 @@ public interface InvoiceReadPlatformService {
 
 	List<InvoiceData> retrieveInvoiceDetails(Long id);
 
+	List<InvoiceData> retrieveDueAmountInvoiceDetails(Long clientId);
+
 }

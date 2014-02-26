@@ -136,7 +136,7 @@ public class Invoice extends AbstractAuditableCustom<AppUser,Long>{
 	}
 	
 	public void updateAmount(BigDecimal amountPaid) {
-		this.dueAmount=this.invoiceAmount.subtract(amountPaid);
+		this.dueAmount=this.dueAmount.subtract(amountPaid);
 		
 	}
 	}

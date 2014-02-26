@@ -67,6 +67,9 @@ import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSourc
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGeneratorFactory;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
+import org.mifosplatform.portfolio.client.domain.ClientStatus;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -107,6 +110,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final PromotionRepository promotionRepository;
     private final OrderDiscountRepository orderDiscountRepository;
     private final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory;
+    private final ClientRepository clientRepository;
     
     public final static String CONFIG_PROPERTY="Implicit Association";
 
@@ -121,7 +125,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final OrderReadPlatformService orderReadPlatformService,
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
 		    final PaymentsApiResource paymentsApiResource,final PrepareRequsetRepository prepareRequsetRepository,final PromotionRepository promotionRepository,
-		    final OrderDiscountRepository orderDiscountRepository,final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory) {
+		    final OrderDiscountRepository orderDiscountRepository,final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
+		    final ClientRepository clientRepository) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -148,6 +153,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.promotionRepository=promotionRepository;
 		this.orderDiscountRepository=orderDiscountRepository;
 		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
+		this.clientRepository=clientRepository;
 		
 
 	}
@@ -165,9 +171,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			List<OrderPrice> orderprice = new ArrayList<OrderPrice>();
 			List<PriceData> datas = new ArrayList<PriceData>();
 			
-			     OrderReadPlatformImpl obj = new OrderReadPlatformImpl(context,jdbcTemplate);
-                 Order order=Order.fromJson(clientId,command);
-			     Plan plan = this.planRepository.findOne(order.getPlanId());
+			OrderReadPlatformImpl obj = new OrderReadPlatformImpl(context,jdbcTemplate);
+            Order order=Order.fromJson(clientId,command);
+			Plan plan = this.planRepository.findOne(order.getPlanId());
 			   
 			List<ServiceData> details = obj.retrieveAllServices(order.getPlanId());
 			datas=obj.retrieveAllPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
@@ -182,6 +188,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			LocalDate startDate=new LocalDate(order.getStartDate());
 			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 			orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId();
+			Client client=this.clientRepository.findOne(clientId);
+			client.setStatus(ClientStatus.ACTIVE.getValue());
+			this.clientRepository.save(client);
+			
 			
 			}else{
 			orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
@@ -405,9 +415,18 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			}
 			Plan plan=this.planRepository.findOne(order.getPlanId());
 			Long orderStatus=null;
-	         if(plan.getProvisionSystem().equalsIgnoreCase("None")){
+	        
+			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 				
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId();
+				Long activeOrders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(order.getClientId(), null);
+
+                   if(activeOrders == 0){
+					   Client client=this.clientRepository.findOne(order.getClientId());
+					 client.setStatus(ClientStatus.DEACTIVE.getValue());
+					 this.clientRepository.saveAndFlush(client);
+				 }
+				
 			}else{
 			
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
@@ -582,6 +601,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		      if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 					
 		    	  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
+		    	  Client client=this.clientRepository.findOne(order.getClientId());
+					client.setStatus(ClientStatus.ACTIVE.getValue());
+					this.clientRepository.save(client);
 				 
 		      }else{
 					 
@@ -595,7 +617,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				}
 		   
 		 
-		        order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
+		      order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
 		      this.orderRepository.save(order);
 		   
 			//for Prepare Request

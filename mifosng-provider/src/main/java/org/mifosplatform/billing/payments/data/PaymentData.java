@@ -16,7 +16,8 @@ public class PaymentData {
 	private Boolean isDeleted;
 	private Long billNumber;
 	private String receiptNo;
-	
+	private Long id;
+	private BigDecimal availAmount;
 	public PaymentData(Collection<McodeData> data){
 		this.data= data;
 		this.paymentDate=new LocalDate();
@@ -33,6 +34,16 @@ public class PaymentData {
 		  this.billNumber = billNumber;
 		  this.receiptNo = receiptNumber;
 		 }
+
+
+	public PaymentData(Long id, LocalDate paymentdate, BigDecimal amount,String recieptNo, BigDecimal availAmount) {
+	
+		this.id=id;
+		this.paymentDate=paymentdate;
+		this.amountPaid=amount;
+		this.receiptNo=recieptNo;
+		this.availAmount=availAmount;
+	}
 
 
 	public Collection<McodeData> getData() {
@@ -73,6 +84,17 @@ public class PaymentData {
 	public String getReceiptNo() {
 		return receiptNo;
 	}
+
+
+	public Long getId() {
+		return id;
+	}
+
+
+	public BigDecimal getAvailAmount() {
+		return availAmount;
+	}
+	
 	
 	
 }

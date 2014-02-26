@@ -151,7 +151,9 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 			return cancelRemark;
 		}
 		
-		
+	public void setInvoiceId(Long invoiceId){
+		this.invoiceId=invoiceId;
+	}
 
 }
 

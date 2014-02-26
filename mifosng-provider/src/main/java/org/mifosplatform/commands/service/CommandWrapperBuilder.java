@@ -2026,4 +2026,11 @@ public CommandWrapperBuilder deleteNewRecord(final String entityType, Long entit
         return this;
     }
 
+public CommandWrapperBuilder createCreditDistribution(Long clientId) {
+	this.actionName = "CREATE";
+    this.entityName = "CREDITDISTRIBUTION";
+    this.href = "/creditdistribution";
+    return this;
+}
+
 }

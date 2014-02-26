@@ -967,4 +967,8 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("LOCATION");
 		}
 
+		public boolean isCreditDistributionResource() {
+			  return this.entityName.equalsIgnoreCase("CREDITDISTRIBUTION");
+		}
+
 }

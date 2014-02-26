@@ -54,8 +54,7 @@ public class InvoiceReadPlatformServiceImpl implements InvoiceReadPlatformServic
 	
 
 		@Override
-		public InvoiceData mapRow(final ResultSet rs,
-				@SuppressWarnings("unused") final int rowNum)
+		public InvoiceData mapRow(final ResultSet rs,@SuppressWarnings("unused") final int rowNum)
 				throws SQLException {
 
 			Long id = rs.getLong("id");
@@ -67,6 +66,22 @@ public class InvoiceReadPlatformServiceImpl implements InvoiceReadPlatformServic
 
 		}
 	}
+
+	@Override
+	public List<InvoiceData> retrieveDueAmountInvoiceDetails(Long clientId) {
+		   
+		try{	
+			context.authenticatedUser();
+			InvoiceMapper mapper = new InvoiceMapper();
+
+			String sql = "select " + mapper.schema()+" and due_amount !=0";
+
+			return this.jdbcTemplate.query(sql, mapper, new Object[] { clientId });
+		}catch(EmptyResultDataAccessException accessException){
+			return null;
+		}
+
+		}
 
 
 }

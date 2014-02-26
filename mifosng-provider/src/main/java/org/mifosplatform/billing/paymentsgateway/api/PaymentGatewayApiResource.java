@@ -102,7 +102,7 @@ public class PaymentGatewayApiResource {
 		                .append("<response>")
 		                .append("<receipt>"+Receipt)
 		                .append("</receipt>")
-		                 .append("<result>"+"Success")
+		                 .append("<result>"+"SUCCESS")
 		                .append("</result>")
 		                .append("</response>");
 		            return builder.toString();
