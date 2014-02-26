@@ -69,6 +69,10 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 			String sql = "oh.id as id, oh.client_id as clientId, oh.serial_number as serialNumber, oh.provisioning_serial_number as provisioningSerialNumber, oh.allocated_date as allocationDate, oh.status as status, im.item_description as itemType from b_owned_hardware oh left outer join b_item_master im on oh.item_type=im.id";
 			return sql;
 		}
+		public String schemaForSingleRecord(){
+			String sql = "oh.id as id, oh.client_id as clientId, oh.serial_number as serialNumber, oh.provisioning_serial_number as provisioningSerialNumber, oh.allocated_date as allocationDate, oh.status as status, oh.item_type as itemType from b_owned_hardware oh";
+			return sql;
+		}
 	}
 	
 	private final class SerialNumberMapper implements RowMapper<String>{
@@ -104,7 +108,7 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 	@Override
 	public List<OwnedHardwareData> retriveSingleOwnedHardwareData(Long id) {
 		OwnedHardwareMapper mapper = new OwnedHardwareMapper();
-		String sql = "select "+mapper.schema()+" where oh.id = ?";
+		String sql = "select "+mapper.schemaForSingleRecord()+" where oh.id = ?";
 		return jdbcTemplate.query(sql, mapper, new Object[]{id});
 	}
 	
