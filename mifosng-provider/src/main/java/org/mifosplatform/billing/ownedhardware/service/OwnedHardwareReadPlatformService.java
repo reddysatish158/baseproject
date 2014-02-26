@@ -10,5 +10,6 @@ public interface OwnedHardwareReadPlatformService {
 	public List<OwnedHardwareData> retriveOwnedHardwareData(Long clientId);
 	public List<ItemData> retriveTemplate();
 	public List<String> retriveSerialNumbers();
+	public List<OwnedHardwareData> retriveSingleOwnedHardwareData(Long id);
 	
 }

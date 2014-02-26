@@ -98,7 +98,7 @@ public class OwnedHardwareApiResource {
 	}
 	
 	@PUT
-	@Path("{id}")
+	@Path("own/{id}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String updateOwnedHardware(@PathParam("id") final Long id,final String JsonRequestBody){
@@ -109,7 +109,7 @@ public class OwnedHardwareApiResource {
 	}
 	
 	@DELETE
-	@Path("{id}")
+	@Path("own/{id}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String deleteOwnHardware(@PathParam("id") final Long id) {
@@ -117,5 +117,18 @@ public class OwnedHardwareApiResource {
 	 final CommandProcessingResult result = this.portfolioCommandSourceWritePlatformService.logCommandSource(commandRequest);
 	 return this.apiJsonSerializer.serialize(result);
 
+	}
+	
+	@GET
+	@Path("own/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retriveOwnedHardwareSingleData(@PathParam("id") final Long id, @Context final UriInfo uriInfo){
+		this.context.authenticatedUser().validateHasReadPermission(resourceType);
+		List<ItemData> itemCodes = ownedHardwareReadPlatformService.retriveTemplate();
+		List<OwnedHardwareData> ownedHardwareDatas = ownedHardwareReadPlatformService.retriveSingleOwnedHardwareData(id);
+		OwnedHardwareData ss=new OwnedHardwareData(itemCodes,ownedHardwareDatas);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.apiJsonSerializer.serialize(settings,ss,SUPPORTED_RESPONSE_PARAMETERS);
 	}
 }
