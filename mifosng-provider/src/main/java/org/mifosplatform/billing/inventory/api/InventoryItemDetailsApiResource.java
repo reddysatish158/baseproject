@@ -77,14 +77,13 @@ public class InventoryItemDetailsApiResource {
 	private final OfficeReadPlatformService officeReadPlatformService;
 	private final ItemReadPlatformService itemReadPlatformService;
 	private final SupplierReadPlatformService supplierReadPlatformService;
-	private final MCodeReadPlatformService codeReadPlatformService;
+	
     
 	@Autowired
 	public InventoryItemDetailsApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<InventoryItemDetailsData> toApiJsonSerializerForItem,ApiRequestParameterHelper apiRequestParameterHelper,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final InventoryGrnReadPlatformService inventoryGrnReadPlatformService,final DefaultToApiJsonSerializer<InventoryGrnData> toApiJsonSerializerForGrn,InventoryItemDetailsReadPlatformService itemDetailsReadPlatformService,final DefaultToApiJsonSerializer<InventoryItemDetailsAllocation> toApiJsonSerializerForItemAllocation,final DefaultToApiJsonSerializer<InventoryItemSerialNumberData> toApiJsonSerializerForAllocationHardware,
 										   final OfficeReadPlatformService officeReadPlatformService,
 										   final ItemReadPlatformService itemReadPlatformService,
-										   final SupplierReadPlatformService supplierReadPlatformService,
-										   final MCodeReadPlatformService mCodeReadPlatformService) {
+										   final SupplierReadPlatformService supplierReadPlatformService) {
 		this.context=context;
 	    this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
 	    this.toApiJsonSerializerForGrn = toApiJsonSerializerForGrn;
@@ -97,7 +96,6 @@ public class InventoryItemDetailsApiResource {
 	    this.officeReadPlatformService = officeReadPlatformService;
 	    this.itemReadPlatformService = itemReadPlatformService;
 	    this.supplierReadPlatformService = supplierReadPlatformService;
-	    this.codeReadPlatformService = mCodeReadPlatformService;
 	}
 
 	/*

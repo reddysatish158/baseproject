@@ -366,6 +366,11 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 					      inventoryItemDetails.delete();
 					      
 					      this.inventoryItemDetailsRepository.save(inventoryItemDetails);
+					     
+					  	InventoryTransactionHistory transactionHistory = InventoryTransactionHistory.logTransaction(new LocalDate().toDate(), 
+					  			inventoryItemDetailsAllocation.getOrderId(),"De Allocation",inventoryItemDetailsAllocation.getSerialNumber(), inventoryItemDetailsAllocation.getItemMasterId(),
+								inventoryItemDetailsAllocation.getClientId(),inventoryItemDetails.getOfficeId());
+					  	inventoryTransactionHistoryJpaRepository.save(transactionHistory);
 					   
 				   }
 				   return inventoryItemDetailsAllocation;

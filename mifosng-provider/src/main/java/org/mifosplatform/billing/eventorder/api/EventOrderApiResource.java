@@ -1,6 +1,5 @@
 package org.mifosplatform.billing.eventorder.api;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,11 +9,9 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -28,7 +25,6 @@ import org.mifosplatform.billing.eventpricing.data.ClientTypeData;
 import org.mifosplatform.billing.eventpricing.service.EventPricingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
-import org.mifosplatform.billing.media.exceptions.NoEventPriceFoundException;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -41,7 +37,6 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 @Path("/eventorder")
@@ -102,7 +97,8 @@ public class EventOrderApiResource {
 			context.authenticatedUser();
 			
 			final List<EventOrderDeviceData> devices = eventOrderReadplatformServie.getDevices(clientId);
-			final List<EventMasterData> events = eventOrderReadplatformServie.getEvents();
+			//final List<EventMasterData> events = eventOrderReadplatformServie.getEvents();
+			final List<EventMasterData> events = this.eventMasterReadPlatformService.retrieveEventMasterData();
 			final List<EnumOptionData> optType = this.eventMasterReadPlatformService.retrieveOptTypeData();
 			final Collection<MCodeData> codes = this.codeReadPlatformService.getCodeValue("MediaFormat");
 			final List<ClientTypeData> clientType = this.eventPricingReadService.clientType();

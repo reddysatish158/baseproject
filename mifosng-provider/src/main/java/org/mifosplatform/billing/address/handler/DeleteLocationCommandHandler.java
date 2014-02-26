@@ -1,8 +1,3 @@
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- */
 package org.mifosplatform.billing.address.handler;
 
 import org.mifosplatform.billing.address.service.AddressWritePlatformService;
@@ -14,19 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class createNewRecordCommandHandler implements NewCommandSourceHandler {
-
-    private final AddressWritePlatformService writePlatformService;
-
-    @Autowired
-    public createNewRecordCommandHandler(final AddressWritePlatformService writePlatformService) {
+public class DeleteLocationCommandHandler implements NewCommandSourceHandler{
+	private final AddressWritePlatformService writePlatformService;
+	
+	@Autowired
+	public DeleteLocationCommandHandler(final AddressWritePlatformService writePlatformService){
         this.writePlatformService = writePlatformService;
     }
-
-    @Transactional
+ @Transactional
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
+		 return this.writePlatformService.deleteLocation(command,command.getSupportedEntityType(),command.entityId());
+ 	}
 
-        return this.writePlatformService.createNewRecord(command,command.entityName());
-    }
 }

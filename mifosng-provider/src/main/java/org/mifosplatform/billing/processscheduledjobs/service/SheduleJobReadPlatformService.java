@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
-import org.mifosplatform.infrastructure.jobs.data.JobQueryData;
 
 public interface SheduleJobReadPlatformService {
 

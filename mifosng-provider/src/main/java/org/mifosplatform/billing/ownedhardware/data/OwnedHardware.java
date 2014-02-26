@@ -40,6 +40,7 @@ public class OwnedHardware extends AbstractAuditableCustom<AppUser, Long>{
 	
 	@Column(name="is_deleted")
 	private Character isDeleted='N';
+
 	
 	public OwnedHardware() {
 		

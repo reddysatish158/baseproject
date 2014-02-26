@@ -104,9 +104,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 		
 		StringBuilder sqlBuilder = new StringBuilder(200);
 	        sqlBuilder.append("select ");
-	        sqlBuilder.append(financialTransactionsMapper.financialTransactionsSchema());
-	    
-	        
+	        sqlBuilder.append(financialTransactionsMapper.financialTransactionsSchema()+" order by  transDate desc ");
 	        String sqlSearch = searchTransactionHistory.getSqlSearch();
 	        String extraCriteria = "";
 		    if (sqlSearch != null) {

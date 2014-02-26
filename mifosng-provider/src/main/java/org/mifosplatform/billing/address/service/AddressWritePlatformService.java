@@ -9,12 +9,15 @@ public interface AddressWritePlatformService {
 
 	CommandProcessingResult updateAddress(Long addrId, JsonCommand command);
 
-	CommandProcessingResult createNewRecord(JsonCommand command,String entityType);
+	CommandProcessingResult createNewLocation(JsonCommand command,String supportedEntityType);
 
 	CommandProcessingResult createAddress(Long clientId, JsonCommand command);
 	
-	CommandProcessingResult updateNewRecord(JsonCommand command,String entityType,Long id);
 
-	CommandProcessingResult deleteNewRecord(JsonCommand command,String entityType, Long id);
+	CommandProcessingResult deleteLocation(JsonCommand command,String entityType, Long id);
+
+	CommandProcessingResult updateLocation(JsonCommand command,String supportedEntityType, Long entityId);
+
+	
 
 }

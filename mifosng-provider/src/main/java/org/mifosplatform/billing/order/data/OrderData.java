@@ -30,7 +30,7 @@ public class OrderData {
 	private List<PaytermData> paytermdata;
 	private List<SubscriptionData> subscriptiondata;
 	private List<OrderPriceData> orderPriceData;
-	
+	private LocalDate activeDate;
 	private String contractPeriod;
 //	private boolean flag;
 	private Collection<McodeData> disconnectDetails;
@@ -53,6 +53,7 @@ public class OrderData {
 			List<SubscriptionData> contractPeriod, OrderData data) {
 
 		if (data != null) {
+			
 			this.id = data.getId();
 			this.pdid = data.getPdid();
 			this.planCode = data.getPlan_code();
@@ -60,7 +61,6 @@ public class OrderData {
 			this.period = data.getPeriod();
 			this.orderPriceId = data.getOrderPriceId();
 			this.service_code = null;
-
 			this.startDate = data.getStartDate();
 		}
 		this.startDate=new LocalDate();
@@ -74,7 +74,7 @@ public class OrderData {
 
 	public OrderData(Long id, Long planId, String plancode, String status,LocalDate startDate, LocalDate endDate,
 			double price,String contractPeriod, String isprepaid, String allowtopup,String userAction,
-			String provisioningSys, String orderNo, LocalDate invoiceTillDate) {
+			String provisioningSys, String orderNo, LocalDate invoiceTillDate, LocalDate activaDate) {
 		this.id = id;
 		this.pdid = planId;
 		this.planCode = plancode;
@@ -98,9 +98,7 @@ public class OrderData {
         this.provisioningSys=provisioningSys;
         this.orderNo=orderNo;
         this.invoiceTilldate=invoiceTillDate;
-		/*if (startDate.equals(currentDate)) {
-			this.flag = true;
-		}*/
+		this.activeDate=activaDate;
 
 	}
 

@@ -134,7 +134,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	}
 
 	@Override
-	public CommandProcessingResult createNewRecord(JsonCommand command,String entityType) {
+	public CommandProcessingResult createNewLocation(JsonCommand command,String entityType) {
   try{
 	  
 	  this.context.authenticatedUser();
@@ -166,7 +166,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 
 	}
 	@Override
-	public CommandProcessingResult updateNewRecord(JsonCommand command,String entityType, Long id) {
+	public CommandProcessingResult updateLocation(JsonCommand command,String entityType, Long id) {
 	  try{
 		this.context.authenticatedUser();
 		if(entityType.equalsIgnoreCase("city")){
@@ -219,7 +219,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	}
 
 	@Override
-	public CommandProcessingResult deleteNewRecord(JsonCommand command,String entityType, Long id) {
+	public CommandProcessingResult deleteLocation(JsonCommand command,String entityType, Long id) {
 		
 		try{
 	    	 this.context.authenticatedUser();

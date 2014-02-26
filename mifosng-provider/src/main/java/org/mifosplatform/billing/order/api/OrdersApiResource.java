@@ -70,7 +70,7 @@ public class OrdersApiResource {
 	  private final GlobalConfigurationRepository configurationRepository;
 	  
 	  @Autowired
-	    public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
+	   public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
 	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
@@ -142,25 +142,25 @@ public class OrdersApiResource {
         return this.toApiJsonSerializer.serialize(result);
 	}
 
-	 @GET
-	    @Path("{clientId}/orders")
-	    @Consumes({MediaType.APPLICATION_JSON})
-	    @Produces({MediaType.APPLICATION_JSON})
-	    public String retrieveOrderDetails(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo) {
-        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-        final List<OrderData> clientOrders = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+	@GET
+	@Path("{clientId}/orders")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retrieveOrderDetails(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo) {
+    context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+    final List<OrderData> clientOrders = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
                 OrderData orderData=new OrderData(clientId,clientOrders);
         
-        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
+    final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+    return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
 	    }
 	 
 	 @GET
-	    @Path("{orderId}/orderprice")
-	    @Consumes({MediaType.APPLICATION_JSON})
-	    @Produces({MediaType.APPLICATION_JSON})
-	    public String retrieveOrderPriceDetails(@PathParam("orderId") final Long orderId,
-	    	@Context final UriInfo uriInfo) {
+	 @Path("{orderId}/orderprice")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+	 public String retrieveOrderPriceDetails(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
+		 
 	        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	        final List<OrderPriceData> priceDatas = this.orderReadPlatformService.retrieveOrderPriceDetails(orderId,null);
 	        final List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);

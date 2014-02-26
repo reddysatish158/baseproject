@@ -7,15 +7,12 @@ import java.util.List;
 import org.mifosplatform.billing.priceregion.data.PriceRegionData;
 import org.mifosplatform.billing.priceregion.service.RegionalPriceReadplatformService;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
-import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
-import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RegionalPriceReadplatformServiceImpl implements RegionalPriceReadplatformService{

@@ -124,16 +124,17 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		  
 		    	    if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc";
 		    	    }
 		                sqlBuilder.append(extraCriteria);
-	    }else{
-	    	if (sqlSearch != null) {
+	    }else if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
-    	    }
+    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc ";
+    	}else {
+    		extraCriteria = " order by payment_date desc ";
+    	}
                 sqlBuilder.append(extraCriteria);
-        }
+        
         
         if (searchPaymentDetail.isLimited()) {
             sqlBuilder.append(" limit ").append(searchPaymentDetail.getLimit());

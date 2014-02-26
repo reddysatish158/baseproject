@@ -545,13 +545,16 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("updateAddressCommandHandler",NewCommandSourceHandler.class);
 			} else if (wrapper.isDelete()) {
 				handler = applicationContext.getBean("deleteAddressCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isNewRecord()) {
-				handler = applicationContext.getBean("createNewRecordCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isUpdateNewRecord()) {
-				handler = applicationContext.getBean("updateNewRecordCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isdeleteNewRecord()) {
-				handler = applicationContext.getBean("deleteNewRecordCommandHandler",NewCommandSourceHandler.class);
 			}
+		}else if(wrapper.isAddressMappingResource()){
+			if (wrapper.isNewRecord()) {
+				handler = applicationContext.getBean("createNewLocationCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isUpdateNewRecord()) {
+				handler = applicationContext.getBean("updateLocationCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isdeleteNewRecord()) {
+				handler = applicationContext.getBean("deleteLocationCommandHandler",NewCommandSourceHandler.class);
+			}
+			
 		}
 
 		else if (wrapper.isItemResource()) {
@@ -890,17 +893,25 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isUserChatResource()){
 				   if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createUserChatCommandHandler",NewCommandSourceHandler.class);
-				     } }else if(wrapper.isUpdate()) {
+				     } 
+				   else if(wrapper.isUpdate()) {
 				         handler = applicationContext.getBean("updateUserChatMessageCommandHandler",NewCommandSourceHandler.class);
 				   
 				   }else if(wrapper.isDelete()) {
 				         handler = applicationContext.getBean("deleteUserChatMessageCommandHandler",NewCommandSourceHandler.class);
-				   
-			       }else {
+				   }   
+		
+			   }else if(wrapper.isCreditDistributionResource()){
+				     if(wrapper.isCreate()) {
+				         handler = applicationContext.getBean("createCreditDistributionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       
-					
+			   	
 	       return handler;
 	      
 	    
