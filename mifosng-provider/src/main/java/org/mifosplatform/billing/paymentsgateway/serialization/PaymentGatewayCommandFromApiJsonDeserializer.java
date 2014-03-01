@@ -30,7 +30,8 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 	 */
 	 
 	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("amount","timestamp", "msisdn","name", 
-				"service", "receipt", "reference","transaction","dateFormat","locale","remarks","status"));
+				"service", "receipt", "reference","transaction","dateFormat","locale","remarks","status","CUSTOMERREFERENCEID",
+				"TXNID","COMPANYNAME","STATUS","AMOUNT","MSISDN","TYPE","OBSPAYMENTTYPE"));
 	
     private final FromJsonHelper fromApiJsonHelper;
     
@@ -56,12 +57,28 @@ public class PaymentGatewayCommandFromApiJsonDeserializer {
 
 		final JsonElement element = fromApiJsonHelper.parse(json);
 	
-		final String reference = fromApiJsonHelper.extractStringNamed("reference", element);
-		baseDataValidator.reset().parameter("reference").value(reference).notBlank().notExceedingLengthOf(30);
-		final BigDecimal amount = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", element);
-		baseDataValidator.reset().parameter("amount").value(amount).notBlank();
-		final String receipt = fromApiJsonHelper.extractStringNamed("receipt", element);
-		baseDataValidator.reset().parameter("receipt").value(receipt).notBlank();
+		final String OBSPAYMENTTYPE = fromApiJsonHelper.extractStringNamed("OBSPAYMENTTYPE", element);
+		
+		if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
+			
+			final String reference = fromApiJsonHelper.extractStringNamed("reference", element);
+			baseDataValidator.reset().parameter("reference").value(reference).notBlank().notExceedingLengthOf(30);
+			final BigDecimal amount = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", element);
+			baseDataValidator.reset().parameter("amount").value(amount).notBlank();
+			final String receipt = fromApiJsonHelper.extractStringNamed("receipt", element);
+			baseDataValidator.reset().parameter("receipt").value(receipt).notBlank();
+			
+		}else if (OBSPAYMENTTYPE.equalsIgnoreCase("TigoPesa")) {
+			
+			final String keyId = fromApiJsonHelper.extractStringNamed("CUSTOMERREFERENCEID", element);
+			baseDataValidator.reset().parameter("CUSTOMERREFERENCEID").value(keyId).notBlank().notExceedingLengthOf(30);
+			final BigDecimal amount = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("AMOUNT", element);
+			baseDataValidator.reset().parameter("AMOUNT").value(amount).notBlank();
+			final String transactionId = fromApiJsonHelper.extractStringNamed("TXNID", element);
+			baseDataValidator.reset().parameter("TXNID").value(transactionId).notBlank();
+			
+		}
+		
 		
 		throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
