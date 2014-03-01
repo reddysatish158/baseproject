@@ -61,6 +61,7 @@ public class PaymentGatewayApiResource {
 	private final PortfolioCommandSourceWritePlatformService writePlatformService;
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	private final PaymentGatewayReadPlatformService paymentGatewayReadPlatformService;
+	private String Receipt ;
 
 	@Autowired
 	public PaymentGatewayApiResource(final PlatformSecurityContext context,final PaymentGatewayReadPlatformService readPlatformService,
@@ -84,14 +85,15 @@ public class PaymentGatewayApiResource {
 	public String mpesaPayment(final String apiRequestBodyAsJson)  {
 		
 		 CommandProcessingResult result=null;
-		 String Receipt = null;
+		
 	try{
 			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
-			JSONObject element= xmlJSONObj.getJSONObject("transaction");
-			Receipt=element.getString("receipt");
-			element.put("locale", "en");
-			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
+		    String jsonData=this.ReturnJsonFromXml(xmlJSONObj);
+			
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(jsonData).build();
 			result = this.writePlatformService.logCommandSource(commandRequest);
+			
+			
 			
 			if(result==null ){
                return null;
@@ -128,6 +130,29 @@ public class PaymentGatewayApiResource {
 	
 	
 		 
+	}
+	
+	public String ReturnJsonFromXml(JSONObject xmlJSONObj){		
+		try {
+			JSONObject element=null;
+			boolean b=xmlJSONObj.has("GENEIRCBILLPAY");
+			
+			if(b==true){
+			    element = xmlJSONObj.getJSONObject("GENEIRCBILLPAY");
+			    element.put("OBSPAYMENTTYPE", "TigoPesa");
+			    element.put("locale", "en");
+			    Receipt=element.getString("TXNID");
+			}else{
+				element = xmlJSONObj.getJSONObject("transaction");
+				element.put("OBSPAYMENTTYPE", "MPesa");
+				element.put("locale", "en");
+				Receipt=element.getString("receipt");
+			}
+			return element.toString();
+		} catch (JSONException e) {
+			return e.getCause().toString();	 
+		}
+		
 	}
 	
 	@GET
