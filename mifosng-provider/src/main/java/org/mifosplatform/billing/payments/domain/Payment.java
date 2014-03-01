@@ -31,7 +31,7 @@ public class Payment extends AbstractAuditableCustom<AppUser, Long> {
 	@Column(name = "is_deleted", nullable = false)
 	private boolean deleted = false;
 
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "payment_date")
 	private Date paymentDate;
 

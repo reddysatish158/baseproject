@@ -56,6 +56,12 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 	@Column(name = "Remarks")
 	private String remarks;
 	
+	@Column(name = "t_status")
+	private String tStatus;
+	
+	@Column(name = "type")
+	private String type;
+	
 	@Column(name = "is_auto" ,nullable = false)
 	private boolean isAuto=true;
 	
@@ -73,6 +79,19 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 		this.receiptNo=receiptNo;
 		this.source=source;
 		this.details=details;
+	}
+
+	public PaymentGateway(String deviceId, String transactionId,BigDecimal amountPaid, String phoneNo, 
+			String type,String tStatus, String details, Date date, String source) {
+		this.deviceId=deviceId;
+		this.partyId=phoneNo;
+		this.paymentDate=date;
+		this.amountPaid=amountPaid;
+		this.receiptNo=transactionId;
+		this.source=source;
+		this.details=details;
+		this.type=type;
+		this.tStatus=tStatus;
 	}
 
 	public Map<String, Object> fromJson(JsonCommand command) {

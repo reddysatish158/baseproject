@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.joda.time.LocalDate;
 import org.mifosplatform.billing.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.billing.payments.service.PaymentWritePlatformService;
 import org.mifosplatform.billing.paymentsgateway.domain.PaymentGateway;
@@ -59,70 +60,146 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 	    	this.paymodeReadPlatformService=paymodeReadPlatformService;
 	    	this.paymentGatewayReadPlatformService=paymentGatewayReadPlatformService;
 	    }
+	    
+	    private Long MPesaTransaction(JsonElement element) {
+
+			try {
+				CommandProcessingResult result = null;
+				String serialNumberId = fromApiJsonHelper.extractStringNamed("reference", element);
+				String paymentDate = fromApiJsonHelper.extractStringNamed("timestamp", element);
+				BigDecimal amountPaid = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", element);
+				String phoneNo = fromApiJsonHelper.extractStringNamed("msisdn",element);
+				String receiptNo = fromApiJsonHelper.extractStringNamed("receipt",element);
+				String SOURCE = fromApiJsonHelper.extractStringNamed("service",element);
+				String details = fromApiJsonHelper.extractStringNamed("name",element);
+				DateFormat readFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+				Date date;
+
+				date = readFormat.parse(paymentDate);
+
+				PaymentGateway paymentGateway = new PaymentGateway(serialNumberId,phoneNo, date, amountPaid, receiptNo, SOURCE, details);
+
+				Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
+
+				if (clientId != null) {
+					Long paymodeId = this.paymodeReadPlatformService.getOnlinePaymode();
+					if (paymodeId == null) {
+						paymodeId = new Long(83);
+					}
+					String remarks = "customerName: " + details + " ,PhoneNo:"+ phoneNo + " ,Biller account Name : " + SOURCE;
+					SimpleDateFormat daformat = new SimpleDateFormat("dd MMMM yyyy");
+					String paymentdate = daformat.format(date);
+					JsonObject object = new JsonObject();
+					object.addProperty("dateFormat", "dd MMMM yyyy");
+					object.addProperty("locale", "en");
+					object.addProperty("paymentDate", paymentdate);
+					object.addProperty("amountPaid", amountPaid);
+					object.addProperty("isChequeSelected", "no");
+					object.addProperty("receiptNo", receiptNo);
+					object.addProperty("remarks", remarks);
+					object.addProperty("paymentCode", paymodeId);
+					String entityName = "PAYMENT";
+					final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
+					JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper,entityName,
+							                            clientId,null, null, null, null, null, null, null, null, null);
+					
+					result = this.paymentWritePlatformService.createPayment(comm);
+					if (result.resourceId() != null) {
+						paymentGateway.setObsId(result.resourceId());
+						paymentGateway.setStatus("Success");
+						paymentGateway.setAuto(false);
+						this.paymentGatewayRepository.save(paymentGateway);
+					}
+					return result.resourceId();
+				} else {
+					paymentGateway.setStatus("Failure");
+					this.paymentGatewayRepository.save(paymentGateway);
+					return null;
+				}
+			} catch (ParseException e) {
+				 return Long.valueOf(-1);
+			}
+
+		}
+	    
+	    private Long TigoPesaTransaction(JsonElement element) {
+	    	CommandProcessingResult result = null;
+			
+			String serialNumberId = fromApiJsonHelper.extractStringNamed("CUSTOMERREFERENCEID", element);
+			String TXNID = fromApiJsonHelper.extractStringNamed("TXNID", element);
+			BigDecimal amountPaid = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("AMOUNT", element);
+			String phoneNo = fromApiJsonHelper.extractStringNamed("MSISDN", element);
+			String TYPE = fromApiJsonHelper.extractStringNamed("TYPE", element);
+			String tStatus = fromApiJsonHelper.extractStringNamed("STATUS", element);
+			String details = fromApiJsonHelper.extractStringNamed("COMPANYNAME", element);
+			LocalDate localDate= new LocalDate();
+			Date date=localDate.toDate();
+			String SOURCE="tigo";
+
+			PaymentGateway paymentGateway = new PaymentGateway(serialNumberId,TXNID,amountPaid,phoneNo, TYPE, tStatus, details, date, SOURCE);
+
+			Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
+
+			if (clientId != null) {
+				Long paymodeId = this.paymodeReadPlatformService.getOnlinePaymode();
+				if (paymodeId == null) {
+					paymodeId = new Long(83);
+				}
+				String remarks = "companyName: " + details + " ,PhoneNo:"+ phoneNo + " ,Biller account Name : " + SOURCE + 
+						       " ,Type:"+TYPE+ " ,Status:"+tStatus;
+				
+				SimpleDateFormat daformat = new SimpleDateFormat("dd MMMM yyyy");
+				String paymentdate = daformat.format(date);
+				JsonObject object = new JsonObject();
+				object.addProperty("dateFormat", "dd MMMM yyyy");
+				object.addProperty("locale", "en");
+				object.addProperty("paymentDate", paymentdate);
+				object.addProperty("amountPaid", amountPaid);
+				object.addProperty("isChequeSelected", "no");
+				object.addProperty("receiptNo", TXNID);
+				object.addProperty("remarks", remarks);
+				object.addProperty("paymentCode", paymodeId);
+				String entityName = "PAYMENT";
+				final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
+				JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper,entityName,
+						                            clientId,null, null, null, null, null, null, null, null, null);
+				
+				result = this.paymentWritePlatformService.createPayment(comm);
+				if (result.resourceId() != null) {
+					paymentGateway.setObsId(result.resourceId());
+					paymentGateway.setStatus("Success");
+					paymentGateway.setAuto(false);
+					this.paymentGatewayRepository.save(paymentGateway);
+				}
+				return result.resourceId();
+			} else {
+				paymentGateway.setStatus("Failure");
+				this.paymentGatewayRepository.save(paymentGateway);
+				return null;
+			}
+
+		}
 
 	    @Transactional
 		@Override
 		public CommandProcessingResult createPaymentGateway(JsonCommand command) {
 			  JsonElement element=null;
-			  CommandProcessingResult result=null;
+			  Long resourceId = null;
+			  String OBSPAYMENTTYPE = null;
 			try {
 				   context.authenticatedUser();
 				   this.paymentGatewayCommandFromApiJsonDeserializer.validateForCreate(command.json());
 				   element= fromApiJsonHelper.parse(command.json());
-				   if(element!=null){
-					    String serialNumberId = fromApiJsonHelper.extractStringNamed("reference", element);
-					    String paymentDate = fromApiJsonHelper.extractStringNamed("timestamp", element);
-					    BigDecimal amountPaid = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", element);
-					    String phoneNo = fromApiJsonHelper.extractStringNamed("msisdn", element);
-					    String receiptNo = fromApiJsonHelper.extractStringNamed("receipt", element);
-					    String SOURCE = fromApiJsonHelper.extractStringNamed("service", element);
-					    String details = fromApiJsonHelper.extractStringNamed("name", element);
-					    DateFormat readFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
-					    Date date = readFormat.parse(paymentDate);					     
-					    PaymentGateway  paymentGateway = new PaymentGateway(serialNumberId,phoneNo,date,amountPaid,receiptNo,SOURCE,details);
-	
-					    Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
-					    
-						if(clientId != null){
-							Long paymodeId=this.paymodeReadPlatformService.getOnlinePaymode();
-							if(paymodeId==null){
-								paymodeId=new Long(83);
-							}
-							String remarks="customerName: "+details+" ,PhoneNo:"+phoneNo+" ,Biller account Name : "+SOURCE;
-							SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
-						    String paymentdate=daformat.format(date);
-						    JsonObject object=new JsonObject();
-						    object.addProperty("dateFormat","dd MMMM yyyy");
-						    object.addProperty("locale","en");
-						    object.addProperty("paymentDate",paymentdate);
-						    object.addProperty("amountPaid",amountPaid);
-						    object.addProperty("isChequeSelected","no");
-						    object.addProperty("receiptNo",receiptNo);
-						    object.addProperty("remarks",remarks);
-						    object.addProperty("paymentCode",paymodeId);
-						    String entityName="PAYMENT";
-						    final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
-						    JsonCommand comm=new JsonCommand(null, object.toString(), element1, fromApiJsonHelper, entityName, clientId, null, null, null,
-					                null, null, null, null, null, null);
-						    result=this.paymentWritePlatformService.createPayment(comm);
-						    if(result.resourceId()!=null){		
-						    	paymentGateway.setObsId(result.resourceId());
-						    	paymentGateway.setStatus("Success");    
-						    	paymentGateway.setAuto(false);
-						    	this.paymentGatewayRepository.save(paymentGateway);	    	
-						    }						    
-													
-						}else{						
-							paymentGateway.setStatus("Failure");    	
-					    	this.paymentGatewayRepository.save(paymentGateway);
-					    	return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paymentGateway.getId()).build();					    	 
-						}					  		               
+				   if(element!=null){  
+					   OBSPAYMENTTYPE  = fromApiJsonHelper.extractStringNamed("OBSPAYMENTTYPE", element);
+					   if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
+						   resourceId = this.MPesaTransaction(element);
+					   }else if (OBSPAYMENTTYPE.equalsIgnoreCase("TigoPesa")) {
+						   resourceId= this.TigoPesaTransaction(element);
+					   }  
 				   }	 
-				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(result.resourceId()).build();
-			}catch ( ParseException e ) {
-				return null;
-        	    
-	       }catch (DataIntegrityViolationException  e) {
+				   return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(resourceId).build();
+			}catch (DataIntegrityViolationException  e) {
 
 	    	  if(e.toString().contains("receipt_no")){
 		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);	    	     	 
@@ -132,7 +209,12 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 
 	    	  }
 		   }catch (ReceiptNoDuplicateException  e) {
-		    	  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
+				   String receiptNo = null;
+				   if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
+					   receiptNo =fromApiJsonHelper.extractStringNamed("receipt", element);
+				   }else if (OBSPAYMENTTYPE.equalsIgnoreCase("TigoPesa")) {
+					   receiptNo=fromApiJsonHelper.extractStringNamed("TXNID", element);
+				   } 
 		    	  String receiptNO=this.paymentGatewayReadPlatformService.findReceiptNo(receiptNo);
 		    	  if(receiptNO!=null){
 		    	  throw new ReceiptNoDuplicateException(receiptNo);
@@ -143,12 +225,10 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			   } catch (Exception dve) {
 				    handleCodeDataIntegrityIssues(element, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
-	        }
-			
-			
+	        }		
 			
 		}
-		
+
 		private void handleCodeDataIntegrityIssues(JsonElement element,
 				Exception dve) {
 			String realCause=dve.toString();
@@ -180,9 +260,5 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			
 			return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(gateway.getId()).with(changes).build();
 		}
-			 
-	    	
-
-	
 	
 }
