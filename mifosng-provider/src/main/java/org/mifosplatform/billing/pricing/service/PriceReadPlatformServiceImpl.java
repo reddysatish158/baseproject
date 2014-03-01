@@ -107,9 +107,10 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 
 			  context.authenticatedUser();
 
-		        String sql = "SELECT sm.id AS id,sm.service_description AS service_description,p.plan_code as planCode,"
-				     +" pm.service_code AS service_code   FROM b_plan_detail pm, b_service sm,b_plan_master p"
-					 +" WHERE pm.service_code = sm.service_code AND p.id = pm.plan_id and sm.is_deleted ='n' and  pm.plan_id=?";
+		        String sql = "SELECT sm.id AS id,sm.service_description AS service_description,p.plan_code AS planCode,pm.service_code AS service_code," +
+		        		" c.billfrequency_code as billingfreq FROM b_plan_detail pm, b_service sm, b_plan_master p left join b_plan_pricing pr on pr.plan_id = p.id" +
+		        		" left join b_charge_codes c ON c.charge_code = pr.charge_code WHERE pm.service_code = sm.service_code AND p.id = pm.plan_id " +
+		        		" AND sm.is_deleted = 'n' AND pm.plan_id = ?";
 
 
 		        RowMapper<ServiceData> rm = new PeriodMapper();
@@ -127,8 +128,9 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 		            String planCode = rs.getString("planCode");
 		            String serviceCode = rs.getString("service_code");
 		            String serviceDescription = rs.getString("service_description");
+		            String billingfreq = rs.getString("billingfreq");
 		         //   return new ServiceData(id,null,planCode,null,serviceCode,serviceDescription,null,null);
-		            return new  ServiceData(id, null, planCode,null, serviceCode, serviceDescription,null);
+		            return new  ServiceData(id, null, planCode,billingfreq, serviceCode, serviceDescription,null);
 		            
 		        }
 	}

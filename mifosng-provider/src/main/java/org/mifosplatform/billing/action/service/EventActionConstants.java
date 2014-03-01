@@ -5,7 +5,8 @@ public class EventActionConstants {
 	//Events
 	public static final String EVENT_CREATE_PAYMENT="Create Payment";
 	public static final String  EVENT_CREATE_CLIENT="Create Client";
-	public static final String EVENT_CREATE_ORDER="Create_Order";
+	public static final String EVENT_CREATE_ORDER="Order booking";
+	public static final String EVENT_ACTIVE_ORDER="Order activation";
 	
 	//Actions
 	public static final String ACTION_SEND_MAIL="Send Mail";

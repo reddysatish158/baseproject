@@ -177,7 +177,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			clientBalance.setBalanceAmount(clientBalance.getBalanceAmount().add(payment.getAmountPaid()));
 			this.clientBalanceRepository.save(clientBalance);
 			
-			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "CANCEL PAYMENT", payment.getPaymentDate(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Cancel Payment", payment.getPaymentDate(),
 					"Amount :"+payment.getAmountPaid(),"Remarks:"+payment.getCancelRemark(),"ReceiptNo: "+payment.getReceiptNo());
 			return new CommandProcessingResult(paymentId);
 			

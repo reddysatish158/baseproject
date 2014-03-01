@@ -26,7 +26,7 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.action.service.ProcessEventActionService;
 import org.mifosplatform.billing.billingmaster.api.BillingMasterApiResourse;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
@@ -97,7 +97,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final EntitlementReadPlatformService entitlementReadPlatformService;
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
-	private final ActiondetailsWritePlatformService  actiondetailsWritePlatformService;
+	private final ProcessEventActionService  actiondetailsWritePlatformService;
 	private String ReceiveMessage;
 	private final ScheduleJob scheduleJob;
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
@@ -109,7 +109,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final BillingMasterApiResourse billingMasterApiResourse,final ProcessRequestRepository processRequestRepository,
 			final OrderWritePlatformService orderWritePlatformService,final SheduleJobReadPlatformService sheduleJobReadPlatformService,
 			final OrderReadPlatformService orderReadPlatformService,final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
-			final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ActiondetailsWritePlatformService  actiondetailsWritePlatformService, 
+			final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ProcessEventActionService  actiondetailsWritePlatformService, 
 			final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final PrepareRequestReadplatformService prepareRequestReadplatformService,
 			final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,

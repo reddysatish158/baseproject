@@ -139,7 +139,7 @@ public class InvoiceClient {
 	
 	public CommandProcessingResult createInvoiceBill(JsonCommand command) {
 		try {
-			context.authenticatedUser();
+		//	context.authenticatedUser();
 			// validation not written
 			 this.apiJsonDeserializer.validateForCreate(command.json());
 			

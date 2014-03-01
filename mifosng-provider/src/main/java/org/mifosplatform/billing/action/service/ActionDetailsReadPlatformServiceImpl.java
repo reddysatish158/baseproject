@@ -52,7 +52,8 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 	private static final class EventMappingMapper implements RowMapper<ActionDetaislData> {
 
 		public String schema() {
-			return "em.id as actionId,em.action_name as actionName,em.process as processName from b_eventaction_mapping em where em.event_name=? and em.is_deleted='N'";
+			return "em.id as actionId,em.action_name as actionName,em.process as processName,em.is_synchronous as isSync" +
+					" from b_eventaction_mapping em where em.event_name=? and em.is_deleted='N'";
 
 		}
 
@@ -63,7 +64,8 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			Long id = rs.getLong("actionId");
 			String procedureName = rs.getString("processName");
 			String procedureType = rs.getString("actionName");
-			return new ActionDetaislData(id,procedureName,procedureType);
+			String isSynchronous = rs.getString("isSync");
+			return new ActionDetaislData(id,procedureName,procedureType,isSynchronous);
 
 		}
 	}

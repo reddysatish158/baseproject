@@ -5,12 +5,14 @@ public class ActionDetaislData {
 	private final Long id;
 	private final String procedureName;
 	private final String actionName;
+	private final String isSynchronous;
 
-	public ActionDetaislData(Long id, String procedureName, String actionName) {
+	public ActionDetaislData(Long id, String procedureName, String actionName, String isSynchronous) {
             
 		this.id=id;
 		this.procedureName=procedureName;
 		this.actionName=actionName;
+		this.isSynchronous=isSynchronous;
 
 	}
 
@@ -33,6 +35,14 @@ public class ActionDetaislData {
 	 */
 	public String getaActionName() {
 		return actionName;
+	}
+
+	public String getActionName() {
+		return actionName;
+	}
+
+	public String IsSynchronous() {
+		return isSynchronous;
 	}
 	
 	

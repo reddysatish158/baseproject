@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-
-
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.action.data.ActionDetaislData;
@@ -15,27 +13,14 @@ import org.mifosplatform.billing.action.domain.EventActionRepository;
 import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
+import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
 import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
-import org.mifosplatform.billing.order.domain.Order;
-import org.mifosplatform.billing.order.domain.OrderHistory;
-import org.mifosplatform.billing.order.domain.OrderHistoryRepository;
-import org.mifosplatform.billing.order.domain.OrderRepository;
-import org.mifosplatform.billing.order.service.OrderWritePlatformService;
-import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
-import org.mifosplatform.infrastructure.core.api.JsonCommand;
-import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
-import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
-import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.gson.JsonElement;
 
 
 @Service
@@ -43,34 +28,24 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 	
 	
 	
-	private final JdbcTemplate jdbcTemplate;
 	private final EventActionRepository eventActionRepository;
     private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;	
-    private final FromJsonHelper fromApiJsonHelper;
-    private final OrderWritePlatformService orderWritePlatformService;
     private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
     private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
-    private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
-    private final OrderHistoryRepository orderHistory;
-    private final OrderRepository orderRepository;
+    private final InvoiceClient invoiceClient;
+    
  
 
 	@Autowired
-	public EventActionWritePlatformServiceImpl(final TenantAwareRoutingDataSource dataSource,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-			final EventActionRepository eventActionRepository,final FromJsonHelper fromJsonHelper,final OrderWritePlatformService orderWritePlatformService,
+	public EventActionWritePlatformServiceImpl(final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final EventActionRepository eventActionRepository,
 			final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderHistoryRepository orderHistory,final OrderRepository orderRepository)
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final InvoiceClient invoiceClient)
 	{
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.eventActionRepository=eventActionRepository;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
-        this.fromApiJsonHelper=fromJsonHelper;
-        this.orderWritePlatformService=orderWritePlatformService;
         this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
         this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
-        this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
-        this.orderHistory=orderHistory;
-        this.orderRepository=orderRepository;
+        this.invoiceClient=invoiceClient;
 	}
 	
 	@Transactional
@@ -82,7 +57,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 			
 			for(ActionDetaislData detailsData:actionDetaislDatas){
 				
-				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.ACTION_INVOICE,detailsData.getaActionName(),resourceId);
+				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.EVENT_ACTIVE_ORDER,detailsData.getaActionName(),resourceId);
 				  
 				     if(actionProcedureData.isCheck()){
 				    	 
@@ -121,11 +96,28 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	   
 				        	   eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",EventActionConstants.ACTION_ACTIVE.toString(),"/orders/reconnect"+clientId, 
 				        	   Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId);
-				        	   
 				        	   this.eventActionRepository.save(eventAction);
-				        	   }
+				        	   
+				          }else if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_INVOICE)){
+				        	  
 				        	
-					  
+				        	  jsonObject.put("dateFormat","dd MMMM yyyy");
+                              jsonObject.put("locale","en");
+				        	  jsonObject.put("systemDate",dateFormat.format(new Date()));
+				        	  
+				        	  if(detailsData.IsSynchronous().equalsIgnoreCase("N")){
+				        		  
+				        	  eventAction=new EventAction(new Date(), "CREATE",EventActionConstants.EVENT_ACTIVE_ORDER.toString() ,EventActionConstants.ACTION_INVOICE.toString(),"/billingorder/"+clientId, 
+						        	   Long.parseLong(resourceId), jsonObject.toString(),Long.parseLong(resourceId),clientId);
+						        	   this.eventActionRepository.save(eventAction);
+				              }else{
+				            	  
+				        	/* EventActionData eventActionData=new EventActionData(clientId,"Create",EventActionConstants.EVENT_ACTIVE_ORDER.toString(),EventActionConstants.ACTION_INVOICE,
+				        			 jsonObject.toString(),actionProcedureData.getOrderId(), actionProcedureData.getOrderId(), clientId);
+				        	  this.processEventActionService.ProcessEventActions(eventActionData);*/
+				            	  this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+				          }
+				          }
 				  }
 				
 			}
@@ -138,7 +130,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
    
 	}
 
-	@Override
+	/*@Override
 	public void ProcessEventActions(EventActionData eventActionData) {
       
 		try{
@@ -188,7 +180,20 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 	   			transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(), "New Order", new Date(),
 	   			     "PlanId:"+plancode,"contarctPeriod: One Month","OrderID:"+commandProcessingResult.resourceId(),
 	   			     "BillingAlign:false");
+			
+			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_INVOICE)){
+
+				String jsonObject=eventActionData.getJsonData();
+				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
+				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateInvoice",eventActionData.getClientId(), null,
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
+
+				//CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
+			   this.invoiceClient.createInvoiceBill(command);
+				//For Transaction History
+
 			}
+
 			
 			EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
 	    	eventAction.updateStatus();
@@ -199,5 +204,5 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 		}
 		
 	}
-	
+	*/
 }

@@ -8,6 +8,10 @@ import java.util.List;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.action.data.ActionDetaislData;
+import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.action.service.EventActionConstants;
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
@@ -36,8 +40,6 @@ import org.mifosplatform.billing.order.domain.OrderPrice;
 import org.mifosplatform.billing.order.domain.OrderPriceRepository;
 import org.mifosplatform.billing.order.domain.OrderReadPlatformImpl;
 import org.mifosplatform.billing.order.domain.OrderRepository;
-import org.mifosplatform.billing.order.domain.Promotion;
-import org.mifosplatform.billing.order.domain.PromotionRepository;
 import org.mifosplatform.billing.order.exceptions.NoOrdersFoundException;
 import org.mifosplatform.billing.order.exceptions.NoRegionalPriceFound;
 import org.mifosplatform.billing.order.serialization.OrderCommandFromApiJsonDeserializer;
@@ -53,6 +55,8 @@ import org.mifosplatform.billing.pricing.data.PriceData;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.billing.promotioncodes.domain.Promotion;
+import org.mifosplatform.billing.promotioncodes.domain.PromotionRepository;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -111,7 +115,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final OrderDiscountRepository orderDiscountRepository;
     private final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory;
     private final ClientRepository clientRepository;
-    
+    private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
+    private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
     public final static String CONFIG_PROPERTY="Implicit Association";
 
     @Autowired
@@ -126,7 +131,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
 		    final PaymentsApiResource paymentsApiResource,final PrepareRequsetRepository prepareRequsetRepository,final PromotionRepository promotionRepository,
 		    final OrderDiscountRepository orderDiscountRepository,final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
-		    final ClientRepository clientRepository) {
+		    final ClientRepository clientRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -154,6 +159,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.orderDiscountRepository=orderDiscountRepository;
 		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
 		this.clientRepository=clientRepository;
+		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		
 
 	}
@@ -171,14 +178,14 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			List<OrderPrice> orderprice = new ArrayList<OrderPrice>();
 			List<PriceData> datas = new ArrayList<PriceData>();
 			
-			OrderReadPlatformImpl obj = new OrderReadPlatformImpl(context,jdbcTemplate);
+			OrderReadPlatformImpl orderReadPlatformImpl = new OrderReadPlatformImpl(context,jdbcTemplate);
             Order order=Order.fromJson(clientId,command);
 			Plan plan = this.planRepository.findOne(order.getPlanId());
 			   
-			List<ServiceData> details = obj.retrieveAllServices(order.getPlanId());
-			datas=obj.retrieveAllPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
+			List<ServiceData> details = orderReadPlatformImpl.retrieveAllServices(order.getPlanId());
+			datas=orderReadPlatformImpl.retrieveAllPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
 			 if(datas.isEmpty()){
-				 datas=obj.retrieveDefaultPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
+				 datas=orderReadPlatformImpl.retrieveDefaultPrices(order.getPlanId(),order.getBillingFrequency(),clientId);
 			  }
 			 if(datas.isEmpty()){
 				  throw new NoRegionalPriceFound();
@@ -186,11 +193,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			Contract subscriptionData = this.subscriptionRepository.findOne(order.getContarctPeriod());
 			LocalDate startDate=new LocalDate(order.getStartDate());
+			
 			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 			orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId();
-			Client client=this.clientRepository.findOne(clientId);
-			client.setStatus(ClientStatus.ACTIVE.getValue());
-			this.clientRepository.save(client);
 			
 			
 			}else{
@@ -200,21 +205,23 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			//Calculate EndDate
 			endDate = calculateEndDate(startDate,subscriptionData.getSubscriptionType(),subscriptionData.getUnits());
-		
+			
 			order=new Order(order.getClientId(),order.getPlanId(),orderStatus,null,order.getBillingFrequency(),startDate, endDate,
 					order.getContarctPeriod(), serviceDetails, orderprice,order.getbillAlign(),UserActionStatusTypeEnum.ACTIVATION.toString());
 			BigDecimal priceforHistory=BigDecimal.ZERO;
+		
 			for (PriceData data : datas) {
-
-				LocalDate billstartDate = startDate;
-				LocalDate billEndDate = null;
+				
+				  LocalDate billstartDate = startDate;
+				   LocalDate billEndDate = null;
+				   
    				//end date is null for rc
 				  if (data.getChagreType().equalsIgnoreCase("RC")	&& endDate != null) {
 					billEndDate = endDate;
-				   
+					
 				  } else if(data.getChagreType().equalsIgnoreCase("NRC")) {
 					billEndDate = billstartDate;
-				   }
+				  }
 				  
 				  final DiscountMaster discountMaster=this.discountMasterRepository.findOne(data.getDiscountId());
 				  if(discountMaster == null){
@@ -232,13 +239,15 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 						discountMaster.getDiscountRate());
 				price.addOrderDiscount(orderDiscount);
 			}
-
+			
 			for (ServiceData data : details) {
 				OrderLine orderdetails = new OrderLine(data.getPlanId(),data.getServiceType(), plan.getStatus(), 'n');
 				order.addServiceDeatils(orderdetails);
 			}
 	
 			this.orderRepository.save(order);
+			
+			
 			Long userId=null;
 			SecurityContext context = SecurityContextHolder.getContext();
 	        if (context.getAuthentication() != null) {
@@ -246,7 +255,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				userId=appUser.getId();
 					
 	        }else{
-	        	userId=new Long(1);
+	        	userId=new Long(0);
 	        }
 	        
 			boolean isNewPlan=command.booleanPrimitiveValueOfParameterNamed("isNewplan");
@@ -254,7 +263,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			if(isNewPlan){
 			     
-			
 				final AccountNumberGenerator orderNoGenerator = this.accountIdentifierGeneratorFactory.determineClientAccountNoGenerator(order.getId());
 				order.updateOrderNum(orderNoGenerator.generate());
 				this.orderRepository.save(order);
@@ -274,18 +282,31 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
             //For Plan And HardWare Association
 			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
-			
 			if(configurationProperty.isEnabled()){
+				
 			    if(plan.isHardwareReq() == 'Y'){
+			    	
 			    		   List<AllocationDetailsData> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetailsByItemCode(clientId,plan.getPlanCode());
 			    		   if(!allocationDetailsDatas.isEmpty())
 			    		   {
 			    				this.associationWriteplatformService.createNewHardwareAssociation(clientId,plan.getId(),allocationDetailsDatas.get(0).getSerialNo(),order.getId());
-			    				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Implicit Association", new Date(),"Serial No:"
+			    				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Association", new Date(),"Serial No:"
 			    				+allocationDetailsDatas.get(0).getSerialNo(),"Item:"+allocationDetailsDatas.get(0).getItemDescription(),"Plan Code:"+plan.getPlanCode());
 			    		   }
 			    }
-		}
+		   }
+		
+			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
+
+				
+				Client client=this.clientRepository.findOne(clientId);
+				client.setStatus(ClientStatus.ACTIVE.getValue());
+				this.clientRepository.save(client);
+			List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_ORDER);
+			if(actionDetaislDatas.size() != 0){
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), order.getId().toString());
+			}
+			}
 			return new CommandProcessingResult(order.getId());	
 	}catch (DataIntegrityViolationException dve) {
 		handleCodeDataIntegrityIssues(command, dve);
@@ -322,14 +343,14 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	public CommandProcessingResult updateOrderPrice(Long orderId,JsonCommand command) {
 		try
 		{
-		 context.authenticatedUser();
-	     final Order order = retrieveOrderBy(orderId);
-	     Long orderPriceId=command.longValueOfParameterNamed("priceId");
-	     OrderPrice orderPrice=this.OrderPriceRepository.findOne(orderPriceId);
+			final Long userId=context.authenticatedUser().getId();
+	        final Order order = retrieveOrderBy(orderId);
+	        Long orderPriceId=command.longValueOfParameterNamed("priceId");
+	        OrderPrice orderPrice=this.OrderPriceRepository.findOne(orderPriceId);
 	            orderPrice.setPrice(command);
 	            this.OrderPriceRepository.save(orderPrice);
-			AppUser appUser=this.context.authenticatedUser();
-			Long userId=appUser.getId();
+			//AppUser appUser=this.context.authenticatedUser();
+			
 			 
 			
 			//For Order History
@@ -394,7 +415,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		//For Order History
 		OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Cancelled",userId);
 		this.orderHistoryRepository.save(orderHistory);
-		transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "OrderDelete", order.getEndDate(),"Price:"+order.getAllPriceAsString(),"PlanId:"+order.getPlanId(),"contarctPeriod:"+order.getContarctPeriod(),"Services:"+order.getAllServicesAsString(),"OrderID:"+order.getId(),"BillingAlign:"+order.getbillAlign());
+		transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Order Canceled", order.getEndDate(),"Price:"+order.getAllPriceAsString(),"PlanId:"+order.getPlanId(),"contarctPeriod:"+order.getContarctPeriod(),"Services:"+order.getAllServicesAsString(),"OrderID:"+order.getId(),"BillingAlign:"+order.getbillAlign());
 
 		return new CommandProcessingResult(order.getId());
 	}
@@ -460,7 +481,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			this.orderHistoryRepository.save(orderHistory);
  
 			//for TransactionHistory
-			transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"ORDER_"+UserActionStatusTypeEnum.DISCONNECTION.toString(), new Date(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Order Disconnection", new Date(),
 					"Price:"+order.getAllPriceAsString(),"PlanId:"+order.getPlanId(),"contarctPeriod:"+order.getContarctPeriod(),"Services:"+order.getAllServicesAsString(),"OrderID:"+order.getId(),"BillingAlign:"+order.getbillAlign());
 			return new CommandProcessingResult(Long.valueOf(order.getId()));
 		} catch (DataIntegrityViolationException dve) {
@@ -638,7 +659,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			this.orderHistoryRepository.save(orderHistory);
 		
 			//for TransactionHistory
-			transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"ORDER_"+UserActionStatusTypeEnum.RECONNECTION.toString(), order.getStartDate(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Order Reconnection", order.getStartDate(),
 					"PlanId:"+order.getPlanId(),"contarctPeriod:"+order.getContarctPeriod(),"Services:"+order.getAllServicesAsString(),"OrderID:"+order.getId(),"Billing Align:"+order.getbillAlign());
 			
 		   return new CommandProcessingResult(order.getId());
@@ -735,7 +756,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 						new LocalDate(), new LocalDate(), command.entityId(),
 						requstStatus, userId);
 				this.orderHistoryRepository.save(orderHistory);
-				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "ORDER_"+ requstStatus,order.getStartDate(),"PlanId:" + order.getPlanId(),
+				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "OSD Message",order.getStartDate(),"PlanId:" + order.getPlanId(),
 						"contarctPeriod:" + order.getContarctPeriod(), "OrderID:" + order.getId(),"BillingAlign:" + order.getbillAlign());
 				return new CommandProcessingResult(order.getId());
 			}else{
@@ -784,7 +805,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),processingResult.commandId(),
 					                               UserActionStatusTypeEnum.CHANGE_PLAN.toString(),userId);
 			this.orderHistoryRepository.save(orderHistory);
-			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"CHANGE_PLAN", new Date(),"Old Order :"+entityId,
+			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Change Order", new Date(),"Old Order :"+entityId,
 					                               " New OrderId :"+result.resourceId());
 			
 			return new CommandProcessingResult(result.resourceId());
@@ -820,7 +841,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				this.orderDiscountRepository.save(orderDiscount);
 			}
 			
-			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"APPLY PROMOTIONCODE",new Date(), "User :"+username,
+			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Apply Promotion",new Date(), "User :"+username,
 					"Promotion Code :" +promotion.getPromotionCode(),"Promotion Value" + promotion.getDiscountRate());
 			return new CommandProcessingResult(command.entityId());
 		
