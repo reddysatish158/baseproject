@@ -131,9 +131,8 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			String phoneNo = fromApiJsonHelper.extractStringNamed("MSISDN", element);
 			String TYPE = fromApiJsonHelper.extractStringNamed("TYPE", element);
 			String tStatus = fromApiJsonHelper.extractStringNamed("STATUS", element);
-			String details = fromApiJsonHelper.extractStringNamed("COMPANYNAME", element);
-			LocalDate localDate= new LocalDate();
-			Date date=localDate.toDate();
+			String details = fromApiJsonHelper.extractStringNamed("COMPANYNAME", element);		 
+			Date date = new Date();		
 			String SOURCE="tigo";
 
 			PaymentGateway paymentGateway = new PaymentGateway(serialNumberId,TXNID,amountPaid,phoneNo, TYPE, tStatus, details, date, SOURCE);
