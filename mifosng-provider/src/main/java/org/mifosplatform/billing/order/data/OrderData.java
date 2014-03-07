@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.payterms.data.PaytermData;
 import org.mifosplatform.billing.plan.data.PlanCodeData;
@@ -47,7 +48,8 @@ public class OrderData {
 	private List<OrderLineData> orderServices;
 	private List<OrderDiscountData> orderDiscountDatas;
 	private LocalDate invoiceTilldate;
-	
+	private Collection<MCodeData> extensionReasonDatas;
+	private Collection<MCodeData> extensionPeriodDatas;
 
 	public OrderData(List<PlanCodeData> allowedtypes,List<PaytermData> paytermData,
 			List<SubscriptionData> contractPeriod, OrderData data) {
@@ -134,7 +136,14 @@ public class OrderData {
 		            this.price=price;
 		           
 	}
-
+	
+	public OrderData(Collection<MCodeData> extensionPeriodDatas,
+			Collection<MCodeData> extensionReasonDatas) {
+		
+		this.extensionPeriodDatas=extensionPeriodDatas;
+		this.extensionReasonDatas=extensionReasonDatas;
+	}
+	
 	public Long getId() {
 		return id;
 	}
