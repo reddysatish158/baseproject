@@ -23,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.data.OrderDiscountData;
 import org.mifosplatform.billing.order.data.OrderHistoryData;
@@ -68,12 +70,13 @@ public class OrdersApiResource {
 	  private final PlanReadPlatformService planReadPlatformService;
 	  private final PaymodeReadPlatformService paymodeReadPlatformService;
 	  private final GlobalConfigurationRepository configurationRepository;
-	  
+	  private final MCodeReadPlatformService mCodeReadPlatformService;
 	  @Autowired
 	   public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
-	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
+	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService,
+	   final MCodeReadPlatformService mCodeReadPlatformService) {
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -82,6 +85,7 @@ public class OrdersApiResource {
 		        this.orderReadPlatformService=orderReadPlatformService;
 		        this.paymodeReadPlatformService=paymodeReadPlatformService;
 		        this.configurationRepository=configurationRepository;
+		        this.mCodeReadPlatformService=mCodeReadPlatformService;
 		    }	
 	  
 	@POST
@@ -298,5 +302,17 @@ public class OrdersApiResource {
 	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	  return this.toApiJsonSerializer.serialize(result);
 	}	   
-	 
+	@GET
+    @Path("extension")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getOfExtension(@Context final UriInfo uriInfo) {
+        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+        Collection<MCodeData> extensionPeriodDatas=this.mCodeReadPlatformService.getCodeValue("Extension Period");
+		Collection<MCodeData> extensionReasonDatas=this.mCodeReadPlatformService.getCodeValue("Extension Reason");
+        OrderData extensionData=new OrderData(extensionPeriodDatas,extensionReasonDatas);
+        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        return this.toApiJsonSerializer.serialize(settings, extensionData, RESPONSE_DATA_PARAMETERS);
+    }
+
 }
