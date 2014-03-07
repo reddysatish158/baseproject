@@ -246,8 +246,8 @@ public class MessageGmailBackedPlatformEmailService implements
 		 Date date=new Date();
 		 String dateTime=date.getHours()+""+date.getMinutes();
 	     String fileLocation="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
-		final String username = "ashokreddy556@gmail.com";
-		final String password = "9989720715";
+		final String username = "kiran@hugotechnologies.com";
+		final String password = "kirankiran";
 
 		    Properties props = new Properties();
 
