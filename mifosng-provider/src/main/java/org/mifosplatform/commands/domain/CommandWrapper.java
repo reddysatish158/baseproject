@@ -918,7 +918,7 @@ public class CommandWrapper {
 		}
 
 		public boolean isUserChatResource() {
-			return this.entityName.equalsIgnoreCase("USERCHAT");
+			return this.entityName.equalsIgnoreCase("USERCHATMESSAGE");
 		}
 
 		public boolean isUpdatePaymentGateway() {
@@ -977,6 +977,15 @@ public class CommandWrapper {
 
 		public boolean isCreditDistributionResource() {
 			  return this.entityName.equalsIgnoreCase("CREDITDISTRIBUTION");
+		}
+
+		public boolean isOrderScheduling() {
+			
+			return  this.entityName.equalsIgnoreCase("ORDERSCHEDULING");
+		}
+
+		public boolean isOrderExtension() {
+			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
 		}
 
 }

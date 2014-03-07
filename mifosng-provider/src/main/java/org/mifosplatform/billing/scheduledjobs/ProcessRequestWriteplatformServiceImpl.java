@@ -2,12 +2,10 @@ package org.mifosplatform.billing.scheduledjobs;
 
 import java.util.List;
 
-import org.mifosplatform.billing.action.data.ActionDetaislData;
-import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
-import org.mifosplatform.billing.action.service.EventActionConstants;
-import org.mifosplatform.billing.action.service.EventActionReadPlatformService;
-import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingReadPlatformService;
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.eventaction.service.EventActionConstants;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;

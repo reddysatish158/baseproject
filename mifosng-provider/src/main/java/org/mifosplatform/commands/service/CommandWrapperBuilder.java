@@ -1894,7 +1894,7 @@ public CommandWrapperBuilder deleteProvisiongSystem(Long id) {
 public CommandWrapperBuilder createUserChat() {
 	
 	this.actionName = "CREATE";
-	this.entityName = "USERCHAT";
+	this.entityName = "USERCHATMESSAGE";
 	this.entityId = null;
 	this.href = "/userchat/";
 	return this;
@@ -2046,6 +2046,29 @@ public CommandWrapperBuilder createCreditDistribution(Long clientId) {
 	this.actionName = "CREATE";
     this.entityName = "CREDITDISTRIBUTION";
     this.href = "/creditdistribution";
+    return this;
+}
+
+public CommandWrapperBuilder createSchedulingOrder(Long clientId) {
+	this.actionName = "CREATE";
+    this.entityName = "ORDERSCHEDULING";
+    this.entityId=clientId;
+    this.href = "/orders/scheduling"+clientId;
+    return this;
+}
+
+public CommandWrapperBuilder deleteSchedulOrder(Long orderId) {
+	
+	this.actionName = "DELETE";
+    this.entityName = "ORDERSCHEDULING";
+    this.href = "/orders/scheduling"+clientId;
+    return this;
+}
+
+public CommandWrapperBuilder extensionOrder(Long orderId) {
+	this.actionName = "EXTENSION";
+    this.entityName = "ORDER";
+    this.href = "/orders/extenstion"+clientId;
     return this;
 }
 

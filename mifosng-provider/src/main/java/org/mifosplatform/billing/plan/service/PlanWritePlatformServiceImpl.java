@@ -3,8 +3,8 @@ package org.mifosplatform.billing.plan.service;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.billing.action.data.VolumeDetailsData;
-import org.mifosplatform.billing.action.service.EventActionReadPlatformService;
+import org.mifosplatform.billing.eventaction.data.VolumeDetailsData;
+import org.mifosplatform.billing.eventaction.service.EventActionReadPlatformService;
 import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.plan.domain.Plan;
 import org.mifosplatform.billing.plan.domain.PlanDetails;
@@ -151,7 +151,8 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
              if(plan.isPrepaid()!='N'){
             	 VolumeDetailsData detailsData=this.eventActionReadPlatformService.retrieveVolumeDetails(plan.getId());
             	 VolumeDetails volumeDetails=new VolumeDetails();
-            	 if(detailsData!=null){
+            	 if(detailsData!=null)
+            	 {
             	  volumeDetails=new VolumeDetails(detailsData.getId(),detailsData.getPlanId(),detailsData.getVolumeType(),
             			 detailsData.getUnits(),detailsData.getUnitType());
             	 }

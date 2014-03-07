@@ -3,11 +3,11 @@ package org.mifosplatform.billing.eventactionmapping.service;
 import java.util.Date;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.action.domain.EventAction;
-import org.mifosplatform.billing.action.domain.EventActionRepository;
-import org.mifosplatform.billing.action.service.EventActionConstants;
-import org.mifosplatform.billing.action.service.ProcessEventActionService;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
+import org.mifosplatform.billing.eventaction.domain.EventAction;
+import org.mifosplatform.billing.eventaction.domain.EventActionRepository;
+import org.mifosplatform.billing.eventaction.service.EventActionConstants;
+import org.mifosplatform.billing.eventaction.service.ProcessEventActionService;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderHistory;
 import org.mifosplatform.billing.order.domain.OrderHistoryRepository;
@@ -38,6 +38,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
     private final OrderHistoryRepository orderHistory;
     private final OrderRepository orderRepository;
     private final InvoiceClient invoiceClient;
+    
  
 
 	@Autowired
@@ -68,7 +69,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 						null,eventActionData.getClientId(), null, null, null,null, null, null);
 				
 			    	this.orderWritePlatformService.renewalClientOrder(command,eventActionData.getOrderId());
-			    	OrderHistory orderHistory=new OrderHistory(eventActionData.getOrderId(),new LocalDate(),new LocalDate(),null,"Renewal",Long.valueOf(1));
+			    	OrderHistory orderHistory=new OrderHistory(eventActionData.getOrderId(),new LocalDate(),new LocalDate(),null,"Renewal",Long.valueOf(1),null);
 			    	Order order=this.orderRepository.findOne(eventActionData.getOrderId());
 					this.orderHistory.save(orderHistory);
 					
@@ -124,7 +125,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 			}
 			
 			EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
-	    	eventAction.updateStatus();
+	    	eventAction.updateStatus('Y');
 	    	this.eventActionRepository.save(eventAction);
 		}catch(Exception exception){
 			

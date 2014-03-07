@@ -1,15 +1,26 @@
-package org.mifosplatform.billing.action.service;
+package org.mifosplatform.billing.eventaction.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.billing.action.data.ActionDetaislData;
-import org.mifosplatform.billing.action.data.EventActionProcedureData;
+import net.sf.json.JSONObject;
+
+import org.joda.time.LocalDate;
+import org.mifosplatform.billing.contract.domain.Contract;
+import org.mifosplatform.billing.contract.domain.SubscriptionRepository;
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.data.EventActionProcedureData;
+import org.mifosplatform.billing.order.data.SchedulingOrderData;
+import org.mifosplatform.billing.plan.domain.Plan;
+import org.mifosplatform.billing.plan.domain.PlanRepository;
+import org.mifosplatform.billing.planservice.data.PlanServiceData;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
+import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +31,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+
 @Service
 public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPlatformService{
 	
@@ -27,11 +41,13 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 	private final JdbcTemplate jdbcTemplate;
 	private final PlatformSecurityContext context;
 	private final SimpleJdbcCall jdbcCall;
+	
 	@Autowired
 	public  ActionDetailsReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.jdbcCall= new SimpleJdbcCall(dataSource);
+		
 	}
 
 
@@ -151,6 +167,48 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			Long clientId=rs.getLong("clientId");
 			return new EventActionData(id,eventaction,entityName,actionName,jsonData,resourceId,orderId,clientId);
 
+		}
+	}
+	
+	private static final class EventActionOrderMapper implements RowMapper<SchedulingOrderData> {
+
+		public String schema() {
+			return " a.id AS id, a.trans_date AS transactiondate,a.command_as_json as json FROM b_event_actions a WHERE  a.client_id = ? " +
+					" AND a.entity_name = 'Order' AND a.action_name = 'CREATE'";
+
+		}
+
+		@Override
+		public SchedulingOrderData mapRow(final ResultSet rs,
+				@SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
+			Long id = rs.getLong("id");
+			LocalDate startDate= JdbcSupport.getLocalDate(rs,"transactiondate");
+			String jsonData = rs.getString("json");
+			JsonParser parser=new JsonParser();
+			Object obj=parser.parse(jsonData);
+			JSONObject jsonObject=(JSONObject)obj;
+			String billingfreq=jsonObject.getString("paytermCode");
+			Long planId=jsonObject.getLong("planId");
+			Long contractPeriod=jsonObject.getLong("contractPeriod");
+			
+			return new SchedulingOrderData(id,startDate,planId,contractPeriod,billingfreq);
+
+		}
+	}
+
+	@Override
+	public Collection<SchedulingOrderData> retrieveClientSchedulingOrders(Long clientId) {
+		
+		try{
+			
+			EventActionOrderMapper mapper = new EventActionOrderMapper();
+			String sql = "select " + mapper.schema();
+			return this.jdbcTemplate.query(sql, mapper, new Object[] { clientId });
+			
+		}catch(EmptyResultDataAccessException accessException){
+
+			return null;
 		}
 	}
 	

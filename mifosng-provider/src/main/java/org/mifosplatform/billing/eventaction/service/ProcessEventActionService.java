@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.action.service;
+package org.mifosplatform.billing.eventaction.service;
 
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 

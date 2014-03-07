@@ -120,8 +120,10 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
      	   
 			//for Reassociation With New SerialNumber
 			//this.associationWriteplatformService.createAssociation(command);
+			if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
 			requstStatus =UserActionStatusTypeEnum.DEVICE_SWAP.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+			}
 			
 			order.setStatus( OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 			this.orderRepository.save(order);
@@ -129,12 +131,12 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
 				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Hardware Swap",new Date(),"Old Serial No:"+serialNo
 						+ " is replaced with New "+provisionNum);
 				//For Order History
-				OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Hardware Swap",userId);
+				OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Hardware Swap",userId,null);
 		
 				this.orderHistoryRepository.save(orderHistory);
-		return processingResult;		
+		return new CommandProcessingResult(entityId);		
 	}catch(Exception exception){
-		return null;
+		return new CommandProcessingResult(Long.valueOf(-1));
 	}
 	
 	}

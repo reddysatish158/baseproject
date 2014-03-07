@@ -23,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.data.OrderDiscountData;
 import org.mifosplatform.billing.order.data.OrderHistoryData;
@@ -68,12 +70,15 @@ public class OrdersApiResource {
 	  private final PlanReadPlatformService planReadPlatformService;
 	  private final PaymodeReadPlatformService paymodeReadPlatformService;
 	  private final GlobalConfigurationRepository configurationRepository;
+	  private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
+	  private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
 	  
 	  @Autowired
 	   public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
-	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
+	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService,
+	   final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -82,6 +87,8 @@ public class OrdersApiResource {
 		        this.orderReadPlatformService=orderReadPlatformService;
 		        this.paymodeReadPlatformService=paymodeReadPlatformService;
 		        this.configurationRepository=configurationRepository;
+		        this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+				this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		    }	
 	  
 	@POST
@@ -298,5 +305,35 @@ public class OrdersApiResource {
 	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	  return this.toApiJsonSerializer.serialize(result);
 	}	   
-	 
+	
+	@POST
+	@Path("scheduling/{clientId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String schedulingOrderCreation(@PathParam("clientId") final Long clientId, final String apiRequestBodyAsJson) {
+ 	    final CommandWrapper commandRequest = new CommandWrapperBuilder().createSchedulingOrder(clientId).withJson(apiRequestBodyAsJson).build();
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@DELETE
+	@Path("scheduling/{orderId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String deleteScheduleOrder(@PathParam("orderId") final Long orderId) {
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteSchedulOrder(orderId).build();
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@PUT
+	  @Path("extension/{orderId}")
+	  @Consumes({ MediaType.APPLICATION_JSON })
+	  @Produces({ MediaType.APPLICATION_JSON })
+	  public String ExtenseOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+	  final CommandWrapper commandRequest = new CommandWrapperBuilder().extensionOrder(orderId).withJson(apiRequestBodyAsJson).build();
+	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	  return this.toApiJsonSerializer.serialize(result);
+	}	   
+	
 }

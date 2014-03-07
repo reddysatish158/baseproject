@@ -150,12 +150,14 @@ public class GenerateBill {
 	}
 	// Monthly Bill
 	public BillingOrderCommand getMonthyBill(BillingOrderData billingOrderData, DiscountMasterData discountMasterData) {
+		
 		BigDecimal discountAmount = BigDecimal.ZERO;
 		LocalDate startDate = null;
 		LocalDate endDate = null;
 		BigDecimal price = null;
 		LocalDate invoiceTillDate = null;
 		LocalDate nextbillDate = null;
+		
 		if (billingOrderData.getInvoiceTillDate() == null) {
 			startDate = new LocalDate(billingOrderData.getBillStartDate());
 			endDate = startDate.plusMonths(billingOrderData.getChargeDuration()).minusDays(1);

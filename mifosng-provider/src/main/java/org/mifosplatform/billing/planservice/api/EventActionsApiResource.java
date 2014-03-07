@@ -18,7 +18,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.billing.clientbalance.service.ClientBalanceReadPlatformService;
+import org.mifosplatform.billing.contract.domain.Contract;
+import org.mifosplatform.billing.contract.domain.SubscriptionRepository;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformServiceImpl;
 import org.mifosplatform.billing.eventorder.exception.InsufficientAmountException;
+import org.mifosplatform.billing.order.data.SchedulingOrderData;
+import org.mifosplatform.billing.plan.domain.Plan;
+import org.mifosplatform.billing.plan.domain.PlanRepository;
 import org.mifosplatform.billing.planservice.data.PlanServiceData;
 import org.mifosplatform.billing.planservice.service.PlanServiceReadPlatformService;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
@@ -33,52 +40,51 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 
-@Path("/planservices")
+@Path("/eventactions")
 @Component
 @Scope("singleton")
-public class PlanServicesApiResource {
+public class EventActionsApiResource {
 	
 	private final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("serviceid","clientId","channelName","image","url"));
-    private final String resourceNameForPermissions = "PLANSERVICE";
+    private final String resourceNameForPermissions = "EVENTACTIONS";
 	private final PlatformSecurityContext context;
-	private final DefaultToApiJsonSerializer<PlanServiceData> toApiJsonSerializer;
+	private final DefaultToApiJsonSerializer<SchedulingOrderData> toApiJsonSerializer;
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
-	private final PlanServiceReadPlatformService planServiceReadPlatformService; 
-	private final ClientBalanceReadPlatformService clientBalanceReadPlatformService;
-    private final GlobalConfigurationRepository configurationRepository;
+	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
+	private final PlanRepository planRepository;
+	private final SubscriptionRepository subscriptionRepository;
+	
 	    
 	     @Autowired
-	    public PlanServicesApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<PlanServiceData> toApiJsonSerializer, 
-	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PlanServiceReadPlatformService planServiceReadPlatformService,
-	    		final ClientBalanceReadPlatformService clientBalanceReadPlatformService,final GlobalConfigurationRepository configurationRepository) {
+	    public EventActionsApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<SchedulingOrderData> toApiJsonSerializer, 
+	    		final ApiRequestParameterHelper apiRequestParameterHelper,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+	    		final PlanRepository planRepository,final SubscriptionRepository subscriptionRepository)
+	     {
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
-		        this.planServiceReadPlatformService=planServiceReadPlatformService;
-		        this.clientBalanceReadPlatformService=clientBalanceReadPlatformService;
-		        this.configurationRepository=configurationRepository;
+		        this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+		        this.planRepository =planRepository;
+		        this.subscriptionRepository=subscriptionRepository;
+		        
 		    }
 
 	        @GET
 	        @Path("{clientId}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
-			public String getClientPlanService(@PathParam("clientId") final Long clientId,
-					@QueryParam("serviceType") final String serviceType,@Context final UriInfo uriInfo) {
+			public String getClientPlanService(@PathParam("clientId") final Long clientId,@Context final UriInfo uriInfo) {
 	        	
 			   context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-			   GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
-			   
-			   if(configurationProperty.isEnabled()){
-			   
-				   ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
-			   
-				   if(balanceData.getBalanceAmount().compareTo(BigDecimal.ZERO) != -1){
-				       throw new InsufficientAmountException(clientId);
-				   }
-			   }
-				final Collection<PlanServiceData> masterOptionsDatas = this.planServiceReadPlatformService.retrieveClientPlanService(clientId,serviceType);
+				final Collection<SchedulingOrderData> schedulingOrderDatas = this.actionDetailsReadPlatformService.retrieveClientSchedulingOrders(clientId);
+				for(SchedulingOrderData orderData:schedulingOrderDatas){
+					Plan plan=this.planRepository.findOne(orderData.getPlanId());
+					Contract contract=this.subscriptionRepository.findOne(orderData.getContractId());
+					orderData.setPlandesc(plan.getPlanCode());
+					orderData.setContract(contract.getSubscriptionPeriod());
+					
+				}
 				final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-				return this.toApiJsonSerializer.serialize(settings, masterOptionsDatas, RESPONSE_DATA_PARAMETERS);
+				return this.toApiJsonSerializer.serialize(settings, schedulingOrderDatas, RESPONSE_DATA_PARAMETERS);
 			}
 }

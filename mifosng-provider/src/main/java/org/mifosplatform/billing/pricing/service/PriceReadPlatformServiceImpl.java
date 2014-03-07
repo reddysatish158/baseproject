@@ -110,7 +110,7 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 		        String sql = "SELECT sm.id AS id,sm.service_description AS service_description,p.plan_code AS planCode,pm.service_code AS service_code," +
 		        		" c.billfrequency_code as billingfreq FROM b_plan_detail pm, b_service sm, b_plan_master p left join b_plan_pricing pr on pr.plan_id = p.id" +
 		        		" left join b_charge_codes c ON c.charge_code = pr.charge_code WHERE pm.service_code = sm.service_code AND p.id = pm.plan_id " +
-		        		" AND sm.is_deleted = 'n' AND pm.plan_id = ?";
+		        		" AND sm.is_deleted = 'n' AND pm.plan_id = ? group by pm.service_code";
 
 
 		        RowMapper<ServiceData> rm = new PeriodMapper();

@@ -1,8 +1,8 @@
-package org.mifosplatform.billing.action.service;
+package org.mifosplatform.billing.eventaction.service;
 
 import java.util.List;
 
-import org.mifosplatform.billing.action.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
 
 public interface ActiondetailsWritePlatformService {
 

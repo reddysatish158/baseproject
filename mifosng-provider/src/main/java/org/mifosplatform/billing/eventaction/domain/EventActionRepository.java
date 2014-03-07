@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.action.domain;
+package org.mifosplatform.billing.eventaction.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.action.data;
+package org.mifosplatform.billing.eventaction.data;
 
 public class ActionDetaislData {
 	

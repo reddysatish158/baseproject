@@ -83,7 +83,7 @@ public class PlansApiResource {
 	 List<SubscriptionData> contractPeriods = this.planReadPlatformService.retrieveSubscriptionData();
 	
 	 for(int i=0;i<contractPeriods.size();i++){
- 		if(contractPeriods.get(i).getContractdata().equalsIgnoreCase("Perpetual")){
+ 		if(contractPeriods.get(i).getSubscriptionType().equalsIgnoreCase("None")){
  			contractPeriods.remove(contractPeriods.get(i));
  			
  		}
@@ -158,8 +158,8 @@ public class PlansApiResource {
 		@Produces({MediaType.APPLICATION_JSON})
 		public String deletePlan(@PathParam("planCode") final Long planId) {
 		 final CommandWrapper commandRequest = new CommandWrapperBuilder().deletePlan(planId).build();
-     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-     return this.toApiJsonSerializer.serialize(result);
+          final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+         return this.toApiJsonSerializer.serialize(result);
 
 		}
 	
