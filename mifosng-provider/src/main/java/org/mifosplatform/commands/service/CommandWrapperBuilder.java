@@ -2061,6 +2061,7 @@ public CommandWrapperBuilder deleteSchedulOrder(Long orderId) {
 	
 	this.actionName = "DELETE";
     this.entityName = "ORDERSCHEDULING";
+    this.entityId=orderId;
     this.href = "/orders/scheduling"+clientId;
     return this;
 }
@@ -2068,6 +2069,7 @@ public CommandWrapperBuilder deleteSchedulOrder(Long orderId) {
 public CommandWrapperBuilder extensionOrder(Long orderId) {
 	this.actionName = "EXTENSION";
     this.entityName = "ORDER";
+    this.entityId=orderId;
     this.href = "/orders/extenstion"+clientId;
     return this;
 }

@@ -123,9 +123,10 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
 			if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
 			requstStatus =UserActionStatusTypeEnum.DEVICE_SWAP.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+			order.setStatus( OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 			}
 			
-			order.setStatus( OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
+			
 			this.orderRepository.save(order);
 				//For Transaction History
 				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Hardware Swap",new Date(),"Old Serial No:"+serialNo

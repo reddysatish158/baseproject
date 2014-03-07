@@ -467,7 +467,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			}else{
 			
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
-			}if(plan.getBillRule() !=400){ 
+			}if(plan.getBillRule() !=400 && plan.getBillRule() !=300){ 
 	          
 				this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),disconnectionDate);
 	        }
@@ -632,7 +632,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			   price.setBillEndDate(EndDate);
 			   price.setNextBillableDay(null);
 			   price.setInvoiceTillDate(null);
-			   this.OrderPriceRepository.saveAndFlush(price);
+			   this.OrderPriceRepository.save(price);
 			   
 		   }
 		   Plan plan=this.planRepository.findOne(order.getPlanId());
@@ -946,12 +946,17 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			    newStartdate=newStartdate.plusDays(1);
 			String[] periodData=extensionperiod.split(" ");
 			LocalDate endDate=calculateEndDate(newStartdate,periodData[1], new Long(periodData[0]));
-			
+			List<OrderPrice>  orderPrices=order.getPrice();
 			order.setEndDate(endDate);
+		     for(OrderPrice orderprice:orderPrices){
+           	  orderprice.setBillEndDate(endDate);
+           	  this.OrderPriceRepository.save(orderprice);
+             }
+             
 			this.orderRepository.saveAndFlush(order);
 			//For Order History
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),entityId,
-					                               UserActionStatusTypeEnum.CHANGE_PLAN.toString(),userId,extensionReason);
+		    UserActionStatusTypeEnum.CHANGE_PLAN.toString(),userId,extensionReason);
 			this.orderHistoryRepository.save(orderHistory);
 			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Extension Order", new Date(),"End Date"+endDate);
 			return new CommandProcessingResult(entityId);

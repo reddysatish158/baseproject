@@ -1,6 +1,5 @@
 package org.mifosplatform.billing.planservice.api;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,26 +10,16 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
-import org.mifosplatform.billing.clientbalance.service.ClientBalanceReadPlatformService;
 import org.mifosplatform.billing.contract.domain.Contract;
 import org.mifosplatform.billing.contract.domain.SubscriptionRepository;
 import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformServiceImpl;
-import org.mifosplatform.billing.eventorder.exception.InsufficientAmountException;
 import org.mifosplatform.billing.order.data.SchedulingOrderData;
 import org.mifosplatform.billing.plan.domain.Plan;
 import org.mifosplatform.billing.plan.domain.PlanRepository;
-import org.mifosplatform.billing.planservice.data.PlanServiceData;
-import org.mifosplatform.billing.planservice.service.PlanServiceReadPlatformService;
-import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
-import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
-import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;

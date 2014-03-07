@@ -8,9 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.json.JSONObject;
+
+
+import net.sf.json.JSONException;
 
 import org.joda.time.LocalDate;
+import org.json.JSONObject;
 import org.mifosplatform.billing.contract.domain.Contract;
 import org.mifosplatform.billing.contract.domain.SubscriptionRepository;
 import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
@@ -149,7 +152,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 
 		public String schema() {
 			return " a.id as id,a.event_action AS eventaction,a.entity_name AS entityName,a.action_name AS actionName, a.command_as_json as json,a.resource_id as resourceId, " +
-					" a.order_id as orderId,a.client_id as clientId FROM b_event_actions a WHERE a.is_processed = 'N'";
+					" a.order_id as orderId,a.client_id as clientId FROM b_event_actions a WHERE a.is_processed = 'N'  and a.trans_date <=now()";
 
 		}
 
@@ -174,7 +177,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 
 		public String schema() {
 			return " a.id AS id, a.trans_date AS transactiondate,a.command_as_json as json FROM b_event_actions a WHERE  a.client_id = ? " +
-					" AND a.entity_name = 'Order' AND a.action_name = 'CREATE'";
+					" AND a.entity_name = 'Order' AND a.action_name = 'NEW' and a.is_processed='N' ";
 
 		}
 
@@ -182,18 +185,22 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 		public SchedulingOrderData mapRow(final ResultSet rs,
 				@SuppressWarnings("unused") final int rowNum)
 				throws SQLException {
+			try {
 			Long id = rs.getLong("id");
 			LocalDate startDate= JdbcSupport.getLocalDate(rs,"transactiondate");
 			String jsonData = rs.getString("json");
-			JsonParser parser=new JsonParser();
-			Object obj=parser.parse(jsonData);
-			JSONObject jsonObject=(JSONObject)obj;
+			
+			JSONObject jsonObject = new JSONObject(jsonData);
 			String billingfreq=jsonObject.getString("paytermCode");
-			Long planId=jsonObject.getLong("planId");
+			Long planId=jsonObject.getLong("planCode");
 			Long contractPeriod=jsonObject.getLong("contractPeriod");
 			
 			return new SchedulingOrderData(id,startDate,planId,contractPeriod,billingfreq);
-
+			} catch (org.json.JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 
