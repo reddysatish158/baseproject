@@ -69,7 +69,6 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
-import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGeneratorFactory;
@@ -80,7 +79,6 @@ import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -96,7 +94,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	private final PlanRepository planRepository;
 	private final SubscriptionRepository subscriptionRepository;
 	private final OrderPriceRepository OrderPriceRepository;
-	private final JdbcTemplate jdbcTemplate;
+	
 	private final OrderCommandFromApiJsonDeserializer fromApiJsonDeserializer;
 	private final PrepareRequestWriteplatformService prepareRequestWriteplatformService;
     private final DiscountMasterRepository discountMasterRepository;
@@ -125,7 +123,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 
     @Autowired
 	public OrderWritePlatformServiceImpl(final PlatformSecurityContext context,final OrderRepository orderRepository,
-			final PlanRepository planRepository,final OrderPriceRepository OrderPriceRepository,final TenantAwareRoutingDataSource dataSource,
+			final PlanRepository planRepository,final OrderPriceRepository OrderPriceRepository,
 			final SubscriptionRepository subscriptionRepository,final OrderCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ReverseInvoice reverseInvoice,
 			final PrepareRequestWriteplatformService prepareRequestWriteplatformService,final DiscountMasterRepository discountMasterRepository,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderHistoryRepository orderHistoryRepository,
@@ -147,7 +145,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.subscriptionRepository = subscriptionRepository;
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
 		this.discountMasterRepository=discountMasterRepository;
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 		this.orderHistoryRepository=orderHistoryRepository;
 		this.reverseInvoice=reverseInvoice;
@@ -370,7 +367,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			 
 			
 			//For Order History
-			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Update Price",userId,null);
+			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"UPDATE PRICE",userId,null);
 			this.orderHistoryRepository.save(orderHistory);
 		 
          return new CommandProcessingResultBuilder() //
@@ -429,7 +426,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		Long userId=appUser.getId();
 		
 		//For Order History
-		OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Cancelled",userId,null);
+		OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"CANCELLED",userId,null);
 		this.orderHistoryRepository.save(orderHistory);
 		transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Order Canceled", order.getEndDate(),"Price:"+order.getAllPriceAsString(),"PlanId:"+order.getPlanId(),"contarctPeriod:"+order.getContarctPeriod(),"Services:"+order.getAllServicesAsString(),"OrderID:"+order.getId(),"BillingAlign:"+order.getbillAlign());
 
@@ -593,7 +590,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					}
 		      }
 				//For Order History
-				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,"Renewal",userId,description);
+				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,"RENEWAL",userId,description);
 				this.orderHistoryRepository.save(orderHistory);
 				
 		  	   return new CommandProcessingResult(Long.valueOf(orderDetails.getClientId()));
@@ -943,22 +940,83 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			String extensionReason=command.stringValueOfParameterNamed("extensionReason");
 			 LocalDate newStartdate=new LocalDate(order.getEndDate());
 				
-			    newStartdate=newStartdate.plusDays(1);
+			newStartdate=newStartdate.plusDays(1);
 			String[] periodData=extensionperiod.split(" ");
 			LocalDate endDate=calculateEndDate(newStartdate,periodData[1], new Long(periodData[0]));
 			List<OrderPrice>  orderPrices=order.getPrice();
-			order.setEndDate(endDate);
+			
+			if(order.getStatus().intValue() == StatusTypeEnum.ACTIVE.getValue()){
+				
+			  order.setEndDate(endDate);
+			  
 		     for(OrderPrice orderprice:orderPrices){
+		    	 
            	  orderprice.setBillEndDate(endDate);
+           	  orderprice.setInvoiceTillDate(endDate.toDate());
+           	  orderprice.setNextBillableDay(endDate.toDate());
            	  this.OrderPriceRepository.save(orderprice);
+           	  
              }
-             
-			this.orderRepository.saveAndFlush(order);
+		     
+			}else if(order.getStatus().intValue() == StatusTypeEnum.DISCONNECTED.getValue()){
+           	 
+			
+				   
+				     for(OrderPrice orderprice:orderPrices){
+				    	 
+				    		orderprice.setBillStartDate(newStartdate);
+				    		orderprice.setBillEndDate(endDate);
+				    		orderprice.setNextBillableDay(null);
+				    		orderprice.setInvoiceTillDate(null);
+				    		 this.OrderPriceRepository.save(orderprice);
+		             }
+        
+			
+			
+			Plan plan=this.planRepository.findOne(order.getPlanId());
+		      if(plan.getProvisionSystem().equalsIgnoreCase("None")){
+					
+		    	  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
+		    	  Client client=this.clientRepository.findOne(order.getClientId());
+					client.setStatus(ClientStatus.ACTIVE.getValue());
+					this.clientRepository.save(client);
+				 
+		      }else{
+					 
+					 //Check For HardwareAssociation
+					  AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(entityId);
+					  if(associationData ==null){
+						  throw new HardwareDetailsNotFoundException(entityId.toString());
+					  }
+				
+					  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
+				}
+		   
+		 
+		      order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
+		      this.orderRepository.save(order);
+		   
+			//for Prepare Request
+			String requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString().toString();
+            this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+			}
+			
+			//For Order History
+			SecurityContext context = SecurityContextHolder.getContext();
+	        if (context.getAuthentication() != null) {
+	        	AppUser appUser=this.context.authenticatedUser();
+				userId=appUser.getId();
+					
+	        }else{
+	        	userId=new Long(0);
+	        }
+		
 			//For Order History
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),entityId,
 		    UserActionStatusTypeEnum.CHANGE_PLAN.toString(),userId,extensionReason);
 			this.orderHistoryRepository.save(orderHistory);
 			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Extension Order", new Date(),"End Date"+endDate);
+			
 			return new CommandProcessingResult(entityId);
 			
 		}catch(DataIntegrityViolationException dve){

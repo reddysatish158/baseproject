@@ -65,7 +65,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 			
 			for(ActionDetaislData detailsData:actionDetaislDatas){
 				
-				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.EVENT_ACTIVE_ORDER,detailsData.getaActionName(),resourceId);
+				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.EVENT_CREATE_PAYMENT,detailsData.getaActionName(),resourceId);
 				  
 				     if(actionProcedureData.isCheck()){
 				    	 

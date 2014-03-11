@@ -94,7 +94,7 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 				String payterm_type = rs.getString("paytermType");
 				String units = rs.getString("units");
 				String contractPeriod = units.concat(payterm_type);
-				SubscriptionData data = new SubscriptionData(id, contractPeriod);
+				SubscriptionData data = new SubscriptionData(id, contractPeriod,null);
 
 				return data;
 
