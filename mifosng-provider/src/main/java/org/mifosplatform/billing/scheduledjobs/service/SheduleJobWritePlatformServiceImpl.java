@@ -25,8 +25,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.billingmaster.api.BillingMasterApiResourse;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
@@ -35,6 +33,8 @@ import org.mifosplatform.billing.entitlements.data.ClientEntitlementData;
 import org.mifosplatform.billing.entitlements.data.EntitlementsData;
 import org.mifosplatform.billing.entitlements.service.EntitlementReadPlatformService;
 import org.mifosplatform.billing.entitlements.service.EntitlementWritePlatformService;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ProcessEventActionService;
 import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
 import org.mifosplatform.billing.message.service.BillingMessageDataWritePlatformService;
 import org.mifosplatform.billing.message.service.BillingMesssageReadPlatformService;
@@ -68,6 +68,7 @@ import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.jobs.service.MiddlewareJobConstants;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -97,25 +98,26 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final EntitlementReadPlatformService entitlementReadPlatformService;
 	private final EntitlementWritePlatformService entitlementWritePlatformService;
 	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
-	private final ActiondetailsWritePlatformService  actiondetailsWritePlatformService;
+	private final ProcessEventActionService  actiondetailsWritePlatformService;
 	private String ReceiveMessage;
 	private final ScheduleJob scheduleJob;
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final ReadReportingService readExtraDataAndReportingService;
 	private final OrderRepository orderRepository;
+	private final PlatformSecurityContext context;
 	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
 			final BillingMasterApiResourse billingMasterApiResourse,final ProcessRequestRepository processRequestRepository,
 			final OrderWritePlatformService orderWritePlatformService,final SheduleJobReadPlatformService sheduleJobReadPlatformService,
 			final OrderReadPlatformService orderReadPlatformService,final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
-			final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ActiondetailsWritePlatformService  actiondetailsWritePlatformService, 
+			final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ProcessEventActionService  actiondetailsWritePlatformService, 
 			final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final PrepareRequestReadplatformService prepareRequestReadplatformService,
 			final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
 			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final OrderRepository orderRepository) {
+			final OrderRepository orderRepository,final PlatformSecurityContext context) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -138,6 +140,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
 		this.orderRepository=orderRepository;
+		this.context=context;
 	}
 	
 	
@@ -474,7 +477,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@CronTarget(jobName = JobName.AUTO_EXIPIRY)
 	public void processingAutoExipryOrders() {
 		try {
+			
 			System.out.println("Processing Auto Exipiry Details.......");
+			
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
             if(data!=null){
             	
@@ -1157,6 +1162,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 public void eventActionProcessor() {
 	  
 	 System.out.println("Processing Event Actions.....");
+	 
 	  try {
 		  
 		   MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				

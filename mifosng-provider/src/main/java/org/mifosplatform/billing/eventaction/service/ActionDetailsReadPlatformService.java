@@ -1,9 +1,11 @@
-package org.mifosplatform.billing.action.service;
+package org.mifosplatform.billing.eventaction.service;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.mifosplatform.billing.action.data.ActionDetaislData;
-import org.mifosplatform.billing.action.data.EventActionProcedureData;
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.data.EventActionProcedureData;
+import org.mifosplatform.billing.order.data.SchedulingOrderData;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 
 public interface ActionDetailsReadPlatformService {
@@ -14,4 +16,6 @@ public interface ActionDetailsReadPlatformService {
 
 
 	List<EventActionData> retrieveAllActionsForProccessing();
+
+	Collection<SchedulingOrderData> retrieveClientSchedulingOrders(Long clientId);
 }

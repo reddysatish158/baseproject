@@ -24,18 +24,15 @@ public class HardwareAssociationWriteplatformServiceImpl implements HardwareAsso
 	private final PlatformSecurityContext context;
 	private final HardwareAssociationRepository associationRepository;
 	private final HardwareAssociationCommandFromApiJsonDeserializer fromApiJsonDeserializer;
-	private final HardwareAssociationReadplatformService associationReadplatformService;
 	private final OrderRepository orderRepository;
 	
-@Autowired
+    @Autowired
 	public HardwareAssociationWriteplatformServiceImpl(final PlatformSecurityContext context,final HardwareAssociationCommandFromApiJsonDeserializer fromApiJsonDeserializer,
-			final HardwareAssociationRepository associationRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-			final OrderRepository orderRepository){
+			final HardwareAssociationRepository associationRepository,final OrderRepository orderRepository){
 		
 	    this.context=context;
 		this.associationRepository=associationRepository;
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
-		this.associationReadplatformService=hardwareAssociationReadplatformService;
 		this.orderRepository=orderRepository;
 	}
 	

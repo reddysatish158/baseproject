@@ -9,5 +9,8 @@ public class InsufficientAmountException extends AbstractPlatformDomainRuleExcep
         super("error.msg.insufficient.amount.amount", "Insufficient Amount to Book The Order");
     }
     
+    public InsufficientAmountException(Long clientId) {
+        super("error.msg.insufficient.balance.", "Insufficient Amount to Book The Order");
+    }
    
 }

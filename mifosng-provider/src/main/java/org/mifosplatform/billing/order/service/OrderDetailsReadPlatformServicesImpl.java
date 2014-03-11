@@ -1,33 +1,42 @@
-package org.mifosplatform.billing.order.domain;
+package org.mifosplatform.billing.order.service;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
+import java.util.Map;
 
 import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.pricing.data.PriceData;
+import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
+import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.stereotype.Service;
 
-public class OrderReadPlatformImpl {
+@Service
+public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPlatformServices{
 
-	private final JdbcTemplate jdbcTemplate;
-	private final PlatformSecurityContext context;
+	  private final JdbcTemplate jdbcTemplate;
+      private final PlatformSecurityContext context;
+	  private final SimpleJdbcCall jdbcCall;
+	
+ @Autowired
+ public OrderDetailsReadPlatformServicesImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
+			final PriceReadPlatformService priceReadPlatformService) {
+	        this.context = context;
+	        this.jdbcTemplate = new JdbcTemplate(dataSource);
+	        this.jdbcCall= new SimpleJdbcCall(dataSource);
+	       	     
 
+	    }
 
-
-	public OrderReadPlatformImpl(PlatformSecurityContext context2,
-			JdbcTemplate jdbcTemplate2) {
-
-		this.context=context2;
-		this.jdbcTemplate=jdbcTemplate2;
-
-	}
-
-
-
+	@Override
 	public List<ServiceData> retrieveAllServices(Long plan_code) {
 
 
@@ -64,6 +73,7 @@ public class OrderReadPlatformImpl {
 
 		}
 	}
+	@Override
 		public List<PriceData> retrieveAllPrices(Long plan_code,String billingFreq, Long clientId ) {
 
 
@@ -114,6 +124,8 @@ public class OrderReadPlatformImpl {
 
 			}
 	}
+		
+		@Override
 		public List<PriceData> retrieveDefaultPrices(Long planId,String billingFrequency, Long clientId) {
 			
 			PriceMapper mapper1 = new PriceMapper();
@@ -122,6 +134,27 @@ public class OrderReadPlatformImpl {
 					" AND pd.state_id =0";
 			return this.jdbcTemplate.query(sql, mapper1, new Object[] { clientId });
 		}
+
+
+
+		@Override
+		public int checkForCustomValidations(Long clientId,String eventName) {
+		       
+			
+					  jdbcCall.setProcedureName("custom_validation");
+					  MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+					  parameterSource.addValue("p_clientid", clientId, Types.INTEGER);
+					  parameterSource.addValue("keyid", clientId, Types.INTEGER);
+					  parameterSource.addValue("event_name", eventName, Types.VARCHAR);
+
+					  Map<String, Object> out = jdbcCall.execute(parameterSource);
+					  int errCode=(Integer)out.get("err_code");
+					  String errMsg=(String)out.get("err_msg");
+					  
+					  return errCode;
+					  
+					
+			}
 
 	}
 

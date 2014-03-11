@@ -35,6 +35,9 @@ public class OrderHistory extends AbstractPersistable<Long> {
 
 	@Column(name = "createdby_id")
 	private Long createdbyId;
+	
+	@Column(name = "remarks")
+	private String remarks;
 
 
 	 public OrderHistory() {
@@ -44,7 +47,7 @@ public class OrderHistory extends AbstractPersistable<Long> {
 
 
 	public OrderHistory(Long orderId, LocalDate transactionDate, LocalDate actualDate,
-			Long provisioningId, String tranType, Long userId) {
+			Long provisioningId, String tranType, Long userId, String extensionReason) {
 		
 		this.orderId=orderId;
 		this.transactionDate=transactionDate.toDate();
@@ -53,6 +56,7 @@ public class OrderHistory extends AbstractPersistable<Long> {
 		this.transactionType=tranType;
 		this.createdbyId=userId;
 		this.createdDate=new Date();
+		this.remarks=extensionReason;
 	}
  
 	
