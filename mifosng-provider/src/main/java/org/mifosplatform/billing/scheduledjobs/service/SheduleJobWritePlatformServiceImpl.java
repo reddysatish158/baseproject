@@ -700,8 +700,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 					ReceiveMessage = "";
 					
 					if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Activation)){
-					    String status="";					    
-						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
+					    String status="";
+					    String Stalkerpassword = clientdata.getPassword();
+					    if(Stalkerpassword==null || Stalkerpassword.equalsIgnoreCase("")){
+					    	Stalkerpassword="0000";
+					    }
+						String query = "login=" + clientdata.getLogin() + "&password=" + Stalkerpassword + "&full_name="+ clientdata.getFullName()
 								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getProduct() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());
@@ -717,14 +721,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/ is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    return;
 
 						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
@@ -765,13 +769,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"account_subscription/"+clientId+" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    return;
 						}else if (response1.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
 							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
@@ -820,7 +824,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 							fw.close();
-							return;
+							continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -867,7 +871,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -908,7 +912,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 							fw.close();
-							return;
+							continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -954,7 +958,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -994,7 +998,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");

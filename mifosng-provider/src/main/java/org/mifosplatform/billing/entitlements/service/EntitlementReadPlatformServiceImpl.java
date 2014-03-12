@@ -96,12 +96,14 @@ public class EntitlementReadPlatformServiceImpl implements
 			
 			String emailId = rs.getString("EmailId");
 			String fullName = rs.getString("fullName");	
-			return new ClientEntitlementData(emailId,fullName);
+			String login = rs.getString("login");
+			String password = rs.getString("password");
+			return new ClientEntitlementData(emailId,fullName,login,password);
 		
 		}
 		
 		public String schema() {
-			return "c.email as EmailId,c.display_name as fullName from m_client c where c.id=?";
+			return "c.email as EmailId,c.display_name as fullName,c.login as login,c.password as password from m_client c where c.id=?";
 		}
 		
 		}
