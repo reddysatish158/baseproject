@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.order.domain;
+package org.mifosplatform.billing.promotioncodes.domain;
 import java.math.BigDecimal;
 import java.util.Date;
 

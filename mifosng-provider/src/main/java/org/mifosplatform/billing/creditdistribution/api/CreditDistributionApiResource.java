@@ -16,10 +16,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.creditdistribution.data.CreditDistributionData;
+import org.mifosplatform.billing.creditdistribution.service.CreditDistributionReadPlatformService;
 import org.mifosplatform.billing.invoice.data.InvoiceData;
 import org.mifosplatform.billing.invoice.service.InvoiceReadPlatformService;
 import org.mifosplatform.billing.payments.data.PaymentData;
 import org.mifosplatform.billing.payments.service.PaymentReadPlatformservice;
+import org.mifosplatform.billing.transactionhistory.data.TransactionHistoryData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -28,6 +30,7 @@ import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -50,11 +53,13 @@ public class CreditDistributionApiResource {
 	private final PortfolioCommandSourceWritePlatformService writePlatformService;
 	private final InvoiceReadPlatformService invoiceReadPlatformService;
 	private final PaymentReadPlatformservice paymentReadPlatformservice;
-
+	private final CreditDistributionReadPlatformService creditDistributionReadPlatformService;
+	private final DefaultToApiJsonSerializer<CreditDistributionData> apiJsonSerializer;
 	@Autowired
 	public CreditDistributionApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<CreditDistributionData> toApiJsonSerializer,
 			final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService writePlatformService,
-			final InvoiceReadPlatformService invoiceReadPlatformService,final PaymentReadPlatformservice paymentReadPlatformservice) {
+			final InvoiceReadPlatformService invoiceReadPlatformService,final PaymentReadPlatformservice paymentReadPlatformservice,
+			final CreditDistributionReadPlatformService creditDistributionReadPlatformService,DefaultToApiJsonSerializer<CreditDistributionData> apiJsonSerializer) {
 		
 		this.context = context;
 		this.toApiJsonSerializer = toApiJsonSerializer;
@@ -62,6 +67,8 @@ public class CreditDistributionApiResource {
 		this.writePlatformService = writePlatformService;
 		this.invoiceReadPlatformService=invoiceReadPlatformService;
 		this.paymentReadPlatformservice=paymentReadPlatformservice;
+		this.creditDistributionReadPlatformService=creditDistributionReadPlatformService;
+		this.apiJsonSerializer=apiJsonSerializer;
 	}
 
 	@POST
@@ -86,6 +93,15 @@ public class CreditDistributionApiResource {
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings,creditDistributionData, RESPONSE_DATA_PARAMETERS);
 	}
-
+	@GET
+	@Path("{clientId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveCreditDistributiondata(@PathParam("clientId") final Long clientId,@Context final UriInfo uriInfo) {
+ 		 context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		Page<CreditDistributionData> creditDistributionDatas= this.creditDistributionReadPlatformService.getClientDistributionData(clientId);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.apiJsonSerializer.serialize(creditDistributionDatas);
+	}
 	
 }

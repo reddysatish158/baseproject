@@ -15,6 +15,7 @@ import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.plan.data.SystemData;
 import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.plan.domain.VolumeTypeEnum;
+import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
@@ -29,14 +30,18 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 
 	private final JdbcTemplate jdbcTemplate;
 	private final PlatformSecurityContext context;
+	private  static  PriceReadPlatformService priceReadPlatformService;
 	public final static String POST_PAID="postpaid";
 	public final static String PREPAID="prepaid";
+	
+	
 
 	@Autowired
-	public PlanReadPlatformServiceImpl(final PlatformSecurityContext context,
+	public PlanReadPlatformServiceImpl(final PlatformSecurityContext context,final PriceReadPlatformService priceReadPlatformService,
 			final TenantAwareRoutingDataSource dataSource) {
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.priceReadPlatformService=priceReadPlatformService;
 	}
 
 	@Override
@@ -117,6 +122,7 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 		 String sql=null;
 		PlanDataMapper mapper = new PlanDataMapper();
 		
+		
 		if(planType!=null && planType.equalsIgnoreCase(PREPAID)){
 
 		 sql = "select " + mapper.schema()+" AND pm.is_prepaid ='Y'";
@@ -134,10 +140,8 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 	private static final class PlanDataMapper implements RowMapper<PlanData> {
 
 		public String schema() {
-
-
-			return " pm.id,pm.plan_code,pm.plan_description,pm.start_date,pm.end_date,pm.plan_status,pm.duration as duration"
-					 +" from  b_plan_master pm  where pm.is_deleted='n' ";
+			return "  pm.id,pm.plan_code,pm.plan_description,pm.start_date,pm.end_date,pm.plan_status,pm.duration AS duration,pm.is_prepaid as isprepaid," +
+					"p.id as contractId FROM b_plan_master pm left join b_contract_period p on p.contract_period=pm.duration WHERE pm.is_deleted = 'n' ";
 
 		}
 
@@ -148,18 +152,25 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 			String planCode = rs.getString("plan_code");
 			String planDescription = rs.getString("plan_description");
 			LocalDate startDate = JdbcSupport.getLocalDate(rs, "start_date");
-		    int planStatus = JdbcSupport.getInteger(rs,"plan_status");
+		    Long planStatus = rs.getLong("plan_status");
 			LocalDate endDate = JdbcSupport.getLocalDate(rs, "end_date");
 			String duration=rs.getString("duration");
 			long plan=planStatus;
-			EnumOptionData enumstatus=OrderStatusEnumaration.OrderStatusType(planStatus);
+			Long contractId=rs.getLong("contractId");
+			EnumOptionData enumstatus=OrderStatusEnumaration.OrderStatusType(planStatus.intValue());
 			//return new PlanData(id, planCode, planDescription, startDate,plan, endDate,status);
 			/*return new PlanData(id,planCode,startDate,endDate,null,null,plan,planDescription,null,null,
 					status);
-			*/	
+			*/
+			List<ServiceData> services=null;
+			if(rs.getString("isprepaid").equalsIgnoreCase("Y")){
+			services=priceReadPlatformService.retrievePrcingDetails(id);
+			}
+			
 			return new PlanData(id, planCode, startDate, endDate,null,duration, plan, planDescription, plan, null, enumstatus,
-					null,null, null,null,null);
+					null,null, null,null,null,services,contractId);
 		}
+		
 	}
 
 	@Override
@@ -243,8 +254,8 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 
 	            //EnumOptionData status = SavingStatusEnumaration.OrderStatusType(plan_status);
 	            long status1=planStatus;
-	            return new PlanData(id,planCode,startDate,endDate,billRule,contractPeriod,status1,planDescription,status1,provisionSys,null,isPrepaid,
-	            		allowTopup,volume,units,unitType);
+	            return new PlanData(id,planCode,startDate,endDate,billRule,contractPeriod,status1,planDescription,status1,
+	            		provisionSys,null,isPrepaid,allowTopup,volume,units,unitType,null,null);
 	        }
 	}
 

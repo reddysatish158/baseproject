@@ -979,4 +979,13 @@ public class CommandWrapper {
 			  return this.entityName.equalsIgnoreCase("CREDITDISTRIBUTION");
 		}
 
+		public boolean isOrderScheduling() {
+			
+			return  this.entityName.equalsIgnoreCase("ORDERSCHEDULING");
+		}
+
+		public boolean isOrderExtension() {
+			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
+		}
+
 }

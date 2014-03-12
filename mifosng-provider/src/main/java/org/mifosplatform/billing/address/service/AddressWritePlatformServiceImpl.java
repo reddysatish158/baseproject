@@ -79,7 +79,7 @@ public class AddressWritePlatformServiceImpl implements AddressWritePlatformServ
 	            //this.fromApiJsonDeserializer.validateForUpdate(command.json());
 	          
 	            
-	             Map<String, Object> changes =new HashMap();
+	             Map<String, Object> changes =new HashMap<String, Object>();
 	             List<AddressData> addressDatas =this.addressReadPlatformService.retrieveClientAddressDetails(command.longValueOfParameterNamed("clientId"));
 	                
 	             final String addressType=command.stringValueOfParameterNamed(ADDRESSTYPE);

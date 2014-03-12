@@ -1,5 +1,5 @@
 
-package org.mifosplatform.billing.action.domain;
+package org.mifosplatform.billing.eventaction.domain;
 
 import java.util.Date;
 
@@ -65,10 +65,70 @@ public EventAction(Date transDate, String eventAction, String entityName,String 
 
 
 
-public void updateStatus() {
+public void updateStatus(char status) {
 
-	this.isProcessed='Y';
+	this.isProcessed=status;
 	
+}
+
+
+
+public Date getTransDate() {
+	return transDate;
+}
+
+
+
+public String getEventAction() {
+	return eventAction;
+}
+
+
+
+public String getEntityName() {
+	return entityName;
+}
+
+
+
+public String getActionName() {
+	return actionName;
+}
+
+
+
+public String getApiUrl() {
+	return apiUrl;
+}
+
+
+
+public Long getResourceId() {
+	return resourceId;
+}
+
+
+
+public Long getOrderId() {
+	return orderId;
+}
+
+
+
+public Long getClientId() {
+	return clientId;
+}
+
+
+
+public String getCommandAsJson() {
+	return commandAsJson;
+}
+
+
+
+public char IsProcessed() {
+	return isProcessed;
 }
 
 }

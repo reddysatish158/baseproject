@@ -2,10 +2,6 @@
 package org.mifosplatform.billing.payments.service;
 import java.util.List;
 
-import org.mifosplatform.billing.action.data.ActionDetaislData;
-import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
-import org.mifosplatform.billing.action.service.EventActionConstants;
 import org.mifosplatform.billing.billingorder.domain.Invoice;
 import org.mifosplatform.billing.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
@@ -13,6 +9,10 @@ import org.mifosplatform.billing.clientbalance.domain.ClientBalance;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
 import org.mifosplatform.billing.clientbalance.service.ClientBalanceReadPlatformService;
 import org.mifosplatform.billing.clientbalance.service.UpdateClientBalance;
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.eventaction.service.EventActionConstants;
 import org.mifosplatform.billing.payments.domain.ChequePayment;
 import org.mifosplatform.billing.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.billing.payments.domain.Payment;
@@ -177,7 +177,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			clientBalance.setBalanceAmount(clientBalance.getBalanceAmount().add(payment.getAmountPaid()));
 			this.clientBalanceRepository.save(clientBalance);
 			
-			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "CANCEL PAYMENT", payment.getPaymentDate(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "Cancel Payment", payment.getPaymentDate(),
 					"Amount :"+payment.getAmountPaid(),"Remarks:"+payment.getCancelRemark(),"ReceiptNo: "+payment.getReceiptNo());
 			return new CommandProcessingResult(paymentId);
 			

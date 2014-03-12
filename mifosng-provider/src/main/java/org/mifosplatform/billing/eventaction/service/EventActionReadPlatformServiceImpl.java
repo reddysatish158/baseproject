@@ -1,9 +1,9 @@
-package org.mifosplatform.billing.action.service;
+package org.mifosplatform.billing.eventaction.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.mifosplatform.billing.action.data.VolumeDetailsData;
+import org.mifosplatform.billing.eventaction.data.VolumeDetailsData;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;

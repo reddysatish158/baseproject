@@ -2,12 +2,18 @@ package org.mifosplatform.billing.scheduledjobs;
 
 import java.util.List;
 
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.eventaction.service.EventActionConstants;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
+import org.mifosplatform.billing.plan.domain.Plan;
+import org.mifosplatform.billing.plan.domain.PlanRepository;
 import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
@@ -42,14 +48,17 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	  private final ProcessRequestRepository processRequestRepository;
 	  private final PrepareRequsetRepository prepareRequsetRepository;
 	  private final ClientRepository clientRepository;
-	  
+	  private final PlanRepository planRepository;
+	  private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
+	  private final ActiondetailsWritePlatformService actiondetailsWritePlatformService; 
 	  
 
 	    @Autowired
 	    public ProcessRequestWriteplatformServiceImpl(final DataSourcePerTenantService dataSourcePerTenantService,final TenantDetailsService tenantDetailsService,
 	    		final PrepareRequestReadplatformService prepareRequestReadplatformService,final OrderReadPlatformService orderReadPlatformService,
 	    		final OrderRepository orderRepository,final ProcessRequestRepository processRequestRepository,final PrepareRequsetRepository prepareRequsetRepository,
-	    		final ClientRepository clientRepository) {
+	    		final ClientRepository clientRepository,final PlanRepository planRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+	    		final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
 	    	
 	            this.dataSourcePerTenantService = dataSourcePerTenantService;
 	            this.tenantDetailsService = tenantDetailsService;
@@ -59,6 +68,9 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	            this.processRequestRepository=processRequestRepository;
 	            this.prepareRequsetRepository=prepareRequsetRepository;
 	            this.clientRepository=clientRepository;
+	            this.planRepository=planRepository;
+	            this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+	            this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 	             
 	    }
 
@@ -107,6 +119,15 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 				 if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.ACTIVATION.toString())){
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
 					 client.setStatus(ClientStatus.ACTIVE.getValue());
+					Plan plan=this.planRepository.findOne(order.getPlanId());
+					 
+					if(plan.isPrepaid() == 'Y'){
+							
+							List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_ACTIVE_ORDER);
+							if(actionDetaislDatas.size() != 0){
+							this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,order.getClientId(), order.getId().toString());
+							}
+					}
 					 
 				 }else if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DISCONNECTION.toString())){
 					 

@@ -74,7 +74,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			this.invoiceOneTimeSale.invoiceOneTimeSale(clientId,oneTimeSaleData);
 			updateOneTimeSale(oneTimeSaleData);
 			}
-			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"One Time Sale", oneTimeSale.getSaleDate(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Item Sale", oneTimeSale.getSaleDate(),
 					"TotalPrice:"+oneTimeSale.getTotalPrice(),"Quantity:"+oneTimeSale.getQuantity(),"Units:"+oneTimeSale.getUnits(),"OneTimeSaleID:"+oneTimeSale.getId());
 			return new CommandProcessingResult(Long.valueOf(oneTimeSale.getId()));
 		} catch (DataIntegrityViolationException dve) {
@@ -128,7 +128,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			oneTimeSale = oneTimeSaleRepository.findOne(entityId);
 			oneTimeSale.setIsDeleted('Y');
 			oneTimeSaleRepository.save(oneTimeSale);
-			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Delete One Time Sale", oneTimeSale.getSaleDate(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Cancel Item Sale", oneTimeSale.getSaleDate(),
 					"TotalPrice:"+oneTimeSale.getTotalPrice(),"Quantity:"+oneTimeSale.getQuantity(),"Units:"+oneTimeSale.getUnits(),"OneTimeSaleID:"+oneTimeSale.getId());
 			
 		}catch(DataIntegrityViolationException dve){

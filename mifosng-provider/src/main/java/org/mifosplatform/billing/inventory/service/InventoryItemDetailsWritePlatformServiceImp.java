@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.engine.profile.Association;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.data.HardwareAssociationData;
@@ -30,7 +29,6 @@ import org.mifosplatform.billing.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.billing.onetimesale.domain.OneTimeSale;
 import org.mifosplatform.billing.onetimesale.domain.OneTimeSaleRepository;
 import org.mifosplatform.billing.onetimesale.service.OneTimeSaleReadPlatformService;
-import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -280,7 +278,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 						final String isHwSwap = fromJsonHelper.extractStringNamed("isNewHw", j);
 					
 						if(isHwSwap.equalsIgnoreCase("Y")){
-						this.transactionHistoryWritePlatformService.saveTransactionHistory(ots.getClientId(), "HardwareAllocation", ots.getSaleDate(),
+						this.transactionHistoryWritePlatformService.saveTransactionHistory(ots.getClientId(), "Allocation", ots.getSaleDate(),
 								"Units:"+ots.getUnits(),"ChargeCode:"+ots.getChargeCode(),"Quantity:"+ots.getQuantity(),"ItemId:"+ots.getItemId(),"SerialNumber:"+inventoryItemDetailsAllocation.getSerialNumber());
 						}
 
@@ -309,7 +307,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 						    		   {
 						    				this.associationWriteplatformService.createNewHardwareAssociation(ots.getClientId(),allocationDetailsDatas.get(0).getPlanId(),inventoryItemDetails.getSerialNumber(),allocationDetailsDatas.get(0).getorderId());
 						    				if(isHwSwap.equalsIgnoreCase("Y")){
-						    				transactionHistoryWritePlatformService.saveTransactionHistory(ots.getClientId(), "Implicit Association", new Date(),"Serial No:"
+						    				transactionHistoryWritePlatformService.saveTransactionHistory(ots.getClientId(), "Association", new Date(),"Serial No:"
 						    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+allocationDetailsDatas.get(0).getItemCode());
 						    				}
 						    				
@@ -415,7 +413,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   }else{
         		   itemCode=oneTimeSale.getItemId().toString();
         	   }
-        		transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "RETURN DEVICE", new Date(),"Serial Number :"
+        		transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Device Return", new Date(),"Serial Number :"
 	    				+inventoryItemDetailsAllocation.getSerialNumber(),"Item Code:"+itemCode,"Order Id: "+inventoryItemDetailsAllocation.getOrderId());
         	   
         	   return new CommandProcessingResult(command.entityId());

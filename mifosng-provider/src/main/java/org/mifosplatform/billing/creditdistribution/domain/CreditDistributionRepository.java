@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.plan.domain;
+package org.mifosplatform.billing.creditdistribution.domain;
 
 
 import org.mifosplatform.billing.creditdistribution.domain.CreditDistribution;

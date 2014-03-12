@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.order.domain;
+package org.mifosplatform.billing.hardwaremapping.domain;
 
 import org.mifosplatform.billing.association.domain.PlanHardwareMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
