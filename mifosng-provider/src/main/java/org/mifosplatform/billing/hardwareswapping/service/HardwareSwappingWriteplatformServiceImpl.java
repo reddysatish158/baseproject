@@ -132,7 +132,7 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
 				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Hardware Swap",new Date(),"Old Serial No:"+serialNo
 						+ " is replaced with New "+provisionNum);
 				//For Order History
-				OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Hardware Swap",userId,null);
+				OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"DEVICE SWAP",userId,null);
 		
 				this.orderHistoryRepository.save(orderHistory);
 		return new CommandProcessingResult(entityId);		

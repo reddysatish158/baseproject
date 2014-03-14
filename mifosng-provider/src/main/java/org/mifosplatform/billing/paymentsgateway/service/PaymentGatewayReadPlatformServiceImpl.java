@@ -120,7 +120,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
         if (tabType!=null ) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where p.status like '"+tabType+"'");
+		        	sqlBuilder.append(" where p.status like '"+tabType+"' order by payment_date desc ");
 		  
 		    	    if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();

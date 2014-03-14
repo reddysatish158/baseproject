@@ -1,19 +1,14 @@
 package org.mifosplatform.billing.eventactionmapping.service;
 
-import java.util.Date;
-
-import org.joda.time.LocalDate;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.eventaction.domain.EventAction;
 import org.mifosplatform.billing.eventaction.domain.EventActionRepository;
 import org.mifosplatform.billing.eventaction.service.EventActionConstants;
 import org.mifosplatform.billing.eventaction.service.ProcessEventActionService;
 import org.mifosplatform.billing.order.domain.Order;
-import org.mifosplatform.billing.order.domain.OrderHistory;
 import org.mifosplatform.billing.order.domain.OrderHistoryRepository;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
-import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -69,22 +64,22 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 						null,eventActionData.getClientId(), null, null, null,null, null, null);
 				
 			    	this.orderWritePlatformService.renewalClientOrder(command,eventActionData.getOrderId());
-			    	OrderHistory orderHistory=new OrderHistory(eventActionData.getOrderId(),new LocalDate(),new LocalDate(),null,"Renewal",Long.valueOf(1),null);
+			    	/*OrderHistory orderHistory=new OrderHistory(eventActionData.getOrderId(),new LocalDate(),new LocalDate(),null,"Renewal",Long.valueOf(0),null);
 			    	Order order=this.orderRepository.findOne(eventActionData.getOrderId());
 					this.orderHistory.save(orderHistory);
 					
 					transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(),"ORDER_"+UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY.toString(), order.getStartDate(),
 							"PlanId:"+order.getPlanId(),"Renewal Period: 1 Month","OrderID:"+order.getId(),"Billing Align:"+order.getbillAlign());
 							
-
+*/
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
 				
 				Order order=this.orderRepository.findOne(eventActionData.getOrderId());
 				this.orderWritePlatformService.reconnectOrder(eventActionData.getOrderId());
-				
+			/*	
 				transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(),"ORDER_"+UserActionStatusTypeEnum.RECONNECTION.toString(), order.getStartDate(),
 						"Price:"+order.getAllPriceAsString(),"PlanId:"+order.getPlanId(),"contarctPeriod: 1 Month","Services:"+order.getAllServicesAsString(),"OrderID:"+order.getId(),"Billing Align:"+order.getbillAlign());
-				
+				*/
 				
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_DISCONNECT)){
 				
@@ -102,10 +97,10 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 						null,eventActionData.getClientId(), null, null, null,null, null, null);
 			Long plancode=command.longValueOfParameterNamed("planCode");
 				CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
-				//For Transaction History
+				/*//For Transaction History
 	   			transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(), "New Order", new Date(),
 	   			     "PlanId:"+plancode,"contarctPeriod: One Month","OrderID:"+commandProcessingResult.resourceId(),
-	   			     "BillingAlign:false");
+	   			     "BillingAlign:false");*/
 			
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_INVOICE)){
 

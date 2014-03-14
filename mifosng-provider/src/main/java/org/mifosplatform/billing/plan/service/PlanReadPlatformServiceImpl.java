@@ -186,7 +186,7 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 			RowMapper<SubscriptionData> {
 
 		public String schema() {
-			return " sb.id as id,sb.contract_period as subscription_type,sb.contract_duration as units "
+			return " sb.id as id,sb.contract_period as contractPeriod,sb.contract_duration as units,sb.contract_type as contractType "
 					+ " from b_contract_period sb where is_deleted='N'";
 
 		}
@@ -196,10 +196,11 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 				throws SQLException {
 
 			Long id = rs.getLong("id");
-			String subscriptionType = rs.getString("subscription_type");
+			String contractPeriod = rs.getString("contractPeriod");
+			String subscriptionType = rs.getString("contractType");
 			String units = rs.getString("units");
 
-			SubscriptionData data = new SubscriptionData(id, subscriptionType);
+			SubscriptionData data = new SubscriptionData(id,contractPeriod,subscriptionType);
 
 			return data;
 

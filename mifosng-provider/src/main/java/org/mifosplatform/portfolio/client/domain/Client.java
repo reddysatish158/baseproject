@@ -42,7 +42,7 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
 @Table(name = "m_client", uniqueConstraints = { @UniqueConstraint(columnNames = { "account_no" }, name = "account_no_UNIQUE"),
-		@UniqueConstraint(columnNames = { "email" }, name = "email_key")})
+		@UniqueConstraint(columnNames = { "email" }, name = "email_key"),@UniqueConstraint(columnNames = { "login" }, name = "login_key")})
 public final class Client extends AbstractPersistable<Long> {
 
     @Column(name = "account_no", length = 20, unique = true, nullable = false)

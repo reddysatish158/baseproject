@@ -117,6 +117,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 				 Client client=this.clientRepository.findOne(order.getClientId());
 				 
 				 if(detailsData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.ACTIVATION.toString())){
+					 
 					 order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
 					 client.setStatus(ClientStatus.ACTIVE.getValue());
 					Plan plan=this.planRepository.findOne(order.getPlanId());

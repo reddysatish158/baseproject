@@ -1,6 +1,8 @@
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.joda.time.LocalDate;
+
 
 
 
@@ -10,15 +12,14 @@ public class DateAndTime {
 	
 	public static void main(String[] args) {
 		
-		String string="{"+"billAlign"+":false"+",planCode"+":1}";
-		JsonParser parser=new JsonParser();
-		Object obj=parser.parse(string);
-		JsonElement jsonObject=parser.parse(string);		
-		
-		String[] strings=string.split(" ");
-		System.out.println(strings[1]);
+		 Date dNow = new Date( );
+	      SimpleDateFormat ft = 
+	      new SimpleDateFormat ("hh:mm:ss a");
+
+	      System.out.println("Current Date: " + ft.format(dNow));
+	   }
 		
 	}
 
-}
+
 

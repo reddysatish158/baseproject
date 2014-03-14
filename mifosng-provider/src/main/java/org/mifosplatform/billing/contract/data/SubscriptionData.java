@@ -29,12 +29,12 @@ public class SubscriptionData {
 		this.Contractdata=null;
 	}
 
-	public SubscriptionData(final Long id,final String data)
+	public SubscriptionData(final Long id,final String data, String subscriptionType)
 	{
 		this.Contractdata=data;
 		this.id=id;
 		this.subscriptionPeriod=null;
-		this.subscriptionType=null;
+		this.subscriptionType=subscriptionType;
 		this.units=null;
 		this.subscriptiontypeId=null;
 		

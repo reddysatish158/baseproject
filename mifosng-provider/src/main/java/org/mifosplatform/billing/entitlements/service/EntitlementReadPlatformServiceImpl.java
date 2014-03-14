@@ -63,15 +63,15 @@ public class EntitlementReadPlatformServiceImpl implements
 			String provisioingSystem = rs.getString("provisioingSystem");
 			Long clientId = rs.getLong("clientId");
 			Long planId= rs.getLong("planId");
+			String orderNo= rs.getString("orderNo");
 
-			return new EntitlementsData(id, prdetailsId, requestType,
-					hardwareId, provisioingSystem, product, serviceId, clientId,planId);
+			return new EntitlementsData(id, prdetailsId, requestType,hardwareId, provisioingSystem, product, serviceId, clientId,planId,orderNo);
 
 		}
 
 		public String schema() {
 			return " p.id AS id,p.client_id AS clientId,p.provisioing_system AS provisioingSystem,pr.service_id AS serviceId,pr.id AS " +
-					"prdetailsId,pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId " +
+					"prdetailsId,pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId,o.order_no as orderNo " +
 					"FROM b_process_request_detail pr,b_process_request p left join b_orders o on o.id=p.order_id where p.id = pr.processrequest_id" +
 					" AND p.is_processed = 'N'";
 		}
