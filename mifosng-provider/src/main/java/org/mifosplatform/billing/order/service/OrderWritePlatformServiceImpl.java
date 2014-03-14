@@ -510,93 +510,98 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 		try{
 			
+			LocalDate newStartdate=null;
+			String requstStatus=null;
 			this.fromApiJsonDeserializer.validateForRenewalOrder(command.json());
 			Order orderDetails=this.orderRepository.findOne(orderId);
 			
 			if(orderDetails == null){
 				throw new NoOrdersFoundException(orderId);
 			}
+			
 			List<OrderPrice>  orderPrices=orderDetails.getPrice();
 		    final Long contractPeriod = command.longValueOfParameterNamed("renewalPeriod");
 		    final String description=command.stringValueOfParameterNamed("description");
 		    Contract contractDetails=this.subscriptionRepository.findOne(contractPeriod);
+		    Plan plan=this.planRepository.findOne(orderDetails.getPlanId());
 		    
-		    //Get The Plan Details
-		   Plan plan=this.planRepository.findOne(orderDetails.getPlanId());
-		    LocalDate newStartdate=new LocalDate(orderDetails.getEndDate());
-	
-		    newStartdate=newStartdate.plusDays(1);
-		  
-		    LocalDate renewalEndDate=calculateEndDate(newStartdate,contractDetails.getSubscriptionType(),contractDetails.getUnits());
-		      orderDetails.setEndDate(renewalEndDate);
-		     
-                  for(OrderPrice orderprice:orderPrices){
-                	  orderprice.setBillEndDate(renewalEndDate);
+		    if(orderDetails.getStatus().equals(StatusTypeEnum.ACTIVE.getValue().longValue())){
+		    	
+		    	   newStartdate=new LocalDate(orderDetails.getEndDate()).plusDays(1);
+		    	   LocalDate renewalEndDate=calculateEndDate(newStartdate,contractDetails.getSubscriptionType(),contractDetails.getUnits());
+				      orderDetails.setEndDate(renewalEndDate);
+				      for(OrderPrice orderprice:orderPrices){
+	                	  
+	                	  orderprice.setBillEndDate(renewalEndDate);
+	                	  this.OrderPriceRepository.save(orderprice);
+	                  }
+				      
+	           		   requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY).getValue();
+
+		    } else if(orderDetails.getStatus().equals(StatusTypeEnum.DISCONNECTED.getValue().longValue())){
+		    	 newStartdate=new LocalDate(); 
+		    	 LocalDate renewalEndDate=calculateEndDate(newStartdate,contractDetails.getSubscriptionType(),contractDetails.getUnits());
+			      orderDetails.setEndDate(renewalEndDate);
+			      
+                       for(OrderPrice orderprice:orderPrices){
+                	  
+                    	   
+                    	   orderprice.setBillStartDate(newStartdate);
+                    	   orderprice.setBillEndDate(renewalEndDate);
+                    	   orderprice.setNextBillableDay(null);
+                    	   orderprice.setInvoiceTillDate(null);
+            			   this.OrderPriceRepository.save(orderprice);
+            			   
                 	  this.OrderPriceRepository.save(orderprice);
                   }
-                  
-                  String requstStatus =UserActionStatusTypeEnum.ACTIVATION.toString();
+                       requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY).getValue();
+                       if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
+                    	   
+                    	   this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,UserActionStatusTypeEnum.ACTIVATION.toString());
+                 			orderDetails.setStatus(StatusTypeEnum.PENDING.getValue().longValue());
+                       }else{
+             				
+             				orderDetails.setStatus(StatusTypeEnum.ACTIVE.getValue().longValue());
+             			}
+		    }
+		    
+                       orderDetails.setuserAction(requstStatus);
+                       orderDetails.setRenewalDate(newStartdate.toDate());
+         		      this.orderRepository.save(orderDetails);
+         		      
+         		     final boolean ispaymentEnable = command.booleanPrimitiveValueOfParameterNamed("ispaymentEnable");
+       		      if(ispaymentEnable){
+       		    	   JSONObject jsonobject = new JSONObject();
+       		    	
+       	                 jsonobject.put("paymentDate",command.localDateValueOfParameterNamed("paymentDate").toString());
+       	                 jsonobject.put("amountPaid", command.bigDecimalValueOfParameterNamed("amountPaid"));
+       	                 jsonobject.put("remarks", command.stringValueOfParameterNamed("remarks"));
+       	                 jsonobject.put("locale", "en");
+       	                 jsonobject.put("dateFormat","yyyy-MM-dd");
+       	                 jsonobject.put("paymentCode",command.longValueOfParameterNamed("paymentCode"));
+       	                 jsonobject.put("recieptNo",command.longValueOfParameterNamed("recieptNo"));
+       	                 paymentsApiResource.createPayment(orderDetails.getClientId(), jsonobject.toString());
 
-                  if(orderDetails.getEndDate().after(new Date())){
-           		   requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY).getValue();
-           	   }else{
-           		requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY).getValue();
-           	   }
-                  
-                  if(orderDetails.getStatus().equals(StatusTypeEnum.DISCONNECTED.getValue().longValue()) && (!plan.getProvisionSystem().equalsIgnoreCase("None"))){
-                	  
-          			this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,UserActionStatusTypeEnum.ACTIVATION.toString());
-          			orderDetails.setStatus(StatusTypeEnum.PENDING.getValue().longValue());
-          			orderDetails.setuserAction(requstStatus);
-      			}else{
-      				
-      				orderDetails.setStatus(StatusTypeEnum.ACTIVE.getValue().longValue());
-      				orderDetails.setuserAction(requstStatus);
-      				
-      			}
-      			
-               orderDetails.setRenewalDate(newStartdate.toDate());
-		      this.orderRepository.save(orderDetails);
-		      final boolean ispaymentEnable = command.booleanPrimitiveValueOfParameterNamed("ispaymentEnable");
-		      if(ispaymentEnable){
-		    	   JSONObject jsonobject = new JSONObject();
-		    	
-	                 jsonobject.put("paymentDate",command.localDateValueOfParameterNamed("paymentDate").toString());
-	                 jsonobject.put("amountPaid", command.bigDecimalValueOfParameterNamed("amountPaid"));
-	                 jsonobject.put("remarks", command.stringValueOfParameterNamed("remarks"));
-	                 jsonobject.put("locale", "en");
-	                 jsonobject.put("dateFormat","yyyy-MM-dd");
-	                 jsonobject.put("paymentCode",command.longValueOfParameterNamed("paymentCode"));
-	                 jsonobject.put("recieptNo",command.longValueOfParameterNamed("recieptNo"));
-	                 paymentsApiResource.createPayment(orderDetails.getClientId(), jsonobject.toString());
-
-		      }
- 			      // For Order History
-		      Long userId=null;
-		      SecurityContext context = SecurityContextHolder.getContext();
-		      if(context.getAuthentication() != null)
-		      {
-     		      AppUser appUser=this.context.authenticatedUser();
-     		      
-	   			   userId=appUser.getId();
-		      }else {
-		    	  userId=new Long(0);
-		      }
-		   /*   
-		      //For Prepaid plans
-		     if(plan.isPrepaid() == 'Y'){
-		    	  
-		    	  List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_ORDER_RENEWAL);
-					if(actionDetaislDatas.size() != 0){
-					this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,orderDetails.getClientId(), orderDetails.getId().toString());
-					}
-		      }*/
-				//For Order History
-				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,"RENEWAL",userId,description);
-				this.orderHistoryRepository.save(orderHistory);
-				
-		  	   return new CommandProcessingResult(Long.valueOf(orderDetails.getClientId()));
-			
+       		      }
+       		   // For Order History
+    		      Long userId=null;
+    		      SecurityContext context = SecurityContextHolder.getContext();
+    		      if(context.getAuthentication() != null)
+    		      {
+         		      AppUser appUser=this.context.authenticatedUser();
+         		      
+    	   			   userId=appUser.getId();
+    		      }else {
+    		    	  userId=new Long(0);
+    		      }
+    		      
+    		    //For Order History
+  				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,requstStatus,userId,description);
+  				this.orderHistoryRepository.save(orderHistory);
+  				
+  		  	   return new CommandProcessingResult(Long.valueOf(orderDetails.getClientId()));
+		    
+		    
 		}catch (DataIntegrityViolationException dve) {
 			handleCodeDataIntegrityIssues(null,dve);
 			return new CommandProcessingResult(Long.valueOf(-1));
