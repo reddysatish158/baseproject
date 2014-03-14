@@ -170,7 +170,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 
 	}
 	
-    
+    @Transactional
 	@Override
 	public CommandProcessingResult createOrder(Long clientId,JsonCommand command) {
 	
@@ -315,6 +315,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				Client client=this.clientRepository.findOne(clientId);
 				client.setStatus(ClientStatus.ACTIVE.getValue());
 				this.clientRepository.save(client);
+				
 			List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_ORDER);
 			if(actionDetaislDatas.size() != 0){
 			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), order.getId().toString());
@@ -581,6 +582,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		      }else {
 		    	  userId=new Long(0);
 		      }
+		   /*   
 		      //For Prepaid plans
 		     if(plan.isPrepaid() == 'Y'){
 		    	  
@@ -588,7 +590,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					if(actionDetaislDatas.size() != 0){
 					this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,orderDetails.getClientId(), orderDetails.getId().toString());
 					}
-		      }
+		      }*/
 				//For Order History
 				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,"RENEWAL",userId,description);
 				this.orderHistoryRepository.save(orderHistory);
@@ -874,12 +876,12 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 		this.fromApiJsonDeserializer.validateForCreate(command.json());
 		
-		//Check for Custome_Validation
+		/*//Check for Custome_Validation
 			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(entityId,EventActionConstants.EVENT_CREATE_ORDER);
 			if(errorCode != 0){
 				throw new ActivePlansFoundException(errorCode); 
 			
-			}
+			}*/
 		LocalDate startDate=command.localDateValueOfParameterNamed("start_date");	
 			
 			JSONObject jsonObject=new JSONObject();
@@ -887,6 +889,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
         	   jsonObject.put("contractPeriod",command.longValueOfParameterNamed("contractPeriod"));
         	   jsonObject.put("dateFormat","dd MMMM yyyy");
                jsonObject.put("locale","en");
+               jsonObject.put("isNewPlan","true");
         	   jsonObject.put("paytermCode",command.stringValueOfParameterNamed("paytermCode"));
         	   jsonObject.put("planCode",command.longValueOfParameterNamed("planCode"));
         	   jsonObject.put("start_date",startDate.toDate());
@@ -928,7 +931,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 	}
 
-
+    @Transactional
 	@Override
 	public CommandProcessingResult orderExtension(JsonCommand command,Long entityId) {
 		

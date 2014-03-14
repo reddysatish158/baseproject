@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ import org.mifosplatform.billing.scheduledjobs.ProcessRequestWriteplatformServic
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
+import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
@@ -105,6 +107,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final ReadReportingService readExtraDataAndReportingService;
 	private final OrderRepository orderRepository;
 	private final PlatformSecurityContext context;
+	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
@@ -115,9 +118,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final PrepareRequestReadplatformService prepareRequestReadplatformService,
 			final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
-			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
+			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,final PlatformSecurityContext context,
 			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final OrderRepository orderRepository,final PlatformSecurityContext context) {
+			final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -141,6 +144,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
 		this.orderRepository=orderRepository;
 		this.context=context;
+		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
 	}
 	
 	
@@ -1135,7 +1139,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 						CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
 						System.out.println(result.resourceId()+" \r\n");
 						fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
-	
+					     SimpleDateFormat ft = new SimpleDateFormat ("hh:mm:ss a");
+						  this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsData.getClientId(),"Provisioning",new Date(),
+								  "Order No:"+entitlementsData.getOrderNo(),"Request ID :"+entitlementsData.getId(),"Request Type:"+entitlementsData.getRequestType(),"Status:"+ReceiveMessage,ft.format(new Date())); 
 					}
 				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" /r/n");
 				    fw.flush();

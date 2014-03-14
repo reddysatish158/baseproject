@@ -129,6 +129,11 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final String email = command.stringValueOfParameterNamed("email");
             throw new PlatformDataIntegrityException("error.msg.client.duplicate.email", "Client with email `" + email
                     + "` already exists", "email", email);
+            
+        }else if (realCause.getMessage().contains("login_key")) {
+            final String login = command.stringValueOfParameterNamed("login");
+            throw new PlatformDataIntegrityException("error.msg.client.duplicate.login", "Client with login `" + login
+                    + "` already exists", "login", login);
         }
 
         logAsErrorUnexpectedDataIntegrityException(dve);

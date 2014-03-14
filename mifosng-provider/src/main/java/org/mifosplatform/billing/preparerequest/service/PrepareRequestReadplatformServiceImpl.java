@@ -2,6 +2,8 @@ package org.mifosplatform.billing.preparerequest.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
@@ -13,16 +15,14 @@ import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderLine;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
-import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
-import org.mifosplatform.billing.scheduledjobs.service.JobParametersConstants;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
 import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
+import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
-import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,7 +33,6 @@ import org.springframework.stereotype.Service;
 public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestReadplatformService{
 
 	
-	  private final TenantDetailsService tenantDetailsService;
 	  private final DataSourcePerTenantService dataSourcePerTenantService;
 	  private final OrderRepository orderRepository;
 	  private final ProcessRequestRepository processRequestRepository;
@@ -41,21 +40,22 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 	  private final AllocationReadPlatformService allocationReadPlatformService;
 	  private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
 	  public final static String PROVISIONGSYS_COMVENIENT="Comvenient";
+	  private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	
 
 	    @Autowired
 	    public PrepareRequestReadplatformServiceImpl(final DataSourcePerTenantService dataSourcePerTenantService,
-	            final TenantDetailsService tenantDetailsService,final OrderRepository orderRepository,
+	           final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
 		   final ProcessRequestRepository processRequestRepository,final AllocationReadPlatformService allocationReadPlatformService,
 		   final PrepareRequsetRepository prepareRequsetRepository,final ProvisionServiceDetailsRepository provisionServiceDetailsRepository) {
 	            
 	    	    this.dataSourcePerTenantService = dataSourcePerTenantService;
-	            this.tenantDetailsService = tenantDetailsService;
 	            this.orderRepository=orderRepository;
 	            this.processRequestRepository=processRequestRepository;
 	            this.prepareRequsetRepository=prepareRequsetRepository;
 	            this.allocationReadPlatformService=allocationReadPlatformService;
 	            this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
+	            this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
 	        
 	    }
 
@@ -145,9 +145,11 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 					  Order order=this.orderRepository.findOne(requestData.getOrderId());
 					 AllocationDetailsData detailsData=this.allocationReadPlatformService.getTheHardwareItemDetails(requestData.getOrderId());
 					 requestType=requestData.getRequestType();
+					  SimpleDateFormat ft =new SimpleDateFormat ("hh:mm:ss a");
+					  PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
 					 if(requestData.getIshardwareReq().equalsIgnoreCase("Y") && detailsData == null){
 						 
-						      PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
+						    
 						      String status=OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getValue().toString();
          	                  prepareRequest.setStatus(status);
 	                          this.prepareRequsetRepository.save(prepareRequest);
@@ -155,6 +157,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 	                         //Update Order Status
 	                         order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 	                         this.orderRepository.saveAndFlush(order);
+	                       
+	                        this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
+	                        	"Request Type :"+prepareRequest.getRequestType(),	"Request Id :"+prepareRequest.getId(),"Status:Pending","Reason :Hardware is not allocated",ft.format(new Date())); 
 						 
 					 }else {
 
@@ -185,10 +190,13 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
 								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
 						  processRequest.add(processRequestDetails);
+						  
+						  this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
+								  "Request Type :"+prepareRequest.getRequestType(), "Request Id :"+prepareRequest.getId(),"Status:Sent For activation",ft.format(new Date())); 
 						  }
 					  }
 	                       this.processRequestRepository.save(processRequest);				
-	                       PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
+	                       //PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
                            prepareRequest.updateProvisioning();
                            this.prepareRequsetRepository.save(prepareRequest);
                          
