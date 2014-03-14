@@ -1140,9 +1140,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 						System.out.println(result.resourceId()+" \r\n");
 						fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
 					     SimpleDateFormat ft = new SimpleDateFormat ("hh:mm:ss a");
-						  this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsData.getClientId(),"Provisioning",new Date(),
+						 /* this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsData.getClientId(),"Provisioning",new Date(),
 								  "Order No:"+entitlementsData.getOrderNo(),"Request ID :"+entitlementsData.getId(),"Request Type:"+entitlementsData.getRequestType(),"Status:"+ReceiveMessage,ft.format(new Date())); 
-					}
+					*/}
 				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" /r/n");
 				    fw.flush();
 				    fw.close();

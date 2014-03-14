@@ -158,9 +158,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 	                         order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 	                         this.orderRepository.saveAndFlush(order);
 	                       
-	                        this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
+	                   /*     this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
 	                        	"Request Type :"+prepareRequest.getRequestType(),	"Request Id :"+prepareRequest.getId(),"Status:Pending","Reason :Hardware is not allocated",ft.format(new Date())); 
-						 
+						 */
 					 }else {
 
 						 ProcessRequest processRequest=new ProcessRequest(order.getClientId(), order.getId(), requestData.getProvisioningSystem(),
@@ -191,8 +191,8 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
 						  processRequest.add(processRequestDetails);
 						  
-						  this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
-								  "Request Type :"+prepareRequest.getRequestType(), "Request Id :"+prepareRequest.getId(),"Status:Sent For activation",ft.format(new Date())); 
+						/*  this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
+								  "Request Type :"+prepareRequest.getRequestType(), "Request Id :"+prepareRequest.getId(),"Status:Sent For activation",ft.format(new Date()));*/ 
 						  }
 					  }
 	                       this.processRequestRepository.save(processRequest);				
