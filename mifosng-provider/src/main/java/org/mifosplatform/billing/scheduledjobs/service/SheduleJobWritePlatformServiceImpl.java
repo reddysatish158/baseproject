@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ import org.mifosplatform.billing.scheduledjobs.ProcessRequestWriteplatformServic
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
+import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
@@ -105,6 +107,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final ReadReportingService readExtraDataAndReportingService;
 	private final OrderRepository orderRepository;
 	private final PlatformSecurityContext context;
+	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
@@ -115,9 +118,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final PrepareRequestReadplatformService prepareRequestReadplatformService,
 			final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
-			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
+			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,final PlatformSecurityContext context,
 			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final OrderRepository orderRepository,final PlatformSecurityContext context) {
+			final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -141,6 +144,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
 		this.orderRepository=orderRepository;
 		this.context=context;
+		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
 	}
 	
 	
@@ -705,8 +709,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 					ReceiveMessage = "";
 					
 					if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Activation)){
-					    String status="";					    
-						String query = "login= " + clientdata.getEmailId()+ "&password=0000&full_name="+ clientdata.getFullName()
+					    String status="";
+					    String Stalkerpassword = clientdata.getPassword();
+					    if(Stalkerpassword==null || Stalkerpassword.equalsIgnoreCase("")){
+					    	Stalkerpassword="0000";
+					    }
+						String query = "login=" + clientdata.getLogin() + "&password=" + Stalkerpassword + "&full_name="+ clientdata.getFullName()
 								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getProduct() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());
@@ -722,14 +730,14 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/ is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    return;
 
 						}else if (response.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
@@ -746,8 +754,95 @@ public class SheduleJobWritePlatformServiceImpl implements
 							 fw.append("status of the output is : "+ status+" \r\n");
 							if (status.equalsIgnoreCase("ERROR")) {
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-								fw.append("error of the output is : "+ error+" \r\n");
-								ReceiveMessage = "failure :" + error;
+								
+                                if(error.equalsIgnoreCase("Login already in use")){
+                                	
+                                	String query2 = "status=" + new Long(1);
+            						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
+            						StringEntity se2 = new StringEntity(query2.trim());					
+            						String url=""+data.getUrl() + "stb/" + clientId ;
+            						fw.append("Url for RECONNECTION request:"+ url +"\r\n");
+            						HttpPut putrequest = new HttpPut(url.trim());
+            						putrequest.setEntity(se2);
+            						putrequest.setHeader("Authorization", "Basic " + new String(encoded));
+            						HttpResponse response2 = httpClient.execute(putrequest);
+            						if (response2.getStatusLine().getStatusCode() == 404) {
+            							System.out.println("ResourceNotFoundException : HTTP error code : "+ response2.getStatusLine().getStatusCode());
+            							fw.append("ResourceNotFoundException : HTTP error code : "+ response2.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
+            							fw.flush();
+            							fw.close();
+            							continue;
+            						}else if (response2.getStatusLine().getStatusCode() != 200) {
+            							System.out.println("Failed : HTTP error code : "+ response2.getStatusLine().getStatusCode());
+            							fw.append("Failed : HTTP error code : "+ response2.getStatusLine().getStatusCode()+" \r\n");
+            							continue;
+            						}
+
+            						BufferedReader br = new BufferedReader(new InputStreamReader((response2.getEntity().getContent())));
+            						String output2="";
+            						while ((output2 = br.readLine()) != null) {
+            							System.out.println(output2);
+            							fw.append("Output From Staker : "+ output2+" \r\n");
+            							final JsonElement ele2 = fromApiJsonHelper.parse(output2);
+            							final String status2 = fromApiJsonHelper.extractStringNamed("status", ele2);
+            							 fw.append("status of the output is : "+ status2+" \r\n");
+            							if (status2.equalsIgnoreCase("ERROR")) {
+            								final String error2 = fromApiJsonHelper.extractStringNamed("error", ele2);
+            								fw.append("error of the output is : "+ error2+" \r\n");
+            								ReceiveMessage = "failure :" + error2;
+            							}else{
+            								fw.append("Client ReConnection SuccessFully Completed. \r\n");
+            								ReceiveMessage = "Success";
+            							}
+            						}
+            				 
+            						// Updating Plan	
+            						
+            						fw.append("PlanData is Updating For Current Mac Id: "+ entitlementsData.getHardwareId()+" \r\n");					
+            						String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
+            						fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
+            						StringEntity se1 = new StringEntity(query1.trim());					
+            						String url1=""+data.getUrl() + "accounts/" + clientId ;
+            						HttpPut putrequest1 = new HttpPut(url1.trim());
+            						putrequest1.setEntity(se1);
+            						putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
+            						HttpResponse response1 = httpClient.execute(putrequest1);
+            						if (response1.getStatusLine().getStatusCode() == 404) {
+            							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+            							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
+            							fw.flush();
+            						    fw.close();
+            						    continue;
+            						}else if (response.getStatusLine().getStatusCode() == 401) {
+            							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
+            							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
+            							fw.flush();
+            						    fw.close();
+            							return;
+            						}else if (response1.getStatusLine().getStatusCode() != 200) {
+            							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+            							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
+            							continue;
+            						}
+            						BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+            						String output1="";
+            						while ((output1 = br2.readLine()) != null) {							
+            							final JsonElement ele1 = fromApiJsonHelper.parse(output1);
+            							final String status1 = fromApiJsonHelper.extractStringNamed("status", ele1);
+            							 fw.append("status of the output is : "+ status1+" \r\n");
+            							if (status1.equalsIgnoreCase("ERROR")) {
+            								final String error1 = fromApiJsonHelper.extractStringNamed("error", ele1);
+            								fw.append("error of the output is : "+ error1+" \r\n");
+            								fw.append("Plan Updation Failed \r\n");
+            							}
+            						}
+            			
+									
+								}else{
+									fw.append("error of the output is : "+ error+" \r\n");
+									ReceiveMessage = "failure :" + error;
+								}
+								
 							}else{
 								fw.append("Client Activation SuccessFully Completed. \r\n");
 								ReceiveMessage = "ActivationSuccessOnly";
@@ -770,13 +865,13 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"account_subscription/"+clientId+" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    return;
 						}else if (response1.getStatusLine().getStatusCode() != 200) {
 							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
 							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
@@ -794,7 +889,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							if (status1.equalsIgnoreCase("ERROR")) {			
 								final String error = fromApiJsonHelper.extractStringNamed("error", ele);
 								fw.append("error of the output is : "+ error+" \r\n");
-								ReceiveMessage = ReceiveMessage+", And account_subscription failure:" + error;
+								ReceiveMessage = ReceiveMessage+", And account_subscription failure:" + error;				
 							}
 							else{
 								boolean results= fromApiJsonHelper.extractBooleanNamed("results", ele);
@@ -825,7 +920,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 							fw.close();
-							return;
+							continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -872,7 +967,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -913,7 +1008,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 							fw.close();
-							return;
+							continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -959,7 +1054,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -999,7 +1094,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 							fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
 							fw.flush();
 						    fw.close();
-							return;
+						    continue;
 						}else if (response.getStatusLine().getStatusCode() == 401) {
 							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
 							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
@@ -1135,7 +1230,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 						CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
 						System.out.println(result.resourceId()+" \r\n");
 						fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
-	
+					     SimpleDateFormat ft = new SimpleDateFormat ("hh:mm:ss a");
+						  this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsData.getClientId(),"Provisioning",new Date(),
+								  "Order No:"+entitlementsData.getOrderNo(),"Request ID :"+entitlementsData.getId(),"Request Type:"+entitlementsData.getRequestType(),"Status:"+ReceiveMessage,ft.format(new Date())); 
 					}
 				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" /r/n");
 				    fw.flush();

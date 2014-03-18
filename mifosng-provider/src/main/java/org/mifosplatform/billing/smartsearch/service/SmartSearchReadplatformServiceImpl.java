@@ -74,9 +74,11 @@ public class SmartSearchReadplatformServiceImpl implements SmartSearchReadplatfo
         }
 
         if (fromDate != null || toDate != null) {
+        	
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             String fromDateString = null;
             String toDateString = null;
+            
             if (fromDate != null && toDate != null) {
                 sql += "  AND p.payment_date BETWEEN ? AND ?";
                 fromDateString = df.format(fromDate);
@@ -85,11 +87,13 @@ public class SmartSearchReadplatformServiceImpl implements SmartSearchReadplatfo
                 arrayPos = arrayPos + 1;
                 objectArray[arrayPos] = toDateString;
                 arrayPos = arrayPos + 1;
+                
             } else if (fromDate != null) {
                 sql += " AND p.payment_date >= ? ";
                 fromDateString = df.format(fromDate);
                 objectArray[arrayPos] = fromDateString;
                 arrayPos = arrayPos + 1;
+                
             } else if (toDate != null) {
                 sql += "  AND p.payment_date <= ? ";
                 toDateString = df.format(toDate);
@@ -99,14 +103,8 @@ public class SmartSearchReadplatformServiceImpl implements SmartSearchReadplatfo
         }
 
         sql += "  order by p.payment_date limit "+limit+" offset "+offset;
-       /* objectArray[arrayPos] = limit;
-        arrayPos = arrayPos + 1;
-        objectArray[arrayPos] = offset;
-        arrayPos = arrayPos + 1;
-        objectArray[arrayPos] = offset;
-*/
+      
         final Object[] finalObjectArray = Arrays.copyOf(objectArray, arrayPos);
-      //  return this.jdbcTemplate.query(sql, rm, "SELECT FOUND_ROWS()", finalObjectArray);
         return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sql, finalObjectArray, rm);
     }
 

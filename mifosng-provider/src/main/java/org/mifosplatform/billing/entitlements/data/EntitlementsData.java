@@ -15,10 +15,12 @@ public class EntitlementsData {
 	private StakerData results;
 	private String error;
 	private Long planId;
+	private String orderNo;
 	
 	
 
-	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product, Long serviceId, Long clientId, Long planId) {
+	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product,
+			Long serviceId, Long clientId, Long planId, String orderNo) {
 		
           this.id=id;
           this.prdetailsId=prdetailsId;
@@ -29,11 +31,16 @@ public class EntitlementsData {
           this.serviceId=serviceId;
           this.clientId=clientId;
           this.planId=planId;
+          this.orderNo=orderNo;
 	}
 	
-	public EntitlementsData(){
-		
+	
+
+	public EntitlementsData() {
+		// TODO Auto-generated constructor stub
 	}
+
+
 
 	public Long getId() {
 		return id;
@@ -93,6 +100,12 @@ public class EntitlementsData {
 
 	public Long getPlanId() {
 		return planId;
+	}
+
+
+
+	public String getOrderNo() {
+		return orderNo;
 	}
 	
 	

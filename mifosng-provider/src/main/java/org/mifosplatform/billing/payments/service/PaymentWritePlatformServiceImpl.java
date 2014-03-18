@@ -146,10 +146,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 				this.invoiceRepository.save(invoice);
 				
 			}
-			
-			//Perform Event Action
-		//	this.actiondetailsWritePlatformService.AddNewActions(clientid,payment.getId());
-			
+		
 			transactionHistoryWritePlatformService.saveTransactionHistory(payment.getClientId(), "PAYMENT", payment.getPaymentDate(),
 					"AmountPaid:"+payment.getAmountPaid(),"PayMode:"+payModeData.getPaymodeCode(),"Remarks:"+payment.getRemarks(),
 					"ReceiptNo: "+payment.getReceiptNo());
