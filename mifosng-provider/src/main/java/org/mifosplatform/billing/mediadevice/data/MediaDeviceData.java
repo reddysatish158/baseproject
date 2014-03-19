@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.mediadevice.data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class MediaDeviceData {
@@ -9,16 +10,18 @@ public class MediaDeviceData {
 	private  Long clientId;
 	private  String clientType;
 	private Long clientTypeId;
+	private BigDecimal balanceAmount;
 	
 	private List<MediaDeviceData> data;
 
 	
 	
-	public MediaDeviceData(Long deviceId, Long clientId, String clientType, Long clientTypeId) {
+	public MediaDeviceData(Long deviceId, Long clientId, String clientType, Long clientTypeId, BigDecimal balanceAmount) {
            this.deviceId=deviceId;
            this.clientId=clientId;
            this.clientType=clientType;
            this.clientTypeId=clientTypeId;
+           this.balanceAmount=balanceAmount;
 	}
 	public MediaDeviceData(List<MediaDeviceData> data){
 		this.data = data;
