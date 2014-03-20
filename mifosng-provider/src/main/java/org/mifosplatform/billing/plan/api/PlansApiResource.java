@@ -117,8 +117,14 @@ public class PlansApiResource {
 		PlanData singlePlandata = this.planReadPlatformService.retrievePlanData(planId);
 		List<ServiceData> data = this.planReadPlatformService.retrieveAllServices();
 		List<BillRuleData> billData = this.planReadPlatformService.retrievebillRules();
-		List<SubscriptionData> contractPeriod = this.planReadPlatformService.retrieveSubscriptionData();
-		contractPeriod.remove(0);
+		List<SubscriptionData> contractPeriods= this.planReadPlatformService.retrieveSubscriptionData();
+
+		 for(int i=0;i<contractPeriods.size();i++){
+	 		if(contractPeriods.get(i).getSubscriptionType().equalsIgnoreCase("None")){
+	 			contractPeriods.remove(contractPeriods.get(i));
+	 			
+	 		}
+		 }
 		List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 		List<ServiceData> services = this.planReadPlatformService.retrieveSelectedServices(planId);
 		List<SystemData> provisionSysData = this.planReadPlatformService.retrieveSystemData();
@@ -137,7 +143,7 @@ public class PlansApiResource {
 				}
 			}
 			// services.remove(data);
-			singlePlandata = new PlanData(data, billData, contractPeriod,status, singlePlandata, services,provisionSysData,volumeType);
+			singlePlandata = new PlanData(data, billData, contractPeriods,status, singlePlandata, services,provisionSysData,volumeType);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.toApiJsonSerializer.serialize(settings, singlePlandata, RESPONSE_DATA_PARAMETERS);
 	}
