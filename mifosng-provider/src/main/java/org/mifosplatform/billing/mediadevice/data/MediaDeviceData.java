@@ -21,7 +21,10 @@ public class MediaDeviceData {
            this.clientId=clientId;
            this.clientType=clientType;
            this.clientTypeId=clientTypeId;
-           this.balanceAmount=balanceAmount;
+           if(balanceAmount == null)
+           this.balanceAmount=BigDecimal.ZERO;
+           else
+        	   this.balanceAmount=balanceAmount;
 	}
 	public MediaDeviceData(List<MediaDeviceData> data){
 		this.data = data;

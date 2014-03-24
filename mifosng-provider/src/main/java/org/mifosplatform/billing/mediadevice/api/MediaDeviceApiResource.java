@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class MediaDeviceApiResource {
-	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("deviceId","clientId","clientType"));
+	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("deviceId","clientId","clientType","balanceAmount"));
 	private  final Set<String> RESPONSE_DATA_PARAMETERS_FOR_PLAN=new HashSet<String>(Arrays.asList("id","planCode","planDescription"));
     private final String resourceNameForPermissions = "MEDIADEVICE";
 	  private final PlatformSecurityContext context;

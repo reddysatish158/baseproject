@@ -952,7 +952,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			String[] periodData=extensionperiod.split(" ");
 			LocalDate endDate=calculateEndDate(newStartdate,periodData[1], new Long(periodData[0]));
 			List<OrderPrice>  orderPrices=order.getPrice();
-			
+			Plan plan=this.planRepository.findOne(order.getPlanId());
 			if(order.getStatus().intValue() == StatusTypeEnum.ACTIVE.getValue()){
 				
 			  order.setEndDate(endDate);
@@ -978,10 +978,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				    		orderprice.setInvoiceTillDate(null);
 				    		 this.OrderPriceRepository.save(orderprice);
 		             }
-        
-			
-			
-			Plan plan=this.planRepository.findOne(order.getPlanId());
+				        
 		      if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 					
 		    	  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getId());
@@ -999,15 +996,15 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				
 					  order.setStatus(OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
 				}
-		   
-		 
+			}		   
+		      order.setEndDate(endDate);
 		      order.setuserAction(UserActionStatusTypeEnum.RECONNECTION.toString());
 		      this.orderRepository.save(order);
 		   
 			//for Prepare Request
 			String requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString().toString();
             this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
-			}
+			
 			
 			//For Order History
 			SecurityContext context = SecurityContextHolder.getContext();
