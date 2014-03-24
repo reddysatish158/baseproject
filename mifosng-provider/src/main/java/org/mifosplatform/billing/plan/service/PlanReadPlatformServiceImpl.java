@@ -178,7 +178,7 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 
 		context.authenticatedUser();
 		SubscriptionDataMapper mapper = new SubscriptionDataMapper();
-		String sql = "select " + mapper.schema();
+		String sql = "select " + mapper.schema()+" order by contract_period";
 		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
 	}
 
