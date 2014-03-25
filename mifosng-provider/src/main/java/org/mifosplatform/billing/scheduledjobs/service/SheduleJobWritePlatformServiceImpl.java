@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,49 +105,48 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final ReadReportingService readExtraDataAndReportingService;
 	private final OrderRepository orderRepository;
-	private final PlatformSecurityContext context;
-	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
+
 	
 	@Autowired
-	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
-			final BillingMasterApiResourse billingMasterApiResourse,final ProcessRequestRepository processRequestRepository,
-			final OrderWritePlatformService orderWritePlatformService,final SheduleJobReadPlatformService sheduleJobReadPlatformService,
-			final OrderReadPlatformService orderReadPlatformService,final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
-			final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ProcessEventActionService  actiondetailsWritePlatformService, 
-			final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final PrepareRequestReadplatformService prepareRequestReadplatformService,
-			final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
-			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
-			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,final PlatformSecurityContext context,
-			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
-		
-		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
-		this.invoiceClient = invoiceClient;
-		this.billingMasterApiResourse = billingMasterApiResourse;
-		this.orderWritePlatformService = orderWritePlatformService;
-		this.fromApiJsonHelper = fromApiJsonHelper;
-		this.orderReadPlatformService = orderReadPlatformService;
-		this.billingMessageDataWritePlatformService = billingMessageDataWritePlatformService;
-		this.prepareRequestReadplatformService = prepareRequestReadplatformService;
-		this.processRequestReadplatformService = processRequestReadplatformService;
-		this.processRequestWriteplatformService = processRequestWriteplatformService;
-		this.processRequestRepository = processRequestRepository;
-		this.billingMesssageReadPlatformService = billingMesssageReadPlatformService;
-		this.messagePlatformEmailService = messagePlatformEmailService;
-		this.entitlementReadPlatformService = entitlementReadPlatformService;
-		this.entitlementWritePlatformService = entitlementWritePlatformService;
-		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
-		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
-		this.scheduleJob=scheduleJob;
-		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
-		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
-		this.orderRepository=orderRepository;
-		this.context=context;
-		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
-	}
+public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
+final BillingMasterApiResourse billingMasterApiResourse,final ProcessRequestRepository processRequestRepository,
+final OrderWritePlatformService orderWritePlatformService,final SheduleJobReadPlatformService sheduleJobReadPlatformService,
+final OrderReadPlatformService orderReadPlatformService,final BillingMessageDataWritePlatformService billingMessageDataWritePlatformService,
+final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ProcessEventActionService actiondetailsWritePlatformService,
+final ContractPeriodReadPlatformService contractPeriodReadPlatformService,final PrepareRequestReadplatformService prepareRequestReadplatformService,
+final ProcessRequestReadplatformService processRequestReadplatformService,final ProcessRequestWriteplatformService processRequestWriteplatformService,
+final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
+final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
+final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
+final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
+
+this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
+this.invoiceClient = invoiceClient;
+this.billingMasterApiResourse = billingMasterApiResourse;
+this.orderWritePlatformService = orderWritePlatformService;
+this.fromApiJsonHelper = fromApiJsonHelper;
+this.orderReadPlatformService = orderReadPlatformService;
+this.billingMessageDataWritePlatformService = billingMessageDataWritePlatformService;
+this.prepareRequestReadplatformService = prepareRequestReadplatformService;
+this.processRequestReadplatformService = processRequestReadplatformService;
+this.processRequestWriteplatformService = processRequestWriteplatformService;
+this.processRequestRepository = processRequestRepository;
+this.billingMesssageReadPlatformService = billingMesssageReadPlatformService;
+this.messagePlatformEmailService = messagePlatformEmailService;
+this.entitlementReadPlatformService = entitlementReadPlatformService;
+this.entitlementWritePlatformService = entitlementWritePlatformService;
+this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
+this.scheduleJob=scheduleJob;
+this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
+this.readExtraDataAndReportingService=readExtraDataAndReportingService;
+this.orderRepository=orderRepository;
+
+//this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
+}
 	
 	
-	// @Transactional
+	@Transactional
 	@Override
 	@CronTarget(jobName = JobName.INVOICE)
 	public void processInvoice() {
@@ -479,136 +477,139 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@Transactional
 	@Override
 	@CronTarget(jobName = JobName.AUTO_EXIPIRY)
-	public void processingAutoExipryOrders() {
-		try {
-			
-			System.out.println("Processing Auto Exipiry Details.......");
-			
-			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
-            if(data!=null){
-            	
-            	MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
-  				final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
-  				LocalTime date=new LocalTime(zone);
-  				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
-	            String path=FileUtils.generateLogFileDirectory()+ JobName.AUTO_EXIPIRY.toString() + File.separator +"AutoExipiry_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-	        	
-	            File fileHandler = new File(path.trim());
-				 fileHandler.createNewFile();
-				 FileWriter fw = new FileWriter(fileHandler);
-			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-			    fw.append("Processing Auto Exipiry Details....... \r\n");
-			      
-				List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
-				LocalDate exipirydate=null;
-				if(sheduleDatas.isEmpty()){
-	 				fw.append("ScheduleJobData Empty \r\n");
-	 		    }
-				
-				if(data.isDynamic().equalsIgnoreCase("Y")){
-					exipirydate=new LocalDate();
-				}else{
-					exipirydate=data.getExipiryDate();
-				}
-				for (ScheduleJobData scheduleJobData : sheduleDatas) 
-				{
-					fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
-    	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
-					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
-					
-					if(clientIds.isEmpty()){
-    	 				fw.append("no records are available for Auto Expiry \r\n");
-    	 			}
-					
-					for(Long clientId:clientIds)
-					  {
-						fw.append("processing client id :"+clientId+"\r\n");
-						List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
-						if(orderDatas.isEmpty()){
-							fw.append("No Orders are Found for :"+clientId+"\r\n");
-						}					    
-		      			for (OrderData orderData : orderDatas) 
-		      			  {
-		      				/*fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
-		      						+" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
-		      						orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
-		      				
-		      				if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
-		      				 {
-		      					
-		      					if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
-								 {
-		      						
-		      						 JSONObject jsonobject = new JSONObject();
-		      					     if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
-		      					    	 
-		      					    Order  order=this.orderRepository.findOne(orderData.getId());
-		      					    List<OrderPrice> orderPrice=order.getPrice();
-		      					    
-		      					     boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
-		          				     
-		      					     if(isSufficientAmountForRenewal){
-		      					    	 
-		      					    	List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1); 
-		      					    	jsonobject.put("renewalPeriod",subscriptionDatas.get(0).getId());	
-		      					    	jsonobject.put("description","Order Renewal By Scheduler");
-		      					    	final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-		      							final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"RENEWAL",clientId, null,
-		      									null,clientId, null, null, null,null, null, null);
-		      							fw.append("sending json data for Renewal  Order is : "+jsonobject.toString()+"\r\n");
-		      					    	this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
-		      					    	fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been renewaled for one month via  " +
-		      					    			"Auto Exipiry on Dated"+exipirydate);
-		           					
-		          				}else{
-				
-								    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-								  		//System.out.println(dateFormat.format(localDate.toDate()));
-									
-									jsonobject.put("disconnectReason","Date Expired");
-									jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
-									jsonobject.put("dateFormat","dd MMMM yyyy");
-									jsonobject.put("locale","en");
-									fw.append("sending json data for Disconnecting the Order is : "+jsonobject.toString()+"\r\n");
-									final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-				
-									final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
-											null,clientId, null, null, null,null, null, null);
-									this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
-									fw.append("Client Id"+order.getClientId()+" With this Orde"+order.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
-								 }
-		      					    }else if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
-		      					     {
-
-		      						    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-		      							jsonobject.put("disconnectReason","Date Expired");
-		      							jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
-		      							jsonobject.put("dateFormat","dd MMMM yyyy");
-		      							jsonobject.put("locale","en");
-		      							final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-
-		      							final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
-		      									null,clientId, null, null, null,null, null, null);
-		      							this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
-		      							fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
-		      						     }
-		      				 }
-		      			  }
-						}
-					}
-		    	fw.append("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
-		    	fw.flush();
-		    	fw.close();
-				
-		}
-            System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+	public void processingAutoExipryOrders() {	
 		
-		} 
-		}catch (Exception dve) {
-			System.out.println(dve.getMessage());
-			handleCodeDataIntegrityIssues(null, dve);
-			
-		}
+		try {
+
+          System.out.println("Processing Auto Exipiry Details.......");
+
+            JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
+             
+            if(data!=null){
+            
+             MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
+             final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+             LocalTime date=new LocalTime(zone);
+           String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
+          String path=FileUtils.generateLogFileDirectory()+ JobName.AUTO_EXIPIRY.toString() + File.separator +"AutoExipiry_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+
+           File fileHandler = new File(path.trim());
+           fileHandler.createNewFile();
+           FileWriter fw = new FileWriter(fileHandler);
+            FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+             fw.append("Processing Auto Exipiry Details....... \r\n");
+
+          List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+           LocalDate exipirydate=null;
+            
+           if(sheduleDatas.isEmpty()){
+               fw.append("ScheduleJobData Empty \r\n");
+             }
+
+           if(data.isDynamic().equalsIgnoreCase("Y")){
+             exipirydate=new LocalDate();
+           
+           }else{
+              exipirydate=data.getExipiryDate();
+           }
+            for (ScheduleJobData scheduleJobData : sheduleDatas)
+             {
+               fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
+                 " ,query="+scheduleJobData.getQuery()+"\r\n");
+               List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+
+           if(clientIds.isEmpty()){
+                fw.append("no records are available for Auto Expiry \r\n");
+            }
+
+            for(Long clientId:clientIds)
+            {
+                fw.append("processing client id :"+clientId+"\r\n");
+                 List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+              
+                 if(orderDatas.isEmpty()){
+               fw.append("No Orders are Found for :"+clientId+"\r\n");
+               }	
+             for (OrderData orderData : orderDatas)
+               {
+ /*fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
++" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
+orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
+
+                  if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
+                      {
+
+                        if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
+                          {
+
+                             JSONObject jsonobject = new JSONObject();
+                                if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
+
+                                   Order order=this.orderRepository.findOne(orderData.getId());
+                                   List<OrderPrice> orderPrice=order.getPrice();
+
+                                    boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
+
+                                 if(isSufficientAmountForRenewal){
+
+                                    List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
+                                      jsonobject.put("renewalPeriod",subscriptionDatas.get(0).getId());	
+                                       jsonobject.put("description","Order Renewal By Scheduler");
+                                       final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+                                       final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"RENEWAL",clientId, null,
+                                        null,clientId, null, null, null,null, null, null);
+                                      fw.append("sending json data for Renewal Order is : "+jsonobject.toString()+"\r\n");
+                                      this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
+                                      fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been renewaled for one month via " +
+                                      "Auto Exipiry on Dated"+exipirydate);
+
+                               }else{
+
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+                                    jsonobject.put("disconnectReason","Date Expired");
+                                    jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+                                    jsonobject.put("dateFormat","dd MMMM yyyy");
+                                    jsonobject.put("locale","en");
+                                  fw.append("sending json data for Disconnecting the Order is : "+jsonobject.toString()+"\r\n");
+                                    
+                                  final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+
+                                      final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
+                                       null,clientId, null, null, null,null, null, null);
+                                       this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+                                       fw.append("Client Id"+order.getClientId()+" With this Orde"+order.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
+                                    }
+                                  
+                                    }else if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate())){
+
+                                           SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+                                               jsonobject.put("disconnectReason","Date Expired");
+                                               jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
+                                               jsonobject.put("dateFormat","dd MMMM yyyy");
+                                               jsonobject.put("locale","en");
+                                       final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
+                                         final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
+                                         null,clientId, null, null, null,null, null, null);
+                                         this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
+                                        fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
+                                   }
+                              }
+                         }
+                     }
+                }
+                fw.append("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
+                fw.flush();
+                fw.close();
+
+}
+            System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+
+}
+}catch (Exception dve) {
+System.out.println(dve.getMessage());
+handleCodeDataIntegrityIssues(null, dve);
+
+}
 	}
 
 	@Transactional
@@ -1230,10 +1231,12 @@ public class SheduleJobWritePlatformServiceImpl implements
 						CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
 						System.out.println(result.resourceId()+" \r\n");
 						fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
-					     SimpleDateFormat ft = new SimpleDateFormat ("hh:mm:ss a");
+						
+						/*    SimpleDateFormat ft = new SimpleDateFormat ("hh:mm:ss a");
 						  this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsData.getClientId(),"Provisioning",new Date(),
 								  "Order No:"+entitlementsData.getOrderNo(),"Request ID :"+entitlementsData.getId(),"Request Type:"+entitlementsData.getRequestType(),"Status:"+ReceiveMessage,ft.format(new Date())); 
-					}
+					*/
+						}
 				    fw.append("Middleware Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" /r/n");
 				    fw.flush();
 				    fw.close();
@@ -1253,7 +1256,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		}
 	}
 	
-	 @Transactional
+	@Transactional
 	 @Override
 	 @CronTarget(jobName = JobName.EVENT_ACTION_PROCESSOR)
 	 public void eventActionProcessor() {
@@ -1282,16 +1285,19 @@ public class SheduleJobWritePlatformServiceImpl implements
 	
 	  System.out.println(eventActionData.getId());
 	  this.actiondetailsWritePlatformService.ProcessEventActions(eventActionData);
+	
 	 }
-	  
 	 System.out.println("Event Actions are Processed....");
 	 fw.append("Event Actions are Completed.... \r\n");
 	    fw.flush();
 	    fw.close();
-	  } catch (Exception e) {
+	  } catch (DataIntegrityViolationException e) {
 		  System.out.println(e.getMessage());
 			
-		}
+		}catch (Exception exception) {
+			System.out.println(exception.getMessage());
+			
+		} 
 	 }
 	
 	 @Transactional
