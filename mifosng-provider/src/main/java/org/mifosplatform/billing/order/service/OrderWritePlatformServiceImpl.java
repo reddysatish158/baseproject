@@ -713,26 +713,22 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if (order == null) {
 				throw new NoOrdersFoundException(command.entityId());
 			}
-			 if (commandName.equalsIgnoreCase("RETRACK")) {
-				String restrict=orderReadPlatformService.checkRetrackInterval(command.entityId());
-				if(restrict!=null && restrict.equalsIgnoreCase("yes")){
-				Long id = this.orderReadPlatformService.getRetrackId(command.entityId());				
-				String transaction_type = this.orderReadPlatformService.getOSDTransactionType(id);
+			if (commandName.equalsIgnoreCase("RETRACK")) {
+				String restrict = orderReadPlatformService
+						.checkRetrackInterval(command.entityId());
+				if (restrict != null && restrict.equalsIgnoreCase("yes")) {
 
-				if (transaction_type.equalsIgnoreCase("ACTIVATION")) {
-					requstStatus = UserActionStatusTypeEnum.ACTIVATION.toString();
+					Long orderStatus = order.getStatus();
 
-				} else if (transaction_type.equalsIgnoreCase("RECONNECTION")) {
-					requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString();
-
-				} else if (transaction_type.equalsIgnoreCase("DISCONNECTION")) {
-					requstStatus = UserActionStatusTypeEnum.DISCONNECTION.toString();
-
+					if (orderStatus == 1) {
+						requstStatus = UserActionStatusTypeEnum.ACTIVATION.toString();
+					} else if (orderStatus == 3) {
+						requstStatus = UserActionStatusTypeEnum.DISCONNECTION.toString();
+					} 
 				} else {
-					requstStatus = null;
-				}
-				}else{
-					throw new PlatformDataIntegrityException("retrack.already.done", "retrack.already.done", "retrack.already.done");	
+					throw new PlatformDataIntegrityException(
+							"retrack.already.done", "retrack.already.done",
+							"retrack.already.done");
 				}
 
 			} else if(commandName.equalsIgnoreCase("OSM")) {
@@ -788,10 +784,13 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				this.orderHistoryRepository.save(orderHistory);
 				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "OSD Message",order.getStartDate(),"PlanId:" + order.getPlanId(),
 						"contarctPeriod:" + order.getContarctPeriod(), "OrderID:" + order.getId(),"BillingAlign:" + order.getbillAlign());
-				return new CommandProcessingResult(order.getId());
-			}else{
-				throw new PlatformDataIntegrityException("transaction_type miss match error", "transaction_type miss match error", "transaction_type miss match error");		
+				
 			}
+			return new CommandProcessingResult(order.getId());
+			
+			/*else{
+				//throw new PlatformDataIntegrityException("transaction_type miss match error", "transaction_type miss match error", "transaction_type miss match error");		
+			}*/
 			
 
 		} catch (EmptyResultDataAccessException dve) {
@@ -1044,7 +1043,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 			//For Order History
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),entityId,
-		    UserActionStatusTypeEnum.CHANGE_PLAN.toString(),userId,extensionReason);
+		    UserActionStatusTypeEnum.EXTENSION.toString(),userId,extensionReason);
 			this.orderHistoryRepository.save(orderHistory);
 			this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Extension Order", new Date(),"End Date"+endDate);
 			

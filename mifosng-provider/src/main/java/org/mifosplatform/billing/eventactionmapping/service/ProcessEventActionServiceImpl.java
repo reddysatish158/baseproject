@@ -97,7 +97,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
 				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateOrder",eventActionData.getClientId(), null,
 						null,eventActionData.getClientId(), null, null, null,null, null, null);
-			Long plancode=command.longValueOfParameterNamed("planCode");
+			
 				CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
 				/*//For Transaction History
 	   			transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(), "New Order", new Date(),
