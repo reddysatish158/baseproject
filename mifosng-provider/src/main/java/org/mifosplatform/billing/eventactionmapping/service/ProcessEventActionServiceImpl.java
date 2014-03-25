@@ -15,6 +15,7 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,8 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 	@Override
 	@Transactional
 	public void ProcessEventActions(EventActionData eventActionData) {
-      
+		
+		EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
 		try{
 			 
 			if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_RENEWAL)){
@@ -95,7 +97,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
 				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateOrder",eventActionData.getClientId(), null,
 						null,eventActionData.getClientId(), null, null, null,null, null, null);
-			Long plancode=command.longValueOfParameterNamed("planCode");
+			
 				CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
 				/*//For Transaction History
 	   			transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(), "New Order", new Date(),
@@ -119,11 +121,16 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 
 			}
 			
-			EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
+			
 	    	eventAction.updateStatus('Y');
 	    	this.eventActionRepository.save(eventAction);
-		}catch(Exception exception){
-			
+	    	
+		}catch(DataIntegrityViolationException exception){
+			exception.printStackTrace();
+		}catch (Exception exception) {
+		//	EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
+	    	/*eventAction.updateStatus('F');
+	    	this.eventActionRepository.save(eventAction);*/
 			
 		}
 		

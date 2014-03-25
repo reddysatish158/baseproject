@@ -289,11 +289,9 @@ public class OrdersApiResource {
 		@Path("retrackOsdmessage/{orderId}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public String retrackmessage(@PathParam("orderId") final Long orderId,
-				final String apiRequestBodyAsJson) {
+		public String retrackmessage(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().retrackOsdmessage(orderId).withJson(apiRequestBodyAsJson).build();
-			final CommandProcessingResult result = this.commandsSourceWritePlatformService
-					.logCommandSource(commandRequest);
+			final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			return this.toApiJsonSerializer.serialize(result);
 
 	 }

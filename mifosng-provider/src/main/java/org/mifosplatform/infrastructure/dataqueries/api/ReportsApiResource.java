@@ -6,7 +6,6 @@
 package org.mifosplatform.infrastructure.dataqueries.api;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
-import org.mifosplatform.billing.inventory.data.InventoryItemDetailsData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
