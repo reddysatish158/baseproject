@@ -58,22 +58,20 @@ public class MediaAssestApiResource {
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	private final MediaAssetReadPlatformService mediaAssetReadPlatformService;
 	private final MediaDeviceReadPlatformService deviceReadPlatformService;
-	private final FromJsonHelper fromJsonHelper;
-	private final FromJsonHelper fromApiJsonHelper;
+	
+	
 	private final PlanReadPlatformService planReadPlatformService;
 	 @Autowired
 	    public MediaAssestApiResource(final PlatformSecurityContext context, final DefaultToApiJsonSerializer<MediaAssetData> toApiJsonSerializer,
 	    final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-	    final MediaAssetReadPlatformService mediaAssetReadPlatformService,final FromJsonHelper fromJsonHelper,final FromJsonHelper fromApiJsonHelper,
-	    final MediaDeviceReadPlatformService deviceReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
+	    final MediaAssetReadPlatformService mediaAssetReadPlatformService,final MediaDeviceReadPlatformService deviceReadPlatformService,
+	    final PlanReadPlatformService planReadPlatformService) {
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.mediaAssetReadPlatformService=mediaAssetReadPlatformService;
 		        this.deviceReadPlatformService=deviceReadPlatformService;
-		        this.fromJsonHelper=fromJsonHelper;
-		        this.fromApiJsonHelper=fromApiJsonHelper;
 		        this.planReadPlatformService=planReadPlatformService;
 		    }	
 	 

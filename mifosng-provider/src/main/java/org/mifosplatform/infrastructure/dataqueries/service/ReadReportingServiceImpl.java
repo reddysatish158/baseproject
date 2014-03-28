@@ -680,8 +680,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
     }
 
 	@Override
-	public Page<ReportParameterJoinData> retrieveSearchReportList(
-			SearchSqlQuery searchReportDetails) {
+	public Page<ReportParameterJoinData> retrieveSearchReportList(SearchSqlQuery searchReportDetails) {
 	
 		context.authenticatedUser();
 		ReportParameterJoinMapper rm = new ReportParameterJoinMapper();
@@ -701,7 +700,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 	    }
         sqlBuilder.append(extraCriteria);
         
-        	String sql= " order by r.id, rp.parameter_id";
+        	String sql= " group by r.id order by r.id, rp.parameter_id";
         	sqlBuilder.append(sql);
         
         if (searchReportDetails.isLimited()) {

@@ -8,5 +8,8 @@ public class ConfigurationConstants {
 	public final static String CONFIG_PROPERTY_LOGIN="Login";
 	public final static String CONFIG_PROPERTY_DATEFORMAT="DateFormat";
 	public final static String CONFIG_PROPERTY_ROUNDING="Rounding";
+	public static final String CPE_TYPE="CPE_TYPE";
+	public static final String CONFIR_PROPERTY_SALE="SALE";
+	public static final String CONFIR_PROPERTY_OWN="OWN";
 
 }
