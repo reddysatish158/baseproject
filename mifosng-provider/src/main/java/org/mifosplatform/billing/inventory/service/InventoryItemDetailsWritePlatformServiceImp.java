@@ -34,6 +34,7 @@ import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.billing.uploadstatus.domain.UploadStatus;
 import org.mifosplatform.billing.uploadstatus.domain.UploadStatusRepository;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -76,8 +77,9 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	private final ItemRepository itemRepository;
     private final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService;
     private final OrderReadPlatformService orderReadPlatformService;
-    
 	public final static String CONFIG_PROPERTY="Implicit Association";
+	
+	
 	@Autowired
 	public InventoryItemDetailsWritePlatformServiceImp(final InventoryItemDetailsReadPlatformService inventoryItemDetailsReadPlatformService, 
 			final PlatformSecurityContext context, final InventoryGrnRepository inventoryitemRopository,
@@ -295,7 +297,10 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 						GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
 						
 						if(configurationProperty.isEnabled()){
+							configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
 							
+							if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+								
 						         ItemMaster itemMaster=this.itemRepository.findOne(inventoryItemDetails.getItemMasterId());
 						    	
 						    	//   PlanHardwareMapping hardwareMapping=this.hardwareMappingRepository.findOneByItemCode(itemMaster.getItemCode());
@@ -314,7 +319,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 						    		   }
 						    		   
 						    	//   }
-						    	
+							}
 						    }
 						
 						

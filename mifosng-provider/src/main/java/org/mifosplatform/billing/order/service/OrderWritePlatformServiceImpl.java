@@ -121,6 +121,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices; 
     private final EventActionRepository eventActionRepository;
     public final static String CONFIG_PROPERTY="Implicit Association";
+    public final static String CPE_TYPE="CPE_TYPE";
 
     @Autowired
 	public OrderWritePlatformServiceImpl(final PlatformSecurityContext context,final OrderRepository orderRepository,
@@ -296,11 +297,12 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
             //For Plan And HardWare Association
 			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
+			
 			if(configurationProperty.isEnabled()){
-				
+				    configurationProperty=this.configurationRepository.findOneByName(CPE_TYPE);
 			    if(plan.isHardwareReq() == 'Y'){
 			    	
-			    		   List<AllocationDetailsData> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetailsByItemCode(clientId,plan.getPlanCode());
+			    		   List<AllocationDetailsData> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetailsByItemCode(clientId,plan.getPlanCode(),configurationProperty.getValue());
 			    		   if(!allocationDetailsDatas.isEmpty())
 			    		   {
 			    				this.associationWriteplatformService.createNewHardwareAssociation(clientId,plan.getId(),allocationDetailsDatas.get(0).getSerialNo(),order.getId());
@@ -746,9 +748,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			}
 
 			if (requstStatus != null && plan!=null) {
-				
-				  AllocationDetailsData detailsData = this.allocationReadPlatformService
-						.getTheHardwareItemDetails(command.entityId());
+				GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CPE_TYPE);
+				  AllocationDetailsData detailsData = this.allocationReadPlatformService.getTheHardwareItemDetails(command.entityId(),configurationProperty.getValue());
 
 				  ProcessRequest processRequest = new ProcessRequest(order.getClientId(),
 						order.getId(),plan.getProvisionSystem(), 'N', null, requstStatus,new Long(0));

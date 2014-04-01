@@ -47,5 +47,7 @@ public interface ReadReportingService {
 
 	Page<ReportParameterJoinData> retrieveSearchReportList(SearchSqlQuery searchItemDetails);
 
+	Collection<ReportParameterData> getAllowedServiceParameters();
+
 	
 }

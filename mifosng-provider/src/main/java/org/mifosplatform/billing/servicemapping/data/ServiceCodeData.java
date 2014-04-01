@@ -3,16 +3,24 @@ package org.mifosplatform.billing.servicemapping.data;
 public class ServiceCodeData {
 	
 	
-	private String serviceCode;
-	private Long id;
 	
+	private Long id;
+	private String serviceCode;
+	private String serviceType;
 	
 	public ServiceCodeData(final String serviceCode, final Long id){
-		this.serviceCode = serviceCode;
-		this.id = id;
+	
 	}
 	
 	
+	public ServiceCodeData(Long id, String serviceCode, String serviceType) {
+		this.id = id;
+		this.serviceCode = serviceCode;
+		this.serviceType = serviceType;
+	
+	}
+
+
 	public String getServiceCode() {
 		return serviceCode;
 	}

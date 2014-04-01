@@ -1,6 +1,5 @@
 package org.mifosplatform.billing.planservice.api;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,13 +15,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.billing.clientbalance.service.ClientBalanceReadPlatformService;
-import org.mifosplatform.billing.eventorder.exception.InsufficientAmountException;
 import org.mifosplatform.billing.planservice.data.PlanServiceData;
 import org.mifosplatform.billing.planservice.service.PlanServiceReadPlatformService;
-import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
-import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
@@ -67,16 +62,16 @@ public class PlanServicesApiResource {
 					@QueryParam("serviceType") final String serviceType,@Context final UriInfo uriInfo) {
 	        	
 			   context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-			   GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+		//	   GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			   
-			   if(configurationProperty.isEnabled()){
+			/*   if(configurationProperty.isEnabled()){
 			   
 				   ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
 			   
 				   if(balanceData.getBalanceAmount().compareTo(BigDecimal.ZERO) != -1){
 				       throw new InsufficientAmountException(clientId);
 				   }
-			   }
+			   }*/
 				final Collection<PlanServiceData> masterOptionsDatas = this.planServiceReadPlatformService.retrieveClientPlanService(clientId,serviceType);
 				final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 				return this.toApiJsonSerializer.serialize(settings, masterOptionsDatas, RESPONSE_DATA_PARAMETERS);

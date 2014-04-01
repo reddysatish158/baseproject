@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.data.HardwareAssociationData;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,13 +25,16 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 	
 	 private final JdbcTemplate jdbcTemplate;
 	 private final PlatformSecurityContext context;
+	 private final GlobalConfigurationRepository configurationRepository;
+	
 	  
 	    @Autowired
-	    public HardwareAssociationReadplatformServiceImpl(final PlatformSecurityContext context, 
+	    public HardwareAssociationReadplatformServiceImpl(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository, 
 	    		final TenantAwareRoutingDataSource dataSource)
 	    {
 	        this.context = context;
 	        this.jdbcTemplate = new JdbcTemplate(dataSource);
+	        this.configurationRepository=configurationRepository;
 	    }
 
 		@Override
@@ -36,9 +43,17 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 
               try
               {
-
+            	  String sql=null;
+            	  GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
             	  HarderwareMapper mapper = new HarderwareMapper();
-			      String sql = "select " + mapper.schema();
+            	  
+            	  if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+			       sql = "select " + mapper.schema();
+			      
+            	  }else if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+            		  
+            		  sql = "select " + mapper.ownDeviceSchema();
+            	  }
 			      return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
 
 		}catch(EmptyResultDataAccessException accessException){
@@ -50,6 +65,12 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			public String schema() {
 				return "  a.id AS id, a.serial_no AS serialNo  FROM b_allocation a  WHERE    NOT EXISTS (SELECT * FROM  b_association s" +
 						" WHERE  s.hw_serial_no=a.serial_no) and a.client_id=?";
+
+			}
+			
+			public String ownDeviceSchema() {
+				return "  o.id AS id, o.serial_number  AS serialNo FROM  b_owned_hardware o WHERE NOT EXISTS (SELECT *" +
+						" FROM b_association s WHERE s.hw_serial_no = o.serial_number ) AND o.client_id = ?";
 
 			}
 
@@ -138,12 +159,23 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			}
 		}
 		
+        @Transactional
 		@Override
 		public List<AssociationData> retrieveHardwareData(Long clientId) {
 			try
             {
-          	  AssociationMapper mapper = new AssociationMapper();
-			  String sql = "select " + mapper.schema();
+				
+				  String sql=null;
+			  	  GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+			  	  AssociationMapper mapper = new AssociationMapper();
+			  	  
+			  	 if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+			             sql = "select " + mapper.schema();
+			      
+			  	  }else if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+			  		  
+			  		  sql = "select " + mapper.ownDeviceSchema();
+			  	  }
 			   return this.jdbcTemplate.query(sql, mapper, new Object[] { clientId });
 
 		    }catch(EmptyResultDataAccessException accessException){
@@ -157,7 +189,11 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 				return " b.serial_no AS serialNum,b.provisioning_serialno as provisionNum   FROM  b_item_detail b " +
 						/*" WHERE NOT EXISTS (SELECT *FROM b_association a WHERE a.hw_serial_no = b.serial_no and a.is_deleted ='N') and " +*/
 						" where  b.client_id=?"; 
-						
+			}
+			
+			public String ownDeviceSchema() {
+				return " o.serial_number  AS serialNum, o.provisioning_serial_number  AS provisionNum FROM b_owned_hardware o " +
+						" WHERE o.client_id = ?"; 
 			}
 
 			@Override
@@ -204,8 +240,20 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 		public AssociationData retrieveSingleDetails(Long id) {
 			 try
 	            {
-	          	  Mapper mapper = new Mapper();
-				  String sql = "select " + mapper.schema();
+				 
+				 String sql=null;
+			  	  GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+			  	  Mapper mapper = new Mapper();
+			  	  
+			  	 if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+			             sql = "select " + mapper.schema();
+			      
+			  	  }else if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+			  		  
+			  		  sql = "select " + mapper.ownDeviceSchema();
+			  	  }
+	          	
+				 
 				   return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {id});
 
 			    }catch(EmptyResultDataAccessException accessException){
@@ -220,6 +268,15 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 					   " p.id AS planId,i.item_code AS itemCode,os.id as saleId FROM b_association a,b_plan_master p,b_item_detail id,b_item_master i, b_onetime_sale os" +
 					   "  WHERE p.id = a.plan_id AND a.order_id = ? AND id.serial_no = a.hw_serial_no AND id.item_master_id = i.id   AND a.is_deleted = 'N' and " +
 					   "  os.item_id =i.id and os.client_id = a.client_id group by id";
+
+			}
+			
+
+			public String ownDeviceSchema() {
+				return "  a.id AS id,a.client_id AS clientId,a.order_id AS orderId,i.id AS itemId,a.hw_serial_no AS serialNo,p.plan_code AS planCode," +
+						" o.serial_number AS serialNum, p.id AS planId,i.item_code AS itemCode, null as saleId FROM b_association a,b_plan_master p,b_owned_hardware o," +
+						" b_item_master i WHERE p.id = a.plan_id AND a.order_id =? AND o.serial_number = a.hw_serial_no AND o.item_type = i.id " +
+						" AND a.is_deleted = 'N' GROUP BY id";
 
 			}
 

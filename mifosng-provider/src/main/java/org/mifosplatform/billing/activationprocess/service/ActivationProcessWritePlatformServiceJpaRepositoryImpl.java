@@ -4,15 +4,17 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package org.mifosplatform.billing.activationprocess.service;
-import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.billing.onetimesale.service.OneTimeSaleWritePlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.ownedhardware.service.OwnedHardwareWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.portfolio.client.domain.ClientRepositoryWrapper;
 import org.mifosplatform.portfolio.client.service.ClientWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,34 +22,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 @Service
 public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements ActivationProcessWritePlatformService {
 
     private final static Logger logger = LoggerFactory.getLogger(ActivationProcessWritePlatformServiceJpaRepositoryImpl.class);
 
     private final PlatformSecurityContext context;
-    private final ClientRepositoryWrapper clientRepository;
     private FromJsonHelper fromJsonHelper;
     private final ClientWritePlatformService clientWritePlatformService;
     private final OneTimeSaleWritePlatformService oneTimeSaleWritePlatformService;
-    private final InventoryItemDetailsWritePlatformService inventoryItemDetailsWritePlatformService;
     private final OrderWritePlatformService orderWritePlatformService;
+    private final GlobalConfigurationRepository configurationRepository;
+	private final OwnedHardwareWritePlatformService ownedHardwareWritePlatformService;
+	
+   
     @Autowired
-    public ActivationProcessWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context,
-            final ClientRepositoryWrapper clientRepository,
-            final FromJsonHelper fromJsonHelper,final ClientWritePlatformService clientWritePlatformService,
-            final OneTimeSaleWritePlatformService oneTimeSaleWritePlatformService,final InventoryItemDetailsWritePlatformService inventoryItemDetailsWritePlatformService,
-            final OrderWritePlatformService orderWritePlatformService) {
-        this.context = context;
-        this.clientRepository = clientRepository;
+    public ActivationProcessWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context,final FromJsonHelper fromJsonHelper,
+    		final ClientWritePlatformService clientWritePlatformService,final OneTimeSaleWritePlatformService oneTimeSaleWritePlatformService,
+    		final OrderWritePlatformService orderWritePlatformService,final GlobalConfigurationRepository globalConfigurationRepository,
+    		final OwnedHardwareWritePlatformService ownedHardwareWritePlatformService) {
+        
+    	this.context = context;
         this.fromJsonHelper=fromJsonHelper;
         this.clientWritePlatformService=clientWritePlatformService;
         this.oneTimeSaleWritePlatformService=oneTimeSaleWritePlatformService;
-        this.inventoryItemDetailsWritePlatformService=inventoryItemDetailsWritePlatformService;
         this.orderWritePlatformService=orderWritePlatformService;
+        this.configurationRepository=globalConfigurationRepository;
+        this.ownedHardwareWritePlatformService=ownedHardwareWritePlatformService;
+        
     }
 
     private void handleDataIntegrityIssues(final JsonCommand command, final DataIntegrityViolationException dve) {
@@ -86,6 +91,7 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
             final JsonElement element = fromJsonHelper.parse(command.json());
 	        JsonArray clientData = fromJsonHelper.extractJsonArrayNamed("client", element);
 	        JsonArray saleData = fromJsonHelper.extractJsonArrayNamed("sale", element);
+	        JsonArray owndevices= fromJsonHelper.extractJsonArrayNamed("owndevice", element);
 	        JsonArray allocateData = fromJsonHelper.extractJsonArrayNamed("allocate", element);
 	        JsonArray bookOrder = fromJsonHelper.extractJsonArrayNamed("bookorder", element);
 	        
@@ -99,19 +105,34 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	        	resultClient=this.clientWritePlatformService.createClient(comm);
 	        	
 	        }
-	        for(JsonElement sale:saleData){
-	        	
-	        	JsonCommand comm=new JsonCommand(null, sale.toString(),sale, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
-	        	resultSale=this.oneTimeSaleWritePlatformService.createOneTimeSale(comm,resultClient.getClientId());
 	        
+	        GlobalConfigurationProperty configuration=configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+	        
+	        if(configuration.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+	             
+	        	for(JsonElement sale:saleData){
+	        	  JsonCommand comm=new JsonCommand(null, sale.toString(),sale, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+	        	  resultSale=this.oneTimeSaleWritePlatformService.createOneTimeSale(comm,resultClient.getClientId());
+	           }
+	        }else if(configuration.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+	        	
+	        	for(JsonElement ownDevice:owndevices){
+	        		
+	        		  JsonCommand comm=new JsonCommand(null, ownDevice.toString(),ownDevice, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+		        	  resultSale=this.ownedHardwareWritePlatformService.createOwnedHardware(comm,resultClient.getClientId());
+	        		
+	        	}
+	        	
 	        }
-	         for(JsonElement allocate:allocateData){
+	        /* for(JsonElement allocate:allocateData){
+	        	 
 	        	  JsonObject jsonObject =new JsonObject();
 	        	  Long itemMasterId=fromJsonHelper.extractLongNamed("itemMasterId",allocate);
 	        	  Long quantity=fromJsonHelper.extractLongNamed("quantity",allocate);
 	        	 JsonArray serialData = fromJsonHelper.extractJsonArrayNamed("serialNumber", allocate);
+	        	 
 	        	 for(JsonElement je:serialData){
-	        	/*	String serialNsumber1=fromJsonHelper.extractStringNamed("serialNumber", je);
+	        		String serialNsumber1=fromJsonHelper.extractStringNamed("serialNumber", je);
 	        		 String status=fromJsonHelper.extractStringNamed("status", je);
 	        		 Long itemMasterId=fromJsonHelper.extractLongNamed("itemMasterId", je);
 	        		 String isNewHw=fromJsonHelper.extractStringNamed("isNewHw", je);
@@ -120,7 +141,8 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	        		 serialNsumber.addProperty("serialNumber", serialNsumber1);
 	        		 serialNsumber.addProperty("status", status);
 	        		 serialNsumber.addProperty("itemMasterId", itemMasterId);
-	        		 serialNsumber.addProperty("isNewHw", isNewHw);*/
+	        		 serialNsumber.addProperty("isNewHw", isNewHw);
+	        		 
 	        		 JsonObject serialNumber=je.getAsJsonObject();
 	        		 serialNumber.addProperty("clientId", resultClient.getClientId());
 	        		 serialNumber.addProperty("orderId", resultSale.resourceId());
@@ -136,7 +158,7 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	        	 JsonCommand comm=new JsonCommand(null, jsonObject.toString(),allocate, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
 	        	 
 	        	 resultAllocate=this.inventoryItemDetailsWritePlatformService.allocateHardware(comm);
-	         }
+	         }*/
 	         for(JsonElement order:bookOrder){
 		        	
 		        	JsonCommand comm=new JsonCommand(null, order.toString(),order, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);

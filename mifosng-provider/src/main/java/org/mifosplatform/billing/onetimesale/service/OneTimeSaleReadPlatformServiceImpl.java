@@ -73,7 +73,7 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 		SalesDataMapper mapper = new SalesDataMapper();
 
 		String sql = "select " + mapper.schema()
-				+ " where o.item_id=i.id  and o.client_id=? and o.is_deleted = 'N' order by o.id";
+				+ " where o.item_id=i.id  and o.client_id=? and o.is_deleted = 'N' group by o.id order by o.id";
 
 		return this.jdbcTemplate.query(sql, mapper, new Object[] { clientId });
 	}
