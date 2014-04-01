@@ -7,26 +7,11 @@ public class PromotionCodeWritePlatformServiceImpl {
 
 package org.mifosplatform.billing.promotioncodes.service;
 
-import java.util.List;
 import java.util.Map;
-
-import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
-import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
-import org.mifosplatform.billing.discountmaster.serialization.DiscountCommandFromApiJsonDeserializer;
-import org.mifosplatform.billing.eventactionmapping.data.EventActionMappingData;
-import org.mifosplatform.billing.eventactionmapping.domain.EventActionMapping;
-import org.mifosplatform.billing.eventactionmapping.domain.EventActionMappingRepository;
-import org.mifosplatform.billing.eventactionmapping.exception.EventActionMappingNotFoundException;
-import org.mifosplatform.billing.eventactionmapping.exception.EventNameDuplicateException;
-import org.mifosplatform.billing.eventactionmapping.serialization.EventActionMappingCommandFromApiJsonDeserializer;
-import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingReadPlatformService;
-import org.mifosplatform.billing.hardwareplanmapping.data.HardwarePlanData;
-import org.mifosplatform.billing.hardwareplanmapping.exception.ItemCodeDuplicateException;
-import org.mifosplatform.billing.hardwareplanmapping.service.HardwarePlanReadPlatformService;
 import org.mifosplatform.billing.promotioncodes.domain.PromotionCode;
 import org.mifosplatform.billing.promotioncodes.domain.PromotionCodeRepository;
+import org.mifosplatform.billing.promotioncodes.exception.PromotionCodeNotFoundException;
 import org.mifosplatform.billing.promotioncodes.serialization.PromotionCodeCommandFromApiJsonDeserializer;
-import org.mifosplatform.infrastructure.codes.exception.DiscountNotFoundException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -45,16 +30,14 @@ public class PromotionCodeWritePlatformServiceImpl implements PromotionCodeWrite
     private final PlatformSecurityContext context;
 	private final PromotionCodeCommandFromApiJsonDeserializer apiJsonDeserializer;
 	private final PromotionCodeRepository promotionMappingRepository;
-	private final EventActionMappingReadPlatformService eventActionMappingReadPlatformService;
 	
 @Autowired	
 public PromotionCodeWritePlatformServiceImpl(final PlatformSecurityContext context,PromotionCodeCommandFromApiJsonDeserializer apiJsonDeserializer,
-		final PromotionCodeRepository promotionMappingRepository,final EventActionMappingReadPlatformService eventActionMappingReadPlatformService)
+		final PromotionCodeRepository promotionMappingRepository)
 {
 	this.context=context;
 	this.apiJsonDeserializer=apiJsonDeserializer;
 	this.promotionMappingRepository=promotionMappingRepository;
-	this.eventActionMappingReadPlatformService=eventActionMappingReadPlatformService;
 }
 
 	@Override
@@ -81,31 +64,25 @@ public PromotionCodeWritePlatformServiceImpl(final PlatformSecurityContext conte
 	private void handleCodeDataIntegrityIssues(JsonCommand command,
 			DataIntegrityViolationException dve) {
 		 Throwable realCause = dve.getMostSpecificCause();
-	       /* if (realCause.getMessage().contains("discountcode")) {
-	            final String name = command.stringValueOfParameterNamed("discountcode");
-	            throw new PlatformDataIntegrityException("error.msg.discount.duplicate.name", "A discount with Code'"
-	                    + name + "'already exists", "displayName", name);
-	        }*/
-
 	        logger.error(dve.getMessage(), dve);
 	        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
 	                "Unknown data integrity issue with resource: " + realCause.getMessage());
 		
 	}
 
-/*@Override
-	public CommandProcessingResult updateEventActionMapping(Long id,JsonCommand command)
+@Override
+	public CommandProcessingResult updatePromotionCode(Long id,JsonCommand command)
 	{
         try{
         	  
         	this.context.authenticatedUser();
-        	this.apiJsonDeserializer.validateForCreate(command.json());
+        	//this.apiJsonDeserializer.validateForCreate(command.json());
         	
-        	EventActionMapping eventAction=EventActionretrieveById(id);
-        	final Map<String, Object> changes = eventAction.update(command);  
+        	PromotionCode promotionCode=PromotionCoderetrieveById(id);
+        	final Map<String, Object> changes = promotionCode.update(command);  
         	
         	if(!changes.isEmpty()){
-        		this.eventActionMappingRepository.save(eventAction);
+        		this.promotionMappingRepository.save(promotionCode);
         	}
         	
         	return new CommandProcessingResult(id);
@@ -117,28 +94,28 @@ public PromotionCodeWritePlatformServiceImpl(final PlatformSecurityContext conte
          
 }
 
-	private EventActionMapping EventActionretrieveById(Long id) {
+	private PromotionCode PromotionCoderetrieveById(Long id) {
              
-		EventActionMapping eventAction=this.eventActionMappingRepository.findOne(id);
-              if (eventAction== null) { throw new EventActionMappingNotFoundException(id.toString()); }
-	          return eventAction;	
+		PromotionCode promotionCode=this.promotionMappingRepository.findOne(id);
+              if (promotionCode== null) { throw new PromotionCodeNotFoundException(id.toString()); }
+	          return promotionCode;	
 	}
 	
 	
 	
 	@Override
-	public CommandProcessingResult deleteEventActionMapping(Long id) {
+	public CommandProcessingResult deletePromotionCode(Long id) {
 
      try{
     	 this.context.authenticatedUser();
-    	 EventActionMapping event=this.eventActionMappingRepository.findOne(id);
+    	 PromotionCode promotionCode=this.promotionMappingRepository.findOne(id);
     	 
-    	 if(event==null){
-    		 throw new EventActionMappingNotFoundException(id.toString());
+    	 if(promotionCode==null){
+    		 throw new PromotionCodeNotFoundException(id.toString());
     	 }
     	 
-    	 event.delete();
-    	 this.eventActionMappingRepository.save(event);
+    	 promotionCode.delete();
+    	 this.promotionMappingRepository.save(promotionCode);
     	 return new CommandProcessingResult(id);
     	 
     	 
@@ -146,4 +123,4 @@ public PromotionCodeWritePlatformServiceImpl(final PlatformSecurityContext conte
     	 return null;
      }
 	}
-*/}
+}

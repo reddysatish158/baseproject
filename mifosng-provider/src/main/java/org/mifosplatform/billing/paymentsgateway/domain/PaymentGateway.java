@@ -28,7 +28,7 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 	@Column(name="party_id")
 	private String partyId;
 	
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "payment_date")
 	private Date paymentDate;
 	
@@ -56,6 +56,12 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 	@Column(name = "Remarks")
 	private String remarks;
 	
+	@Column(name = "t_status")
+	private String tStatus;
+	
+	@Column(name = "type")
+	private String type;
+	
 	@Column(name = "is_auto" ,nullable = false)
 	private boolean isAuto=true;
 	
@@ -75,33 +81,20 @@ public class PaymentGateway extends AbstractPersistable<Long> {
 		this.details=details;
 	}
 
-
-	/*public static PaymentGateway fromJson(JsonCommand command) {
-		
-		final String deviceId=command.stringValueOfParameterNamed("KEY_ID");
-		final String partyId=command.stringValueOfParameterNamed("PARTY_ID");
-		final String paymentDate = command.stringValueOfParameterNamed("PAYMENT_DATE");
-		final BigDecimal amountPaid = command.bigDecimalValueOfParameterNamed("AMOUNT_PAID");
-		final String receiptNo = command.stringValueOfParameterNamed("RECEIPT_NO");
-		final String source = command.stringValueOfParameterNamed("SOURCE");
-		final String paymentId=command.stringValueOfParameterNamed("PAYMENT_ID");
-		final String details=command.stringValueOfParameterNamed("DETIALS");
-		DateFormat readFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		  Date date = null;
-		    try {
-		       date = readFormat.parse(paymentDate);
-		    } catch ( ParseException e ) {
-		        e.printStackTrace();
-		    }
-		return new PaymentGateway(deviceId, partyId, date, amountPaid, receiptNo, source,
-				paymentId, details);
-
-	}*/
+	public PaymentGateway(String deviceId, String transactionId,BigDecimal amountPaid, String phoneNo, 
+			String type,String tStatus, String details, Date date, String source) {
+		this.deviceId=deviceId;
+		this.partyId=phoneNo;
+		this.paymentDate=date;
+		this.amountPaid=amountPaid;
+		this.receiptNo=transactionId;
+		this.source=source;
+		this.details=details;
+		this.type=type;
+		this.tStatus=tStatus;
+	}
 
 	public Map<String, Object> fromJson(JsonCommand command) {
-		
-		/* String remarks = command.stringValueOfParameterNamed("remarks");
-		 String status = command.stringValueOfParameterNamed("status");*/
 		 
 		final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
 		 final String remarks = "remarks";

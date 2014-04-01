@@ -40,7 +40,14 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	public Long retrieveClientIdForProvisioning(String serialNum) {
 		try{
 			this.context.authenticatedUser();
-		String sql = "select client_id as clientId from b_item_detail where serial_no like '%"+serialNum+"%' ";
+			String serialNumber=null;
+			if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
+				serialNumber=serialNum;
+			}else{
+				
+				serialNumber="N"+serialNum;
+			}
+		String sql = "select client_id as clientId from b_item_detail where serial_no = '"+serialNumber+"' ";
 		return jdbcTemplate.queryForLong(sql);
 		} catch(EmptyResultDataAccessException e){
 			return null;
@@ -113,20 +120,21 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
         if (tabType!=null ) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where p.status like '"+tabType+"'");
+		        	sqlBuilder.append(" where p.status like '"+tabType+"' order by payment_date desc ");
 		  
 		    	    if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
+		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc";
 		    	    }
 		                sqlBuilder.append(extraCriteria);
-	    }else{
-	    	if (sqlSearch != null) {
+	    }else if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')";
-    	    }
+    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc ";
+    	}else {
+    		extraCriteria = " order by payment_date desc ";
+    	}
                 sqlBuilder.append(extraCriteria);
-        }
+        
         
         if (searchPaymentDetail.isLimited()) {
             sqlBuilder.append(" limit ").append(searchPaymentDetail.getLimit());

@@ -5,10 +5,12 @@
  */
 package org.mifosplatform.infrastructure.core.api;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -412,5 +414,9 @@ public final class JsonCommand {
 
     public Locale extractLocale() {
         return this.fromApiJsonHelper.extractLocaleParameter(this.parsedCommand.getAsJsonObject());
+    }
+
+    public void checkForUnsupportedParameters(final Type typeOfMap, final String json, final Set<String> requestDataParameters) {
+        this.fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, requestDataParameters);
     }
 }

@@ -3,6 +3,7 @@ package org.mifosplatform.billing.onetimesale.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.item.domain.ItemMaster;
 import org.mifosplatform.billing.item.domain.ItemRepository;
@@ -22,6 +23,11 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 
 @Service
@@ -38,6 +44,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 	private final FromJsonHelper fromJsonHelper;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	private final PriceReadPlatformService priceReadPlatformService;
+	private final InventoryItemDetailsWritePlatformService inventoryItemDetailsWritePlatformService;
 	
 	
 	@Autowired
@@ -45,7 +52,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			final ItemRepository itemMasterRepository,final OneTimesaleCommandFromApiJsonDeserializer apiJsonDeserializer,
 			final InvoiceOneTimeSale invoiceOneTimeSale,final ItemReadPlatformService itemReadPlatformService,final FromJsonHelper fromJsonHelper,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService,
-			final PriceReadPlatformService priceReadPlatformService)
+			final PriceReadPlatformService priceReadPlatformService,final InventoryItemDetailsWritePlatformService inventoryItemDetailsWritePlatformService)
 	{
 		this.context=context;
 		this.oneTimeSaleRepository=oneTimeSaleRepository;
@@ -57,25 +64,49 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 		this.fromJsonHelper=fromJsonHelper;
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 		this.priceReadPlatformService=priceReadPlatformService;
+		this.inventoryItemDetailsWritePlatformService=inventoryItemDetailsWritePlatformService;
 		
 	}
+	
+	@Transactional
 	@Override
-	public CommandProcessingResult createOneTimeSale(JsonCommand command,
-			Long clientId) {
+	public CommandProcessingResult createOneTimeSale(JsonCommand command,Long clientId) {
+		
 		try{
 			this.context.authenticatedUser();
+			
 			this.apiJsonDeserializer.validateForCreate(command.json());
+			final JsonElement element = fromJsonHelper.parse(command.json());
 		    final Long itemId=command.longValueOfParameterNamed("itemId");
 			ItemMaster item=this.itemMasterRepository.findOne(itemId);
 			OneTimeSale oneTimeSale=OneTimeSale.fromJson(clientId,command,item);
-			this.oneTimeSaleRepository.save(oneTimeSale);
+			this.oneTimeSaleRepository.saveAndFlush(oneTimeSale);
 			List<OneTimeSaleData> oneTimeSaleDatas = oneTimeSaleReadPlatformService.retrieveOnetimeSaleDate(clientId);
+			  JsonObject jsonObject =new JsonObject();
 			for (OneTimeSaleData oneTimeSaleData : oneTimeSaleDatas) {
 			this.invoiceOneTimeSale.invoiceOneTimeSale(clientId,oneTimeSaleData);
 			updateOneTimeSale(oneTimeSaleData);
 			}
-			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"One Time Sale", oneTimeSale.getSaleDate(),
+			
+			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Item Sale", oneTimeSale.getSaleDate(),
 					"TotalPrice:"+oneTimeSale.getTotalPrice(),"Quantity:"+oneTimeSale.getQuantity(),"Units:"+oneTimeSale.getUnits(),"OneTimeSaleID:"+oneTimeSale.getId());
+			
+			JsonArray serialData = fromJsonHelper.extractJsonArrayNamed("serialNumber", element);
+        	 
+        	 for(JsonElement je:serialData){
+        		 
+        		 JsonObject serialNumber=je.getAsJsonObject();
+        		 serialNumber.addProperty("clientId",oneTimeSale.getClientId());
+        		 serialNumber.addProperty("orderId",oneTimeSale.getId());
+        	     
+        	 }
+        	 
+        	 jsonObject.addProperty("itemMasterId", oneTimeSale.getItemId());
+        	 jsonObject.addProperty("quantity", oneTimeSale.getQuantity());
+        	 jsonObject.add("serialNumber", serialData);
+        	 JsonCommand jsonCommand=new JsonCommand(null, jsonObject.toString(),element, fromJsonHelper, null, null, null, null, null, null, null, 
+        			                       null, null, null, null);
+			this.inventoryItemDetailsWritePlatformService.allocateHardware(jsonCommand);
 			return new CommandProcessingResult(Long.valueOf(oneTimeSale.getId()));
 		} catch (DataIntegrityViolationException dve) {
 			 handleCodeDataIntegrityIssues(command, dve);
@@ -128,7 +159,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			oneTimeSale = oneTimeSaleRepository.findOne(entityId);
 			oneTimeSale.setIsDeleted('Y');
 			oneTimeSaleRepository.save(oneTimeSale);
-			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Delete One Time Sale", oneTimeSale.getSaleDate(),
+			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Cancel Item Sale", oneTimeSale.getSaleDate(),
 					"TotalPrice:"+oneTimeSale.getTotalPrice(),"Quantity:"+oneTimeSale.getQuantity(),"Units:"+oneTimeSale.getUnits(),"OneTimeSaleID:"+oneTimeSale.getId());
 			
 		}catch(DataIntegrityViolationException dve){

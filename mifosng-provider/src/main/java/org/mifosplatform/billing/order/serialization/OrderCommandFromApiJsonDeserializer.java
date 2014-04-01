@@ -18,7 +18,6 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
@@ -33,7 +32,7 @@ public final class OrderCommandFromApiJsonDeserializer {
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("planCode","locale","dateFormat","start_date","paytermCode",
     		"contractPeriod","billAlign","price","description","renewalPeriod","disconnectReason","isPrepaid","disconnectionDate","ispaymentEnable",
-    		"paymentCode","amountPaid","paymentDate","receiptNo","promoId"));
+    		"paymentCode","amountPaid","paymentDate","receiptNo","promoId","startDate","isNewplan"));
     private final Set<String> retracksupportedParameters = new HashSet<String>(Arrays.asList("commandName","message","orderId"));
     private final FromJsonHelper fromApiJsonHelper;
 
@@ -59,6 +58,8 @@ public final class OrderCommandFromApiJsonDeserializer {
         baseDataValidator.reset().parameter("start_date").value(startDate).notBlank();
         final String paytermCode = fromApiJsonHelper.extractStringNamed("paytermCode", element);
         baseDataValidator.reset().parameter("paytermCode").value(paytermCode).notBlank();
+        final String contractPeriod = fromApiJsonHelper.extractStringNamed("contractPeriod", element);
+        baseDataValidator.reset().parameter("contractPeriod").value(contractPeriod).notBlank();
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }
@@ -157,6 +158,9 @@ public final class OrderCommandFromApiJsonDeserializer {
         
         final Long promoId = fromApiJsonHelper.extractLongNamed("promoId", element);
         baseDataValidator.reset().parameter("promoId").value(promoId).notBlank();
+        
+        final LocalDate startDate=fromApiJsonHelper.extractLocalDateNamed("startDate", element);
+        baseDataValidator.reset().parameter("startDate").value(startDate).notBlank();
       
        
         throwExceptionIfValidationWarningsExist(dataValidationErrors);

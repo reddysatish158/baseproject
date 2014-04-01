@@ -58,9 +58,9 @@ public class PlanDetails {
 		return plan;
 	}
 
-	public void update(Plan plan1)
+	public void update(Plan plan)
 	{
-		this.plan=plan1;
+		this.plan=plan;
 	}
 	public void delete() {
 		this.isDeleted='y';

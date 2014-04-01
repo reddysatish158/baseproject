@@ -1,8 +1,10 @@
 package org.mifosplatform.billing.servicemapping.data;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterData;
 
 public class ServiceMappingData {
 
@@ -16,6 +18,7 @@ public class ServiceMappingData {
 	private List<ServiceMappingData> serviceMappingData;
 	private List<ServiceCodeData> serviceCodeData;
 	private List<EnumOptionData> statusData;
+	private Collection<ReportParameterData> serviceParameters;
 
 	public ServiceMappingData(Long id, String serviceCode, String serviceIndentification,String status,String image) {
 		
@@ -26,11 +29,13 @@ public class ServiceMappingData {
 		this.image=image;
 	}
 	
-	public ServiceMappingData( List<ServiceMappingData> serviceMappingData,	List<ServiceCodeData> serviceCodeData, List<EnumOptionData> status) {
+	public ServiceMappingData( List<ServiceMappingData> serviceMappingData,	List<ServiceCodeData> serviceCodeData, List<EnumOptionData> status, 
+			Collection<ReportParameterData> serviceParameters) {
 
 		this.serviceMappingData=serviceMappingData;
 		this.serviceCodeData=serviceCodeData;
 		this.statusData=status;
+		this.serviceParameters=serviceParameters;
 	}
 	
 	public List<ServiceCodeData> getServiceCodeData() {

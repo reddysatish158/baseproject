@@ -127,7 +127,7 @@ public final class ClientDataValidator {
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.phoneParamName, element)) {
             final String phone = fromApiJsonHelper.extractStringNamed(ClientApiConstants.phoneParamName, element);
             baseDataValidator.reset().parameter(ClientApiConstants.phoneParamName).value(phone).notNull()
-                    .notExceedingLengthOf(11);
+                    .notExceedingLengthOf(16);
         }if (fromApiJsonHelper.parameterExists(ClientApiConstants.homePhoneNumberParamName, element)) {
             final String homePhoneNumber = fromApiJsonHelper.extractStringNamed(ClientApiConstants.homePhoneNumberParamName, element);
             baseDataValidator.reset().parameter(ClientApiConstants.homePhoneNumberParamName).value(homePhoneNumber).notNull()
@@ -192,15 +192,11 @@ public final class ClientDataValidator {
             baseDataValidator.reset().parameter(ClientApiConstants.phoneParamName).value(phone).notNull()
                     .notExceedingLengthOf(11);
         }
-        if (fromApiJsonHelper.parameterExists(ClientApiConstants.homePhoneNumberParamName, element)) {
-            final String homePhoneNumber = fromApiJsonHelper.extractStringNamed(ClientApiConstants.homePhoneNumberParamName, element);
-            baseDataValidator.reset().parameter(ClientApiConstants.homePhoneNumberParamName).value(homePhoneNumber).notNull()
-                    .notExceedingLengthOf(11);
-        }
+      
         if (fromApiJsonHelper.parameterExists(ClientApiConstants.emailParamName, element)) {
             final String email = fromApiJsonHelper.extractStringNamed(ClientApiConstants.emailParamName, element);
             
-            baseDataValidator.reset().parameter(ClientApiConstants.emailParamName).value(email).notNull();
+      //      baseDataValidator.reset().parameter(ClientApiConstants.emailParamName).value(email).notNull();
                  
             if(email!=null){
             	 Boolean isValid = email.matches(ClientApiConstants.EMAIL_REGEX);

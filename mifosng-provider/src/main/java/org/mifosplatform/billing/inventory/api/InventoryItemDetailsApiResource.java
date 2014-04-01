@@ -76,12 +76,13 @@ public class InventoryItemDetailsApiResource {
 	private final OfficeReadPlatformService officeReadPlatformService;
 	private final ItemReadPlatformService itemReadPlatformService;
 	private final SupplierReadPlatformService supplierReadPlatformService;
+	
     
 	@Autowired
 	public InventoryItemDetailsApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<InventoryItemDetailsData> toApiJsonSerializerForItem,ApiRequestParameterHelper apiRequestParameterHelper,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final InventoryGrnReadPlatformService inventoryGrnReadPlatformService,final DefaultToApiJsonSerializer<InventoryGrnData> toApiJsonSerializerForGrn,InventoryItemDetailsReadPlatformService itemDetailsReadPlatformService,final DefaultToApiJsonSerializer<InventoryItemDetailsAllocation> toApiJsonSerializerForItemAllocation,final DefaultToApiJsonSerializer<InventoryItemSerialNumberData> toApiJsonSerializerForAllocationHardware,
 										   final OfficeReadPlatformService officeReadPlatformService,
 										   final ItemReadPlatformService itemReadPlatformService,
-										   SupplierReadPlatformService supplierReadPlatformService) {
+										   final SupplierReadPlatformService supplierReadPlatformService) {
 		this.context=context;
 	    this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
 	    this.toApiJsonSerializerForGrn = toApiJsonSerializerForGrn;
@@ -256,7 +257,6 @@ public class InventoryItemDetailsApiResource {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
 		
 		if(query != null && query.length()>0){
-			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
 			List<String> itemSerialNumbers = this.itemDetailsReadPlatformService.retriveSerialNumbersOnKeyStroke(oneTimeSaleId,query);
 			InventoryItemSerialNumberData allocationData = this.itemDetailsReadPlatformService.retriveAllocationData(itemSerialNumbers);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -317,7 +317,6 @@ public class InventoryItemDetailsApiResource {
 
 	}
 	
-	
 	@GET
 	@Path("grn")
 	@Consumes({ MediaType.APPLICATION_JSON })
@@ -337,8 +336,9 @@ public class InventoryItemDetailsApiResource {
 	@Path("deallocate/{allocationId}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String deAllocateHardware(@PathParam("allocationId") final Long id) {
-		 final CommandWrapper commandRequest = new CommandWrapperBuilder().deAllocate(id).build();
+	public String deAllocateHardware(@PathParam("allocationId") final Long id,final String apiRequestBodyAsJson) {
+		
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().deAllocate(id).withJson(apiRequestBodyAsJson).build();
 		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		  return this.toApiJsonSerializerForItem.serialize(result);
 	}

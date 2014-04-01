@@ -38,7 +38,7 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 	@Override
 	public List<OwnedHardwareData> retriveOwnedHardwareData(Long clientId) {
 		OwnedHardwareMapper mapper = new OwnedHardwareMapper();
-		String sql = "select "+mapper.schema()+" where oh.client_id = ?";
+		String sql = "select "+mapper.schema()+" where oh.client_id = ? and oh.is_deleted='N'";
 		return jdbcTemplate.query(sql, mapper, new Object[]{clientId});
 	}
 	
@@ -67,6 +67,10 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 		
 		public String schema(){
 			String sql = "oh.id as id, oh.client_id as clientId, oh.serial_number as serialNumber, oh.provisioning_serial_number as provisioningSerialNumber, oh.allocated_date as allocationDate, oh.status as status, im.item_description as itemType from b_owned_hardware oh left outer join b_item_master im on oh.item_type=im.id";
+			return sql;
+		}
+		public String schemaForSingleRecord(){
+			String sql = "oh.id as id, oh.client_id as clientId, oh.serial_number as serialNumber, oh.provisioning_serial_number as provisioningSerialNumber, oh.allocated_date as allocationDate, oh.status as status, oh.item_type as itemType from b_owned_hardware oh";
 			return sql;
 		}
 	}
@@ -99,6 +103,13 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 			String sql = "select im.id as id, im.item_description as itemDescription from b_item_master im order by id asc";
 			return sql;
 		}
+	}
+
+	@Override
+	public List<OwnedHardwareData> retriveSingleOwnedHardwareData(Long id) {
+		OwnedHardwareMapper mapper = new OwnedHardwareMapper();
+		String sql = "select "+mapper.schemaForSingleRecord()+" where oh.id = ?";
+		return jdbcTemplate.query(sql, mapper, new Object[]{id});
 	}
 	
 	

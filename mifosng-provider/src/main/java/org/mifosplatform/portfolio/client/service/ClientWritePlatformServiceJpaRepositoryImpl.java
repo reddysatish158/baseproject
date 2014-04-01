@@ -16,12 +16,12 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.mifosplatform.billing.action.data.ActionDetaislData;
-import org.mifosplatform.billing.action.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.action.service.ActiondetailsWritePlatformService;
-import org.mifosplatform.billing.action.service.EventActionConstants;
 import org.mifosplatform.billing.address.domain.Address;
 import org.mifosplatform.billing.address.domain.AddressRepository;
+import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.eventaction.service.EventActionConstants;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -129,6 +129,11 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final String email = command.stringValueOfParameterNamed("email");
             throw new PlatformDataIntegrityException("error.msg.client.duplicate.email", "Client with email `" + email
                     + "` already exists", "email", email);
+            
+        }else if (realCause.getMessage().contains("login_key")) {
+            final String login = command.stringValueOfParameterNamed("login");
+            throw new PlatformDataIntegrityException("error.msg.client.duplicate.login", "Client with login `" + login
+                    + "` already exists", "login", login);
         }
 
         logAsErrorUnexpectedDataIntegrityException(dve);
@@ -171,7 +176,9 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             }
             
             List<ActionDetaislData> actionDetailsDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_CLIENT);
+            if(!actionDetailsDatas.isEmpty()){
             this.actiondetailsWritePlatformService.AddNewActions(actionDetailsDatas,newClient.getId(),newClient.getId().toString());
+            }
             
             transactionHistoryWritePlatformService.saveTransactionHistory(newClient.getId(), "New Client", newClient.getActivationDate(),
             		"Name:"+newClient.getName(),"ImageKey:"+newClient.imageKey(),"AccountNumber:"+newClient.getAccountNo());

@@ -15,9 +15,11 @@ public class GlobalConfigurationPropertyData {
     private String value;
     @SuppressWarnings("unused")
     private boolean enabled;
+    private Long id;
 
-    public GlobalConfigurationPropertyData(final String name, final boolean enabled,final String value) {
-        this.name = name;
+    public GlobalConfigurationPropertyData(Long id, final String name, final boolean enabled,final String value) {
+        this.id=id;
+    	this.name = name;
         this.enabled = enabled;
         this.value=value;
     }

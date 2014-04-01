@@ -4,7 +4,7 @@ package org.mifosplatform.billing.entitlements.data;
 public class EntitlementsData {
 
 	private Long id;
-	private Long prepareReqId;
+	private Long prdetailsId;
 	private String requestType;
 	private String hardwareId;
 	private String provisioingSystem;
@@ -14,32 +14,40 @@ public class EntitlementsData {
 	private String status;
 	private StakerData results;
 	private String error;
+	private Long planId;
+	private String orderNo;
 	
 	
 
-	public EntitlementsData(Long id,Long prepareReqId, String requestType, String hardwareId, String provisioingSystem, String product, Long serviceId, Long clientId) {
+	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product,
+			Long serviceId, Long clientId, Long planId, String orderNo) {
 		
           this.id=id;
-          this.prepareReqId=prepareReqId;
+          this.prdetailsId=prdetailsId;
           this.product=product;
           this.requestType=requestType;
           this.hardwareId=hardwareId;
           this.provisioingSystem=provisioingSystem;
           this.serviceId=serviceId;
           this.clientId=clientId;
+          this.planId=planId;
+          this.orderNo=orderNo;
 	}
 	
-	public EntitlementsData(){
-		
+	
+
+	public EntitlementsData() {
+		// TODO Auto-generated constructor stub
 	}
+
+
 
 	public Long getId() {
 		return id;
 	}
 
-
-	public Long getPrepareReqId() {
-		return prepareReqId;
+	public Long getPrdetailsId() {
+		return prdetailsId;
 	}
 
 	public String getRequestType() {
@@ -89,6 +97,17 @@ public class EntitlementsData {
 	public void setError(String error) {
 		this.error = error;
 	}
+
+	public Long getPlanId() {
+		return planId;
+	}
+
+
+
+	public String getOrderNo() {
+		return orderNo;
+	}
+	
 	
 	
 }

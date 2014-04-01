@@ -48,10 +48,10 @@ public class CommandWrapperBuilder {
 		return this;
 	}
 
-	public CommandWrapperBuilder updateGlobalConfiguration() {
+	public CommandWrapperBuilder updateGlobalConfiguration(Long configId) {
 		this.actionName = "UPDATE";
 		this.entityName = "CONFIGURATION";
-		this.entityId = null;
+		this.entityId = configId;
 		this.href = "/configurations";
 		return this;
 	}
@@ -1163,9 +1163,10 @@ public class CommandWrapperBuilder {
 	}
 
 	public CommandWrapperBuilder createNewRecord(final String entityType) {
-		this.actionName = "UPDATE";
+		this.actionName = "CREATE";
 		// this.entityName = "ADDRESS";
-		this.entityName = entityType;
+		this.entityName = "LOCATION";
+		this.supportedEntityType=entityType;
 		this.href = "/address/" + entityType;
 		return this;
 	}
@@ -1544,6 +1545,22 @@ public CommandWrapperBuilder createOwnedHardware(final Long clientId){
 	return this;
 }
 
+public CommandWrapperBuilder updateOwnedHardware(final Long id){
+	this.actionName = "UPDATE";
+	this.entityName = "OWNEDHARDWARE";
+	this.entityId = id;
+	this.href = "/ownedhardware";
+	return this;
+}
+
+public CommandWrapperBuilder deleteOwnHardware(final Long id){
+	this.actionName = "DELETE";
+	this.entityName = "OWNEDHARDWARE";
+	this.entityId = id;
+	this.href = "/ownedhardware";
+	return this;
+}
+
 public CommandWrapperBuilder createCountryCurrency() {
 	this.actionName = "CREATE";
 	this.entityName = "COUNTRYCURRENCY";
@@ -1877,7 +1894,7 @@ public CommandWrapperBuilder deleteProvisiongSystem(Long id) {
 public CommandWrapperBuilder createUserChat() {
 	
 	this.actionName = "CREATE";
-	this.entityName = "USERCHAT";
+	this.entityName = "USERCHATMESSAGE";
 	this.entityId = null;
 	this.href = "/userchat/";
 	return this;
@@ -1921,15 +1938,17 @@ public CommandWrapperBuilder cancelPayment(Long paymentId) {
 	this.entityId = paymentId;
 	this.href = "/payments/cancelpayment"+this.entityId;
 	return this;
+
 }
 
-
 public CommandWrapperBuilder changePlan(Long orderId) {
+
 
     this.actionName="CHANGEPLAN";
     this.entityName="ORDER";
     this.entityId=orderId;
     this.href="orders/changePlan"+orderId;
+
     
    return this;
 }
@@ -1939,9 +1958,7 @@ public CommandWrapperBuilder updateInventoryItem(final Long id) {
 	this.entityId = id;
 	this.href = "/itemdetails/template";
 	return this;
-
 }
-
 
 public CommandWrapperBuilder createPromotionCode() {
 	this.actionName = "CREATE";
@@ -1964,8 +1981,97 @@ public CommandWrapperBuilder deAllocate(Long id) {
 	this.entityName = "INVENTORY";
 	this.entityId = id;
 	this.href = "/itemdetails/template";
-
 	return this;
+}
+
+public CommandWrapperBuilder updatePromotionCode(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = id;
+	this.href = "/promotioncode";
+	return this;
+}
+
+public CommandWrapperBuilder deletePromotionCode(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "PROMOTIONCODE";
+	this.entityId = id;
+	this.href = "/promotioncode";
+	return this;
+}
+public CommandWrapperBuilder updateUsermessage(Long meesageId) {
+	
+	this.actionName = "UPDATE";
+	this.entityName = "USERCHATMESSAGE";
+	this.entityId = meesageId;
+	this.href = "/userchats/"+this.entityId;
+	return this;
+}
+
+public CommandWrapperBuilder deleteUserChatmessage(Long meesageId) {
+
+	this.actionName = "DELETE";
+	this.entityName = "USERCHATMESSAGE";
+	this.entityId = meesageId;
+	this.href = "/userchats/"+this.entityId;
+	return this;
+}
+
+public CommandWrapperBuilder updateNewRecord(final String entityType,Long entityId) {
+	this.actionName = "UPDATE";
+	this.entityName = "LOCATION";
+	this.entityId = entityId;
+	this.supportedEntityType=entityType;
+	this.href = "/address/" + entityType+"/"+entityId;
+	return this;
+}
+
+public CommandWrapperBuilder deleteNewRecord(final String entityType, Long entityId) {
+	this.actionName = "DELETE";
+	this.entityName = "LOCATION";
+	this.entityId = entityId;
+	this.supportedEntityType=entityType;
+	this.href = "/address/" + entityType+"/"+entityId;
+	return this;
+}
+
+   public CommandWrapperBuilder updateCache() {
+        this.actionName = "UPDATE";
+        this.entityName = "CACHE";
+        this.href = "/cache";
+        return this;
+    }
+
+public CommandWrapperBuilder createCreditDistribution(Long clientId) {
+	this.actionName = "CREATE";
+    this.entityName = "CREDITDISTRIBUTION";
+    this.href = "/creditdistribution";
+    return this;
+}
+
+public CommandWrapperBuilder createSchedulingOrder(Long clientId) {
+	this.actionName = "CREATE";
+    this.entityName = "ORDERSCHEDULING";
+    this.entityId=clientId;
+    this.href = "/orders/scheduling"+clientId;
+    return this;
+}
+
+public CommandWrapperBuilder deleteSchedulOrder(Long orderId) {
+	
+	this.actionName = "DELETE";
+    this.entityName = "ORDERSCHEDULING";
+    this.entityId=orderId;
+    this.href = "/orders/scheduling"+clientId;
+    return this;
+}
+
+public CommandWrapperBuilder extensionOrder(Long orderId) {
+	this.actionName = "EXTENSION";
+    this.entityName = "ORDER";
+    this.entityId=orderId;
+    this.href = "/orders/extenstion"+clientId;
+    return this;
 }
 
 }

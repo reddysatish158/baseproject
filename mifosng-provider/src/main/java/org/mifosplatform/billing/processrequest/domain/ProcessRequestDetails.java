@@ -16,11 +16,11 @@ import org.mifosplatform.useradministration.domain.AppUser;
 
 @Entity
 @Table(name = "b_process_request_detail")
-public class ProcessRequestDetails extends AbstractAuditableCustom<AppUser, Long>  {
+public class ProcessRequestDetails extends
+		AbstractAuditableCustom<AppUser, Long> {
 
-
-    @ManyToOne
-    @JoinColumn(name="processrequest_id")
+	@ManyToOne
+	@JoinColumn(name = "processrequest_id")
 	private ProcessRequest processRequest;
 
 	@Column(name = "orderlinbe_id")
@@ -31,25 +31,29 @@ public class ProcessRequestDetails extends AbstractAuditableCustom<AppUser, Long
 
 	@Column(name = "sent_message")
 	private String sentMessage;
-	
+
 	@Column(name = "receive_message")
 	private String receiveMessage;
-	
+
 	@Column(name = "is_deleted")
 	private char isDeleted;
-	
+
 	@Column(name = "hardware_id")
 	private String hardwareId;
 
 	@Column(name = "received_status")
 	private String receivedStatus;
-	
+
+	@Column(name = "request_type")
+	private String requestType;
+
 	@Column(name = "sent_date")
 	private Date sentDate;
 
 	@Column(name = "received_date")
 	private Date receivedDate;
-	
+
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "start_date")
 	private Date startDate;
 
@@ -57,54 +61,97 @@ public class ProcessRequestDetails extends AbstractAuditableCustom<AppUser, Long
 	@Column(name = "end_date")
 	private Date endDate;
 
-	public ProcessRequestDetails(){
-		
-	}
-	
+	public ProcessRequestDetails() {
 
-	public ProcessRequestDetails(Long orderlinId, Long serviceId, String sentMessage,
-			String recievedMessage,String hardwareId,Date startDate,
-			Date endDate,Date sentDate,Date recievedDate,char isDeleted) {
-         
-	          this.orderlinId=orderlinId;
-	          this.serviceId=serviceId;
-	          this.sentMessage=sentMessage;
-	          this.receiveMessage=recievedMessage;
-	          this.isDeleted=isDeleted;
-	         
-	          this.hardwareId=hardwareId;
-	          this.startDate=startDate;
-	          this.endDate=endDate;
-	          this.sentDate=sentDate;
-	          this.receivedDate=recievedDate;
-	
 	}
 
+	public ProcessRequestDetails(Long orderlinId, Long serviceId,
+			String sentMessage, String recievedMessage, String hardwareId,
+			Date startDate, Date endDate, Date sentDate, Date recievedDate,
+			char isDeleted, String requestType) {
+
+		this.orderlinId = orderlinId;
+		this.serviceId = serviceId;
+		this.sentMessage = sentMessage;
+		this.receiveMessage = recievedMessage;
+		this.isDeleted = isDeleted;
+		this.requestType = requestType;
+		this.hardwareId = hardwareId;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.sentDate = sentDate;
+		this.receivedDate = recievedDate;
+
+	}
 
 	public ProcessRequestDetails(JsonCommand command) {
-			// TODO Auto-generated constructor stub
-			
-		
-	}
+		// TODO Auto-generated constructor stub
 
+	}
 
 	public void update(ProcessRequest processRequest) {
-      
-		this.processRequest=processRequest;
-		
-	}
 
+		this.processRequest = processRequest;
+
+	}
 
 	public void updateStatus(JsonCommand command) {
-	    Long id= command.longValueOfParameterNamed("serviceId");
-	    if(this.serviceId == id){
 		this.receivedStatus = command.stringValueOfParameterNamed("receivedStatus");
-		this.receiveMessage = command.stringValueOfParameterNamed("receiveMessage");
-	    }
+		this.receiveMessage = command.stringValueOfParameterNamed("receiveMessage");		
 	}
 
+	public ProcessRequest getProcessRequest() {
+		return processRequest;
+	}
 
+	public Long getOrderlinId() {
+		return orderlinId;
+	}
 
+	public Long getServiceId() {
+		return serviceId;
+	}
 
+	public String getSentMessage() {
+		return sentMessage;
+	}
+
+	public String getReceiveMessage() {
+		return receiveMessage;
+	}
+
+	public char getIsDeleted() {
+		return isDeleted;
+	}
+
+	public String getHardwareId() {
+		return hardwareId;
+	}
+
+	public String getReceivedStatus() {
+		return receivedStatus;
+	}
+
+	public String getRequestType() {
+		return requestType;
+	}
+
+	public Date getSentDate() {
+		return sentDate;
+	}
+
+	public Date getReceivedDate() {
+		return receivedDate;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	
 
 }

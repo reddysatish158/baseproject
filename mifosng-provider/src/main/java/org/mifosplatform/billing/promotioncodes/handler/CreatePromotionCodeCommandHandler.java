@@ -1,6 +1,5 @@
 package org.mifosplatform.billing.promotioncodes.handler;
 
-import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingWritePlatformService;
 import org.mifosplatform.billing.promotioncodes.service.PromotionCodeWritePlatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;

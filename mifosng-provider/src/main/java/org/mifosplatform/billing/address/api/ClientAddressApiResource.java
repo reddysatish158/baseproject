@@ -6,19 +6,23 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.address.data.AddressData;
+import org.mifosplatform.billing.address.data.AddressDetails;
 import org.mifosplatform.billing.address.exception.AddressNoRecordsFoundException;
 import org.mifosplatform.billing.address.service.AddressReadPlatformService;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -27,6 +31,7 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -38,18 +43,21 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class ClientAddressApiResource {
+	
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("addressid","clientId",
             "addressNo","street","zipCode","city","state","country","datas","countryData","stateData","cityData","addressOptionsData"));
     private final String resourceNameForPermissions = "ADDRESS";
-	  private final PlatformSecurityContext context;
-	    private final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer;
-	    private final ApiRequestParameterHelper apiRequestParameterHelper;
-	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-	    private final AddressReadPlatformService addressReadPlatformService;
+	private final PlatformSecurityContext context;
+	private final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer;
+	private final ApiRequestParameterHelper apiRequestParameterHelper;
+	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	private final AddressReadPlatformService addressReadPlatformService;
 
-		 @Autowired
-	    public ClientAddressApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AddressReadPlatformService addressReadPlatformService) {
+	@Autowired
+	public ClientAddressApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer, 
+			final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+			final AddressReadPlatformService addressReadPlatformService) {
+		
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -91,8 +99,8 @@ public class ClientAddressApiResource {
     public String retrieveClientAddress( @PathParam("clientId") final Long clientId , @Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
         List<AddressData> addressdata = this.addressReadPlatformService.retrieveAddressDetails(clientId);
-        List<String> countryData = this.addressReadPlatformService.retrieveCountryDetails();
-        List<String> statesData = this.addressReadPlatformService.retrieveStateDetails();
+     //  List<String> countryData = this.addressReadPlatformService.retrieveCountryDetails();
+      //  List<String> statesData = this.addressReadPlatformService.retrieveStateDetails();
         List<String> citiesData = this.addressReadPlatformService.retrieveCityDetails();
         List<EnumOptionData> enumOptionDatas = this.addressReadPlatformService.addressType();
         AddressData data=new AddressData(addressdata,null,null,citiesData,enumOptionDatas);
@@ -106,7 +114,7 @@ public class ClientAddressApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveAddress(@PathParam("Name") final String Name , @Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-        String city=null;
+      
         AddressData Data = this.addressReadPlatformService.retrieveName(Name);
 //        city =Data.getCity();
      
@@ -127,17 +135,7 @@ public class ClientAddressApiResource {
 	        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	        return this.toApiJsonSerializer.serialize(result);
 	}
-	/*@POST
-	@Path("{clientId}")
-	@Consumes({MediaType.APPLICATION_JSON})
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response createAddress(@PathParam("clientId") final Long clientId, final String jsonRequestBody) {
 
-		AddressCommand command = this.apiDataConversionService.convertJsonToAddressCommand(null,clientId, jsonRequestBody);
-
-		CommandProcessingResult userId = this.addressWritePlatformService.createAddress(command);
-		return Response.ok().entity(userId).build();
-	}*/
 	
 	@PUT
 	@Path("{addrId}")
@@ -149,29 +147,59 @@ public class ClientAddressApiResource {
 		  return this.toApiJsonSerializer.serialize(result);
 
 	}
-	/*@PUT
-	@Path("{addrId}")
-	@Consumes({MediaType.APPLICATION_JSON})
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response updateClientAddress(@PathParam("addrId") final Long addrId, final String jsonRequestBody){
 
-		final AddressCommand command = this.apiDataConversionService.convertJsonToAddressCommand(null, addrId, jsonRequestBody);
-		CommandProcessingResult entityIdentifier=this.addressWritePlatformService.updateAddress(addrId,command);
-		return Response.ok().entity(entityIdentifier).build();
-	}*/
-	
 	
 	@POST
 	@Path("{entityType}/new")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String NewRecord(@PathParam("entityType") final String entityType, final String jsonRequestBody) {
-		 final CommandWrapper commandRequest = new CommandWrapperBuilder().createNewRecord(entityType).withJson(jsonRequestBody).build();
+		    final CommandWrapper commandRequest = new CommandWrapperBuilder().createNewRecord(entityType).withJson(jsonRequestBody).build();
 	        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	        return this.toApiJsonSerializer.serialize(result);
-		/* EntityTypecommand command= this.apiDataConversionService.convertJsonToEntityTypeCommand(null,jsonRequestBody);
-
-		 CommandProcessingResult userId = this.addressWritePlatformService.createNewRecord(command,entityType);
-		return Response.ok().entity(userId).build();*/
+	
 	}
+	
+	@GET
+	@Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveAddress(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		final SearchSqlQuery searchAddresses =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		final Page<AddressDetails> addresses = this.addressReadPlatformService.retrieveAllAddresses(searchAddresses);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		 return this.toApiJsonSerializer.serialize(addresses);
+	}
+	@PUT
+	@Path("{entityType}/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String updateNewRecord(@PathParam("entityType") final String entityType,@PathParam("id") final Long id, final String apiRequestBodyAsJson){
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateNewRecord(entityType,id).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializer.serialize(result);
+
+	}
+	@DELETE
+	@Path("{entityType}/{id}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String deleteNewRecord(@PathParam("entityType") final String entityType,@PathParam("id") final Long id, final String apiRequestBodyAsJson){
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteNewRecord(entityType,id).withJson(apiRequestBodyAsJson).build();
+		 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		  return this.toApiJsonSerializer.serialize(result);
+
+	}
+	
+	@GET
+	@Path("countrydetails")
+	@Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveCountryDetails(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<String> countryData = this.addressReadPlatformService.retrieveCountryDetails();
+		//final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		 return this.toApiJsonSerializer.serialize(countryData);
+	}
+	
 }

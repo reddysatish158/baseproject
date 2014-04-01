@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,9 +19,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
 import org.mifosplatform.billing.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.data.OrderDiscountData;
 import org.mifosplatform.billing.order.data.OrderHistoryData;
@@ -68,12 +70,18 @@ public class OrdersApiResource {
 	  private final PlanReadPlatformService planReadPlatformService;
 	  private final PaymodeReadPlatformService paymodeReadPlatformService;
 	  private final GlobalConfigurationRepository configurationRepository;
-	  
+	  private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
+	  private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
+	  private final MCodeReadPlatformService mCodeReadPlatformService;
+
 	  @Autowired
-	    public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
+	   public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
-	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService) {
+	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService,
+	   final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,
+	   final MCodeReadPlatformService mCodeReadPlatformService) {
+
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -82,6 +90,12 @@ public class OrdersApiResource {
 		        this.orderReadPlatformService=orderReadPlatformService;
 		        this.paymodeReadPlatformService=paymodeReadPlatformService;
 		        this.configurationRepository=configurationRepository;
+
+		        this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
+				this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
+
+		        this.mCodeReadPlatformService=mCodeReadPlatformService;
+
 		    }	
 	  
 	@POST
@@ -142,25 +156,25 @@ public class OrdersApiResource {
         return this.toApiJsonSerializer.serialize(result);
 	}
 
-	 @GET
-	    @Path("{clientId}/orders")
-	    @Consumes({MediaType.APPLICATION_JSON})
-	    @Produces({MediaType.APPLICATION_JSON})
-	    public String retrieveOrderDetails(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo) {
-        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-        final List<OrderData> clientOrders = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
+	@GET
+	@Path("{clientId}/orders")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String retrieveOrderDetails(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo) {
+    context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+    final List<OrderData> clientOrders = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
                 OrderData orderData=new OrderData(clientId,clientOrders);
         
-        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
+    final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+    return this.toApiJsonSerializer.serialize(settings, orderData, RESPONSE_DATA_PARAMETERS);
 	    }
 	 
 	 @GET
-	    @Path("{orderId}/orderprice")
-	    @Consumes({MediaType.APPLICATION_JSON})
-	    @Produces({MediaType.APPLICATION_JSON})
-	    public String retrieveOrderPriceDetails(@PathParam("orderId") final Long orderId,
-	    	@Context final UriInfo uriInfo) {
+	 @Path("{orderId}/orderprice")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+	 public String retrieveOrderPriceDetails(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
+		 
 	        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	        final List<OrderPriceData> priceDatas = this.orderReadPlatformService.retrieveOrderPriceDetails(orderId,null);
 	        final List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
@@ -199,10 +213,19 @@ public class OrdersApiResource {
     @Produces({MediaType.APPLICATION_JSON})
     public String retrieveRenewalOrderDetails(@Context final UriInfo uriInfo) {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-    	List<SubscriptionData> contractPeriod=this.planReadPlatformService.retrieveSubscriptionData();
+    	List<SubscriptionData> contractPeriods=this.planReadPlatformService.retrieveSubscriptionData();
     	GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(CONFIG_PROPERTY);
-    	contractPeriod.remove(0);
-    	OrderData orderData=new OrderData(null,contractPeriod,configurationProperty.isEnabled());
+    
+    //	List<SubscriptionData> datas=contractPeriods;
+    	//for(SubscriptionData data : datas){
+    	for(int i=0;i<contractPeriods.size();i++){
+    		if(contractPeriods.get(i).getContractdata().equalsIgnoreCase("Perpetual")){
+    			contractPeriods.remove(contractPeriods.get(i));
+    			
+    		}
+    		
+    	}
+    	OrderData orderData=new OrderData(null,contractPeriods,configurationProperty.isEnabled());
     	if(configurationProperty.isEnabled()){
     		Collection<McodeData> data = this.paymodeReadPlatformService.retrievemCodeDetails("Payment Mode");
     		orderData.setPaymodeData(data);
@@ -261,16 +284,14 @@ public class OrdersApiResource {
 		@Path("retrackOsdmessage/{orderId}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public String retrackmessage(@PathParam("orderId") final Long orderId,
-				final String apiRequestBodyAsJson) {
+		public String retrackmessage(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().retrackOsdmessage(orderId).withJson(apiRequestBodyAsJson).build();
-			final CommandProcessingResult result = this.commandsSourceWritePlatformService
-					.logCommandSource(commandRequest);
+			final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			return this.toApiJsonSerializer.serialize(result);
 
 	 }
 	 
-	   @PUT
+	@PUT
 		@Path("changePlan/{orderId}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
@@ -280,14 +301,60 @@ public class OrdersApiResource {
 		return this.toApiJsonSerializer.serialize(result);
 		}	 
 	   
-	       @PUT
-	 		@Path("applypromo/{orderId}")
-	 		@Consumes({ MediaType.APPLICATION_JSON })
-	 		@Produces({ MediaType.APPLICATION_JSON })
-	 		public String applyPromoCodeToOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
-	         final CommandWrapper commandRequest = new CommandWrapperBuilder().applyPromo(orderId).withJson(apiRequestBodyAsJson).build();
-	 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-	 		return this.toApiJsonSerializer.serialize(result);
-	 		}	   
-	 
+	@PUT
+	  @Path("applypromo/{orderId}")
+	  @Consumes({ MediaType.APPLICATION_JSON })
+	  @Produces({ MediaType.APPLICATION_JSON })
+	  public String applyPromoCodeToOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+	  final CommandWrapper commandRequest = new CommandWrapperBuilder().applyPromo(orderId).withJson(apiRequestBodyAsJson).build();
+	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	  return this.toApiJsonSerializer.serialize(result);
+	}	   
+
+	
+	@POST
+	@Path("scheduling/{clientId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String schedulingOrderCreation(@PathParam("clientId") final Long clientId, final String apiRequestBodyAsJson) {
+ 	    final CommandWrapper commandRequest = new CommandWrapperBuilder().createSchedulingOrder(clientId).withJson(apiRequestBodyAsJson).build();
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@DELETE
+	@Path("scheduling/{orderId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String deleteScheduleOrder(@PathParam("orderId") final Long orderId) {
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteSchedulOrder(orderId).build();
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@PUT
+	  @Path("extension/{orderId}")
+	  @Consumes({ MediaType.APPLICATION_JSON })
+	  @Produces({ MediaType.APPLICATION_JSON })
+	  public String ExtenseOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+	  final CommandWrapper commandRequest = new CommandWrapperBuilder().extensionOrder(orderId).withJson(apiRequestBodyAsJson).build();
+	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	  return this.toApiJsonSerializer.serialize(result);
+	}	   
+	
+
+	@GET
+    @Path("extension")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getOfExtension(@Context final UriInfo uriInfo) {
+        context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+        Collection<MCodeData> extensionPeriodDatas=this.mCodeReadPlatformService.getCodeValue("Extension Period");
+		Collection<MCodeData> extensionReasonDatas=this.mCodeReadPlatformService.getCodeValue("Extension Reason");
+        OrderData extensionData=new OrderData(extensionPeriodDatas,extensionReasonDatas);
+        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        return this.toApiJsonSerializer.serialize(settings, extensionData, RESPONSE_DATA_PARAMETERS);
+    }
+
+
 }

@@ -42,7 +42,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
              
     		final String userName=this.context.authenticatedUser().getUsername();
     		UserChatDataMapper mapper = new UserChatDataMapper();
-    		String sql = "select " + mapper.schema()+" where u.username=?";
+    		String sql = "select " + mapper.schema()+" where u.username=? and u.is_deleted='N'  order by u.message_date desc ";
     		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
     		
     		
@@ -56,7 +56,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
     private static final class UserChatDataMapper implements RowMapper<UserChatData> {
 
 		public String schema() {
-			return " u.id AS id,u.username AS userName,u.message_date AS messageDate,u.message AS message, u.createdby_user AS createdbyUser" +
+			return " u.id AS id,u.username AS userName,u.message_date AS messageDate,u.message AS message, u.createdby_user AS createdbyUser,u.is_read As isRead" +
 					" FROM b_userchat u ";
 
 		}
@@ -70,8 +70,8 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
 			String message = rs.getString("message");
 			String createdByUser = rs.getString("createdbyUser");
 			LocalDate messageDate=JdbcSupport.getLocalDate(rs, "messageDate");
-
-			return new UserChatData(id,userName,messageDate,message,createdByUser);
+			Boolean isRead =rs.getBoolean("isRead");
+			return new UserChatData(id,userName,messageDate,message,createdByUser,isRead);
 
 		}
 	}
@@ -103,13 +103,13 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
              
     		final String userName=this.context.authenticatedUser().getUsername();
     		UserChatDataMapper mapper = new UserChatDataMapper();
-    		String sql = "select " + mapper.schema()+" where u.createdby_user = ?";
+    		String sql = "select " + mapper.schema()+" where u.createdby_user = ?  order by u.message_date desc";
     		return this.jdbcTemplate.query(sql, mapper, new Object[] { userName });
     	}catch(EmptyResultDataAccessException accessException){
     		return null;
     	}
 		
-    
+     
     }
 
 
@@ -119,7 +119,7 @@ public class UserChatReadplatformReadServiceImpl implements UserChatReadplatform
             
     		
     		UserUnreadMessageMapper mapper = new UserUnreadMessageMapper();
-    		String sql = "select " + mapper.schema()+" where us.username = ?  and  us.read='N'";
+    		String sql = "select " + mapper.schema()+" where us.username = ?  and  us.is_read='N'";
     		return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { userName });
     		
     	 }catch(EmptyResultDataAccessException accessException){

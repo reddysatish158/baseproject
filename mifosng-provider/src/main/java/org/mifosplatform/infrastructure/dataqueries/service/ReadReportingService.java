@@ -11,9 +11,12 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
+import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
 import org.mifosplatform.infrastructure.dataqueries.data.ReportData;
 import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterData;
+import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterJoinData;
 
 public interface ReadReportingService {
 
@@ -31,8 +34,6 @@ public interface ReadReportingService {
 
 	String getReportType(String reportName);
 
-	Collection<ReportData> retrieveReportList();
-
 	Collection<ReportParameterData> getAllowedParameters();
 
 	ReportData retrieveReport(final Long id);
@@ -43,4 +44,10 @@ public interface ReadReportingService {
 	
 	GenericResultsetData generateEmailResultset(String name, String type,
 			Map<String, String> extractedQueryParams);
+
+	Page<ReportParameterJoinData> retrieveSearchReportList(SearchSqlQuery searchItemDetails);
+
+	Collection<ReportParameterData> getAllowedServiceParameters();
+
+	
 }

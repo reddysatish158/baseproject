@@ -1,5 +1,6 @@
 package org.mifosplatform.billing.mediadevice.service;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -32,20 +33,23 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 	@Override
 	public MediaDeviceData retrieveDeviceDetails(String deviceId) {
 		try {
-			final EventMasterMapper eventMasterMapper = new EventMasterMapper();
 			
-			final String sql = eventMasterMapper.eventMasterSchema();
+			this.context.authenticatedUser();
+			final MediaDeviceMapper eventMasterMapper = new MediaDeviceMapper();
+			final String sql = eventMasterMapper.mediaDeviceSchema();
 			return jdbcTemplate.queryForObject(sql, eventMasterMapper,new Object[] {deviceId,deviceId});
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
 	}
 	
-	private static final class EventMasterMapper implements RowMapper<MediaDeviceData> {
-		public String eventMasterSchema() {
-			return "SELECT a.id AS deviceId,a.client_id AS clientId,mc.code_value AS clientType,mc.id AS clientTypeId FROM b_allocation a, m_client c, m_code_value mc" +
-					" WHERE a.client_id = c.id AND mc.id = c.category_type AND serial_no = ? UNION SELECT a.id,a.client_id,mc.code_value,mc.id FROM b_owned_hardware a, " +
-					" m_client c, m_code_value mc WHERE a.client_id = c.id AND mc.id = c.category_type AND serial_number =? "; 
+	private static final class MediaDeviceMapper implements RowMapper<MediaDeviceData> {
+		public String mediaDeviceSchema() {
+			 return "  SELECT a.id AS deviceId,a.client_id AS clientId,mc.code_value AS clientType,mc.id AS clientTypeId,b.balance_amount as balanceAmount " +
+					"  FROM b_allocation a,m_code_value mc, m_client c left join b_client_balance b on b.client_id = c.id WHERE  a.client_id = c.id AND " +
+					"  mc.id = c.category_type AND serial_no = ? AND a.is_deleted = 'N' UNION SELECT a.id,a.client_id,mc.code_value,mc.id, b.balance_amount as balanceAmount" +
+					"  FROM b_owned_hardware a, m_code_value mc, m_client c left join b_client_balance b on b.client_id = c.id WHERE a.client_id = c.id AND mc.id = c.category_type" +
+					"  AND serial_number =?"; 
   
 		}
 		@Override
@@ -55,23 +59,23 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			final Long clientId = rs.getLong("clientId");
 			final String clientType = rs.getString("clientType");
 			final Long clientTypeId = rs.getLong("clientTypeId");
-			return new MediaDeviceData(deviceId,clientId,clientType,clientTypeId);
+			final BigDecimal balanceAmount=rs.getBigDecimal("balanceAmount");
+			return new MediaDeviceData(deviceId,clientId,clientType,clientTypeId,balanceAmount);
 		}
 	}
 
 	@Override
 	public List<MediaDeviceData> retrieveDeviceDataDetails(String deviceId) {
 		try {
-			final EventMasterMapper1 eventMasterMapper = new EventMasterMapper1();
-			
-			final String sql = eventMasterMapper.eventMasterSchema();
-			return jdbcTemplate.query(sql, eventMasterMapper,new Object[] {deviceId,deviceId});
+			final MediaDeviceMapper mapper = new MediaDeviceMapper();
+			final String sql = mapper.mediaDeviceSchema();
+			return jdbcTemplate.query(sql, mapper,new Object[] {deviceId,deviceId});
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
 	}
 	
-	private static final class EventMasterMapper1 implements RowMapper<MediaDeviceData> {
+/*	private static final class EventMasterMapper1 implements RowMapper<MediaDeviceData> {
 		public String eventMasterSchema() {
 			return "select a.id AS deviceId,a.client_id AS clientId,mc.code_value AS clientType,mc.id as clientTypeId FROM b_allocation a, m_client c,m_code_value mc WHERE a.client_id = c.id AND	 mc.id=c.category_type and serial_no=? union select a.id,a.client_id ,mc.code_value ,mc.id FROM b_owned_hardware a, m_client c,m_code_value mc WHERE a.client_id = c.id AND	 mc.id=c.category_type and serial_number=?"; 
   
@@ -84,8 +88,9 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			final String clientType = rs.getString("clientType");
 			final Long clientTypeId = rs.getLong("clientTypeId");
 			return new MediaDeviceData(deviceId,clientId,clientType,clientTypeId);
-		}
-	}
+		}*/
+	
+
 	
 	@Override
 	public List<PlanData> retrievePlanDetails(Long clientId) {

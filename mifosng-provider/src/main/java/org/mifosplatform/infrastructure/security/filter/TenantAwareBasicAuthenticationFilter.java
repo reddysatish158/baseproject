@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.time.StopWatch;
+import org.mifosplatform.infrastructure.cache.domain.CacheType;
+import org.mifosplatform.infrastructure.cache.service.CacheWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
@@ -54,31 +57,35 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFilter {
 
-    private final static Logger logger = LoggerFactory.getLogger(TenantAwareBasicAuthenticationFilter.class);
+	 private static boolean firstRequestProcessed = false;
+     private final static Logger logger = LoggerFactory.getLogger(TenantAwareBasicAuthenticationFilter.class);
 
     //ashok changed
     private AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
+   
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
     
     @Autowired
     private AuthenticationManager authenticationManager;
-    
-    //ashok changed
-    
-    @Autowired
     private TenantDetailsService tenantDetailsService;
-
-    @Autowired
     private ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
-
+    private final ConfigurationDomainService configurationDomainService;
+    private final CacheWritePlatformService cacheWritePlatformService;
     private String tenantRequestHeader = "X-Mifos-Platform-TenantId";
     private boolean exceptionIfHeaderMissing = true;
 
-    public TenantAwareBasicAuthenticationFilter(final AuthenticationManager authenticationManager,
-            final AuthenticationEntryPoint authenticationEntryPoint) {
+    @Autowired
+    public TenantAwareBasicAuthenticationFilter(final AuthenticationManager authenticationManager,final AuthenticationEntryPoint authenticationEntryPoint,
+    		final ConfigurationDomainService configurationDomainService,final CacheWritePlatformService cacheWritePlatformService,
+    		final TenantDetailsService tenantDetailsService,final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer) {
+    	
         super(authenticationManager, authenticationEntryPoint);
+        this.configurationDomainService=configurationDomainService;
+        this.cacheWritePlatformService=cacheWritePlatformService;
+        this.tenantDetailsService=tenantDetailsService;
+        this.toApiJsonSerializer=toApiJsonSerializer;
     }
 
     @Override
@@ -141,6 +148,16 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
                // check tenants database for tenantId
                final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantId);
+	             ThreadLocalContextUtil.setTenant(tenant);
+               if (!firstRequestProcessed) {
+                   final boolean ehcacheEnabled = this.configurationDomainService.isEhcacheEnabled();
+                   if (ehcacheEnabled) {
+                       this.cacheWritePlatformService.switchToCache(CacheType.SINGLE_NODE);
+                   } else {
+                       this.cacheWritePlatformService.switchToCache(CacheType.NO_CACHE);
+                   }
+                   TenantAwareBasicAuthenticationFilter.firstRequestProcessed = true;
+               }
 
                ThreadLocalContextUtil.setTenant(tenant);
                //ashokchanged

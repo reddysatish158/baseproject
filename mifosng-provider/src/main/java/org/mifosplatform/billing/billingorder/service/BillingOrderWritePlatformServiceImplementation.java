@@ -44,7 +44,8 @@ public class BillingOrderWritePlatformServiceImplementation implements BillingOr
 	private final OrderRepository orderRepository;
 	private final UpdateClientBalance updateClientBalance;
 	private final ClientBalanceRepository clientBalanceRepository;
-	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService; 
+	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
+	private final OrderPriceRepository orderPriceRepository;
 	
 	@Autowired
 	public BillingOrderWritePlatformServiceImplementation(final PlatformSecurityContext context,final BillingOrderRepository invoiceChargeRepository,
@@ -60,6 +61,7 @@ public class BillingOrderWritePlatformServiceImplementation implements BillingOr
 		this.updateClientBalance = updateClientBalance;
 		this.clientBalanceRepository = clientBalanceRepository;
 		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
+		this.orderPriceRepository=orderPriceRepository;
 	}
 
 	@Transactional
@@ -143,6 +145,7 @@ public class BillingOrderWritePlatformServiceImplementation implements BillingOr
 							.getInvoiceTillDate());
 					orderPriceData.setNextBillableDay(billingOrderCommand
 							.getNextBillableDate());
+					
 
 				} else if (orderPriceData.getChargeType().equalsIgnoreCase(
 						"NRC")
@@ -153,8 +156,9 @@ public class BillingOrderWritePlatformServiceImplementation implements BillingOr
 					orderPriceData.setNextBillableDay(billingOrderCommand
 							.getNextBillableDate());
 				}
+				//this.orderPriceRepository.saveAndFlush(orderPriceData);
 			}
-			this.orderRepository.save(orderData);
+			this.orderRepository.saveAndFlush(orderData);
 		}
 
 		return new CommandProcessingResult(Long.valueOf(orderData.getId()));

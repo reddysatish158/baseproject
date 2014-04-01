@@ -34,6 +34,14 @@ public class UserActionStatusEnumaration {
 		case RENEWAL_BEFORE_AUTOEXIPIRY:
 			optionData = new EnumOptionData(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY.getCode(), "RENEWAL BEFORE AUTOEXIPIRY");
 			break;		
+	
+		case DEVICE_SWAP:
+			optionData = new EnumOptionData(UserActionStatusTypeEnum.DEVICE_SWAP.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.DEVICE_SWAP.getCode(), "DEVICE SWAP");
+			break;	
+		
+		case CHANGE_PLAN:
+			optionData = new EnumOptionData(UserActionStatusTypeEnum.CHANGE_PLAN.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.CHANGE_PLAN.getCode(), "CHANGE PLAN");
+			break;		
 			
 		
 		default:

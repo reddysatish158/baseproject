@@ -5,10 +5,14 @@
  */
 package org.mifosplatform.infrastructure.configuration.domain;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
@@ -23,7 +27,7 @@ public class GlobalConfigurationProperty extends AbstractPersistable<Long> {
     private boolean enabled;
 
     @Column(name = "value", nullable = false)
-    private final String value;
+    private String value;
     
     protected GlobalConfigurationProperty() {
         this.name = null;
@@ -54,6 +58,28 @@ public class GlobalConfigurationProperty extends AbstractPersistable<Long> {
 	public String getValue() {
 		return value;
 	}
+
+	public Map<String, Object> update(JsonCommand command) { 
+
+        final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(7);
+
+        final String enabledParamName = "enabled";
+        if (command.isChangeInBooleanParameterNamed(enabledParamName, this.enabled)) {
+            final Boolean newValue = command.booleanPrimitiveValueOfParameterNamed(enabledParamName);
+            actualChanges.put(enabledParamName, newValue);
+            this.enabled = newValue;
+        }
+
+        final String valueParamName = "value";
+        if (command.isChangeInStringParameterNamed(valueParamName, this.value)) {
+            final String newValue = command.stringValueOfParameterNamed(valueParamName);
+            actualChanges.put(valueParamName, newValue);
+            this.value = newValue;
+        }
+
+        return actualChanges;
+
+    }
     
     
 }

@@ -37,24 +37,26 @@ import org.springframework.stereotype.Component;
 public class AssociationApiResource {
 
 	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "planCode", "OrderId","hardware","serialNo","planCode",
-			"itemCode","saleId"));
+			"itemCode","saleId","itemId"));
 	
 	 private final String resourceNameForPermissions = "PLAN";
-	  private final PlatformSecurityContext context;
-	    private final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer;
-	    private final ApiRequestParameterHelper apiRequestParameterHelper;
-	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-	    private final HardwareAssociationReadplatformService associationReadplatformService;
-	    
+	 private final PlatformSecurityContext context;
+	 private final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer;
+	 private final ApiRequestParameterHelper apiRequestParameterHelper;
+	 private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	 private final HardwareAssociationReadplatformService associationReadplatformService;
+	
 	    @Autowired
-	    public AssociationApiResource(final PlatformSecurityContext context, 
-	   final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final HardwareAssociationReadplatformService associationReadplatformService) {
+	    public AssociationApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer, 
+	      final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+	      final HardwareAssociationReadplatformService associationReadplatformService) {
+	    	
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper; 
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.associationReadplatformService=associationReadplatformService;
+		      
 		    }		
 	@GET
 	@Path("{clientId}")
@@ -73,7 +75,9 @@ public class AssociationApiResource {
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveAssociation(@PathParam("clientId") final Long clientId,@PathParam("id") final Long id, @Context final UriInfo uriInfo) {
- 		 try{
+ 		 
+		try{
+ 			
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		AssociationData associationData = this.associationReadplatformService.retrieveSingleDetails(id);
 		List<AssociationData> HardwareDatas = this.associationReadplatformService.retrieveHardwareData(clientId);

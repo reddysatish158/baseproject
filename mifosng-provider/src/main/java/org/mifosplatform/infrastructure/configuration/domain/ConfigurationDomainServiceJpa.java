@@ -6,24 +6,30 @@
 package org.mifosplatform.infrastructure.configuration.domain;
 
 import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.infrastructure.cache.domain.CacheType;
+import org.mifosplatform.infrastructure.cache.domain.PlatformCache;
+import org.mifosplatform.infrastructure.cache.domain.PlatformCacheRepository;
 import org.mifosplatform.infrastructure.configuration.exception.GlobalConfigurationPropertyNotFoundException;
 import org.mifosplatform.useradministration.domain.Permission;
 import org.mifosplatform.useradministration.domain.PermissionRepository;
 import org.mifosplatform.useradministration.exception.PermissionNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ConfigurationDomainServiceJpa implements ConfigurationDomainService {
 
     private final PermissionRepository permissionRepository;
     private final GlobalConfigurationRepository globalConfigurationRepository;
+    private final PlatformCacheRepository cacheTypeRepository;
 
     @Autowired
-    public ConfigurationDomainServiceJpa(final PermissionRepository permissionRepository,
-            final GlobalConfigurationRepository globalConfigurationRepository) {
+    public ConfigurationDomainServiceJpa(final PermissionRepository permissionRepository,final GlobalConfigurationRepository globalConfigurationRepository,
+    		  final PlatformCacheRepository cacheTypeRepository) {
         this.permissionRepository = permissionRepository;
         this.globalConfigurationRepository = globalConfigurationRepository;
+        this.cacheTypeRepository=cacheTypeRepository;
     }
 
     @Override
@@ -38,5 +44,20 @@ public class ConfigurationDomainServiceJpa implements ConfigurationDomainService
         if (property == null) { throw new GlobalConfigurationPropertyNotFoundException(makerCheckerConfigurationProperty); }
 
         return thisTask.hasMakerCheckerEnabled() && property.isEnabled();
+    }
+    
+    @Override
+    public boolean isEhcacheEnabled() {
+        return this.cacheTypeRepository.findOne(Long.valueOf(1)).isEhcacheEnabled();
+        
+    }
+    
+    @Transactional
+    @Override
+    public void updateCache(final CacheType cacheType) {
+        final PlatformCache cache = this.cacheTypeRepository.findOne(Long.valueOf(1));
+        cache.update(cacheType);
+
+        this.cacheTypeRepository.save(cache);
     }
 }

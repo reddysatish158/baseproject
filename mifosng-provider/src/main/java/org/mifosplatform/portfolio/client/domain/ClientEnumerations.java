@@ -20,14 +20,14 @@ public class ClientEnumerations {
             case INVALID:
                 optionData = new EnumOptionData(ClientStatus.INVALID.getValue().longValue(), ClientStatus.INVALID.getCode(), "Invalid");
             break;
-            case PENDING:
-                optionData = new EnumOptionData(ClientStatus.PENDING.getValue().longValue(), ClientStatus.PENDING.getCode(), "Pending");
+            case NEW:
+                optionData = new EnumOptionData(ClientStatus.NEW.getValue().longValue(), ClientStatus.NEW.getCode(), "New");
             break;
             case ACTIVE:
                 optionData = new EnumOptionData(ClientStatus.ACTIVE.getValue().longValue(), ClientStatus.ACTIVE.getCode(), "Active");
             break;
-            case CLOSED:
-                optionData = new EnumOptionData(ClientStatus.CLOSED.getValue().longValue(), ClientStatus.CLOSED.getCode(), "Closed");
+            case DEACTIVE:
+                optionData = new EnumOptionData(ClientStatus.DEACTIVE.getValue().longValue(), ClientStatus.DEACTIVE.getCode(), "DeActive");
             break;
         }
 

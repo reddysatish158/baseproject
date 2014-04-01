@@ -2,7 +2,6 @@ package org.mifosplatform.billing.supplier.api;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -16,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
-import org.mifosplatform.billing.inventory.mrn.data.MRNDetailsData;
 import org.mifosplatform.billing.supplier.data.SupplierData;
 import org.mifosplatform.billing.supplier.service.SupplierReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;

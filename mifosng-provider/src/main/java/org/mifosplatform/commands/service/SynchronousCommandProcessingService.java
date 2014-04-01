@@ -523,8 +523,16 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("orderPromoCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isRetrackOsdMessageOrder()) {
 				handler = applicationContext.getBean("retrackOsdMessageOrderCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isOrderExtension()) {
+				handler = applicationContext.getBean("orderExtensionCommandHandler",NewCommandSourceHandler.class);
 			}
-		} else if (wrapper.isOrderPriceResource()) {
+		} else if (wrapper.isOrderScheduling()) {
+			if (wrapper.isCreate()) {
+			handler = applicationContext.getBean("schedulingOrderCreationCommandHandler",NewCommandSourceHandler.class);
+		    }else if (wrapper.isDelete()) {
+			handler = applicationContext.getBean("schedulingOrderDeletionCommandHandler",NewCommandSourceHandler.class);
+		   }
+	   }else if (wrapper.isOrderPriceResource()) {
 			if (wrapper.isUpdatePrice()) {
 				handler = applicationContext.getBean("updateOrderPriceCommandHandler",NewCommandSourceHandler.class);
 			}
@@ -545,9 +553,16 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("updateAddressCommandHandler",NewCommandSourceHandler.class);
 			} else if (wrapper.isDelete()) {
 				handler = applicationContext.getBean("deleteAddressCommandHandler",NewCommandSourceHandler.class);
-			}else if (wrapper.isNewRecord()) {
-				handler = applicationContext.getBean("createNewRecordCommandHandler",NewCommandSourceHandler.class);
 			}
+		}else if(wrapper.isAddressMappingResource()){
+			if (wrapper.isNewRecord()) {
+				handler = applicationContext.getBean("createNewLocationCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isUpdateNewRecord()) {
+				handler = applicationContext.getBean("updateLocationCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isdeleteNewRecord()) {
+				handler = applicationContext.getBean("deleteLocationCommandHandler",NewCommandSourceHandler.class);
+			}
+			
 		}
 
 		else if (wrapper.isItemResource()) {
@@ -612,8 +627,11 @@ public class SynchronousCommandProcessingService implements
 	        	}
 	        	else if(wrapper.isUpdateInventoryItem()){
 	        		handler = applicationContext.getBean("updateInventoryItemsCommandHandler", NewCommandSourceHandler.class);
-	        	}
-			} else if (wrapper.isGrnResource()) {
+	        	} else if (wrapper.isDeAllocateHardwareResource()) {
+					
+					handler = applicationContext.getBean("deAllocateItemCommandHandler",NewCommandSourceHandler.class);
+			    }
+			}else if (wrapper.isGrnResource()) {
 				if (wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryGrnCommandHandler", NewCommandSourceHandler.class);
 				}
@@ -621,9 +639,6 @@ public class SynchronousCommandProcessingService implements
 				if(wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryItemAllocationCommandHandler",NewCommandSourceHandler.class);
 				}
-			}else if (wrapper.isDeAllocateHardwareResource()) {
-				
-					handler = applicationContext.getBean("deAllocateItemCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isUploadStatusResource()) {
 	        	if (wrapper.isCreate()) {
 					handler = applicationContext.getBean("uploadStatusWritePlatformService", NewCommandSourceHandler.class);
@@ -728,6 +743,12 @@ public class SynchronousCommandProcessingService implements
 				    	   if(wrapper.isCreate()){
 				    		   handler = applicationContext.getBean("createOwnedHardwareCommandHandler",NewCommandSourceHandler.class);
 				    	   }
+				    	   if(wrapper.isOwnUpdate()){
+				    		   handler = applicationContext.getBean("updateOwnedHardwareCommandHandler",NewCommandSourceHandler.class);
+				    	   }
+				    	   if(wrapper.isOwnDelete()){
+				    		   handler = applicationContext.getBean("deleteOwnedHardwareCommandHandler",NewCommandSourceHandler.class);
+				    	   }
 			} else if(wrapper.isSchedulling()){
 						if(wrapper.isCreate()){
 							handler = applicationContext.getBean("createBatchJobSchedulingCommandHandler", NewCommandSourceHandler.class);
@@ -791,7 +812,12 @@ public class SynchronousCommandProcessingService implements
 		    }else if(wrapper.isPromotionCodeResource()){
         		 if(wrapper.isCreatePromotionCode()) {
 		        		handler = applicationContext.getBean("createPromotionCodeCommandHandler",NewCommandSourceHandler.class);
-				   }else{
+				   }else if(wrapper.isUpdatePromotionCode()) {
+		        		handler = applicationContext.getBean("updatePromotionCodeCommandHandler",NewCommandSourceHandler.class);	
+				   }else if(wrapper.isDeletePrmotionCode()) {
+		        		handler = applicationContext.getBean("deletePromotionCodeCommandHandler",NewCommandSourceHandler.class);	
+				   }
+				   else{
 			           throw new UnsupportedCommandException(wrapper.commandName());
 			       }
 		    }
@@ -820,7 +846,13 @@ public class SynchronousCommandProcessingService implements
 			            }else {
 			                throw new UnsupportedCommandException(wrapper.commandName());
 			            }
-			}else if(wrapper.isEntitlementResource()){
+			} else if (wrapper.isCacheResource()) {
+	            if (wrapper.isUpdateOperation()) {
+	                handler = this.applicationContext.getBean("updateCacheCommandHandler", NewCommandSourceHandler.class);
+	            } else {
+	                throw new UnsupportedCommandException(wrapper.commandName());
+	            }
+	        } else if(wrapper.isEntitlementResource()){
 		                 if(wrapper.isCreateEntitlement()) {
 		                     handler = applicationContext.getBean("createEntitlementCommandHandler",NewCommandSourceHandler.class);
 		                 }
@@ -869,12 +901,25 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isUserChatResource()){
 				   if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createUserChatCommandHandler",NewCommandSourceHandler.class);
+				     } 
+				   else if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateUserChatMessageCommandHandler",NewCommandSourceHandler.class);
+				   
+				   }else if(wrapper.isDelete()) {
+				         handler = applicationContext.getBean("deleteUserChatMessageCommandHandler",NewCommandSourceHandler.class);
+				   }   
+		
+			   }else if(wrapper.isCreditDistributionResource()){
+				     if(wrapper.isCreate()) {
+				         handler = applicationContext.getBean("createCreditDistributionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
 			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       
-					
+			   	
 	       return handler;
 	      
 	    

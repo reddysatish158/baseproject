@@ -44,14 +44,14 @@ public class ContractPeriodReadPlatformServiceImpl implements ContractPeriodRead
 	public Collection<SubscriptionData> retrieveAllSubscription() {
 		this.context.authenticatedUser();
 		SuscriptionMapper mapper= new SuscriptionMapper();
-		String sql="select "+mapper.contractPeriodSchema()+"where dp.is_deleted=0";
+		String sql="select "+mapper.contractPeriodSchema()+"where dp.is_deleted='N'";
 		return this.jdbcTemplate.query(sql,mapper, new Object[]{});
 	}
 
 	@Override
 	public SubscriptionData retrieveSubscriptionData(Long subscriptionId) {
 		SuscriptionMapper depositProductMapper=new SuscriptionMapper();
-		String sql = "select "+ depositProductMapper.contractPeriodSchema() +" where dp.id = ? and dp.is_deleted=0";
+		String sql = "select "+ depositProductMapper.contractPeriodSchema() +" where dp.id = ? and dp.is_deleted= 'N'";
 
 		return this.jdbcTemplate.queryForObject(sql, depositProductMapper, new Object[]{subscriptionId});
 	}

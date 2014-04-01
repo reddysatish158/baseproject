@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.payterms.data.PaytermData;
 import org.mifosplatform.billing.plan.data.PlanCodeData;
@@ -30,27 +31,31 @@ public class OrderData {
 	private List<PaytermData> paytermdata;
 	private List<SubscriptionData> subscriptiondata;
 	private List<OrderPriceData> orderPriceData;
-	private String cancelledStatus;
+	private LocalDate activeDate;
 	private String contractPeriod;
-	private boolean flag;
+//	private boolean flag;
 	private Collection<McodeData> disconnectDetails;
 	private List<OrderHistoryData> orderHistory;
 	private String isPrepaid;
 	private String allowtopup;
 	private List<OrderData> clientOrders;
 	private String userAction;
+	private String orderNo;
 	private OrderData orderData;
 	private String provisioningSys;
 	private boolean ispaymentEnable;
 	private Collection<McodeData> paymodes;
 	private List<OrderLineData> orderServices;
 	private List<OrderDiscountData> orderDiscountDatas;
-	
+	private LocalDate invoiceTilldate;
+	private Collection<MCodeData> extensionReasonDatas;
+	private Collection<MCodeData> extensionPeriodDatas;
 
 	public OrderData(List<PlanCodeData> allowedtypes,List<PaytermData> paytermData,
 			List<SubscriptionData> contractPeriod, OrderData data) {
 
 		if (data != null) {
+			
 			this.id = data.getId();
 			this.pdid = data.getPdid();
 			this.planCode = data.getPlan_code();
@@ -58,7 +63,6 @@ public class OrderData {
 			this.period = data.getPeriod();
 			this.orderPriceId = data.getOrderPriceId();
 			this.service_code = null;
-
 			this.startDate = data.getStartDate();
 		}
 		this.startDate=new LocalDate();
@@ -72,12 +76,11 @@ public class OrderData {
 
 	public OrderData(Long id, Long planId, String plancode, String status,LocalDate startDate, LocalDate endDate,
 			double price,String contractPeriod, String isprepaid, String allowtopup,String userAction,
-			String provisioningSys) {
+			String provisioningSys, String orderNo, LocalDate invoiceTillDate, LocalDate activaDate) {
 		this.id = id;
 		this.pdid = planId;
 		this.planCode = plancode;
 		this.status = status;
-		this.cancelledStatus = "DISCONNECTED";
 		this.period = null;
 		this.startDate = startDate;
 		this.currentDate = new LocalDate();
@@ -95,9 +98,9 @@ public class OrderData {
 		this.allowtopup=allowtopup;
 		this.userAction=userAction;
         this.provisioningSys=provisioningSys;
-		if (startDate.equals(currentDate)) {
-			this.flag = true;
-		}
+        this.orderNo=orderNo;
+        this.invoiceTilldate=invoiceTillDate;
+		this.activeDate=activaDate;
 
 	}
 
@@ -133,7 +136,14 @@ public class OrderData {
 		            this.price=price;
 		           
 	}
-
+	
+	public OrderData(Collection<MCodeData> extensionPeriodDatas,
+			Collection<MCodeData> extensionReasonDatas) {
+		
+		this.extensionPeriodDatas=extensionPeriodDatas;
+		this.extensionReasonDatas=extensionReasonDatas;
+	}
+	
 	public Long getId() {
 		return id;
 	}

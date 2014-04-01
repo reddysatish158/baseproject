@@ -29,22 +29,24 @@ public class EntitlementReadPlatformServiceImpl implements
 			final TenantAwareRoutingDataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
-
+	
 	@Override
-	public List<EntitlementsData> getProcessingData(Long id) {
+
+	public List<EntitlementsData> getProcessingData(Long id,String provisioningSys) {
 		// TODO Auto-generated method stub
 		String sql = "";
-		ServicesMapper mapper = new ServicesMapper();
-		if (id == null) {
-			sql = "select " + mapper.schema();
-		} else {
-			sql = "select " + mapper.schema() + " and pr.id limit " + id;
-		}
-		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,
-				new Object[] {});
-
+		ServicesMapper mapper = new ServicesMapper();		
+		sql = "select " + mapper.schema();		
+		if(provisioningSys != null){
+			sql = sql + " and p.provisioing_system = '" + provisioningSys + "' ";
+		}		
+		if (id != null) {
+			sql = sql + " and pr.id limit " + id;
+		} 				
+		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,new Object[] {});
 		return detailsDatas;
 	}
+
 
 	protected static final class ServicesMapper implements
 			RowMapper<EntitlementsData> {
@@ -55,20 +57,23 @@ public class EntitlementReadPlatformServiceImpl implements
 			Long id = rs.getLong("id");
 			Long serviceId = rs.getLong("serviceId");
 			String product = rs.getString("sentMessage");
-			Long prepareReqId = rs.getLong("prepareRequestId");
+			Long prdetailsId = rs.getLong("prdetailsId");
 			String requestType = rs.getString("requestType");
 			String hardwareId = rs.getString("hardwareId");
 			String provisioingSystem = rs.getString("provisioingSystem");
 			Long clientId = rs.getLong("clientId");
+			Long planId= rs.getLong("planId");
+			String orderNo= rs.getString("orderNo");
 
-			return new EntitlementsData(id, prepareReqId, requestType,
-					hardwareId, provisioingSystem, product, serviceId, clientId);
+			return new EntitlementsData(id, prdetailsId, requestType,hardwareId, provisioingSystem, product, serviceId, clientId,planId,orderNo);
 
 		}
 
 		public String schema() {
-			return "p.id AS id,p.client_id as clientId,p.prepareRequest_id as prepareRequestId,p.provisioing_system as provisioingSystem,pr.service_id as serviceId, pr.sent_message as sentMessage,pr.hardware_id as hardwareId, p.request_type AS requestType "
-					+ "FROM b_process_request p,b_process_request_detail pr WHERE p.id=pr.processrequest_id AND p.is_processed = 'N' ";
+			return " p.id AS id,p.client_id AS clientId,p.provisioing_system AS provisioingSystem,pr.service_id AS serviceId,pr.id AS " +
+					"prdetailsId,pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId,o.order_no as orderNo " +
+					"FROM b_process_request_detail pr,b_process_request p left join b_orders o on o.id=p.order_id where p.id = pr.processrequest_id" +
+					" AND p.is_processed = 'N'";
 		}
 
 	}
@@ -91,12 +96,14 @@ public class EntitlementReadPlatformServiceImpl implements
 			
 			String emailId = rs.getString("EmailId");
 			String fullName = rs.getString("fullName");	
-			return new ClientEntitlementData(emailId,fullName);
+			String login = rs.getString("login");
+			String password = rs.getString("password");
+			return new ClientEntitlementData(emailId,fullName,login,password);
 		
 		}
 		
 		public String schema() {
-			return "c.email as EmailId,c.display_name as fullName from m_client c where c.id=?";
+			return "c.email as EmailId,c.display_name as fullName,c.login as login,c.password as password from m_client c where c.id=?";
 		}
 		
 		}
@@ -140,9 +147,10 @@ public class EntitlementReadPlatformServiceImpl implements
 						" b_item_detail i WHERE a.client_id = c.id AND c.id= o.client_id" +
 						" AND o.plan_id=pm.id AND a.serial_no=i.serial_no group by ls and a.serial_no=?";*/
 				return "DISTINCT i.provisioning_serialno AS mac,i.client_id AS ls,o.order_status as status,c.firstname as fname," +
-						" c.phone as phone,o.end_date as end_date, 'Ellinika' as tariff FROM b_allocation a,m_client c,b_plan_master pm," +
+						" c.phone as phone,o.end_date as end_date, pm.plan_description as tariff FROM b_allocation a,m_client c,b_plan_master pm," +
 						" b_orders o,b_item_detail i WHERE i.client_id = c.id AND c.id= o.client_id and i.serial_no=a.serial_no " +
-						" AND o.plan_id=pm.id and i.provisioning_serialno=? group by ls";
+						" AND o.plan_id=pm.id AND o.order_status =1 AND i.provisioning_serialno=? group by ls";
+				
 			}
 
 }

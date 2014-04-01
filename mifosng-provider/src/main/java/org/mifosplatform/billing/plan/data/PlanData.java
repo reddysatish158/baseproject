@@ -33,7 +33,7 @@ public class PlanData {
 	private String volume;
 	private String units;
 	private String unitType;
-	
+	private Long contractId;
 	private Boolean isActive=false;
 	private Integer planCount = 0;
 	private List<PlanData> data = null;
@@ -74,7 +74,7 @@ public class PlanData {
 	
 	public PlanData(Long id, String planCode, LocalDate startDate,LocalDate endDate, Long bill_rule, String contractPeriod,
 			long status, String planDescription, long status1,String provisionSys,EnumOptionData enumstatus, String isPrepaid,
-			String allowTopup, String volume, String units, String unitType) {
+			String allowTopup, String volume, String units, String unitType, List<ServiceData> services, Long contractId) {
 
 		this.id = id;
 		this.planCode = planCode;
@@ -96,6 +96,8 @@ public class PlanData {
 		this.volume=volume;
 		this.units=units;
 		this.unitType=unitType;
+		this.services=services;
+		this.contractId=contractId;
 	}
 
 	
@@ -323,6 +325,12 @@ public class PlanData {
 	 */
 	public void setPlanCount(Integer planCount) {
 		this.planCount = planCount;
+	}
+
+
+	public void setSeriveces(List<ServiceData> services) {
+		
+		this.selectedServices=services;
 	}
 	
 	

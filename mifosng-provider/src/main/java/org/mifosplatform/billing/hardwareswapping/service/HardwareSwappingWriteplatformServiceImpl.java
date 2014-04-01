@@ -13,12 +13,14 @@ import org.mifosplatform.billing.eventorder.service.PrepareRequestWriteplatformS
 import org.mifosplatform.billing.hardwareswapping.serialization.HardwareSwappingCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsAllocation;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
+import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderHistory;
 import org.mifosplatform.billing.order.domain.OrderHistoryRepository;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.plan.domain.Plan;
 import org.mifosplatform.billing.plan.domain.PlanRepository;
+import org.mifosplatform.billing.plan.domain.StatusTypeEnum;
 import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -92,7 +94,7 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
 		Order order=this.orderRepository.findOne(orderId);
 		
 		Plan plan=this.planRepository.findOne(order.getPlanId());
-		this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+	//	this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
 		
 		JSONObject allocation = new JSONObject();
 		 JSONObject allocation1 = new JSONObject();
@@ -114,24 +116,28 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
 		//ReAllocate HardWare
 			//this.inventoryItemDetailsWritePlatformService.allocateHardware(command);
 			CommandWrapper commandWrapper = new CommandWrapperBuilder().allocateHardware().withJson(allocation1.toString()).build();
-			final CommandProcessingResult result = commandsSourceWritePlatformService.logCommandSource(commandWrapper);
-	   //for Reassociation With New SerialNumber
-		//	this.associationWriteplatformService.createAssociation(command);
+			this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
+     	   
+			//for Reassociation With New SerialNumber
+			//this.associationWriteplatformService.createAssociation(command);
+			if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
+			requstStatus =UserActionStatusTypeEnum.DEVICE_SWAP.toString();
+			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+			order.setStatus( OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
+			}
 			
-		
-			requstStatus =UserActionStatusTypeEnum.ACTIVATION.toString();
-			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);	
-				
+			
+			this.orderRepository.save(order);
 				//For Transaction History
 				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Hardware Swap",new Date(),"Old Serial No:"+serialNo
 						+ " is replaced with New "+provisionNum);
 				//For Order History
-				OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"Hardware Swap",userId);
+				OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),null,"DEVICE SWAP",userId,null);
 		
 				this.orderHistoryRepository.save(orderHistory);
-		return processingResult;		
+		return new CommandProcessingResult(entityId);		
 	}catch(Exception exception){
-		return null;
+		return new CommandProcessingResult(Long.valueOf(-1));
 	}
 	
 	}

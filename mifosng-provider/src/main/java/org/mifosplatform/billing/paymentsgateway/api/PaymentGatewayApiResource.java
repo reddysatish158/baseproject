@@ -32,6 +32,7 @@ import org.mifosplatform.infrastructure.codes.data.CodeData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
@@ -81,49 +82,112 @@ public class PaymentGatewayApiResource {
 	@Consumes({ MediaType.WILDCARD })
 	@Produces({ MediaType.APPLICATION_XML })
 	public String mpesaPayment(final String apiRequestBodyAsJson)  {
+		
 		 CommandProcessingResult result=null;
-		 String Receipt = null;
-	try{
+		 JSONObject jsonData = null;
+	     try{
 			JSONObject xmlJSONObj = XML.toJSONObject(apiRequestBodyAsJson);
-			JSONObject element= xmlJSONObj.getJSONObject("transaction");
-			Receipt=element.getString("receipt");
-			element.put("locale", "en");
-			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(element.toString()).build();
+			jsonData=this.ReturnJsonFromXml(xmlJSONObj);
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().createPaymentGateway().withJson(jsonData.toString()).build();
 			result = this.writePlatformService.logCommandSource(commandRequest);
+			String Success="SUCCESS";
+			String errorDesc="";
+			Long errorCode=0L;
+			String contentData="OBSTRANSACTIONID="+result.resourceId();
+			return this.returnToStalker(jsonData,Success,errorDesc,errorCode,contentData);
 			
-			if("Success".equalsIgnoreCase(result.getTransactionId())){
-            StringBuilder builder = new StringBuilder();
-            builder
-                .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-                .append("<response>")
-                .append("<receipt>"+result.resourceId())
-                .append("</receipt>")
-                 .append("<result>"+result.getTransactionId())
-                .append("</result>")
-                .append("</response>");
-            return builder.toString();
-			}
-			else {	
-            return null;
-           }
-	}catch(ReceiptNoDuplicateException e){
-		 Long id=this.paymentGatewayReadPlatformService.GetReceiptNoId(Receipt);
-		StringBuilder failurebuilder = new StringBuilder();
-		failurebuilder
-            .append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-            .append("<response>")
-            .append("<receipt>"+id)
-            .append("</receipt>")
-            .append("<result>"+"DUPLICATE_TXN")
-            .append("</result>")
-            .append("</response>");
-        return failurebuilder.toString();
-	} catch (Exception e) {
-		return null;		
+		}catch(ReceiptNoDuplicateException e){
+				String Success="DUPLICATE_TXN";
+				String errorDesc="DUPLICATE";
+				Long errorCode=1L;
+				String contentData="TXNID ALREADY EXIST";
+				return this.returnToStalker(jsonData,Success,errorDesc,errorCode,contentData);
+		} catch (JSONException e) {
+			    return e.getCause().toString();	 
+		} catch (PlatformDataIntegrityException e) {
+		        return null;
+	    }   
 	}
-	
-	
-		 
+
+	private String returnToStalker(JSONObject jsonData, String success, String errorDesc, Long errorCode, String contentData) {
+		
+		try {
+			String OBSPAYMENTTYPE = jsonData.getString("OBSPAYMENTTYPE");
+		
+			String returnMessage = null;
+			if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
+				
+					     String Receipt=jsonData.getString("receipt");
+						 StringBuilder builder = new StringBuilder();
+				            builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+				                .append("<response>")
+				                .append("<receipt>"+Receipt)
+				                .append("</receipt>")
+				                .append("<result>"+success)
+				                .append("</result>")
+				                .append("</response>");
+				            returnMessage= builder.toString();
+					
+			}else if (OBSPAYMENTTYPE.equalsIgnoreCase("TigoPesa")) {
+				
+					String TYPE = jsonData.getString("TYPE");
+					String TXNID = jsonData.getString("TXNID");
+					String CUSTOMERREFERENCEID = jsonData.getString("CUSTOMERREFERENCEID");	
+					String MSISDN = jsonData.getString("MSISDN");
+					
+						 StringBuilder builder = new StringBuilder();
+				            builder.append("<?xml version=\"1.0\"?>")
+				                .append("<!DOCTYPE COMMAND PUBLIC \"-//Ocam//DTD XML Command 1.0//EN\" \"xml/command.dtd\">")
+				                .append("<COMMAND>")
+				                .append("<TYPE>"+TYPE)
+				                .append("</TYPE>")
+				                .append("<TXNID>"+TXNID)
+				                .append("</TXNID>")
+				                .append("<REFID>"+CUSTOMERREFERENCEID)
+				                .append("</REFID>")
+				                .append("<RESULT>"+success)
+				                .append("</RESULT>")
+				                .append("<ERRORCODE>"+errorCode)
+				                .append("</ERRORCODE>")
+				                .append("<ERRORDESC>"+errorDesc)
+				                .append("</ERRORDESC>")
+				                .append("<MSISDN>"+MSISDN)
+				                .append("</MSISDN>")
+				                .append("<FLAG>"+"Y")
+				                .append("</FLAG>")
+				                .append("<CONTENT>"+contentData)
+				                .append("</CONTENT>")
+				                .append("</COMMAND>");
+				            
+				            returnMessage= builder.toString();			 
+					
+		}
+		return returnMessage;
+		} catch (JSONException e) {
+			return e.getCause().toString();	 
+		}
+		
+	}
+
+	public JSONObject ReturnJsonFromXml(JSONObject xmlJSONObj){		
+		try {
+			JSONObject element=null;
+			boolean b=xmlJSONObj.has("COMMAND");
+			
+			if(b==true){
+			    element = xmlJSONObj.getJSONObject("COMMAND");
+			    element.put("OBSPAYMENTTYPE", "TigoPesa");
+			    element.put("locale", "en");
+			}else{
+				element = xmlJSONObj.getJSONObject("transaction");
+				element.put("OBSPAYMENTTYPE", "MPesa");
+				element.put("locale", "en");
+			}
+			return element;
+		} catch (JSONException e) { 
+			return null;
+		}
+		
 	}
 	
 	@GET

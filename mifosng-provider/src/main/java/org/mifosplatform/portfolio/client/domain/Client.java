@@ -42,7 +42,7 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
 @Table(name = "m_client", uniqueConstraints = { @UniqueConstraint(columnNames = { "account_no" }, name = "account_no_UNIQUE"),
-		@UniqueConstraint(columnNames = { "email" }, name = "email_key")})
+		@UniqueConstraint(columnNames = { "email" }, name = "email_key"),@UniqueConstraint(columnNames = { "login" }, name = "login_key")})
 public final class Client extends AbstractPersistable<Long> {
 
     @Column(name = "account_no", length = 20, unique = true, nullable = false)
@@ -126,19 +126,24 @@ public final class Client extends AbstractPersistable<Long> {
         final String homePhoneNumber = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
         
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
-	    final String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+
+	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
 	    }
-        ClientStatus status =  ClientStatus.ACTIVE;
+	    if(login.isEmpty()){
+	    	login=null;
+	    }
+        ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
 
         LocalDate activationDate = null;
         if (active) {
-            status = ClientStatus.ACTIVE;
+            status = ClientStatus.NEW;
             activationDate =new LocalDate(); //command.localDateValueOfParameterNamed(ClientApiConstants.activationDateParamName);
         }
 
@@ -266,11 +271,11 @@ public final class Client extends AbstractPersistable<Long> {
     }
 
     public boolean isNotPending() {
-        return !isPending();
+        return !isNew();
     }
 
-    public boolean isPending() {
-        return ClientStatus.fromInt(this.status).isPending();
+    public boolean isNew() {
+        return ClientStatus.fromInt(this.status).isNew();
     }
 
     private boolean isDateInTheFuture(final LocalDate localDate) {
@@ -545,6 +550,11 @@ public final class Client extends AbstractPersistable<Long> {
 	}
 	public void setOffice(Office office) {
 		this.office = office;
+	}
+
+	public void setStatus(Integer status) {
+		this.status=status;
+		
 	}
     
 }

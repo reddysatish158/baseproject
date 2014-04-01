@@ -55,14 +55,16 @@ public class ServiceMappingReadPlatformServiceImpl implements ServiceMappingRead
 	
 	private class ServiceCodeDataMapper implements RowMapper<ServiceCodeData>{
 		public ServiceCodeData mapRow(final ResultSet rs , final int rowNum)throws SQLException{
-			String serviceCode = rs.getString("serviceCode");
 			Long id = rs.getLong("id");
-			return new ServiceCodeData(serviceCode,id);
+			String serviceCode = rs.getString("serviceCode");
+			String serviceType = rs.getString("serviceType");
+			
+			return new ServiceCodeData(id,serviceCode,serviceType);
 		}
 	}
 
 	public List<ServiceCodeData> getServiceCode(){
-		String sql = "select bs.id as id,bs.service_code as serviceCode from b_service bs " +
+		String sql = "select bs.id as id,bs.service_code as serviceCode,bs.service_type as serviceType  from b_service bs " +
 				"where bs.status='ACTIVE'  order by bs.id";
 		ServiceCodeDataMapper rowMapper = new ServiceCodeDataMapper();
 		return jdbcTemplate.query(sql, rowMapper);

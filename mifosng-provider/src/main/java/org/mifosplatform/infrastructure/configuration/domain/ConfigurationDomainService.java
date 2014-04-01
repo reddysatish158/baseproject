@@ -5,7 +5,11 @@
  */
 package org.mifosplatform.infrastructure.configuration.domain;
 
+import org.mifosplatform.infrastructure.cache.domain.CacheType;
+
 public interface ConfigurationDomainService {
 
     boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
+    boolean isEhcacheEnabled();
+    void updateCache(CacheType cacheType);
 }

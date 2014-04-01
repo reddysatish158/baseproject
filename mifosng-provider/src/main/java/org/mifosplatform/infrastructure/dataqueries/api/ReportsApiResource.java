@@ -6,7 +6,6 @@
 package org.mifosplatform.infrastructure.dataqueries.api;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,10 +17,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -29,7 +30,9 @@ import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
+import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.dataqueries.data.ReportData;
+import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterJoinData;
 import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,12 +57,10 @@ public class ReportsApiResource {
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
 
 	@Autowired
-	public ReportsApiResource(
-			final PlatformSecurityContext context,
-			final ReadReportingService readReportingService,
-			final ToApiJsonSerializer<ReportData> toApiJsonSerializer,
-			PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+	public ReportsApiResource(final PlatformSecurityContext context,final ReadReportingService readReportingService,
+			final ToApiJsonSerializer<ReportData> toApiJsonSerializer,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 			final ApiRequestParameterHelper apiRequestParameterHelper) {
+		
 		this.context = context;
 		this.readReportingService = readReportingService;
 		this.toApiJsonSerializer = toApiJsonSerializer;
@@ -67,45 +68,45 @@ public class ReportsApiResource {
 		this.apiRequestParameterHelper = apiRequestParameterHelper;
 	}
 
-	@GET
+/*	@GET
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveReportList(@Context final UriInfo uriInfo) {
 
-		context.authenticatedUser().validateHasReadPermission(
-				resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		final Collection<ReportData> result = this.readReportingService.retrieveReportList();
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, result,RESPONSE_DATA_PARAMETERS);
+	}*/
 
-		final Collection<ReportData> result = this.readReportingService
-				.retrieveReportList();
+	@GET
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retriveItemDetails(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+		final Page<ReportParameterJoinData> result = this.readReportingService.retrieveSearchReportList(searchItemDetails);
+		//final Page<InventoryItemDetailsData> clientDatafinal = this.itemDetailsReadPlatformService.retriveAllItemDetails(searchItemDetails);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(result);
+		
 
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper
-				.process(uriInfo.getQueryParameters());
-		return this.toApiJsonSerializer.serialize(settings, result,
-				RESPONSE_DATA_PARAMETERS);
 	}
 
 	@GET
 	@Path("{id}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String retrieveReport(@PathParam("id") final Long id,
-			@Context final UriInfo uriInfo) {
+	public String retrieveReport(@PathParam("id") final Long id,@Context final UriInfo uriInfo) {
 
-		context.authenticatedUser().validateHasReadPermission(
-				resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 
-		final ReportData result = this.readReportingService
-				.retrieveReport(id);
-
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper
-				.process(uriInfo.getQueryParameters());
-
+		final ReportData result = this.readReportingService.retrieveReport(id);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		if (settings.isTemplate()) {
-			result.appendedTemplate(this.readReportingService
-					.getAllowedParameters());
+			result.appendedTemplate(this.readReportingService.getAllowedParameters());
 		}
-		return this.toApiJsonSerializer.serialize(settings, result,
-				RESPONSE_DATA_PARAMETERS);
+		return this.toApiJsonSerializer.serialize(settings, result,RESPONSE_DATA_PARAMETERS);
 	}
 
 	@GET
@@ -114,17 +115,12 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveOfficeTemplate(@Context final UriInfo uriInfo) {
 
-		context.authenticatedUser().validateHasReadPermission(
-				resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 
 		ReportData result = new ReportData();
-		result.appendedTemplate(this.readReportingService
-				.getAllowedParameters());
-
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper
-				.process(uriInfo.getQueryParameters());
-		return this.toApiJsonSerializer.serialize(settings, result,
-				RESPONSE_DATA_PARAMETERS);
+		result.appendedTemplate(this.readReportingService.getAllowedParameters());
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+		return this.toApiJsonSerializer.serialize(settings, result,RESPONSE_DATA_PARAMETERS);
 	}
 
 	@POST
@@ -132,12 +128,8 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String createReport(final String apiRequestBodyAsJson) {
 
-		final CommandWrapper commandRequest = new CommandWrapperBuilder()
-				.createReport().withJson(apiRequestBodyAsJson).build();
-
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService
-				.logCommandSource(commandRequest);
-
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createReport().withJson(apiRequestBodyAsJson).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}
 
@@ -148,12 +140,8 @@ public class ReportsApiResource {
 	public String updateReport(@PathParam("id") final Long id,
 			final String apiRequestBodyAsJson) {
 
-		final CommandWrapper commandRequest = new CommandWrapperBuilder()
-				.updateReport(id).withJson(apiRequestBodyAsJson).build();
-
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService
-				.logCommandSource(commandRequest);
-
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().updateReport(id).withJson(apiRequestBodyAsJson).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}
 
@@ -163,12 +151,8 @@ public class ReportsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String deleteReport(@PathParam("id") final Long id) {
 
-		final CommandWrapper commandRequest = new CommandWrapperBuilder()
-				.deleteReport(id).build();
-
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService
-				.logCommandSource(commandRequest);
-
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteReport(id).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}
 

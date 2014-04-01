@@ -25,7 +25,6 @@ import org.mifosplatform.billing.billmaster.domain.BillDetail;
 import org.mifosplatform.billing.billmaster.domain.BillDetailRepository;
 import org.mifosplatform.billing.billmaster.domain.BillMaster;
 import org.mifosplatform.billing.billmaster.domain.BillMasterRepository;
-import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
 import org.mifosplatform.billing.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.billing.payments.domain.Payment;
 import org.mifosplatform.billing.payments.domain.PaymentRepository;
@@ -35,7 +34,6 @@ import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSourc
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,14 +59,13 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 	private final BillingOrderRepository billingOrderRepository;
 	private final InvoiceTaxRepository invoiceTaxRepository;
 	private final InvoiceRepository invoiceRepository;
-	private final ClientBalanceRepository clientBalanceRepository;
-	private final JdbcTemplate jdbcTemplate;
 	private final TenantAwareRoutingDataSource dataSource;
+	
 	@Autowired
 	public BillWritePlatformServiceImpl(final PlatformSecurityContext context,final BillMasterRepository billMasterRepository,
 			final BillDetailRepository billDetailRepository,final PaymentRepository paymentRepository,final AdjustmentRepository adjustmentRepository,
 			final BillingOrderRepository billingOrderRepository,final InvoiceTaxRepository invoiceTaxRepository,final InvoiceRepository invoiceRepository,
-			final ClientBalanceRepository clientBalanceRepository,final TenantAwareRoutingDataSource dataSource) {
+			final TenantAwareRoutingDataSource dataSource) {
 
 		this.context = context;
 		this.billMasterRepository = billMasterRepository;
@@ -77,9 +74,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 		this.billingOrderRepository = billingOrderRepository;
 		this.invoiceTaxRepository = invoiceTaxRepository;
 		this.paymentRepository = paymentRepository;
-		this.clientBalanceRepository = clientBalanceRepository;
 		this.invoiceRepository=invoiceRepository;
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.dataSource = dataSource;
 	}
 
@@ -530,14 +525,14 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 	@Override
 	public void ireportPdf(Long billId) {
 		try {
-			String fileLocation = FileUtils.BILLING_BASE_DIR;
+			String fileLocation = FileUtils.MIFOSX_BASE_DIR;
 
 			/** Recursively create the directory if it does not exist **/
 			if (!new File(fileLocation).isDirectory()) {
 				new File(fileLocation).mkdirs();
 			}
 			
-			String jpath =  System.getProperty("user.home") + File.separator + "billing";
+			String jpath = fileLocation+File.separator+"jasper"; //System.getProperty("user.home") + File.separator + "billing";
 			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
 			//InputStream input = new FileInputStream(new File("/usr/hugotest/EmployeeReport.jasper"));
 			//JasperDesign jasperDesign = JRXmlLoader.load(input);

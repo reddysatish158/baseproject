@@ -106,7 +106,15 @@ public class CommandWrapper {
     public boolean isCreate() {
         return this.actionName.equalsIgnoreCase("CREATE");
     }
-
+    
+    public boolean isOwnUpdate() {
+        return this.actionName.equalsIgnoreCase("UPDATE");
+    }
+    
+    public boolean isOwnDelete() {
+        return this.actionName.equalsIgnoreCase("DELETE");
+    }
+    
     public String getTaskPermissionName() {
         return this.taskPermissionName;
     }
@@ -534,8 +542,7 @@ public class CommandWrapper {
 	}
 
 	public boolean isAddressResource() {
-		return this.entityName.equalsIgnoreCase("address") || this.entityName.equalsIgnoreCase("city") ||
-				this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country");
+		return this.entityName.equalsIgnoreCase("address");
 	}
 
 	public boolean isOrderPriceResource() {
@@ -622,8 +629,14 @@ public class CommandWrapper {
         return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("EVENTPRICE");
        }
 		public boolean isNewRecord() {
-			return this.actionName.equalsIgnoreCase("UPDATE") || this.entityName.equalsIgnoreCase("city") 
-					||this.entityName.equalsIgnoreCase("state") || this.entityName.equalsIgnoreCase("country");
+			 return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("LOCATION");
+		}
+		public boolean isUpdateNewRecord() {
+			return  this.actionName.equalsIgnoreCase("UPDATE") &&  this.entityName.equalsIgnoreCase("LOCATION");
+		}
+		
+		public boolean isdeleteNewRecord() {
+			return  this.actionName.equalsIgnoreCase("DELETE") &&  this.entityName.equalsIgnoreCase("LOCATION");
 		}
 
 		public boolean isEventOrderResource() {
@@ -724,7 +737,7 @@ public class CommandWrapper {
 		}
 		
 		public boolean isOwnedHardware(){
-			return this.entityName.equalsIgnoreCase("OWNEDHARDWARE") && this.actionName.equalsIgnoreCase("CREATE");
+			return this.entityName.equalsIgnoreCase("OWNEDHARDWARE");/* && this.actionName.equalsIgnoreCase("CREATE")*/
 		}
 
 		public boolean isCountryCurrencyResource() {
@@ -939,8 +952,12 @@ public class CommandWrapper {
 		public boolean isCreatePromotionCode() {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
 		}
-
-
+		public boolean isUpdatePromotionCode() {
+			return this.actionName.equalsIgnoreCase("UPDATE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
+		}
+		public boolean isDeletePrmotionCode() {
+			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("PROMOTIONCODE");
+		}
 		public boolean isApplyPormo() {
 			
 			return this.actionName.equalsIgnoreCase("APPLYPROMO") && this.entityName.equalsIgnoreCase("ORDER");
@@ -949,6 +966,26 @@ public class CommandWrapper {
 		public boolean isDeAllocateHardwareResource() {
 			return this.actionName.equalsIgnoreCase("DEALLOCATE") && this.entityName.equalsIgnoreCase("INVENTORY");
 		}
-		
+
+		 public boolean isCacheResource() {
+            return this.entityName.equalsIgnoreCase("CACHE");
+        }
+
+		public boolean isAddressMappingResource() {
+			return this.entityName.equalsIgnoreCase("LOCATION");
+		}
+
+		public boolean isCreditDistributionResource() {
+			  return this.entityName.equalsIgnoreCase("CREDITDISTRIBUTION");
+		}
+
+		public boolean isOrderScheduling() {
+			
+			return  this.entityName.equalsIgnoreCase("ORDERSCHEDULING");
+		}
+
+		public boolean isOrderExtension() {
+			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
+		}
 
 }

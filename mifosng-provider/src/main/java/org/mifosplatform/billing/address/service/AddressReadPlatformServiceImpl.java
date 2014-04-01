@@ -6,10 +6,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.mifosplatform.billing.address.data.AddressData;
+import org.mifosplatform.billing.address.data.AddressDetails;
 import org.mifosplatform.billing.address.data.CountryDetails;
 import org.mifosplatform.billing.address.domain.AddressEnum;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.order.data.AddressStatusEnumaration;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.infrastructure.core.service.Page;
+import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,7 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 	
 	private final JdbcTemplate jdbcTemplate;
 	private final PlatformSecurityContext context;
+	private final PaginationHelper<AddressDetails> paginationHelper=new PaginationHelper<AddressDetails>();
 
 	@Autowired
 	public AddressReadPlatformServiceImpl(final PlatformSecurityContext context,
@@ -40,9 +45,7 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 		try{
 		context.authenticatedUser();
 		AddressMapper mapper = new AddressMapper();
-
 		String sql = "select " + mapper.schema()+" where is_deleted='n' and a.address_key='PRIMARY' and a.client_id="+clientId;
-
 		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
 		}catch (final EmptyResultDataAccessException e) {
 			return null;
@@ -52,9 +55,8 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 	private static final class AddressMapper implements RowMapper<AddressData> {
 
 		public String schema() {
-			return "a.address_id as id,a.client_id as clientId,a.address_key as addressKey,"
-				+"a.address_no as addressNo,a.street as street,a.zip as zip,a.city as city,"
-				+"a.state as state,a.country as country from b_client_address a";
+			return "a.address_id as id,a.client_id as clientId,a.address_key as addressKey,a.address_no as addressNo,a.street as street,a.zip as zip,a.city as city,"
+				  +"a.state as state,a.country as country from b_client_address a";
 
 		}
 
@@ -72,10 +74,7 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 			String city = rs.getString("city");
 			String state = rs.getString("state");
 			String country = rs.getString("country");
-			//EnumOptionData value=AddressStatusEnumaration.enumOptionData(AddressEnum.valueOf(addressKey));
-			//=value.toString();
-		//	Long addressTypeId=new Long(addressKey);
-			//String serviceDescription = rs.getString("service_description");
+			
 			return new AddressData(id,clientId,null,addressNo,street,zip,city,state, country,addressKey,null);
 
 		}
@@ -279,6 +278,67 @@ public class AddressReadPlatformServiceImpl implements AddressReadPlatformServic
 				return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
 				}catch (final EmptyResultDataAccessException e) {
 					return null;
+				}
+			}
+		
+		@Override
+		public Page<AddressDetails> retrieveAllAddresses(SearchSqlQuery searchAddresses){
+			try{
+				context.authenticatedUser();
+				AddressActionMapper mapper=new AddressActionMapper();
+				
+				StringBuilder sqlBuilder = new StringBuilder(200);
+				  sqlBuilder.append("select ");
+				  sqlBuilder.append(mapper.schema());
+				  String sqlSearch=searchAddresses.getSqlSearch();
+				  String extraCriteria = "";
+				    if (sqlSearch != null) {
+				    	sqlSearch=sqlSearch.trim();
+				    	extraCriteria = "  where country_name like '%"+sqlSearch+"%' "; 
+				    }
+				    
+				    sqlBuilder.append(extraCriteria);
+				    
+				    if (searchAddresses.isLimited()) {
+			            sqlBuilder.append(" limit ").append(searchAddresses.getLimit());
+			        }
+				    if (searchAddresses.isOffset()) {
+			            sqlBuilder.append(" offset ").append(searchAddresses.getOffset());
+			        }
+				    return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+			                new Object[] {},mapper);
+			}catch (final EmptyResultDataAccessException e) {
+				return null;
+			}
+			
+		 
+	   }
+		
+		public static final class AddressActionMapper implements RowMapper<AddressDetails>{
+			public String schema() {
+				
+				return "country.id as countryId,country.country_code as countryCode,country.country_name as counryName,"+
+						"state.id as stateId,state.state_code as stateCode,state.state_name as stateName,"+
+						"city.id as cityId,city.city_code as cityCode,city.city_name as cityName "+ 
+						"from b_country country "+  
+						"left join b_state state on (state.parent_code=country.id and state.is_delete='N') "+
+						"left join  b_city city on (city.parent_code=state.id and state.is_delete='N' and city.is_delete='N')"+
+						"where country.is_active='Y'";
+				
+			}
+			@Override
+			public AddressDetails mapRow(final ResultSet rs,@SuppressWarnings("unused") final int rowNum)  throws SQLException {
+				
+					String countryCode=rs.getString("countryCode");
+					String countryName=rs.getString("counryName");
+					String cityCode=rs.getString("cityCode");
+					String cityName=rs.getString("cityName");
+					String stateCode=rs.getString("stateCode");
+					String stateName=rs.getString("stateName");
+					Long cityId=rs.getLong("cityId");
+					Long countryId=rs.getLong("countryId");
+					Long stateId=rs.getLong("stateId");
+					return new AddressDetails(countryCode,countryName,cityCode,cityName,stateCode,stateName,countryId,stateId,cityId);
 				}
 			}
 

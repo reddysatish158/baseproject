@@ -27,8 +27,7 @@ public class PlanServiceReadPlatformServiceImpl implements PlanServiceReadPlatfo
 	}
 
 	@Override
-	public Collection<PlanServiceData> retrieveClientPlanService(Long clientId,
-			String serviceType) {
+	public Collection<PlanServiceData> retrieveClientPlanService(Long clientId,String serviceType) {
 
 		planServiceMapper mapper = new planServiceMapper();
 		String sql = "select " + mapper.schema();
@@ -48,7 +47,7 @@ public class PlanServiceReadPlatformServiceImpl implements PlanServiceReadPlatfo
 			String logo=rs.getString("logo");
 			String url=rs.getString("serviceIdentification");
 
-
+       
 			return new PlanServiceData(serviceId,clientId,serviceName,logo,url);
 
 		}

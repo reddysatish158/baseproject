@@ -7,13 +7,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.billing.clientprospect.data.ClientProspectData;
 import org.mifosplatform.billing.clientprospect.data.ProspectDetailAssignedToData;
 import org.mifosplatform.billing.clientprospect.data.ProspectDetailData;
 import org.mifosplatform.billing.clientprospect.data.ProspectPlanCodeData;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
@@ -127,8 +125,6 @@ public class ClientProspectReadPlatformServiceImp implements
 			Date nextTime = rs.getTimestamp("nextTime");
 			String notes = rs.getString("notes");
 			String assignedTo = rs.getString("assignedTo");
-			System.out.println("Date : "+nextTime);
-			System.out.println("LocalDate : "+JdbcSupport.getLocalDate(rs, "nextTime"));
 			return new ProspectDetailData(id, prospectId, callStatus, DateFormat.getDateTimeInstance().format(nextTime), notes, assignedTo);
 		}
 		

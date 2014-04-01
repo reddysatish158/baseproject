@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ConfigurationReadPlatformServiceImpl implements ConfigurationReadPlatformService {
@@ -38,7 +39,7 @@ public class ConfigurationReadPlatformServiceImpl implements ConfigurationReadPl
 
         context.authenticatedUser();
 
-        final String sql = "SELECT c.name, c.enabled, c.value FROM c_configuration c order by c.id";
+        final String sql = "SELECT c.id as id, c.name, c.enabled, c.value FROM c_configuration c order by c.id";
         final List<GlobalConfigurationPropertyData> globalConfiguration = this.jdbcTemplate.query(sql, rm, new Object[] {});
 
         return new GlobalConfigurationData(globalConfiguration);
@@ -52,8 +53,21 @@ public class ConfigurationReadPlatformServiceImpl implements ConfigurationReadPl
             final String name = rs.getString("name");
             final boolean enabled = rs.getBoolean("enabled");
             final String value=rs.getString("value");
+            final Long id=rs.getLong("id");
 
-            return new GlobalConfigurationPropertyData(name, enabled,value);
+            return new GlobalConfigurationPropertyData(id,name, enabled,value);
         }
+    }
+
+    @Transactional
+    @Override
+    public GlobalConfigurationPropertyData retrieveGlobalConfiguration(Long configId) {
+
+        this.context.authenticatedUser();
+
+        final String sql = "SELECT c.id as id,c.id, c.name, c.enabled, c.value FROM c_configuration c where c.id=? order by c.id";
+        final GlobalConfigurationPropertyData globalConfiguration = this.jdbcTemplate.queryForObject(sql, this.rm, new Object[] {configId});
+
+        return globalConfiguration;
     }
 }
