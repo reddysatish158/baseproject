@@ -15,10 +15,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.clientbalance.service.ClientBalanceReadPlatformService;
 import org.mifosplatform.billing.planservice.data.PlanServiceData;
 import org.mifosplatform.billing.planservice.service.PlanServiceReadPlatformService;
-import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
@@ -39,19 +37,18 @@ public class PlanServicesApiResource {
 	private final DefaultToApiJsonSerializer<PlanServiceData> toApiJsonSerializer;
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
 	private final PlanServiceReadPlatformService planServiceReadPlatformService; 
-	private final ClientBalanceReadPlatformService clientBalanceReadPlatformService;
-    private final GlobalConfigurationRepository configurationRepository;
+
+   
 	    
 	     @Autowired
 	    public PlanServicesApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<PlanServiceData> toApiJsonSerializer, 
-	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PlanServiceReadPlatformService planServiceReadPlatformService,
-	    		final ClientBalanceReadPlatformService clientBalanceReadPlatformService,final GlobalConfigurationRepository configurationRepository) {
+	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PlanServiceReadPlatformService planServiceReadPlatformService) {
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.planServiceReadPlatformService=planServiceReadPlatformService;
-		        this.clientBalanceReadPlatformService=clientBalanceReadPlatformService;
-		        this.configurationRepository=configurationRepository;
+		      
+		       
 		    }
 
 	        @GET
@@ -62,7 +59,11 @@ public class PlanServicesApiResource {
 					@QueryParam("serviceType") final String serviceType,@Context final UriInfo uriInfo) {
 	        	
 			   context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+
+			  /* GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+
 		//	   GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+
 			   
 			/*   if(configurationProperty.isEnabled()){
 			   

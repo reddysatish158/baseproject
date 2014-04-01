@@ -574,7 +574,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
              				
              				orderDetails.setStatus(StatusTypeEnum.ACTIVE.getValue().longValue());
              			}
+
                        orderDetails.setNextBillableDay(null);
+
 		    }
 		    
                        orderDetails.setuserAction(requstStatus);

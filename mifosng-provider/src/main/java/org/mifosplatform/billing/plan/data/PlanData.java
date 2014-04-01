@@ -326,6 +326,12 @@ public class PlanData {
 	public void setPlanCount(Integer planCount) {
 		this.planCount = planCount;
 	}
+
+
+	public void setSeriveces(List<ServiceData> services) {
+		
+		this.selectedServices=services;
+	}
 	
 	
 

@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,16 +19,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
 import org.mifosplatform.billing.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
-
 import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
-
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
-
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.data.OrderDiscountData;
 import org.mifosplatform.billing.order.data.OrderHistoryData;
