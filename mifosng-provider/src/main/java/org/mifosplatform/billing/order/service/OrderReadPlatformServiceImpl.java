@@ -477,7 +477,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					private static final class ClientActiveOrderMapper implements RowMapper<Long> {
 						
 						public String activeOrderLookupSchema() {
-							return "count(*) as orders from b_orders o, b_association a where  o.id = a.order_id and o.client_id = ? " +
+							return " max(o.id) as orders from b_orders o, b_association a where  o.id = a.order_id and o.client_id = ? " +
 									" and  o.order_status=1 ";
 							}
 

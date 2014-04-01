@@ -26,9 +26,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
+import org.mifosplatform.infrastructure.core.service.Page;
+import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
 import org.mifosplatform.infrastructure.dataqueries.data.ReportData;
@@ -76,7 +79,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
     private final PlatformSecurityContext context;
     private final GenericDataService genericDataService;
     private boolean noPentaho = false;
-
+    private final PaginationHelper<ReportParameterJoinData> paginationHelper = new PaginationHelper<ReportParameterJoinData>();
     @Autowired
     public ReadReportingServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
             final GenericDataService genericDataService) {
@@ -421,17 +424,12 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         return null;
     }
 
-    @Override
-    public Collection<ReportData> retrieveReportList() {
-        return retrieveReports(null);
-    }
-
     private Collection<ReportData> retrieveReports(final Long id) {
 
         ReportParameterJoinMapper rm = new ReportParameterJoinMapper();
 
         String sql = rm.schema(id);
-
+        
         Collection<ReportParameterJoinData> rpJoins = this.jdbcTemplate.query(sql, rm, new Object[] {});
 
         Collection<ReportData> reportList = new ArrayList<ReportData>();
@@ -525,8 +523,8 @@ public class ReadReportingServiceImpl implements ReadReportingService {
                     + " left join stretchy_parameter p on p.id = rp.parameter_id";
             if (reportId != null)
                 sql += " where r.id = " + reportId;
-            else
-                sql += " order by r.id, rp.parameter_id";
+            //else
+              //  sql += " order by r.id, rp.parameter_id";
 
             return sql;
 
@@ -680,5 +678,43 @@ public class ReadReportingServiceImpl implements ReadReportingService {
         return sql;
 
     }
+
+	@Override
+	public Page<ReportParameterJoinData> retrieveSearchReportList(
+			SearchSqlQuery searchReportDetails) {
+	
+		context.authenticatedUser();
+		ReportParameterJoinMapper rm = new ReportParameterJoinMapper();
+		
+		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append(rm.schema(null)); 
+        String sqlSearch = searchReportDetails.getSqlSearch();
+        
+        String extraCriteria = "";
+	    if (sqlSearch != null) {
+	    	sqlSearch=sqlSearch.trim();
+	    	extraCriteria = " where r.report_name like '%"+sqlSearch+"%' OR" 
+	    			+ " r.report_type like '%"+sqlSearch+"%' OR"
+	    			+ " r.report_subtype like '%"+sqlSearch+"%' OR"
+	    			+ " r.report_category like '%"+sqlSearch+"%' OR"
+	    			+ " r.core_report like '%"+sqlSearch+"%'";
+	    }
+        sqlBuilder.append(extraCriteria);
+        
+        	String sql= " order by r.id, rp.parameter_id";
+        	sqlBuilder.append(sql);
+        
+        if (searchReportDetails.isLimited()) {
+            sqlBuilder.append(" limit ").append(searchReportDetails.getLimit());
+        }
+
+        if (searchReportDetails.isOffset()) {
+            sqlBuilder.append(" offset ").append(searchReportDetails.getOffset());
+        }
+
+		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
+                new Object[] {}, rm);
+
+	}
 
 }

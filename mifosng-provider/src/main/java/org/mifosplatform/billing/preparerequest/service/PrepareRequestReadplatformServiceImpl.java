@@ -140,6 +140,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 
 			@Override
 			public void processingClientDetails(PrepareRequestData requestData) {
+				
+				
+				try{
 
 					String requestType=null;			        
 					  Order order=this.orderRepository.findOne(requestData.getOrderId());
@@ -206,6 +209,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 						 order.setStatus(new Long(1));
 						 this.orderRepository.save(order);
 					 }
+				}catch(Exception exception){
+					exception.printStackTrace();
+				}
 	              
 				}
 

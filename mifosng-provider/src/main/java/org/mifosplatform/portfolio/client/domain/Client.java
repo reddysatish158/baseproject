@@ -126,7 +126,9 @@ public final class Client extends AbstractPersistable<Long> {
         final String homePhoneNumber = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
         
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
-	     String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+
+	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
 
 	    if(email.isEmpty()){
