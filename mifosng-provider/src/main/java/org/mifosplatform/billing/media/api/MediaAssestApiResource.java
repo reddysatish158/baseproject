@@ -36,7 +36,6 @@ import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
-import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -48,9 +47,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class MediaAssestApiResource {
+	
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("mediaId","mediaTitle","type","classType","overview","subject",
     		"mediaImage","duration","contentProvider","rated","mediaRating","ratingCount","location","status","releaseDate","genres","languages","filmLocations",
-    		"writers","directors","actors","countries","noOfPages","mediaStatus","mediaAttributes","mediaFormat","mediaTypeData","mediaCategeorydata","mediaLanguageData"));
+    		"writers","directors","actors","countries","noOfPages","mediaDetails","mediaStatus","mediaAttributes","mediaFormat","mediaTypeData","mediaCategeorydata",
+    		"mediaLanguageData"));
+	
     private final String resourceNameForPermissions = "MEDIAASSET";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<MediaAssetData> toApiJsonSerializer;
@@ -82,9 +84,11 @@ public class MediaAssestApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveMediaAssestdata(@QueryParam("deviceId") final String deviceId, @QueryParam("pageNo")  Long pageNum,
 			@QueryParam("filterType") final String filterType,@Context final UriInfo uriInfo) {
+		
           context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
           MediaDeviceData details=this.deviceReadPlatformService.retrieveDeviceDetails(deviceId);
             Long pageNo=new Long(0);
+            Long noOfPages=new Long(0);
             if(pageNum == null || pageNum == 0){
         	  pageNum=new Long(0);
            }else{
@@ -97,13 +101,13 @@ public class MediaAssestApiResource {
         	   
         	   final String queryFOrPages=" SELECT count(0)  FROM b_media_asset m inner join b_event_detail ed on ed.media_id = m.id"
 			                   +" inner join b_event_master em on em.id = ed.event_id  GROUP BY m.id  having  count( ed.media_id) = 1 ";
-         	  Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(queryFOrPages);
+         	   noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(queryFOrPages);
          	  for(MediaAssetData assetData:data){
          		  
          		  List<MediaLocationData> locationData=this.mediaAssetReadPlatformService.retrievemediaAssetLocationdata(assetData.getMediaId());
          	  }
          	  
-         	  data.add(new MediaAssetData(noOfPages,pageNum));
+         	  //data.add(new MediaAssetData(noOfPages,pageNum));
         	  
           }
           
@@ -113,8 +117,8 @@ public class MediaAssestApiResource {
 		     final String query=" SELECT count(0) FROM b_media_asset m INNER JOIN b_event_detail ed ON ed.media_id = m.id"
 		    		 +" INNER JOIN b_event_master em  ON em.id = ed.event_id where m.release_date <= adddate(now(),INTERVAL -3 MONTH)"
 		    		 +" group by m.id  having count(distinct ed.event_id) >=1 ";
-	         Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-	         data.add(new MediaAssetData(noOfPages,pageNum));
+	          noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+	        // data.add(new MediaAssetData(noOfPages,pageNum));
 		     
           }
           
@@ -123,8 +127,8 @@ public class MediaAssestApiResource {
         	  data=this.mediaAssetReadPlatformService.retrievemediaAssetdatabyRating(pageNo);
         	  final String query=" SELECT count(0) FROM b_media_asset m INNER JOIN b_event_detail ed ON ed.media_id = m.id"
         			  +" INNER JOIN b_event_master em ON em.id = ed.event_id group by m.id  having count(distinct ed.event_id) >=1 ";
-	          Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-	          data.add(new MediaAssetData(noOfPages,pageNum));
+	           noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+	          //data.add(new MediaAssetData(noOfPages,pageNum));
           }
           
           else if(filterType.equalsIgnoreCase("DISCOUNT")){
@@ -133,8 +137,8 @@ public class MediaAssestApiResource {
         	  final String query=" SELECT count(0) FROM b_media_asset m INNER JOIN b_event_detail ed ON ed.media_id = m.id"
         			  +" INNER JOIN b_event_master em  ON em.id = ed.event_id inner join  b_event_pricing ep on em.id=ep.event_id"
         			  +" where discount_id>=1  group by m.id  having count(distinct ed.event_id) >=1";
-	          Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-	          data.add(new MediaAssetData(noOfPages,pageNum));
+	           noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+	          //data.add(new MediaAssetData(noOfPages,pageNum));
           }
           
           else if(filterType.equalsIgnoreCase("PROMOTION")){
@@ -142,16 +146,16 @@ public class MediaAssestApiResource {
         	  data=this.mediaAssetReadPlatformService.retrievemediaAssetdatabyPromotionalMovies(pageNo);
         	  final String query=" SELECT count(0)  FROM b_media_asset m inner join b_event_detail ed on ed.media_id = m.id"
 	                   +" inner join b_event_master em on em.id = ed.event_id  group by m.id  having count(distinct ed.event_id) >1 ";
-	          Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-	          data.add(new MediaAssetData(noOfPages,pageNum));
+	           noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+	         // data.add(new MediaAssetData(noOfPages,pageNum));
           }
           
           else if(filterType.equalsIgnoreCase("COMING")){
         	  
         	  data=this.mediaAssetReadPlatformService.retrievemediaAssetdatabyComingSoonMovies(pageNo);
         	  final String query=" SELECT count(0) FROM b_media_asset m where category_id=19 ";
-	          Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-	          data.add(new MediaAssetData(noOfPages,pageNum));
+	           noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+	         // data.add(new MediaAssetData(noOfPages,pageNum));
           }
           
           else if(filterType.equalsIgnoreCase("WATCHED")){
@@ -159,8 +163,8 @@ public class MediaAssestApiResource {
         	  data=this.mediaAssetReadPlatformService.retrievemediaAssetdatabyMostWatchedMovies(pageNo);
         	  final String query="SELECT count(0) FROM b_media_asset m inner join b_event_detail ed on m.id=ed.media_id  inner " +
         	  		" JOIN b_eventorder eo  ON (eo.event_id = ed.event_id)";
-        	  Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-        	  data.add(new MediaAssetData(noOfPages,pageNum));
+        	   noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+        	//  data.add(new MediaAssetData(noOfPages,pageNum));
           }
                     
           else {
@@ -168,12 +172,12 @@ public class MediaAssestApiResource {
         	  data=this.mediaAssetReadPlatformService.retrievemediaAssetdatabySearching(pageNo,filterType);
         	  final String query="SELECT count(0) FROM b_media_asset m inner join b_event_detail ed on m.id=ed.media_id  inner " +
         	  		" JOIN b_eventorder eo  ON (eo.event_id = ed.event_id)";
-        	  Long noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
-        	  data.add(new MediaAssetData(noOfPages,pageNum));
+        	   noOfPages=this.mediaAssetReadPlatformService.retrieveNoofPages(query);
+        	  //data.add(new MediaAssetData(noOfPages,pageNum));
           }
-   	  
+   	  MediaAssetData mediaAssetData=new MediaAssetData(data,noOfPages, pageNum);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-		return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+		return this.toApiJsonSerializer.serialize(settings, mediaAssetData, RESPONSE_DATA_PARAMETERS);
 	}
 	
 		
