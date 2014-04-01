@@ -15,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -24,6 +25,7 @@ import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.infrastructure.configuration.data.GlobalConfigurationData;
+import org.mifosplatform.infrastructure.configuration.data.GlobalConfigurationPropertyData;
 import org.mifosplatform.infrastructure.configuration.service.ConfigurationReadPlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiParameterHelper;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
@@ -49,18 +51,21 @@ public class GlobalConfigurationApiResource {
     private final DefaultToApiJsonSerializer<GlobalConfigurationData> toApiJsonSerializer;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+    private final DefaultToApiJsonSerializer<GlobalConfigurationPropertyData> propertyDataJsonSerializer;
 
     @Autowired
     public GlobalConfigurationApiResource(final PlatformSecurityContext context,
             final ConfigurationReadPlatformService readPlatformService,
             final DefaultToApiJsonSerializer<GlobalConfigurationData> toApiJsonSerializer,
             final ApiRequestParameterHelper apiRequestParameterHelper,
-            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
+            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+            final DefaultToApiJsonSerializer<GlobalConfigurationPropertyData> propertyDataJsonSerializer) {
         this.context = context;
         this.readPlatformService = readPlatformService;
         this.toApiJsonSerializer = toApiJsonSerializer;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+        this.propertyDataJsonSerializer=propertyDataJsonSerializer;
     }
 
     @GET
@@ -75,21 +80,29 @@ public class GlobalConfigurationApiResource {
         return this.toApiJsonSerializer.serialize(settings, configurationData, RESPONSE_DATA_PARAMETERS);
     }
     
-    @PUT
+    @GET
+    @Path("{configId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    public String updateConfiguration(@Context final UriInfo uriInfo) {
+    public String retrieveOne(@PathParam("configId") final Long configId, @Context final UriInfo uriInfo) {
 
-        Map<String, String> configurationParameters = ApiParameterHelper.asMap(uriInfo.getQueryParameters());
+        this.context.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);
 
-        Map<String, Object> globalConfiguration = new HashMap<String, Object>();
-        globalConfiguration.put("globalConfiguration", configurationParameters);
+        final GlobalConfigurationPropertyData configurationData = this.readPlatformService.retrieveGlobalConfiguration(configId);
 
-        final String apiRequestJson = this.toApiJsonSerializer.serialize(globalConfiguration);
+        final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        return this.propertyDataJsonSerializer.serialize(settings, configurationData, this.RESPONSE_DATA_PARAMETERS);
+    }
+    
+    @PUT
+    @Path("{configId}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public String updateConfiguration(@PathParam("configId") final Long configId, final String apiRequestBodyAsJson) {
 
         final CommandWrapper commandRequest = new CommandWrapperBuilder() //
-                .updateGlobalConfiguration() //
-                .withJson(apiRequestJson) //
+                .updateGlobalConfiguration(configId) //
+                .withJson(apiRequestBodyAsJson) //
                 .build();
 
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);

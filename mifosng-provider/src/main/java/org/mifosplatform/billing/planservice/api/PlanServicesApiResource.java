@@ -59,9 +59,13 @@ public class PlanServicesApiResource {
 					@QueryParam("serviceType") final String serviceType,@Context final UriInfo uriInfo) {
 	        	
 			   context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+
 			  /* GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+
+		//	   GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+
 			   
-			   if(configurationProperty.isEnabled()){
+			/*   if(configurationProperty.isEnabled()){
 			   
 				   ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
 			   
