@@ -1,6 +1,7 @@
 package org.mifosplatform.billing.provisioning.api;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
+import org.mifosplatform.billing.order.data.OrderLineData;
+import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningData;
@@ -50,18 +55,23 @@ public class ProvisioningApiResource {
 	  private final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer;
 	  private final ApiRequestParameterHelper apiRequestParameterHelper;
 	  private final ProvisioningReadPlatformService provisioningReadPlatformService;
+	  private final MCodeReadPlatformService codeReadPlatformService;
+	  private final OrderReadPlatformService orderReadPlatformService;
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	 
 	  
 	  @Autowired
 	    public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	    final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService) {
+	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService,
+	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService) {
 		        this.context = context;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.toApiJsonSerializer=toApiJsonSerializer;
 		        this.provisioningReadPlatformService=provisioningReadPlatformService;
+		        this.codeReadPlatformService=codeReadPlatformService;
+		        this.orderReadPlatformService=orderReadPlatformService;
 		    }
 	
 	 @GET
