@@ -16,9 +16,7 @@ public class ProvisioningData {
 	private List<McodeData> commands;
 	private List<McodeData> provisioning;
 	private List<ProvisioningCommandParameterData> commandParameters;
-	private Collection<MCodeData> vlanDatas;
 	
-	private List<OrderLineData> services;
 
 	public ProvisioningData(final Long id,final String ProvisioningSystem,
 			final String CommandName,final String Status ){
@@ -36,12 +34,7 @@ public class ProvisioningData {
 	}
 
 
-	public ProvisioningData(Collection<MCodeData> vlanDatas,
-			List<OrderLineData> services) {
-		
-		this.vlanDatas=vlanDatas;
-		this.services=services;
-	}
+	
 
 
 	public String getProvisioningSystem() {
