@@ -53,23 +53,20 @@ public class ProvisioningApiResource {
 	  private final ApiRequestParameterHelper apiRequestParameterHelper;
 	  private final ProvisioningReadPlatformService provisioningReadPlatformService;
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-	  private final MCodeReadPlatformService codeReadPlatformService;
-	  private final OrderReadPlatformService orderReadPlatformService;
+	  
 	 
 	  
 	  @Autowired
 	    public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	    final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService,
-	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService) {
+	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService) {
 		  
 		        this.context = context;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.toApiJsonSerializer=toApiJsonSerializer;
 		        this.provisioningReadPlatformService=provisioningReadPlatformService;
-		        this.codeReadPlatformService=codeReadPlatformService;
-		        this.orderReadPlatformService=orderReadPlatformService;
+		       
 		    }
 	
 	 @GET
