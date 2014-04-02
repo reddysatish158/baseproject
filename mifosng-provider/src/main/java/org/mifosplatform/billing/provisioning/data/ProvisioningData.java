@@ -1,7 +1,11 @@
 package org.mifosplatform.billing.provisioning.data;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.mifosplatform.billing.ippool.data.IpPoolData;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.billing.order.data.OrderLineData;
 import org.mifosplatform.billing.paymode.data.McodeData;
 
 public class ProvisioningData {
@@ -27,6 +31,11 @@ public class ProvisioningData {
 		
 		this.commands=commands;
 		this.provisioning=provisioning;		
+	}
+
+
+	public ProvisioningData(Collection<MCodeData> vlanDatas,List<OrderLineData> services) {
+		// TODO Auto-generated constructor stub
 	}
 
 

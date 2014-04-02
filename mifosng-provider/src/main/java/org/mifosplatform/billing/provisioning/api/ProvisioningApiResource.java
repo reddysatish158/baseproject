@@ -18,6 +18,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.ippool.data.IpPoolData;
+import org.mifosplatform.billing.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
 import org.mifosplatform.billing.order.data.OrderLineData;
@@ -58,13 +60,15 @@ public class ProvisioningApiResource {
 	  private final MCodeReadPlatformService codeReadPlatformService;
 	  private final OrderReadPlatformService orderReadPlatformService;
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	  private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
 	 
 	  
 	  @Autowired
 	    public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	    final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService,
-	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService) {
+	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService,
+	   final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService) {
 		        this.context = context;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
@@ -72,6 +76,7 @@ public class ProvisioningApiResource {
 		        this.provisioningReadPlatformService=provisioningReadPlatformService;
 		        this.codeReadPlatformService=codeReadPlatformService;
 		        this.orderReadPlatformService=orderReadPlatformService;
+		        this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
 		    }
 	
 	 @GET

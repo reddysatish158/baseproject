@@ -895,6 +895,8 @@ public class SynchronousCommandProcessingService implements
 				    	 handler = applicationContext.getBean("updatingProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else if(wrapper.isDeleteProvisioning()) {
 				    	 handler = applicationContext.getBean("deleteProvisioningCommandHandler",NewCommandSourceHandler.class);
+				     }else if(wrapper.isCreateProvisioning()) {
+				    	 handler = applicationContext.getBean("createProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
