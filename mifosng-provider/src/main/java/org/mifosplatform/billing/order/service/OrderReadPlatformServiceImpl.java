@@ -214,7 +214,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					+"o.end_date AS end_date,co.contract_period as contractPeriod,o.order_no as orderNo,o.user_action AS userAction,o.active_date AS activeDate," +
 					"p.is_prepaid as isprepaid,p.allow_topup as allowTopUp, ifnull(c.group_name,p.plan_code ) as groupName,  " +
 					"date_sub(o.next_billable_day,INTERVAL 1 DAY) as invoiceTillDate,(SELECT sum(ol.price) AS price FROM b_order_price ol"
-					+" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co";
+					+" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co, m_client c ";
 			}
 
 			@Override
