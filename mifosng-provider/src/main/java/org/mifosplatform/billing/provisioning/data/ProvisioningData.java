@@ -17,6 +17,9 @@ public class ProvisioningData {
 	private List<McodeData> commands;
 	private List<McodeData> provisioning;
 	private List<ProvisioningCommandParameterData> commandParameters;
+    private Collection<MCodeData> vlanDatas;
+	private List<OrderLineData> services;
+	private List<IpPoolData> ipPoolDatas;
 
 	public ProvisioningData(final Long id,final String ProvisioningSystem,
 			final String CommandName,final String Status ){
@@ -34,8 +37,12 @@ public class ProvisioningData {
 	}
 
 
-	public ProvisioningData(Collection<MCodeData> vlanDatas,List<OrderLineData> services) {
-		// TODO Auto-generated constructor stub
+	public ProvisioningData(Collection<MCodeData> vlanDatas,
+			List<IpPoolData> ipPoolDatas, List<OrderLineData> services) {
+		
+		this.vlanDatas=vlanDatas;
+		this.services=services;
+		this.ipPoolDatas=ipPoolDatas;
 	}
 
 

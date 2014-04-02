@@ -79,6 +79,37 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
 	        if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException("validation.msg.validation.errors.exist",
 	                "Validation errors exist.", dataValidationErrors); }
 	        }
+	 
+	 
+	  public void validateForAddProvisioning(String json) {
+
+if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
+
+final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, provisioningsupportedParameters);
+
+final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("Provisioning");
+
+final JsonElement element = fromApiJsonHelper.parse(json);
+final String serviceName = fromApiJsonHelper.extractStringNamed("serviceName", element);
+baseDataValidator.reset().parameter("serviceName").value(serviceName).notBlank();
+
+final String groupName = fromApiJsonHelper.extractStringNamed("groupName", element);
+baseDataValidator.reset().parameter("groupName").value(groupName).notBlank();
+
+final String ipAddress = fromApiJsonHelper.extractStringNamed("ipAddress", element);
+baseDataValidator.reset().parameter("ipAddress").value(ipAddress).notBlank();   
+
+final String vLan = fromApiJsonHelper.extractStringNamed("vLan", element);
+baseDataValidator.reset().parameter("vLan").value(vLan).notBlank();	     
+
+
+
+throwExceptionIfValidationWarningsExist(dataValidationErrors);
+}
+
+
 		
 	
 }
