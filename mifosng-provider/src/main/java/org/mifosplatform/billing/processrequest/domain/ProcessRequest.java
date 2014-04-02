@@ -59,8 +59,6 @@ public class ProcessRequest extends AbstractPersistable<Long>{
             this.clientId=clientId;
             this.orderId=orderId;
             this.provisioingSystem=provisioningSystem;
-            
-            
             this.requestType=requestType;
             this.prepareRequestId=requestId;
 	

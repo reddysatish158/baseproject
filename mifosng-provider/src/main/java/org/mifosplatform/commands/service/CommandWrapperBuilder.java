@@ -2074,4 +2074,13 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     return this;
 }
 
+public CommandWrapperBuilder addNewProvisioning(Long clientId) {
+	
+	this.actionName = "ADD";
+    this.entityName = "PROVISIONINGSYSTEM";
+    this.entityId=clientId;
+    this.href = "/provisionings/"+clientId;
+    return this;
+}
+
 }

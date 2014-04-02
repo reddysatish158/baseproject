@@ -11,4 +11,7 @@ public interface ProvisioningWritePlatformService {
 
 	CommandProcessingResult deleteProvisioningSystem(JsonCommand command);
 
+	CommandProcessingResult createNewProvisioningSystem(JsonCommand command,
+			Long entityId);
+
 }

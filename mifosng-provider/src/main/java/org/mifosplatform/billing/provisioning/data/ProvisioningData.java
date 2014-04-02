@@ -1,7 +1,11 @@
 package org.mifosplatform.billing.provisioning.data;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.mifosplatform.billing.ippool.data.IpPoolData;
+import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.billing.order.data.OrderLineData;
 import org.mifosplatform.billing.paymode.data.McodeData;
 
 public class ProvisioningData {
@@ -13,6 +17,9 @@ public class ProvisioningData {
 	private List<McodeData> commands;
 	private List<McodeData> provisioning;
 	private List<ProvisioningCommandParameterData> commandParameters;
+	private Collection<MCodeData> vlanDatas;
+	private List<IpPoolData> ipPoolDatas;
+	private List<OrderLineData> services;
 
 	public ProvisioningData(final Long id,final String ProvisioningSystem,
 			final String CommandName,final String Status ){
@@ -27,6 +34,15 @@ public class ProvisioningData {
 		
 		this.commands=commands;
 		this.provisioning=provisioning;		
+	}
+
+
+	public ProvisioningData(Collection<MCodeData> vlanDatas,
+			List<IpPoolData> ipPoolDatas, List<OrderLineData> services) {
+		
+		this.vlanDatas=vlanDatas;
+		this.ipPoolDatas=ipPoolDatas;
+		this.services=services;
 	}
 
 

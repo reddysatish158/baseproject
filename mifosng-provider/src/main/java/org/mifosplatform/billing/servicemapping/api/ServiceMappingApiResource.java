@@ -90,8 +90,8 @@ public class ServiceMappingApiResource {
 		
 		List<ServiceCodeData> serviceCodeData = this.serviceMappingReadPlatformService.getServiceCode();
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
-		 Collection<ReportParameterData> serviceParameters=this.readReportingService.getAllowedServiceParameters(); 
-		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status,serviceParameters);
+		 //Collection<ReportParameterData> serviceParameters=this.readReportingService.getAllowedServiceParameters(); 
+		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status,null);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, serviceMappingData, RESPONSE_PARAMETERS); 
 	}
