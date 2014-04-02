@@ -135,7 +135,31 @@ public class ProvisioningApiResource {
 			   final CommandProcessingResult result=this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			   return this.toApiJsonSerializer.serialize(result);
 		}
+	 @POST
+	 @Path("{clientId}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+		public String NewActiveProvisioningDetails(@PathParam("clientId") final Long clientId,final String apiRequestBodyAsJson) {
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().addNewProvisioning(clientId).withJson(apiRequestBodyAsJson).build();
+	     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	     return this.toApiJsonSerializer.serialize(result);
+	}
 	 
+	 @GET
+	 @Path("provisiontemplate/{orderId}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+	 public String retrieveProvisionTemplateData(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
+		 
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		Collection<MCodeData> vlanDatas=this.codeReadPlatformService.getCodeValue("VLANS");
+		List<IpPoolData> ipPoolDatas=this.ipPoolManagementReadPlatformService.getUnallocatedIpAddressDetailds();
+		List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
+		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
+		}
+
 	 
 
 }
