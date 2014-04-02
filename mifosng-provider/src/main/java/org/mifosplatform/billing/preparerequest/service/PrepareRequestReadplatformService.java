@@ -2,6 +2,7 @@ package org.mifosplatform.billing.preparerequest.service;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 
 
@@ -14,5 +15,6 @@ public interface PrepareRequestReadplatformService {
 	List<Long> retrieveRequestClientOrderDetails(Long clientId);
 	void processingClientDetails(PrepareRequestData requestData, String configProp);
 	List<Long> getPrepareRequestDetails(Long id);
+	int getLastPrepareId(Long orderId);
 
 }

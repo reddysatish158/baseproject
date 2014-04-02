@@ -2,10 +2,9 @@ package org.mifosplatform.billing.preparerequest.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
@@ -246,6 +245,21 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 				}
 				
 				
+			}
+
+			@Override
+			public int getLastPrepareId(Long orderId) {
+				try {
+					
+			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+				   String sql = "select max(id)  from b_orders_history where order_id=? and transaction_type='ACTIVATION'";
+				   
+				  return jdbcTemplate.queryForInt(sql, new Object[] { orderId });
+				
+			
+			} catch (EmptyResultDataAccessException e) {
+				return 0;
+				}
 			}
 				
 			

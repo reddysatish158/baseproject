@@ -199,7 +199,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 			final ClientOrderMapper mapper = new ClientOrderMapper();
 
 			final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.client_id= ? and o.is_deleted='n' and " +
-					"o.contract_period = co.id order by o.id desc";
+					"o.contract_period = co.id and c.id=o.client_id order by o.id desc";
 			return jdbcTemplate.query(sql, mapper, new Object[] { clientId});
 			} catch (EmptyResultDataAccessException e) {
 			return null;

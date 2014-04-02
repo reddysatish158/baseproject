@@ -3,10 +3,13 @@ package org.mifosplatform.billing.provisioning.service;
 import java.util.List;
 import java.util.Map;
 
+import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
+import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderLine;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
+import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
@@ -46,13 +49,15 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
     private final ProcessRequestRepository processRequestRepository;
     private final OrderRepository orderRepository;
     private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
+    private final PrepareRequestReadplatformService prepareRequestReadplatformService;
+    private final PrepareRequsetRepository prepareRequsetRepository;
     
     @Autowired
 	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final TenantAwareRoutingDataSource dataSource,
 			final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,final FromJsonHelper fromApiJsonHelper,
 			final ProvisioningCommandRepository provisioningCommandRepository,final ServiceParametersRepository parametersRepository,
-			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,
-			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository) {
+			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final PrepareRequsetRepository prepareRequsetRepository,
+			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final PrepareRequestReadplatformService prepareRequestReadplatformService) {
 		
 		this.context = context;		
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
@@ -63,6 +68,8 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		this.processRequestRepository=processRequestRepository;
 		this.orderRepository=orderRepository;
 		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
+		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
+		this.prepareRequsetRepository=prepareRequsetRepository;
 		
 
 	}
@@ -168,25 +175,37 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		try{
 			this.context.authenticatedUser();
 			this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
-               final Long prepareReqId=command.longValueOfParameterNamed("prepareRequestId");
-			//Save in Service_parameter table
+            
+			
+			Integer prepareId=this.prepareRequestReadplatformService.getLastPrepareId(command.longValueOfParameterNamed("orderId"));
 			ServiceParameters serviceParameters=ServiceParameters.fromJson(command);
 			this.serviceParametersRepository.saveAndFlush(serviceParameters);
 			
 			ProcessRequest processRequest=new ProcessRequest(serviceParameters.getClientId(),serviceParameters.getOrderId(), 
-					"NETSPAN", 'N', null,UserActionStatusTypeEnum.ACTIVATION.toString(), prepareReqId);
+					"NETSPAN", 'N', null,UserActionStatusTypeEnum.ACTIVATION.toString(), new Long(prepareId));
 			Order order=this.orderRepository.findOne(serviceParameters.getOrderId());
 			List<OrderLine> orderLines=order.getServices();
 			
 			for(OrderLine orderLine:orderLines){
-				 ProvisionServiceDetails provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
-				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
+				 
+				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),command.json(),"Recieved",
 						  serviceParameters.getMacId(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
 				  processRequest.add(processRequestDetails);
 				
 			}
 			
 			this.processRequestRepository.saveAndFlush(processRequest);
+
+			//Update Prepare Request table
+			if(prepareId !=0){
+				
+			PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(prepareId.longValue());
+			prepareRequest.updateProvisioning();
+			this.prepareRequsetRepository.save(prepareRequest);
+			
+			}
+			
+			
 			return new CommandProcessingResult(Long.valueOf(serviceParameters.getId()));
 			
 		}catch(DataIntegrityViolationException dve){

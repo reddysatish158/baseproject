@@ -32,7 +32,8 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
-    		"commandParameters","commandParam","paramType","paramDefault"));
+    		"commandParameters","commandParam","paramType","paramDefault","groupName","ipAddress","serviceName","vLan","planName","orderId","clientId",
+    		"macId"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired

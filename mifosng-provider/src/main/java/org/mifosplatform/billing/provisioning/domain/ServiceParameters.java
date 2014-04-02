@@ -5,13 +5,12 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
-import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
-import org.mifosplatform.useradministration.domain.AppUser;
+import org.springframework.data.jpa.domain.AbstractPersistable;
 
 
 @Entity
 @Table(name="b_service_parameters")
-public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long >{
+public class ServiceParameters extends AbstractPersistable<Long>{
 	
 	
 	@Column(name = "client_id")
@@ -23,8 +22,8 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long >{
 	@Column(name = "plan_name")
 	private String planName;
 
-	@Column(name = "group")
-	private String groupName;
+	@Column(name = "group_name")
+	private String group;
 
 	@Column(name = "service")
 	private String service;
@@ -50,7 +49,7 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long >{
 		       this.clientId=clientId;
 		       this.orderId=orderId;
 		       this.planName=planName;
-		       this.groupName=group;
+		       this.group=group;
 		       this.service=service;
 		       this.ipAddress=ipAddress;
 		       this.macId=macId;
@@ -66,11 +65,11 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long >{
 		 final Long clientId = command.longValueOfParameterNamed("clientId");
 		 final Long orderId= command.longValueOfParameterNamed("orderId");
 		 final String planName = command.stringValueOfParameterNamed("planName");
-		 final String group = command.stringValueOfParameterNamed("group");
-		 final String service = command.stringValueOfParameterNamed("service");
+		 final String group = command.stringValueOfParameterNamed("groupName");
+		 final String service = command.stringValueOfParameterNamed("serviceName");
 		 final String ipAddress = command.stringValueOfParameterNamed("ipAddress");
 		 final String macId = command.stringValueOfParameterNamed("macId");
-		 final String vlanId = command.stringValueOfParameterNamed("vlanId");
+		 final String vlanId = command.stringValueOfParameterNamed("vLan");
 		 return new ServiceParameters(clientId,orderId,planName,group,service,ipAddress,macId,vlanId);
 	
 	}
@@ -92,7 +91,7 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long >{
 
 
 	public String getGroupName() {
-		return groupName;
+		return group;
 	}
 
 

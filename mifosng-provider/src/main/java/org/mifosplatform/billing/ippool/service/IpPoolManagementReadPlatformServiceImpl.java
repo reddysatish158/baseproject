@@ -56,7 +56,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	private static final class ProvisioningMapper implements RowMapper<IpPoolData> {
 
 		public String schema() {
-			return " pd.id as id,pd.pool_id as poolId,pd.ip_address as ipaddress  from b_ippool_details pd where status='F'";
+			return " pd.id as id,pd.pool_name as poolName,pd.ip_address as ipaddress  from b_ippool_details pd where status='F'";
 
 		}
 
@@ -66,10 +66,10 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 				throws SQLException {
 
 			Long id = rs.getLong("id");
-			Long poolId = rs.getLong("poolId");
+			String poolName = rs.getString("poolName");
 			String ipaddress = rs.getString("ipaddress");
 			//String serviceDescription = rs.getString("service_description");
-			return new IpPoolData(id,poolId,ipaddress);
+			return new IpPoolData(id,poolName,ipaddress);
 
 		}
 	}
