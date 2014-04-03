@@ -20,6 +20,7 @@ public class ProvisioningData {
     private Collection<MCodeData> vlanDatas;
 	private List<OrderLineData> services;
 	private List<IpPoolData> ipPoolDatas;
+	private List<ServiceParameterData> parameterDatas;
 
 	public ProvisioningData(final Long id,final String ProvisioningSystem,
 			final String CommandName,final String Status ){
@@ -37,12 +38,13 @@ public class ProvisioningData {
 	}
 
 
-	public ProvisioningData(Collection<MCodeData> vlanDatas,
-			List<IpPoolData> ipPoolDatas, List<OrderLineData> services) {
+	public ProvisioningData(Collection<MCodeData> vlanDatas,List<IpPoolData> ipPoolDatas, 
+			List<OrderLineData> services,final List<ServiceParameterData> parameterDatas) {
 		
 		this.vlanDatas=vlanDatas;
 		this.services=services;
 		this.ipPoolDatas=ipPoolDatas;
+		this.parameterDatas=parameterDatas;
 	}
 
 

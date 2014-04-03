@@ -7,6 +7,7 @@ import java.util.List;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningData;
+import org.mifosplatform.billing.provisioning.data.ServiceParameterData;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlatformService {
@@ -138,8 +140,40 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 				  return new ProvisioningCommandParameterData(id,commandParam,paramType);
 		       }
 		}
+
+		 @Transactional
+		 @Override
+		public List<ServiceParameterData> getSerivceParameters(Long orderId) {
+			
+			try{
+				this.context.authenticatedUser();
+				ServiceParameterMapper mapper=new ServiceParameterMapper();
+				final String sql="select "+mapper.schema();
+				return this.jdbcTemplate.query(sql, mapper,new Object[] {orderId});
+				
+			}catch(EmptyResultDataAccessException exception){
+				return null;
+			}
+			
+		}
 		
-		
+		 private static final class ServiceParameterMapper implements RowMapper<ServiceParameterData> {
+
+			    public String schema() {
+					return " sd.id as id,sd.service_identification as paramName,sd.image as paramValue FROM b_orders o, b_plan_master p,b_service s," +
+							" b_plan_detail pd,b_prov_service_details sd WHERE  o.id= ? AND p.id = o.plan_id AND pd.plan_id = p.id AND " +
+							" pd.service_code = s.service_code and sd.service_id=s.id";
+				}
+			    
+		        @Override
+		        public ServiceParameterData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+		        	
+				  Long id = rs.getLong("id");
+				  String paramName=rs.getString("paramName");
+				  String paramValue=rs.getString("paramValue");
+				  return new ServiceParameterData(id,paramName,paramValue);
+		       }
+		}
 
 
 }

@@ -27,6 +27,7 @@ import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningData;
+import org.mifosplatform.billing.provisioning.data.ServiceParameterData;
 import org.mifosplatform.billing.provisioning.service.ProvisioningReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
@@ -167,10 +168,11 @@ public class ProvisioningApiResource {
 	 public String retrieveProvisionTemplateData(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
 		 
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<ServiceParameterData> parameterDatas=this.provisioningReadPlatformService.getSerivceParameters(orderId);
 		Collection<MCodeData> vlanDatas=this.codeReadPlatformService.getCodeValue("VLANS");
 		List<IpPoolData> ipPoolDatas=this.ipPoolManagementReadPlatformService.getUnallocatedIpAddressDetailds();
 		List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
-		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services);
+		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,parameterDatas);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
 		}

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
 import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
@@ -33,7 +32,7 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
      */
     private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
     		"commandParameters","commandParam","paramType","paramDefault","groupName","ipAddress","serviceName","vLan","planName","orderId","clientId",
-    		"macId"));
+    		"macId","serviceParameters","paramName","paramValue"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -82,30 +81,33 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
 	        }
 	 
 	 
-	  public void validateForAddProvisioning(String json) {
+public void validateForAddProvisioning(String json) {
 
-if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
+   if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
 
-final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
-fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, provisioningsupportedParameters);
-
-final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
-final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("Provisioning");
-
+    final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+     final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, provisioningsupportedParameters);
+final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("provisioning");
 final JsonElement element = fromApiJsonHelper.parse(json);
-final String serviceName = fromApiJsonHelper.extractStringNamed("serviceName", element);
-baseDataValidator.reset().parameter("serviceName").value(serviceName).notBlank();
-
-final String groupName = fromApiJsonHelper.extractStringNamed("groupName", element);
-baseDataValidator.reset().parameter("groupName").value(groupName).notBlank();
-
-final String ipAddress = fromApiJsonHelper.extractStringNamed("ipAddress", element);
-baseDataValidator.reset().parameter("ipAddress").value(ipAddress).notBlank();   
-
-final String vLan = fromApiJsonHelper.extractStringNamed("vLan", element);
-baseDataValidator.reset().parameter("vLan").value(vLan).notBlank();	     
-
-
+final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("serviceParameters",element);
+//baseDataValidator.reset().parameter("mediaassetAttributes").value(mediaassetAttributesArray).
+ String[] serviceParameters =null;
+ serviceParameters=new String[serviceParametersArray.size()];
+   int mediaassetAttributeSize=serviceParametersArray.size();
+   baseDataValidator.reset().parameter(null).value(mediaassetAttributeSize).integerGreaterThanZero();
+ for(int i=0; i<serviceParametersArray.size();i++){
+	 serviceParameters[i] =serviceParametersArray.get(i).toString();
+ }
+//For Media Attributes
+	 for (String serviceParameter : serviceParameters) {
+		
+		     final JsonElement attributeElement = fromApiJsonHelper.parse(serviceParameter);
+		     final String paramName = fromApiJsonHelper.extractStringNamed("paramName", attributeElement);
+		     baseDataValidator.reset().parameter("paramName").value(paramName).notBlank();
+		     final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
+		     baseDataValidator.reset().parameter("paramValue").value(parmaValue).notBlank();
+	  }    
 
 throwExceptionIfValidationWarningsExist(dataValidationErrors);
 }

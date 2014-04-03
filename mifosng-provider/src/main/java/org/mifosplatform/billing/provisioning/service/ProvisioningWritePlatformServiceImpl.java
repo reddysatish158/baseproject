@@ -3,8 +3,12 @@ package org.mifosplatform.billing.provisioning.service;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+
 import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
 import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
+import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
+import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderLine;
 import org.mifosplatform.billing.order.domain.OrderRepository;
@@ -13,6 +17,7 @@ import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatfo
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.billing.provisioning.api.ProvisioningApiConstants;
 import org.mifosplatform.billing.provisioning.domain.ProvisioningCommand;
 import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandParameters;
 import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandRepository;
@@ -41,35 +46,35 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	
 
 	private final PlatformSecurityContext context;
-	private final JdbcTemplate jdbcTemplate;
 	private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
     private final FromJsonHelper fromApiJsonHelper;
     private final ProvisioningCommandRepository provisioningCommandRepository;
     private final ServiceParametersRepository serviceParametersRepository;
     private final ProcessRequestRepository processRequestRepository;
     private final OrderRepository orderRepository;
-    private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
     private final PrepareRequestReadplatformService prepareRequestReadplatformService;
     private final PrepareRequsetRepository prepareRequsetRepository;
+	private final FromJsonHelper fromJsonHelper;
+	private final InventoryItemDetailsRepository inventoryItemDetailsRepository;
     
     @Autowired
-	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final TenantAwareRoutingDataSource dataSource,
+	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final InventoryItemDetailsRepository inventoryItemDetailsRepository,
 			final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,final FromJsonHelper fromApiJsonHelper,
 			final ProvisioningCommandRepository provisioningCommandRepository,final ServiceParametersRepository parametersRepository,
 			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final PrepareRequsetRepository prepareRequsetRepository,
-			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository,final PrepareRequestReadplatformService prepareRequestReadplatformService) {
+			final PrepareRequestReadplatformService prepareRequestReadplatformService,final FromJsonHelper fromJsonHelper) {
 		
 		this.context = context;		
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.fromApiJsonHelper=fromApiJsonHelper;
 		this.provisioningCommandRepository=provisioningCommandRepository;
 		this.serviceParametersRepository=parametersRepository;
 		this.processRequestRepository=processRequestRepository;
 		this.orderRepository=orderRepository;
-		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
 		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
 		this.prepareRequsetRepository=prepareRequsetRepository;
+		this.fromJsonHelper=fromJsonHelper;
+		this.inventoryItemDetailsRepository=inventoryItemDetailsRepository;
 		
 
 	}
@@ -175,21 +180,41 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		try{
 			this.context.authenticatedUser();
 			this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
-            
+            final Long orderId=command.longValueOfParameterNamed("orderId");
+            final Long clientId=command.longValueOfParameterNamed("clientId");
+            final String planName=command.stringValueOfParameterNamed("planName");
+            final String macId=command.stringValueOfParameterNamed("macId");
 			
-			Integer prepareId=this.prepareRequestReadplatformService.getLastPrepareId(command.longValueOfParameterNamed("orderId"));
-			ServiceParameters serviceParameters=ServiceParameters.fromJson(command);
-			this.serviceParametersRepository.saveAndFlush(serviceParameters);
+			Integer prepareId=this.prepareRequestReadplatformService.getLastPrepareId(orderId);
+			InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(macId);
 			
-			ProcessRequest processRequest=new ProcessRequest(serviceParameters.getClientId(),serviceParameters.getOrderId(), 
-					"NETSPAN", 'N', null,UserActionStatusTypeEnum.ACTIVATION.toString(), new Long(prepareId));
-			Order order=this.orderRepository.findOne(serviceParameters.getOrderId());
+			 final JsonElement element = fromJsonHelper.parse(command.json());
+			JsonArray serviceParameters = fromJsonHelper.extractJsonArrayNamed("serviceParameters", element);
+			
+			JSONObject jsonObject=new JSONObject();
+
+	        for(JsonElement j:serviceParameters){
+	        	
+				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName);
+				this.serviceParametersRepository.saveAndFlush(serviceParameter);
+				jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
+	        }
+			
+	        jsonObject.put("clientId",clientId);
+	        jsonObject.put("orderId",orderId);
+	        jsonObject.put("planName",planName);
+	        jsonObject.put("macId",macId);
+	        
+			ProcessRequest processRequest=new ProcessRequest(clientId,orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
+					null,UserActionStatusTypeEnum.ACTIVATION.toString(), new Long(prepareId));
+			
+			Order order=this.orderRepository.findOne(orderId);
 			List<OrderLine> orderLines=order.getServices();
 			
 			for(OrderLine orderLine:orderLines){
 				 
-				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),command.json(),"Recieved",
-						  serviceParameters.getMacId(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
+				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),jsonObject.toString(),"Recieved",
+						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
 				  processRequest.add(processRequestDetails);
 				
 			}
@@ -204,9 +229,10 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			this.prepareRequsetRepository.save(prepareRequest);
 			
 			}
+			return new CommandProcessingResult(Long.valueOf(processRequest.getId()));
 			
 			
-			return new CommandProcessingResult(Long.valueOf(serviceParameters.getId()));
+			
 			
 		}catch(DataIntegrityViolationException dve){
 			handleCodeDataIntegrityIssues(command, dve);

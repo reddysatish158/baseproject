@@ -5,12 +5,18 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
+import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
+import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
+import org.mifosplatform.useradministration.domain.AppUser;
+import org.springframework.data.jpa.domain.AbstractAuditable;
 import org.springframework.data.jpa.domain.AbstractPersistable;
+
+import com.google.gson.JsonElement;
 
 
 @Entity
 @Table(name="b_service_parameters")
-public class ServiceParameters extends AbstractPersistable<Long>{
+public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long>{
 	
 	
 	@Column(name = "client_id")
@@ -22,55 +28,32 @@ public class ServiceParameters extends AbstractPersistable<Long>{
 	@Column(name = "plan_name")
 	private String planName;
 
-	@Column(name = "group_name")
-	private String group;
+	@Column(name = "parameter_name")
+	private String parameterName;
 
-	@Column(name = "service")
-	private String service;
-
-	@Column(name = "ip_address")
-	private String ipAddress;
-
-	@Column(name = "mac_id")
-	private String macId;
-
-	@Column(name = "vlan_id")
-	private String vlanId;
-	
+	@Column(name = "parameter_value")
+	private String parameterValue;
 	
 	public ServiceParameters(){
 		
 	}
 
 
-	public ServiceParameters(Long clientId, Long orderId, String planName,String group, String service, 
-			String ipAddress, String macId,String vlanId) {
+	public ServiceParameters(Long clientId, Long orderId, String planName,String paramName,String paramValue) {
 	
 		       this.clientId=clientId;
 		       this.orderId=orderId;
 		       this.planName=planName;
-		       this.group=group;
-		       this.service=service;
-		       this.ipAddress=ipAddress;
-		       this.macId=macId;
-		       this.vlanId=vlanId;
-
+		       this.parameterName=paramName;
+		       this.parameterValue=paramValue;
 	}
 
 
-	public static ServiceParameters fromJson(JsonCommand command) {
+	public static ServiceParameters fromJson(JsonElement j,FromJsonHelper fromJsonHelper, Long clientId, Long orderId, String planName) {
 
-		
-
-		 final Long clientId = command.longValueOfParameterNamed("clientId");
-		 final Long orderId= command.longValueOfParameterNamed("orderId");
-		 final String planName = command.stringValueOfParameterNamed("planName");
-		 final String group = command.stringValueOfParameterNamed("groupName");
-		 final String service = command.stringValueOfParameterNamed("serviceName");
-		 final String ipAddress = command.stringValueOfParameterNamed("ipAddress");
-		 final String macId = command.stringValueOfParameterNamed("macId");
-		 final String vlanId = command.stringValueOfParameterNamed("vLan");
-		 return new ServiceParameters(clientId,orderId,planName,group,service,ipAddress,macId,vlanId);
+		 final String group = fromJsonHelper.extractStringNamed("paramName",j);
+		 final String service = fromJsonHelper.extractStringNamed("paramValue",j);
+		 return new ServiceParameters(clientId,orderId,planName,group,service);
 	
 	}
 
@@ -90,31 +73,14 @@ public class ServiceParameters extends AbstractPersistable<Long>{
 	}
 
 
-	public String getGroupName() {
-		return group;
+	public String getParameterName() {
+		return parameterName;
 	}
 
 
-	public String getService() {
-		return service;
+	public String getParameterValue() {
+		return parameterValue;
 	}
-
-
-	public String getIpAddress() {
-		return ipAddress;
-	}
-
-
-	public String getMacId() {
-		return macId;
-	}
-
-
-	public String getVlanId() {
-		return vlanId;
-	}
-	
-
 	
 	
 }

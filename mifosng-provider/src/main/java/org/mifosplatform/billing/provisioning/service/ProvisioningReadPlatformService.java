@@ -5,6 +5,7 @@ import java.util.List;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningData;
+import org.mifosplatform.billing.provisioning.data.ServiceParameterData;
 
 public interface ProvisioningReadPlatformService {
 
@@ -17,5 +18,7 @@ public interface ProvisioningReadPlatformService {
 	ProvisioningData retrieveIdData(Long id);
 
 	List<ProvisioningCommandParameterData> retrieveCommandParams(Long id);
+
+	List<ServiceParameterData> getSerivceParameters(Long orderId);
 	
 }
