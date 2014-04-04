@@ -711,11 +711,7 @@ handleCodeDataIntegrityIssues(null, dve);
 					
 					if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Activation)){
 					    String status="";
-					    String Stalkerpassword = clientdata.getPassword();
-					    if(Stalkerpassword==null || Stalkerpassword.equalsIgnoreCase("")){
-					    	Stalkerpassword="0000";
-					    }
-						String query = "login=" + clientdata.getLogin() + "&password=" + Stalkerpassword + "&full_name="+ clientdata.getFullName()
+						String query = "login=" + clientdata.getLogin() + "&password=" + clientdata.getPassword() + "&full_name="+ clientdata.getFullName()
 								+ "&account_number="+ clientId + "&tariff_plan=" + entitlementsData.getProduct() + "&status=1&stb_mac="+ entitlementsData.getHardwareId();
 						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 						StringEntity se = new StringEntity(query.trim());

@@ -988,4 +988,8 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
 		}
 
+		public boolean isCreateIpPoolManagement() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
+		}
+
 }

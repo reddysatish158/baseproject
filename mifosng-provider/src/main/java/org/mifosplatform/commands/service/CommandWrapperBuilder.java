@@ -2074,4 +2074,12 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     return this;
 }
 
+public CommandWrapperBuilder createIpPoolManagement() {
+	
+	this.actionName = "CREATE";
+    this.entityName = "IPPOOLMANAGEMENT";
+    this.href = "/ippool";
+	return this;
+}
+
 }
