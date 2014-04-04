@@ -86,7 +86,7 @@ public class ServiceMappingApiResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	public String getTemplateRelatedData(@Context final UriInfo uriInfo){
 
-		//context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);		
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);		
 		
 		List<ServiceCodeData> serviceCodeData = this.serviceMappingReadPlatformService.getServiceCode();
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
