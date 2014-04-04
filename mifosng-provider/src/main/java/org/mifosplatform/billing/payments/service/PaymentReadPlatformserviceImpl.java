@@ -49,9 +49,9 @@ public class PaymentReadPlatformserviceImpl implements PaymentReadPlatformservic
 	private static final class InvoiceMapper implements RowMapper<PaymentData> {
 
 		public String schema() {
-			return " p.id AS id,p.payment_date AS paymentdate,p.amount_paid AS amount,p.receipt_no AS recieptNo,p.amount_paid -(ifnull((SELECT SUM(amount)" +
-					" FROM b_credit_distribution WHERE payment_id = p.id),0))  as availAmount FROM b_payments p, b_credit_distribution cd WHERE p.client_id = ?" +
-					" AND  p.invoice_id is null group by p.id";
+			return  "  p.id AS id,p.payment_date AS paymentdate,p.amount_paid AS amount,p.receipt_no AS recieptNo,p.amount_paid - (ifnull((SELECT SUM(amount)" +
+					"  FROM b_credit_distribution WHERE payment_id = p.id),0)) AS availAmount FROM b_payments p left join b_credit_distribution cd on p.client_id = cd.client_id" +
+					"  WHERE p.client_id =? AND p.invoice_id IS NULL GROUP BY p.id ";
 		}
 	
 

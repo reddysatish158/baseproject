@@ -48,7 +48,8 @@ public class InvoiceReadPlatformServiceImpl implements InvoiceReadPlatformServic
 	private static final class InvoiceMapper implements RowMapper<InvoiceData> {
 
 		public String schema() {
-			return "bi.id as id,bi.invoice_date as invoiceDate,bi.invoice_amount as invoiceAmount,bi.due_amount as dueAmount,bi.bill_id as billId from b_invoice bi where bi.client_id=?";
+			return "bi.id as id,bi.invoice_date as invoiceDate,bi.invoice_amount as invoiceAmount,bi.due_amount as dueAmount,bi.bill_id as billId " +
+					" from b_invoice bi where bi.client_id=? and due_amount !=0 ";
 
 		}
 	

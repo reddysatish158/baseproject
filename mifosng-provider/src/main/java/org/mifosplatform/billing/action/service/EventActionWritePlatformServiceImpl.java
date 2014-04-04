@@ -16,7 +16,8 @@ import org.mifosplatform.billing.association.service.HardwareAssociationReadplat
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
 import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
-import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
+import org.mifosplatform.billing.order.domain.Order;
+import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,22 +34,24 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
     private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
     private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
     private final InvoiceClient invoiceClient;
+    private final OrderRepository orderRepository;
     
  
 
 	@Autowired
 	public EventActionWritePlatformServiceImpl(final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final EventActionRepository eventActionRepository,
 			final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final InvoiceClient invoiceClient)
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final InvoiceClient invoiceClient,final OrderRepository orderRepository)
 	{
 		this.eventActionRepository=eventActionRepository;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
         this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
         this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
         this.invoiceClient=invoiceClient;
+        this.orderRepository=orderRepository;
 	}
 	
-	@Transactional
+	
 	@Override
 	public void AddNewActions(List<ActionDetaislData> actionDetaislDatas,final Long clientId,final String resourceId) {
     try{
@@ -115,7 +118,8 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	/* EventActionData eventActionData=new EventActionData(clientId,"Create",EventActionConstants.EVENT_ACTIVE_ORDER.toString(),EventActionConstants.ACTION_INVOICE,
 				        			 jsonObject.toString(),actionProcedureData.getOrderId(), actionProcedureData.getOrderId(), clientId);
 				        	  this.processEventActionService.ProcessEventActions(eventActionData);*/
-				            	  this.invoiceClient.invoicingSingleClient(clientId,new LocalDate());
+				            	  Order order=this.orderRepository.findOne(new Long(resourceId));
+				            	  this.invoiceClient.invoicingSingleClient(clientId,new LocalDate(order.getStartDate()));
 				          }
 				          }
 				  }

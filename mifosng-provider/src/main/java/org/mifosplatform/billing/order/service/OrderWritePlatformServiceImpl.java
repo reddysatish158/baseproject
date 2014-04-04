@@ -473,7 +473,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				userId=appUser.getId();
 					
 	        }else{
-	        	userId=new Long(1);
+	        	userId=new Long(0);
 	        }
 			
 			//For Order History
@@ -510,18 +510,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    LocalDate newStartdate=new LocalDate(orderDetails.getEndDate());
 	
 		    newStartdate=newStartdate.plusDays(1);
-		   /* if(plan.isPrepaid() == 'Y'){
-		    	  
-		    	  if(topUpDate.isAfter(newStartdate)){
-		    		  newStartdate=topUpDate;
-		    	  }else{
-		    		  
-		    		  int days=Days.daysBetween(topUpDate, newStartdate).getDays();
-		    		   newStartdate=newStartdate.plusDays(days);
-		    	  }
-		    }*/
-		    
-		 
+		  
 		    LocalDate renewalEndDate=calculateEndDate(newStartdate,contractDetails.getSubscriptionType(),contractDetails.getUnits());
 		      orderDetails.setEndDate(renewalEndDate);
 		     
@@ -574,6 +563,16 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
      		      AppUser appUser=this.context.authenticatedUser();
      		      
 	   			   userId=appUser.getId();
+		      }else {
+		    	  userId=new Long(0);
+		      }
+		      //For Prepaid plans
+		      if(plan.isPrepaid() == 'Y'){
+		    	  
+		    	  List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_ORDER_RENEWAL);
+					if(actionDetaislDatas.size() != 0){
+					this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,orderDetails.getClientId(), orderDetails.getId().toString());
+					}
 		      }
 				//For Order History
 				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,"Renewal",userId);
@@ -653,7 +652,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				userId=appUser.getId();
 					
 	        }else{
-	        	userId=new Long(1);
+	        	userId=new Long(0);
 	        }
 			OrderHistory orderHistory=new OrderHistory(order.getId(),new LocalDate(),new LocalDate(),processingResult.commandId(),requstStatus,userId);
 			this.orderHistoryRepository.save(orderHistory);

@@ -68,6 +68,7 @@ import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.jobs.service.MiddlewareJobConstants;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -103,6 +104,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final ReadReportingService readExtraDataAndReportingService;
 	private final OrderRepository orderRepository;
+	private final PlatformSecurityContext context;
 	
 	@Autowired
 	public SheduleJobWritePlatformServiceImpl(final InvoiceClient invoiceClient,final FromJsonHelper fromApiJsonHelper,
@@ -115,7 +117,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 			final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
 			final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-			final OrderRepository orderRepository) {
+			final OrderRepository orderRepository,final PlatformSecurityContext context) {
 		
 		this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 		this.invoiceClient = invoiceClient;
@@ -138,6 +140,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 		this.readExtraDataAndReportingService=readExtraDataAndReportingService;
 		this.orderRepository=orderRepository;
+		this.context=context;
 	}
 	
 	
@@ -474,7 +477,9 @@ public class SheduleJobWritePlatformServiceImpl implements
 	@CronTarget(jobName = JobName.AUTO_EXIPIRY)
 	public void processingAutoExipryOrders() {
 		try {
+			
 			System.out.println("Processing Auto Exipiry Details.......");
+			
 			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
             if(data!=null){
             	
@@ -1157,6 +1162,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	 public void eventActionProcessor() {
 	  
 	 System.out.println("Processing Event Actions.....");
+	 
 	  try {
 		  
 		   MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
