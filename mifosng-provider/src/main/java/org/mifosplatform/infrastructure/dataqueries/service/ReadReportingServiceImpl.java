@@ -59,6 +59,7 @@ import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -503,7 +504,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 	public Collection<ReportParameterData> getAllowedParameters() {
 		
         ReportParameterMapper rm = new ReportParameterMapper();
-        String sql = rm.schema();
+        String sql = rm.schema()+" order by p.id";
         Collection<ReportParameterData> parameters = this.jdbcTemplate.query(sql, rm, new Object[] {});
         return parameters;
 	}
@@ -575,7 +576,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 
         public String schema() {
 
-            return "select p.id as id, p.parameter_name as parameterName from stretchy_parameter p where ifnull(p.special,'') != 'Y' order by p.id";
+            return "select p.id as id, p.parameter_name as parameterName from stretchy_parameter p where ifnull(p.special,'') != 'Y' ";
 
         }
 
@@ -680,8 +681,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
     }
 
 	@Override
-	public Page<ReportParameterJoinData> retrieveSearchReportList(
-			SearchSqlQuery searchReportDetails) {
+	public Page<ReportParameterJoinData> retrieveSearchReportList(SearchSqlQuery searchReportDetails) {
 	
 		context.authenticatedUser();
 		ReportParameterJoinMapper rm = new ReportParameterJoinMapper();
@@ -701,7 +701,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 	    }
         sqlBuilder.append(extraCriteria);
         
-        	String sql= " order by r.id, rp.parameter_id";
+        	String sql= " group by r.id order by r.id, rp.parameter_id";
         	sqlBuilder.append(sql);
         
         if (searchReportDetails.isLimited()) {
@@ -715,6 +715,21 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 		return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
                 new Object[] {}, rm);
 
+	}
+
+	@Override
+	public Collection<ReportParameterData> getAllowedServiceParameters() {
+
+		try{
+        ReportParameterMapper rm = new ReportParameterMapper();
+        String sql = rm.schema()+"  and type='service' ORDER BY p.id"; 
+        Collection<ReportParameterData> parameters = this.jdbcTemplate.query(sql, rm, new Object[] {});
+        
+        return parameters;
+		}catch(EmptyResultDataAccessException accessException){
+			return null;
+		}
+	
 	}
 
 }

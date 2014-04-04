@@ -59,6 +59,8 @@ import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
 import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
@@ -69,7 +71,6 @@ import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService
 import org.mifosplatform.infrastructure.jobs.annotation.CronTarget;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.jobs.service.MiddlewareJobConstants;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -105,6 +106,7 @@ public class SheduleJobWritePlatformServiceImpl implements
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final ReadReportingService readExtraDataAndReportingService;
 	private final OrderRepository orderRepository;
+	private final GlobalConfigurationRepository globalConfigurationRepository;
 
 	
 	@Autowired
@@ -118,7 +120,8 @@ final ProcessRequestReadplatformService processRequestReadplatformService,final 
 final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 final ScheduleJob scheduleJob,final EntitlementReadPlatformService entitlementReadPlatformService,
 final EntitlementWritePlatformService entitlementWritePlatformService,final ReadReportingService readExtraDataAndReportingService,
-final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
+final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
+final GlobalConfigurationRepository globalConfigurationRepository) {
 
 this.sheduleJobReadPlatformService = sheduleJobReadPlatformService;
 this.invoiceClient = invoiceClient;
@@ -141,6 +144,7 @@ this.scheduleJob=scheduleJob;
 this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
 this.readExtraDataAndReportingService=readExtraDataAndReportingService;
 this.orderRepository=orderRepository;
+this.globalConfigurationRepository=globalConfigurationRepository;
 
 //this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
 }
@@ -234,6 +238,8 @@ this.orderRepository=orderRepository;
 				LocalTime date=new LocalTime(zone);
 				String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();//date.getHours()+""+date.getMinutes()+""+date.getSeconds();
 				String path=FileUtils.generateLogFileDirectory()+JobName.REQUESTOR.toString()+ File.separator +"Requester_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+				
+				GlobalConfigurationProperty globalConfiguration=this.globalConfigurationRepository.findOneByName("CPE_TYPE");
 				File fileHandler = new File(path.trim());
 				 fileHandler.createNewFile();
 				 FileWriter fw = new FileWriter(fileHandler);
@@ -245,7 +251,7 @@ this.orderRepository=orderRepository;
 					+requestData.getOrderId()+" ,HardwareId="+requestData.getHardwareId()+" ,planName="+requestData.getPlanName()+
 					" ,Provisiong system="+requestData.getProvisioningSystem()+"\r\n");
 					
-					this.prepareRequestReadplatformService.processingClientDetails(requestData);
+					this.prepareRequestReadplatformService.processingClientDetails(requestData,globalConfiguration.getValue());
 					
 				}
 				fw.append(" Requestor Job is Completed...."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+"\r\n");

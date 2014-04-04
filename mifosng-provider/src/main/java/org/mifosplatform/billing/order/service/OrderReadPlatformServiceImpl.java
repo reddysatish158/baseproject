@@ -310,7 +310,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 						return "o.id AS orderId,p.plan_code AS planCode,p.plan_description as planDescription,o.billing_frequency AS billingFreq," +
 								"c.contract_period as contractPeriod,(SELECT sum(ol.price) AS price FROM b_order_price ol"
 					+" WHERE o.id = ol.order_id)  AS price  FROM b_orders o, b_plan_master p, b_contract_period c WHERE client_id =?" +
-								" AND p.id = o.plan_id  and o.contract_period=c.id ";
+								" AND p.id = o.plan_id  and o.contract_period=c.id and o.order_status=1 ";
 						}
 
 						@Override
