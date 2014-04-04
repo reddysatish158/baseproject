@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.eventorder.domain;
+package org.mifosplatform.billing.preparerequest.domain;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;

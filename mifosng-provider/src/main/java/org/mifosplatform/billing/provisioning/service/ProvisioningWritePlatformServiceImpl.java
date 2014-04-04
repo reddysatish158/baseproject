@@ -5,14 +5,14 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
-import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
-import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
 import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderLine;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
+import org.mifosplatform.billing.preparerequest.domain.PrepareRequest;
+import org.mifosplatform.billing.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
@@ -24,16 +24,12 @@ import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandReposito
 import org.mifosplatform.billing.provisioning.domain.ServiceParameters;
 import org.mifosplatform.billing.provisioning.domain.ServiceParametersRepository;
 import org.mifosplatform.billing.provisioning.serialization.ProvisioningCommandFromApiJsonDeserializer;
-import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetails;
-import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
-import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -185,7 +181,8 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
             final String planName=command.stringValueOfParameterNamed("planName");
             final String macId=command.stringValueOfParameterNamed("macId");
 			
-			Integer prepareId=this.prepareRequestReadplatformService.getLastPrepareId(orderId);
+			//Integer prepareId=this.prepareRequestReadplatformService.getLastPrepareId(orderId);
+            PrepareRequest prepareRequest=this.prepareRequsetRepository.getLatestRequestByOrderId(orderId);
 			InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(macId);
 			
 			 final JsonElement element = fromJsonHelper.parse(command.json());
@@ -206,7 +203,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	        jsonObject.put("macId",macId);
 	        
 			ProcessRequest processRequest=new ProcessRequest(clientId,orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
-					null,UserActionStatusTypeEnum.ACTIVATION.toString(), new Long(prepareId));
+					null,UserActionStatusTypeEnum.ACTIVATION.toString(), prepareRequest.getId());
 			
 			Order order=this.orderRepository.findOne(orderId);
 			List<OrderLine> orderLines=order.getServices();
@@ -222,13 +219,13 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			this.processRequestRepository.saveAndFlush(processRequest);
 
 			//Update Prepare Request table
-			if(prepareId !=0){
+			
 				
-			PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(prepareId.longValue());
+			//PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(prepareId.longValue());
 			prepareRequest.updateProvisioning();
 			this.prepareRequsetRepository.save(prepareRequest);
 			
-			}
+			//}
 			return new CommandProcessingResult(Long.valueOf(processRequest.getId()));
 			
 			

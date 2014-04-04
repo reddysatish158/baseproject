@@ -2,7 +2,6 @@ package org.mifosplatform.billing.preparerequest.service;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
 import org.mifosplatform.billing.preparerequest.data.PrepareRequestData;
 
 

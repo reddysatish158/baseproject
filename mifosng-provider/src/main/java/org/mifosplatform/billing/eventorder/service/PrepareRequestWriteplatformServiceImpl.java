@@ -2,10 +2,10 @@ package org.mifosplatform.billing.eventorder.service;
 
 
 
-import org.mifosplatform.billing.eventorder.domain.PrepareRequest;
-import org.mifosplatform.billing.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.plan.domain.Plan;
+import org.mifosplatform.billing.preparerequest.domain.PrepareRequest;
+import org.mifosplatform.billing.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
