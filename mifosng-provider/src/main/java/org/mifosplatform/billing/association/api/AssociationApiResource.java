@@ -39,7 +39,7 @@ public class AssociationApiResource {
 	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "planCode", "OrderId","hardware","serialNo","planCode",
 			"itemCode","saleId","itemId"));
 	
-	 private final String resourceNameForPermissions = "PLAN";
+	 private final String resourceNameForPermissions = "ASSOCIATION";
 	  private final PlatformSecurityContext context;
 	    private final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer;
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;

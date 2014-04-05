@@ -42,7 +42,7 @@ public class RandomGeneratorApiReswource {
 		 */
 		private static final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "batchName", "batchDescription", "length",
 				"beginWith", "pinCategory", "pinType", "quantity","serialNo","expiryDate","dateFormat","pinValue","pinNO","locale","pinExtention"));
-		private final String resourceNameForPermissions = "GETPAYMENT";
+		private final String resourceNameForPermissions = "RANDAMGENERATOR";
 
 		private final PlatformSecurityContext context;
 		private final RandomGeneratorReadPlatformService readPlatformService;

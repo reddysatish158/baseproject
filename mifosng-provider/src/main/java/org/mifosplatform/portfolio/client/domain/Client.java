@@ -101,6 +101,8 @@ public final class Client extends AbstractPersistable<Long> {
     private String login;
     @Column(name = "password", length = 100)
     private String password;
+    @Column(name = "group_name", length = 100)
+    private String groupName;
 
     
     
@@ -128,6 +130,7 @@ public final class Client extends AbstractPersistable<Long> {
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
 	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
+	    final String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -146,7 +149,7 @@ public final class Client extends AbstractPersistable<Long> {
         }
 
         return new Client(status, clientOffice, clientParentGroup, accountNo, firstname, middlename, lastname, fullname, activationDate,
-                externalId,categoryType,email,phone,homePhoneNumber,login,password);
+                externalId,categoryType,email,phone,homePhoneNumber,login,password,groupName);
     }
 
     protected Client() {
@@ -155,7 +158,7 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password) {
+            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,String groupName) {
         if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
             this.accountNumberRequiresAutoGeneration = true;
@@ -170,6 +173,7 @@ public final class Client extends AbstractPersistable<Long> {
         this.homePhoneNumber=homePhoneNumber;
         this.login=login;
         this.password=password;
+        this.groupName = groupName;
         if (StringUtils.isNotBlank(externalId)) {
             this.externalId = externalId.trim();
         } else {
@@ -542,7 +546,10 @@ public final class Client extends AbstractPersistable<Long> {
 	public String getPassword() {
 		return password;
 	}
-
+	public String getGroupName(){
+		return groupName;
+	}
+	
 	public Set<Group> getGroups() {
 		return groups;
 	}

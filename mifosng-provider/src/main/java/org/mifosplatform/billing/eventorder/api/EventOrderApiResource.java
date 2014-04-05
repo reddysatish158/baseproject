@@ -94,8 +94,7 @@ public class EventOrderApiResource {
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String getEventOrder(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo){			
-			context.authenticatedUser();
-			
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 			final List<EventOrderDeviceData> devices = eventOrderReadplatformServie.getDevices(clientId);
 			//final List<EventMasterData> events = eventOrderReadplatformServie.getEvents();
 			final List<EventMasterData> events = this.eventMasterReadPlatformService.retrieveEventMasterData();
@@ -111,7 +110,7 @@ public class EventOrderApiResource {
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType, @QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
-			context.authenticatedUser();
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 			EventOrderData data = null;
 			try{
 				

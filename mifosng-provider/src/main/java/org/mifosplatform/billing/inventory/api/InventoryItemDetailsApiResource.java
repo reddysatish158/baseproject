@@ -63,6 +63,7 @@ public class InventoryItemDetailsApiResource {
 	private final Set<String> RESPONSE_DATA_GRN_IDS_PARAMETERS = new HashSet<String>(Arrays.asList("id"));
 	
     private final String resourceNameForPermissions = "INVENTORY";
+    private final String resourceNameForGrnPermissions = "GRN";
     private final String resourceNameForPermissionsAllocation = "ALLOCATION";
 	
 	private final PlatformSecurityContext context;
@@ -131,7 +132,7 @@ public class InventoryItemDetailsApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String addGrn(@Context final UriInfo uriInfo) {
-		 context.authenticatedUser();
+		 context.authenticatedUser().validateHasReadPermission(resourceNameForGrnPermissions);
 		 List<SupplierData> supplierData = this.supplierReadPlatformService.retrieveSupplier();
 		 Collection<OfficeData> officeData = this.officeReadPlatformService.retrieveAllOfficesForDropdown();
 		 List<ItemData> itemData = this.itemReadPlatformService.retrieveAllItems();
@@ -183,7 +184,7 @@ public class InventoryItemDetailsApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String grnTemplate(@QueryParam("grnId") final Long grnId,@Context final UriInfo uriInfo) {
 		
-		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForGrnPermissions);
 		
 		InventoryGrnData inventoryGrnData = null;
 		boolean val = false;
@@ -281,7 +282,7 @@ public class InventoryItemDetailsApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String retriveGrnIds(@Context final UriInfo uriInfo){
-		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForGrnPermissions);
 		Collection<InventoryGrnData> inventoryGrnData = this.inventoryGrnReadPlatformService.retriveGrnIds();
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializerForGrn.serialize(settings,inventoryGrnData,RESPONSE_DATA_GRN_IDS_PARAMETERS);
@@ -323,7 +324,7 @@ public class InventoryItemDetailsApiResource {
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retriveGrnDetailsPaginate(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
-		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions); 
+		context.authenticatedUser().validateHasReadPermission(resourceNameForGrnPermissions); 
 		final SearchSqlQuery searchGrn =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		Page<InventoryGrnData> inventoryGrnData  = this.inventoryGrnReadPlatformService.retriveGrnDetails(searchGrn);
 

@@ -46,7 +46,7 @@ public class PromotionCodesApiResource {
 	
 	
 	  private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "action","event","process"));
-	  private final String resourceNameForPermissions = "EVENTACTIONMAP";
+	  private final String resourceNameForPermissions = "PROMOTIONCODE";
 	  private final PlatformSecurityContext context;
 	  private final DefaultToApiJsonSerializer<PromotionCodeData> toApiJsonSerializer;
 	  private final DefaultToApiJsonSerializer<DiscountMasterData> toApiJsonSerializer1;

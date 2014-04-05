@@ -56,6 +56,7 @@ public class EventMasterApiResource {
 	private final Set<String> RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("id","eventName","eventDescription","status","eventStartDate","eventEndDate",
 			"chargeData","eventValidity"));
 	
+	private final String resourceNameForPermissions = "EVENT";
 	private PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService;
 	private DefaultToApiJsonSerializer<EventMasterData> toApiJsonSerializer;
 	private ApiRequestParameterHelper apiRequestParameterHelper;
@@ -101,7 +102,7 @@ public class EventMasterApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String retrieveEventMasterTempleteData(@Context final UriInfo uriInfo) {
-		context.authenticatedUser().validateHasReadPermission("CLIENT");
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 		responseParameters.addAll(RESPONSE_PARAMETERS);
 		EventMasterData templetData = handleTemplateRelatedData(responseParameters);		
@@ -135,7 +136,7 @@ public class EventMasterApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String retrieveEventMaster(@PathParam("eventId")Integer eventId,@Context final UriInfo uriInfo) {
-		context.authenticatedUser().validateHasReadPermission("CLIENT");
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 		responseParameters.addAll(RESPONSE_PARAMETERS);
 		List<MediaAssetData> mediaData   = this.assetReadPlatformService.retrieveAllAssetdata();
@@ -179,6 +180,7 @@ public class EventMasterApiResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	public String retrieveEventMasterData(@Context UriInfo uriInfo) {
 		
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		final List<EventMasterData> data = this.eventMasterReadPlatformService.retrieveEventMasterData();
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_PARAMETERS);

@@ -37,6 +37,7 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -50,6 +51,8 @@ public class EventPricingApiResource {
 	private final Set<String> RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("id","eventId","discountId","formatType","optType","clientType","discount","price",
 			"eventName","clientTypeId"));
 	
+	private final String resourceNameForPermissions = "EVENTPRICE";
+	private final PlatformSecurityContext context;
 	private EventMasterReadPlatformService eventMasterReadPlatformService;
 	private MediaAssetDetailsReadPlatformService assetDetailsReadPlatformService;
 	private EventPricingReadPlatformService eventPricingReadService;
@@ -65,7 +68,8 @@ public class EventPricingApiResource {
 								   final ApiRequestParameterHelper apiRequestParameterHelper,
 								   final DefaultToApiJsonSerializer<EventPricingData> apiJsonSerializer,
 								   final PriceReadPlatformService priceReadPlatformService,
-								   final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService) {
+								   final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,
+								   final PlatformSecurityContext context) {
 		this.eventMasterReadPlatformService = eventMasterReadPlatformService;
 		this.assetDetailsReadPlatformService = assetReadPlatformService;
 		this.eventPricingReadService = eventPricingReadService;
@@ -73,6 +77,7 @@ public class EventPricingApiResource {
 		this.apiJsonSerializer = apiJsonSerializer;
 		this.priceReadPlatformService = priceReadPlatformService;
 		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
+		this.context = context;
 	}
 
 	/**
@@ -87,6 +92,8 @@ public class EventPricingApiResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String retrievePriceTemplateData(@QueryParam("eventId") Long eventId,@Context UriInfo uriInfo) {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 		responseParameters.addAll(RESPONSE_PARAMETERS);
 		EventPricingData templateData = handleTemplateRelatedData(eventId);
@@ -118,6 +125,8 @@ public class EventPricingApiResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String retrievePriceData(@PathParam("eventId") Long eventId, @Context UriInfo uriInfo) {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		List<EventPricingData> priceData = this.eventPricingReadService.retrieventPriceData(eventId);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.apiJsonSerializer.serialize(settings, priceData, RESPONSE_PARAMETERS);
@@ -154,6 +163,7 @@ public class EventPricingApiResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String updateEventPricing(@PathParam("id") final Long eventPriceId, @Context final UriInfo uriInfo) {
 		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 		responseParameters.addAll(RESPONSE_PARAMETERS);
 

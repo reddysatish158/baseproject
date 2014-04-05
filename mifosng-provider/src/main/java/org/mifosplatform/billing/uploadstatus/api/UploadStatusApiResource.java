@@ -125,6 +125,7 @@ public class UploadStatusApiResource {
 	    @Produces({ MediaType.APPLICATION_JSON })
 	    public String retrieveFileDetails(@PathParam("uploadfileId") final Long fileId,@Context final UriInfo uriInfo) {
 	    	
+	    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	    	final UploadStatusData uploadstatusdata= this.readPlatformService.retrieveSingleFileDetails(fileId);			
 			ApiRequestJsonSerializationSettings  settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.defaulttoApiJsonSerializerforUploadStatus.serialize(settings, uploadstatusdata, UPLOAD_STATUS_PARAMETERS);

@@ -35,7 +35,7 @@ public class InvoiceApiResource {
 	
 	
 	  private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "amount","dueAmount","billId","billDate"));
-	  private final String resourceNameForPermissions = "INVOICEMAP";
+	  private final String resourceNameForPermissions = "INVOICE";
 	  private final PlatformSecurityContext context;
 	  private final DefaultToApiJsonSerializer<InvoiceData> toApiJsonSerializer;
 	

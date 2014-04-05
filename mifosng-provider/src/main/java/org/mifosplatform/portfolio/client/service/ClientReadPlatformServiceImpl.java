@@ -72,10 +72,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         final Collection<OfficeData> offices = officeReadPlatformService.retrieveAllOfficesForDropdown();
         final Collection<ClientCategoryData> categoryDatas=this.retrieveClientCategories();
+        final Collection<GroupData> groupDatas = this.retrieveGroupData();
 
         final Long officeId = currentUser.getOffice().getId();
 
-        return ClientData.template(officeId, new LocalDate(), offices,categoryDatas);
+        return ClientData.template(officeId, new LocalDate(), offices,categoryDatas, groupDatas);
     }
 
     @Override
@@ -614,5 +615,35 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
                     return new ClientCategoryData(id,codeValue);
 	            
 	        }
-}
+	    }
+	    @Override
+	    public Collection<GroupData> retrieveGroupData(){
+	    	try{
+	    		
+	    		final GroupDataMapper mapper = new GroupDataMapper();
+	    		
+	    		String sql = "select "+mapper.GroupDataSchema();
+	    		
+	    		return jdbcTemplate.query(sql,mapper,new Object[]{});
+	    		
+	    	}catch(EmptyResultDataAccessException e){
+	    		return null;
+	    	}
+	    }
+	    private static final class GroupDataMapper implements RowMapper<GroupData>{
+	    	
+	    	public String GroupDataSchema(){
+	    		
+	    		return "bg.id as id,bg.group_name as groupName from b_group bg";
+	    	}
+	    	
+	    	@Override
+	    	public GroupData mapRow(final ResultSet rs,@SuppressWarnings("unused") final int rowNum)throws SQLException{
+	    		
+	    		final Long id = rs.getLong("id");
+	    		final String groupName = rs.getString("groupName");
+	    		
+	    		return new GroupData(id,groupName);
+	    	}
+	    }
 }
