@@ -2074,6 +2074,7 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     return this;
 }
 
+
 public CommandWrapperBuilder addNewProvisioning(Long clientId) {
 	
 	this.actionName = "ADD";
@@ -2081,6 +2082,14 @@ public CommandWrapperBuilder addNewProvisioning(Long clientId) {
     this.entityId=clientId;
     this.href = "/provisionings/"+clientId;
     return this;
+}
+public CommandWrapperBuilder createIpPoolManagement() {
+	
+	this.actionName = "CREATE";
+    this.entityName = "IPPOOLMANAGEMENT";
+    this.href = "/ippool";
+	return this;
+
 }
 
 }

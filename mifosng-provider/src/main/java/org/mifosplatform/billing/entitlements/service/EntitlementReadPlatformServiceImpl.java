@@ -103,7 +103,8 @@ public class EntitlementReadPlatformServiceImpl implements
 		}
 		
 		public String schema() {
-			return "c.email as EmailId,c.display_name as fullName,c.login as login,c.password as password from m_client c where c.id=?";
+			return "c.email as EmailId,c.display_name as fullName,ifnull(c.login,c.id) as login,ifnull(c.password,'0000') as password from m_client c where c.id=?";
+			
 		}
 		
 		}

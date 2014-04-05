@@ -993,4 +993,9 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("ADD") && this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
 		}
 
+		public boolean isCreateIpPoolManagement() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
+
+		}
+
 }
