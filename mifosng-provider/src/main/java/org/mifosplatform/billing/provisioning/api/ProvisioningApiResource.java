@@ -52,7 +52,7 @@ public class ProvisioningApiResource {
 	           "currentDate","plan_code","units","service_code","allowedtypes","data","servicedata","billing_frequency", "start_date", "contract_period",
 	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes"));
 	
-	  private final String resourceNameForPermissions = "PROVISIONING";
+	  private final String resourceNameForPermissions = "PROVISIONINGSYSTEM";
 	  
 	  private final PlatformSecurityContext context;
 	  private final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer;

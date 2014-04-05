@@ -19,6 +19,7 @@ import org.mifosplatform.infrastructure.configuration.domain.GlobalConfiguration
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.organisation.office.data.OfficeData;
 import org.mifosplatform.portfolio.client.service.ClientCategoryData;
+import org.mifosplatform.portfolio.client.service.GroupData;
 import org.mifosplatform.portfolio.group.data.GroupGeneralData;
 
 /**
@@ -71,19 +72,20 @@ final public class ClientData implements Comparable<ClientData> {
     private final List<String> hardwareDetails;
     private GlobalConfigurationProperty configurationProperty;
 	private  final String currency;
-    public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions, Collection<ClientCategoryData> categoryDatas) {
+	private final Collection<GroupData> groupNameDatas;
+    public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions, Collection<ClientCategoryData> categoryDatas,Collection<GroupData> groupDatas) {
         return new ClientData(null, null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
-        		categoryDatas,null,null,null, null, null, null, null, null, null, null,null,null,null,null);
+        		categoryDatas,null,null,null, null, null, null, null, null, null, null,null,null,null,null,groupDatas);
     }
 
-    public static ClientData templateOnTop(final ClientData clientData, final List<OfficeData> allowedOffices, Collection<ClientCategoryData> categoryDatas, List<String> allocationDetailsDatas) {
+    public static ClientData templateOnTop(final ClientData clientData, final List<OfficeData> allowedOffices, Collection<ClientCategoryData> categoryDatas,Collection<GroupData> groupDatas, List<String> allocationDetailsDatas) {
 
         return new ClientData(clientData.accountNo, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
                 clientData.externalId, clientData.activationDate, clientData.imageKey, allowedOffices, clientData.groups,
                 categoryDatas,clientData.categoryType,clientData.email,clientData.phone,clientData.homePhoneNumber,clientData.addressNo,clientData.street,
                 clientData.city,clientData.state,clientData.country,clientData.zip,clientData.balanceAmount,allocationDetailsDatas,clientData.hwSerialNumber,
-                clientData.currency);
+                clientData.currency, groupDatas);
     }
 
     public static ClientData setParentGroups(final ClientData clientData, final Collection<GroupGeneralData> parentGroups) {
@@ -92,7 +94,7 @@ final public class ClientData implements Comparable<ClientData> {
                 clientData.externalId, clientData.activationDate, clientData.imageKey, clientData.officeOptions, parentGroups,
                 clientData.clientCategoryDatas,clientData.categoryType,clientData.email,clientData.phone,clientData.homePhoneNumber,
                 clientData.addressNo,clientData.street,clientData.city,clientData.state,clientData.country,clientData.zip,clientData.balanceAmount,
-                clientData.hardwareDetails,clientData.hwSerialNumber,clientData.currency);
+                clientData.hardwareDetails,clientData.hwSerialNumber,clientData.currency, clientData.groupNameDatas);
     }
 
     public static ClientData clientIdentifier(final Long id, final String accountNo, final EnumOptionData status, final String firstname,
@@ -100,12 +102,12 @@ final public class ClientData implements Comparable<ClientData> {
             final String officeName) {
 
         return new ClientData(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName, null,
-                null, null, null, null,null,null,null,null, null,null, null,null, null, null,null,null,null,null,null);
+                null, null, null, null,null,null,null,null, null,null, null,null, null, null,null,null,null,null,null, null);
     }
 
     public static ClientData lookup(final Long id, final String displayName, final Long officeId, final String officeName) {
         return new ClientData(null, null, officeId, officeName, id, null, null, null, null, displayName, null, null, null, null, null,null,null,null,null,
-        		null,null,null, null,null,null,null,null,null,null,null);
+        		null,null,null, null,null,null,null,null,null,null,null, null);
     }
 
     public static ClientData instance(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName,final Long id, 
@@ -115,14 +117,14 @@ final public class ClientData implements Comparable<ClientData> {
     	
         return new ClientData(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
                 externalId, activationDate, imageKey, null, null,null,categoryType,email,phone,homePhoneNumber,addrNo,street,city,state,country,zip,
-                balanceAmount,null,hwSerialNumber,currency);
+                balanceAmount,null,hwSerialNumber,currency, null);
     }
 
     private ClientData(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName, final Long id,final String firstname,
     		final String middlename, final String lastname, final String fullname, final String displayName,final String externalId, final LocalDate activationDate, 
     		final String imageKey, final Collection<OfficeData> allowedOffices,final Collection<GroupGeneralData> groups, Collection<ClientCategoryData> clientCategoryDatas,
     		final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,final String state,
-    		final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,final String currency) {
+    		final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,final String currency, Collection<GroupData> groupNameDatas) {
         this.accountNo = accountNo;
         this.status = status;
         if (status != null) {
@@ -153,6 +155,7 @@ final public class ClientData implements Comparable<ClientData> {
         // template
         this.officeOptions = allowedOffices;
         this.clientCategoryDatas=clientCategoryDatas;
+        this.groupNameDatas = groupNameDatas;
         this.categoryType=categoryType;
         this.email=email;
         this.phone=phone;

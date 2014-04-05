@@ -44,6 +44,7 @@ import org.mifosplatform.organisation.office.service.OfficeReadPlatformService;
 import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.client.service.ClientCategoryData;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;
+import org.mifosplatform.portfolio.client.service.GroupData;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -140,11 +141,12 @@ public class ClientsApiResource {
         if (settings.isTemplate()) {
             final List<OfficeData> allowedOffices = new ArrayList<OfficeData>(officeReadPlatformService.retrieveAllOfficesForDropdown());
             final Collection<ClientCategoryData> categoryDatas=this.clientReadPlatformService.retrieveClientCategories();
+            final Collection<GroupData> groupDatas = this.clientReadPlatformService.retrieveGroupData();
             List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,allocationDetailsDatas);
+            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,groupDatas,allocationDetailsDatas);
         }else{
         	 List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-             clientData = ClientData.templateOnTop(clientData, null,null,allocationDetailsDatas);
+             clientData = ClientData.templateOnTop(clientData, null,null,null,allocationDetailsDatas);
         }
 
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);

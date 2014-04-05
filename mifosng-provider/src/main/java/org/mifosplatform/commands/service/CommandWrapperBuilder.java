@@ -1697,7 +1697,7 @@ public CommandWrapperBuilder createRandomGenerator()
 
 public CommandWrapperBuilder updateJobDetail(final Long jobId) {
     this.actionName = "UPDATE";
-    this.entityName = "SCHEDULER";
+    this.entityName = "SCHEDULERJOB";
     this.entityId = jobId;
     this.href = "/updateJobDetail/" + jobId + "/updateJobDetail";
     return this;
@@ -1705,15 +1705,14 @@ public CommandWrapperBuilder updateJobDetail(final Long jobId) {
 
 public CommandWrapperBuilder addNewJob() {
 	this.actionName = "CREATE";
-    this.entityName = "SCHEDULER";
-    
+    this.entityName = "SCHEDULERJOB";
     this.href = "/job";
     return this;
 }
 
 public CommandWrapperBuilder deleteJob(Long jobId) {
 	this.actionName = "DELETE";
-    this.entityName = "SCHEDULER";
+    this.entityName = "SCHEDULERJOB";
     this.entityId=jobId;
     this.href = "/job/"+jobId;
     return this;
@@ -1739,7 +1738,7 @@ public CommandWrapperBuilder createEpgXsls(Long i) {
 
 public CommandWrapperBuilder updateJobParametersDetail(Long jobId) {
 	     this.actionName = "UPDATE";
-	    this.entityName = "SCHEDULE";
+	    this.entityName = "SCHEDULERJOBPARAMETER";
 	    this.entityId = jobId;
 	    this.href = "/job/" + jobId + "/jobparameters";
 	    return this;
@@ -2075,6 +2074,7 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
 }
 
 
+
 public CommandWrapperBuilder addNewProvisioning(Long clientId) {
 	
 	this.actionName = "ADD";
@@ -2083,6 +2083,16 @@ public CommandWrapperBuilder addNewProvisioning(Long clientId) {
     this.href = "/provisionings/"+clientId;
     return this;
 }
+
+public CommandWrapperBuilder createGroupsDetails() {
+	this.actionName = "CREATE";
+	this.entityName = "GROUPS";
+	this.entityId = null;
+	this.href = "/groups";
+	return this;
+}
+
+
 public CommandWrapperBuilder createIpPoolManagement() {
 	
 	this.actionName = "CREATE";

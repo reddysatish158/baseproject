@@ -72,7 +72,7 @@ public class ServiceMappingApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String getServiceMapping(@Context final UriInfo uriInfo) {
-		//context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		List<ServiceMappingData> serviceMapping = this.serviceMappingReadPlatformService.getServiceMapping();
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, serviceMapping, RESPONSE_PARAMETERS); 

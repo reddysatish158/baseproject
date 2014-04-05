@@ -50,7 +50,7 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class TicketMasterApiResource {
 
-
+		private final String resourceNameForPermission = "TICKET";
 		private TicketMasterWritePlatformService ticketMasterWritePlatformService;
 		private TicketMasterReadPlatformService ticketMasterReadPlatformService ;
 		private  DefaultToApiJsonSerializer<TicketMasterData> toApiJsonSerializer;
@@ -74,7 +74,6 @@ public class TicketMasterApiResource {
 			this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 			this.context = context;
 		}
-		private final String entityType = "CLIENT";
 		private final Set<String> RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("id","priorityType","problemsDatas","usersData","status","assignedTo","userName","ticketDate","lastComment","masterData"));   
 
 		
@@ -105,6 +104,7 @@ public class TicketMasterApiResource {
 		@Produces({ MediaType.APPLICATION_JSON })
 		public String assignedTicketsForUserNewClient(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
 			
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 			final SearchSqlQuery searchTicketMaster =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		    final Page<ClientTicketData> data = this.ticketMasterReadPlatformService.retrieveAssignedTicketsForNewClient(searchTicketMaster);
 		
@@ -124,7 +124,7 @@ public class TicketMasterApiResource {
 		@Produces({ MediaType.APPLICATION_JSON })
 		public String retrieveTicketMasterTemplateData(@Context final UriInfo uriInfo) {
 
-			context.authenticatedUser().validateHasReadPermission(entityType);
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 
 			Set<String> typicalResponseParameters = new HashSet<String>(Arrays.asList("statusType"));
 
@@ -151,7 +151,7 @@ public class TicketMasterApiResource {
 	    public String retrieveSingleClientTicketDetails(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo) {
 
 
-
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 	        final List<TicketMasterData> data = this.ticketMasterReadPlatformService.retrieveClientTicketDetails(clientId);
 	        
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -170,7 +170,8 @@ public class TicketMasterApiResource {
 	    @Consumes({MediaType.APPLICATION_JSON})
 	    @Produces({MediaType.APPLICATION_JSON})
 	    public String retrieveClientSingleTicketDetails(@PathParam("clientId")final Long clientId ,@PathParam("ticketId") final Long ticketId, @Context final UriInfo uriInfo) {
-	  
+	    	
+	    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 	    	TicketMasterData data = this.ticketMasterReadPlatformService.retrieveSingleTicketDetails(clientId,ticketId);
 	         data = handleTemplateRelatedData(RESPONSE_PARAMETERS,data);
 	         List<TicketMasterData> Statusdata = this.ticketMasterReadPlatformService.retrieveTicketStatusData();
@@ -206,7 +207,8 @@ public class TicketMasterApiResource {
 	    @Consumes({MediaType.APPLICATION_JSON})
 	    @Produces({MediaType.APPLICATION_JSON})
 	    public String ticketHistory(@PathParam("ticketId") final Long ticketId, @Context final UriInfo uriInfo) {
-
+			
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 			 String description=this.ticketMasterWritePlatformService.retrieveTicketProblems(ticketId);
 	         final List<TicketMasterData> data = this.ticketMasterReadPlatformService.retrieveClientTicketHistory(ticketId);
 	        
@@ -228,6 +230,7 @@ public class TicketMasterApiResource {
 		@Produces({ MediaType.APPLICATION_JSON })
 		public Response downloadFile(@PathParam("ticketId") final Long ticketId) {
 
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 			TicketDetail ticketDetail = this.detailsRepository.findOne(ticketId);
 
 			String printFileName = ticketDetail.getAttachments();
@@ -250,6 +253,7 @@ public class TicketMasterApiResource {
 		@Produces({ MediaType.APPLICATION_JSON })
 		public String assignedTicketsForUser(@Context final UriInfo uriInfo){
 		
+			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 		    final List<ClientTicketData> data = this.ticketMasterReadPlatformService.retrieveAssignedTickets();
 		    final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	         return this.clientToApiJsonSerializer.serialize(settings, data, RESPONSE_PARAMETERS);
@@ -278,6 +282,7 @@ public class TicketMasterApiResource {
 		    @Produces({MediaType.APPLICATION_JSON})
 		    public String retrieveClientSingleTicket(@PathParam("clientId")final Long clientId ,@PathParam("ticketId") final Long ticketId, @Context final UriInfo uriInfo) {
 		  
+			 	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 		    	TicketMasterData data = this.ticketMasterReadPlatformService.retrieveTicket(clientId,ticketId);
 		         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		         return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_PARAMETERS);

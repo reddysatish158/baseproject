@@ -7,7 +7,7 @@ package org.mifosplatform.commands.domain;
 
 public class CommandWrapper {
 
-    private final Long commandId;
+	private final Long commandId;
     @SuppressWarnings("unused")
     private final Long officeId;
     private final Long groupId;
@@ -986,6 +986,10 @@ public class CommandWrapper {
 
 		public boolean isOrderExtension() {
 			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
+		}
+		public boolean isGroupDetailsResource(){
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("GROUPS");
+			
 		}
 
 		public boolean isCreateProvisioning() {
