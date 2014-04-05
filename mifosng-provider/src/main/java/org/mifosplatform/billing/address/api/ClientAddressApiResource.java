@@ -47,6 +47,7 @@ public class ClientAddressApiResource {
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("addressid","clientId",
             "addressNo","street","zipCode","city","state","country","datas","countryData","stateData","cityData","addressOptionsData"));
     private final String resourceNameForPermissions = "ADDRESS";
+    private final String resourceNameForLocationPermissions = "LOCATION";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<AddressData> toApiJsonSerializer;
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
@@ -164,7 +165,7 @@ public class ClientAddressApiResource {
 	@Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveAddress(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,  @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
-		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForLocationPermissions);
 		final SearchSqlQuery searchAddresses =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		final Page<AddressDetails> addresses = this.addressReadPlatformService.retrieveAllAddresses(searchAddresses);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());

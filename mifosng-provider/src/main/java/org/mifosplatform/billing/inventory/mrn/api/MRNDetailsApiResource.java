@@ -46,7 +46,8 @@ public class MRNDetailsApiResource {
 	
 	private final Set<String> RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("mrnId","requestedDate","itemDescription","fromOffice","toOffice","orderdQuantity","receivedQuantity","status","officeId","officeName","parentId","movedDate"));
 	private final Set<String> RESPONSE_PARAMETERS_HISTORY = new HashSet<String>(Arrays.asList("mrnId","transactionDate","itemDescription","fromOffice","toOffice","serialNumber","orderdQuantity","movedQuantity","movement"));
-	private final static String resourceType = "MRNDETAILS";
+	private final static String resourceType = "MRN";
+	private final String resourceNameForPermission = "MRNDETAILS";
 	
 	final private PlatformSecurityContext context;
 	final private PortfolioCommandSourceWritePlatformService portfolioCommandSourceWritePlatformService;
@@ -154,7 +155,7 @@ public class MRNDetailsApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String retriveMMRNHistory(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
-		context.authenticatedUser().validateHasReadPermission(resourceType);
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 
 		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		final Page<InventoryTransactionHistoryData> mrnDetailsDatas = mrnDetailsReadPlatformService.retriveHistory(searchItemDetails);
