@@ -47,14 +47,16 @@ public class AssociationApiResource {
 	    private final HardwareAssociationReadplatformService associationReadplatformService;
 	    
 	    @Autowired
-	    public AssociationApiResource(final PlatformSecurityContext context, 
-	   final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final HardwareAssociationReadplatformService associationReadplatformService) {
+	    public AssociationApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<AssociationData> toApiJsonSerializer, 
+	      final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
+	      final HardwareAssociationReadplatformService associationReadplatformService) {
+	    	
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper; 
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.associationReadplatformService=associationReadplatformService;
+		      
 		    }		
 	@GET
 	@Path("{clientId}")
@@ -73,7 +75,9 @@ public class AssociationApiResource {
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveAssociation(@PathParam("clientId") final Long clientId,@PathParam("id") final Long id, @Context final UriInfo uriInfo) {
- 		 try{
+ 		 
+		try{
+ 			
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		AssociationData associationData = this.associationReadplatformService.retrieveSingleDetails(id);
 		List<AssociationData> HardwareDatas = this.associationReadplatformService.retrieveHardwareData(clientId);

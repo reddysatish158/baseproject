@@ -15,6 +15,9 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.accounting.closure.data.LoanStatusEnumData;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiParameterHelper;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
@@ -45,19 +48,21 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
     private final JdbcTemplate jdbcTemplate;
     private final PlatformSecurityContext context;
     private final OfficeReadPlatformService officeReadPlatformService;
+    private final GlobalConfigurationRepository configurationRepository;
 
     // data mappers
     private final PaginationHelper<ClientData> paginationHelper = new PaginationHelper<ClientData>();
-    private final ClientMapper clientMapper = new ClientMapper();
+    //private final ClientMapper clientMapper = new ClientMapper();
     private final ClientLookupMapper lookupMapper = new ClientLookupMapper();
     private final ClientMembersOfGroupMapper membersOfGroupMapper = new ClientMembersOfGroupMapper();
     private final ParentGroupsMapper clientGroupsMapper = new ParentGroupsMapper();
 
     @Autowired
     public ClientReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
-            final OfficeReadPlatformService officeReadPlatformService) {
+            final OfficeReadPlatformService officeReadPlatformService,final GlobalConfigurationRepository configurationRepository) {
         this.context = context;
         this.officeReadPlatformService = officeReadPlatformService;
+        this.configurationRepository=configurationRepository;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
     
@@ -84,12 +89,17 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
     public Page<ClientData> retrieveAll(final SearchParameters searchParameters) {
 
         final AppUser currentUser = context.authenticatedUser();
+        final GlobalConfigurationProperty configurationRepository=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+        ClientMapper clientMapper = new ClientMapper(configurationRepository.getValue());
         final String hierarchy = currentUser.getOffice().getHierarchy();
+        
+        
         final String hierarchySearchString = hierarchy + "%";
-
+       
         StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select SQL_CALC_FOUND_ROWS ");
-        sqlBuilder.append(this.clientMapper.schema());
+        
+        sqlBuilder.append(clientMapper.schema());
         sqlBuilder.append(" where a.address_key='PRIMARY' and o.hierarchy like ?");
 
         final String extraCriteria = buildSqlStringFromClientCriteria(searchParameters);
@@ -115,7 +125,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         final String sqlCountRows = "SELECT FOUND_ROWS()";
         return this.paginationHelper.fetchPage(this.jdbcTemplate, sqlCountRows, sqlBuilder.toString(),
-                new Object[] { hierarchySearchString }, this.clientMapper);
+                new Object[] { hierarchySearchString }, clientMapper);
     }
     
     private String buildSqlStringFromClientCriteria(final SearchParameters searchParameters) {
@@ -180,15 +190,13 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             AppUser currentUser = context.authenticatedUser();
             String hierarchy = currentUser.getOffice().getHierarchy();
             String hierarchySearchString = hierarchy + "%";
-
-            String sql = "select " + this.clientMapper.schema() + " where o.hierarchy like ? and c.id = ? and a.address_key='PRIMARY'";
-            ClientData clientData = this.jdbcTemplate.queryForObject(sql, this.clientMapper,
-                    new Object[] { hierarchySearchString, clientId });
-
+            final GlobalConfigurationProperty configurationRepository=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+            ClientMapper clientMapper = new ClientMapper(configurationRepository.getValue());
+            String sql = "select " + clientMapper.schema() + " where o.hierarchy like ? and c.id = ? and a.address_key='PRIMARY'";
+            ClientData clientData = this.jdbcTemplate.queryForObject(sql,clientMapper,new Object[] { hierarchySearchString, clientId });
             String clientGroupsSql = "select " + this.clientGroupsMapper.parentGroupsSchema();
 
-            Collection<GroupGeneralData> parentGroups = this.jdbcTemplate.query(clientGroupsSql, this.clientGroupsMapper,
-                    new Object[] { clientId });
+            Collection<GroupGeneralData> parentGroups = this.jdbcTemplate.query(clientGroupsSql, this.clientGroupsMapper,new Object[] { clientId });
             return ClientData.setParentGroups(clientData, parentGroups);
         } catch (EmptyResultDataAccessException e) {
             throw new ClientNotFoundException(clientId);
@@ -282,8 +290,9 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
     private static final class ClientMapper implements RowMapper<ClientData> {
 
         private final String schema;
-
-        public ClientMapper() {
+        
+        public ClientMapper(String configProp) {
+        	
             StringBuilder builder = new StringBuilder(400);
 
             builder.append("c.id as id, c.account_no as accountNo, c.external_id as externalId, c.status_enum as statusEnum, ");
@@ -294,7 +303,13 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
             builder.append(" a.zip as zipcode,b.balance_amount as balanceAmount,bc.currency as currency,");
-            builder.append("IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id  AND ba.is_deleted = 'N'),'No Hardware') HW_Serial ");
+            if(configProp.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+            	
+                builder.append("IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id  AND ba.is_deleted = 'N'),'No Hardware') HW_Serial ");
+            }else {
+            	
+            	builder.append("IFNULL(( Select min(serial_number) from b_owned_hardware ba where c.id=ba.client_id  AND ba.is_deleted = 'N'),'No Hardware') HW_Serial ");
+            }
             builder.append("from m_client c ");
             builder.append("join m_office o on o.id = c.office_id ");
             builder.append("left outer join b_client_balance b on  b.client_id = c.id ");
@@ -304,7 +319,9 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             this.schema = builder.toString();
         }
 
-        public String schema() {
+       
+
+		public String schema() {
             return this.schema;
         }
 

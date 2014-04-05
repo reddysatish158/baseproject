@@ -1,6 +1,7 @@
 package org.mifosplatform.billing.servicemapping.api;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,8 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterData;
+import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -49,11 +52,11 @@ public class ServiceMappingApiResource {
 	private PlatformSecurityContext context;
 	private ServiceMappingReadPlatformService serviceMappingReadPlatformService;
 	private final PlanReadPlatformService planReadPlatformService;
-	
+	private final ReadReportingService readReportingService;
 	
 	@Autowired
 	public ServiceMappingApiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,final DefaultToApiJsonSerializer<ServiceMappingData> toApiJsonSerializer,
-							     final ApiRequestParameterHelper apiRequestParameterHelper,final PlatformSecurityContext context,
+							     final ApiRequestParameterHelper apiRequestParameterHelper,final PlatformSecurityContext context,final ReadReportingService readReportingService,
 							     final ServiceMappingReadPlatformService serviceMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
 		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
 		this.toApiJsonSerializer = toApiJsonSerializer;
@@ -61,6 +64,7 @@ public class ServiceMappingApiResource {
 		this.context = context;
 		this.serviceMappingReadPlatformService = serviceMappingReadPlatformService;
 		this.planReadPlatformService=planReadPlatformService;
+		this.readReportingService=readReportingService;
 	}
 
 	
@@ -86,7 +90,8 @@ public class ServiceMappingApiResource {
 		
 		List<ServiceCodeData> serviceCodeData = this.serviceMappingReadPlatformService.getServiceCode();
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
-		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status);
+		 Collection<ReportParameterData> serviceParameters=this.readReportingService.getAllowedServiceParameters(); 
+		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status,serviceParameters);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, serviceMappingData, RESPONSE_PARAMETERS); 
 	}

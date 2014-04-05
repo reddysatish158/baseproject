@@ -31,6 +31,7 @@ public class MediaAssetData {
 	private MediaAssetData mediaAssetData;
 	private List<MediaLocationData> mediaLocationData;
 	private List<MediaassetAttributeData> mediaassetAttributes;
+	private List<MediaAssetData> mediaDetails;
 	private String mediatype;
 	private String genre;
 	private Long catageoryId;
@@ -50,13 +51,14 @@ public MediaAssetData(final Long mediaId,final String mediaTitle,final String im
 	this.eventId=eventId;
 	this.assetTag=assetTag;
 }
-public MediaAssetData(Long noOfPages, Long pageNo) {
+public MediaAssetData(List<MediaAssetData> data, Long noOfPages, Long pageNo) {
 	this.mediaId=null;
 	this.mediaTitle=null;
 	this.mediaImage=null;
 	this.mediaRating=null;
 	this.eventId=null;
 	this.noOfPages=noOfPages;
+	this.mediaDetails=data;
 	this.pageNo=pageNo;
 }
 public MediaAssetData(MediaAssetData mediaAssetData, List<MediaassetAttributeData> mediaassetAttributes, List<MediaLocationData> mediaLocationData, List<EnumOptionData> status,List<MediaassetAttribute> data, List<MediaassetAttribute> mediaFormat,

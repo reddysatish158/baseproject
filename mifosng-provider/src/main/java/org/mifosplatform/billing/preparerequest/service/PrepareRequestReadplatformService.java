@@ -12,7 +12,7 @@ public interface PrepareRequestReadplatformService {
 
 	List<PrepareRequestData> retrieveDataForProcessing();
 	List<Long> retrieveRequestClientOrderDetails(Long clientId);
-	void processingClientDetails(PrepareRequestData requestData);
+	void processingClientDetails(PrepareRequestData requestData, String configProp);
 	List<Long> getPrepareRequestDetails(Long id);
 
 }

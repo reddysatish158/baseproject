@@ -7,7 +7,6 @@ import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +15,10 @@ import org.springframework.stereotype.Service;
 public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlatformService{
 	
 	private final ProcessRequestRepository entitlementRepository;
-	private final PlatformSecurityContext context;
-	
 	
 	@Autowired
-	public EntitlementWritePlatformServiceImpl(final PlatformSecurityContext context
-			,final ProcessRequestRepository entitlementRepository ) {		
-		this.context = context;
+	public EntitlementWritePlatformServiceImpl(final ProcessRequestRepository entitlementRepository ) {		
+
 		this.entitlementRepository=entitlementRepository;
 	}
 	

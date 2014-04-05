@@ -139,16 +139,16 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 			}
 
 			@Override
-			public void processingClientDetails(PrepareRequestData requestData) {
+			public void processingClientDetails(PrepareRequestData requestData,String configProp) {
 				
 				
 				try{
 
 					String requestType=null;			        
 					  Order order=this.orderRepository.findOne(requestData.getOrderId());
-					 AllocationDetailsData detailsData=this.allocationReadPlatformService.getTheHardwareItemDetails(requestData.getOrderId());
+					 AllocationDetailsData detailsData=this.allocationReadPlatformService.getTheHardwareItemDetails(requestData.getOrderId(),configProp);
 					 requestType=requestData.getRequestType();
-					  SimpleDateFormat ft =new SimpleDateFormat ("hh:mm:ss a");
+					 
 					  PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
 					 if(requestData.getIshardwareReq().equalsIgnoreCase("Y") && detailsData == null){
 						 

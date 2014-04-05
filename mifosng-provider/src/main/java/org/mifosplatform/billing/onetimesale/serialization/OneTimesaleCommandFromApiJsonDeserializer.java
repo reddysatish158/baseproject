@@ -32,7 +32,8 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("itemId","locale","dateFormat","units","chargeCode","unitPrice",
-    		"quantity","totalPrice","saleDate","discountId"));
+    		"quantity","totalPrice","saleDate","discountId","serialNumber","orderId","clientId","status","itemMasterId","isNewHw"));
+    
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired

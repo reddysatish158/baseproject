@@ -48,10 +48,10 @@ public class CommandWrapperBuilder {
 		return this;
 	}
 
-	public CommandWrapperBuilder updateGlobalConfiguration() {
+	public CommandWrapperBuilder updateGlobalConfiguration(Long configId) {
 		this.actionName = "UPDATE";
 		this.entityName = "CONFIGURATION";
-		this.entityId = null;
+		this.entityId = configId;
 		this.href = "/configurations";
 		return this;
 	}
@@ -2078,6 +2078,14 @@ public CommandWrapperBuilder createGroupsDetails() {
 	this.entityName = "GROUPS";
 	this.entityId = null;
 	this.href = "/groups";
+	return this;
+}
+
+public CommandWrapperBuilder createIpPoolManagement() {
+	
+	this.actionName = "CREATE";
+    this.entityName = "IPPOOLMANAGEMENT";
+    this.href = "/ippool";
 	return this;
 }
 
