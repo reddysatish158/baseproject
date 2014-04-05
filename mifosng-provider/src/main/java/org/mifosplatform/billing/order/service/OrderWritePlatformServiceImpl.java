@@ -650,7 +650,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			   price.setBillEndDate(EndDate);
 			   price.setNextBillableDay(null);
 			   price.setInvoiceTillDate(null);
-			   this.OrderPriceRepository.save(price);
+			//   this.OrderPriceRepository.save(price);
 			   
 		   }
 		   Plan plan=this.planRepository.findOne(order.getPlanId());
