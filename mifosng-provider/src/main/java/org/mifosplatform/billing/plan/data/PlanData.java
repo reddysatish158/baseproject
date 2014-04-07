@@ -106,17 +106,11 @@ public class PlanData {
 		this.data = datas;
 	}
 
-
-
-
-
 	public PlanData(Long id, String planCode, String planDescription) {
               this.id=id;
               this.planCode=planCode;
               this.planDescription=planDescription;
-	
 	}
-
 
 	public String getProvisionSystem() {
 		return provisionSystem;
