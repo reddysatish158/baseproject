@@ -6,8 +6,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import org.mifosplatform.billing.inventory.exception.AbstractInventoryItemDetailsExist;
-import org.mifosplatform.billing.inventory.exception.ApiInventoryErrorResponse;
+import org.mifosplatform.logistics.itemdetails.exception.AbstractInventoryItemDetailsExist;
+import org.mifosplatform.logistics.itemdetails.exception.ApiInventoryErrorResponse;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

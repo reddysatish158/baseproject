@@ -3,8 +3,8 @@ package org.mifosplatform.billing.hardwareplanmapping.data;
 
 import java.util.List;
 
-import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.plan.data.PlanCodeData;
+import org.mifosplatform.logistics.item.data.ItemData;
 
 
 public class HardwarePlanData {

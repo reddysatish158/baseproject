@@ -5,7 +5,7 @@ import java.util.List;
 import org.mifosplatform.billing.address.data.AddressData;
 import org.mifosplatform.billing.address.data.AddressDetails;
 import org.mifosplatform.billing.address.data.CountryDetails;
-import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
+import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.service.Page;
 

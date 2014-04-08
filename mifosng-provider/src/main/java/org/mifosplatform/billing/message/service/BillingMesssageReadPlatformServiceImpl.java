@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.media.domain.MediaTypeEnumaration;
 import org.mifosplatform.billing.message.data.BillingMessageData;
 import org.mifosplatform.billing.message.data.BillingMessageDataForProcessing;
 import org.mifosplatform.billing.message.data.EnumMessageType;
@@ -24,6 +23,7 @@ import org.mifosplatform.billing.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.cms.media.domain.MediaTypeEnumaration;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;

@@ -8,7 +8,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.mifosplatform.billing.association.data.AssociationData;
 import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
-import org.mifosplatform.billing.billingorder.api.BillingOrderApiResourse;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
 import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
 import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
@@ -18,6 +17,7 @@ import org.mifosplatform.billing.eventaction.domain.EventActionRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.finance.billingorder.api.BillingOrderApiResourse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

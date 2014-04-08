@@ -5,8 +5,6 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
-import org.mifosplatform.billing.inventory.domain.InventoryItemDetails;
-import org.mifosplatform.billing.inventory.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderLine;
 import org.mifosplatform.billing.order.domain.OrderRepository;
@@ -28,6 +26,8 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
+import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

@@ -4,9 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package org.mifosplatform.billing.activationprocess.service;
-import org.mifosplatform.billing.onetimesale.service.OneTimeSaleWritePlatformService;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
-import org.mifosplatform.billing.ownedhardware.service.OwnedHardwareWritePlatformService;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -15,6 +13,8 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.onetimesale.service.OneTimeSaleWritePlatformService;
+import org.mifosplatform.logistics.ownedhardware.service.OwnedHardwareWritePlatformService;
 import org.mifosplatform.portfolio.client.service.ClientWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

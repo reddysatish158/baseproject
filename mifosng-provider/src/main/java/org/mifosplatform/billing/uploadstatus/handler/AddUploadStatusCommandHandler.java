@@ -1,10 +1,10 @@
 package org.mifosplatform.billing.uploadstatus.handler;
 
-import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.billing.uploadstatus.service.UploadStatusWritePlatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

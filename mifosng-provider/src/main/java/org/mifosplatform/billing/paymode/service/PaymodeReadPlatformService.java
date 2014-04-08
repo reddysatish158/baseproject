@@ -3,8 +3,8 @@ package org.mifosplatform.billing.paymode.service;
 import java.util.Collection;
 import java.util.List;
 
-import org.mifosplatform.billing.payments.data.PaymentData;
 import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.finance.payments.data.PaymentData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 
 public interface PaymodeReadPlatformService {

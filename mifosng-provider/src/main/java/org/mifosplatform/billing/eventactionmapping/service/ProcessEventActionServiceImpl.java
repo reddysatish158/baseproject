@@ -1,6 +1,5 @@
 package org.mifosplatform.billing.eventactionmapping.service;
 
-import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.eventaction.domain.EventAction;
 import org.mifosplatform.billing.eventaction.domain.EventActionRepository;
 import org.mifosplatform.billing.eventaction.service.EventActionConstants;
@@ -11,6 +10,7 @@ import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.finance.billingorder.service.InvoiceClient;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;

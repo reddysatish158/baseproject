@@ -5,9 +5,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import org.mifosplatform.billing.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.billing.transactionhistory.data.TransactionHistoryData;
 import org.mifosplatform.billing.transactionhistory.domain.TransactionHistoryRepository;
+import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;

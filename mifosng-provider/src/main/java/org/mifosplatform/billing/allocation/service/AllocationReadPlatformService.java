@@ -2,7 +2,7 @@ package org.mifosplatform.billing.allocation.service;
 
 import java.util.List;
 
-import org.mifosplatform.billing.onetimesale.data.AllocationDetailsData;
+import org.mifosplatform.logistics.onetimesale.data.AllocationDetailsData;
 
 public interface AllocationReadPlatformService {
 

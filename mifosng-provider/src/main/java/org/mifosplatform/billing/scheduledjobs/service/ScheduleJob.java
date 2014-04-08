@@ -5,13 +5,13 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.billingorder.service.BillingOrderReadPlatformService;
-import org.mifosplatform.billing.billingorder.service.GenerateBill;
-import org.mifosplatform.billing.clientbalance.domain.ClientBalance;
-import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.domain.OrderPrice;
 import org.mifosplatform.billing.service.DiscountMasterData;
+import org.mifosplatform.finance.billingorder.service.BillingOrderReadPlatformService;
+import org.mifosplatform.finance.billingorder.service.GenerateBill;
+import org.mifosplatform.finance.clientbalance.domain.ClientBalance;
+import org.mifosplatform.finance.clientbalance.domain.ClientBalanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
