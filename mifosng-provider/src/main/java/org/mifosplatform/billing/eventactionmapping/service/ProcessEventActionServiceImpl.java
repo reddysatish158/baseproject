@@ -9,6 +9,9 @@ import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderHistoryRepository;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
+import org.mifosplatform.billing.provisioning.api.ProvisioningApiConstants;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -122,13 +125,12 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
 
 				try{
-				String jsonObject=eventActionData.getJsonData();
-				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
-				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateInvoice",eventActionData.getClientId(), null,
-						null,eventActionData.getClientId(), null, null, null,null, null, null);
-
-				//CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
-			   this.invoiceClient.createInvoiceBill(command);
+				
+					ProcessRequest processRequest=new ProcessRequest(eventActionData.getClientId(), null,ProvisioningApiConstants.PROV_COMVENIENT,'N', null,
+							ProvisioningApiConstants.REQUEST_TERMINATE,new Long(0));
+					/*ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderlinId, serviceId, sentMessage, recievedMessage, hardwareId, 
+							startDate, endDate, sentDate, recievedDate, isDeleted, requestType);*/
+					
 				}catch(Exception exception){
 					
 				}
