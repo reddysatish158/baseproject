@@ -86,7 +86,7 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 	@Override
 	public List<String> retriveSerialNumbers() {
 		SerialNumberMapper rowMapper = new SerialNumberMapper();
-		String sql = "select serial_number as serialNumber from b_owned_hardware";
+		String sql = "select serial_number as serialNumber from b_owned_hardware where is_deleted='N'";
 		return jdbcTemplate.query(sql,rowMapper);
 	}
 	

@@ -119,6 +119,21 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				}
 				//For Transaction History
 
+			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
+
+				try{
+				String jsonObject=eventActionData.getJsonData();
+				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
+				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateInvoice",eventActionData.getClientId(), null,
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
+
+				//CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
+			   this.invoiceClient.createInvoiceBill(command);
+				}catch(Exception exception){
+					
+				}
+				//For Transaction History
+
 			}
 			
 			

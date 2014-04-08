@@ -17,8 +17,10 @@ public class EventActionConstants {
 	public static final String ACTION_NEW="New";
 	public static final String ACTION_ACTIVE="Active";
 	public static final String ACTION_DISCONNECT="DISCONNECTED";
+	public static final String ACTION_SEND_PROVISION="SEND PROVISION";
 	
 	
 
 }
+
 

@@ -23,6 +23,8 @@ import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformSe
 import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.eventaction.service.EventActionConstants;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.infrastructure.codes.domain.CodeValue;
+import org.mifosplatform.infrastructure.codes.domain.CodeValueRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -40,11 +42,13 @@ import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGeneratorFactory;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepositoryWrapper;
-import org.mifosplatform.portfolio.client.exception.ClientMustBePendingToBeDeletedException;
+import org.mifosplatform.portfolio.client.domain.ClientStatus;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
+import org.mifosplatform.portfolio.client.exception.InvalidClientStateTransitionException;
 import org.mifosplatform.portfolio.group.domain.Group;
 import org.mifosplatform.portfolio.group.domain.GroupRepository;
 import org.mifosplatform.portfolio.group.exception.GroupNotFoundException;
+import org.mifosplatform.useradministration.domain.AppUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +72,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
     private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
     private final AddressRepository addressRepository;
+    private final CodeValueRepository codeValueRepository;
    
 
     @Autowired
@@ -75,12 +80,14 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final ClientRepositoryWrapper clientRepository, final OfficeRepository officeRepository, 
             final ClientDataValidator fromApiJsonDeserializer, final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
             final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final GroupRepository groupRepository,
-            final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService) {
+            final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+            final CodeValueRepository codeValueRepository) {
+    	
         this.context = context;
         this.clientRepository = clientRepository;
         this.officeRepository = officeRepository;
-    //    this.noteRepository = noteRepository;
         this.fromApiJsonDeserializer = fromApiJsonDeserializer;
+        this.codeValueRepository=codeValueRepository;
         this.accountIdentifierGeneratorFactory = accountIdentifierGeneratorFactory;
         this.groupRepository = groupRepository;
         this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
@@ -91,14 +98,15 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
 
     @Transactional
     @Override
-    public CommandProcessingResult deleteClient(final Long clientId) {
+    public CommandProcessingResult deleteClient(final Long clientId,final JsonCommand command) {
+    	/*
 
         final Client client = this.clientRepository.findOneWithNotFoundDetection(clientId);
 
         if (client.isNotPending()) { throw new ClientMustBePendingToBeDeletedException(clientId); }
 
-      /*  List<Note> relatedNotes = this.noteRepository.findByClientId(clientId);
-        this.noteRepository.deleteInBatch(relatedNotes);*/
+        List<Note> relatedNotes = this.noteRepository.findByClientId(clientId);
+        this.noteRepository.deleteInBatch(relatedNotes);
 
         this.clientRepository.delete(client);
 
@@ -107,7 +115,49 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
                 .withClientId(clientId) //
                 .withEntityId(clientId) //
                 .build();
-    }
+    */
+
+        try {
+
+            final AppUser currentUser = this.context.authenticatedUser();
+            this.fromApiJsonDeserializer.validateClose(command);
+
+            final Client client = this.clientRepository.findOneWithNotFoundDetection(clientId);
+            final LocalDate closureDate = command.localDateValueOfParameterNamed(ClientApiConstants.closureDateParamName);
+            final Long closureReasonId = command.longValueOfParameterNamed(ClientApiConstants.closureReasonIdParamName);
+
+            final CodeValue closureReason = this.codeValueRepository.findByCodeNameAndId(ClientApiConstants.CLIENT_CLOSURE_REASON, closureReasonId);
+
+            if (ClientStatus.fromInt(client.getStatus()).isClosed()) {
+                final String errorMessage = "Client is alread closed.";
+                throw new InvalidClientStateTransitionException("close", "is.already.closed", errorMessage);
+            } 
+
+            if (client.isNotPending() && client.getActivationLocalDate().isAfter(closureDate)) {
+                final String errorMessage = "The client closureDate cannot be before the client ActivationDate.";
+                throw new InvalidClientStateTransitionException("close", "date.cannot.before.client.actvation.date", errorMessage,
+                        closureDate, client.getActivationLocalDate());
+            }
+
+            client.close(currentUser,closureReason, closureDate.toDate());
+            this.clientRepository.saveAndFlush(client);
+            
+            List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_CLIENT);
+			if(actionDetaislDatas.size() != 0){
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), clientId.toString());
+			}
+
+            return new CommandProcessingResultBuilder() //
+                    .withCommandId(command.commandId()) //
+                    .withClientId(clientId) //
+                    .withEntityId(clientId) //
+                    .build();
+        } catch (final DataIntegrityViolationException dve) {
+            handleDataIntegrityIssues(command, dve);
+            return CommandProcessingResult.empty();
+        }
+    
+    	}
 
     /*
      * Guaranteed to throw an exception no matter what the data integrity issue

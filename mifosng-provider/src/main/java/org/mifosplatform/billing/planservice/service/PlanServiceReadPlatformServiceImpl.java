@@ -56,7 +56,7 @@ public class PlanServiceReadPlatformServiceImpl implements PlanServiceReadPlatfo
 		public String schema() {
 			return " s.id as serviceId,o.client_id as clientId,s.service_code as serviceName,sd.image as logo, sd.service_identification as serviceIdentification" +
 					" FROM b_orders o,b_plan_detail p,b_service s,b_prov_service_details sd  WHERE o.client_id = ? AND p.plan_id = o.plan_id " +
-					"AND s.service_code = p.service_code AND s.service_type =? AND s.id = sd.service_id";
+					"AND s.service_code = p.service_code AND s.service_type =? AND s.id = sd.service_id  group by s.id";
 		}
 	}
 }

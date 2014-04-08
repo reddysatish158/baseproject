@@ -9,7 +9,7 @@ import org.mifosplatform.portfolio.client.data.ClientData;
 public class ClientApiConstants {
 
     public static final String CLIENT_RESOURCE_NAME = "client";
-
+    public static final String CLIENT_CLOSURE_REASON = "ClientClosureReason";
     // general
     public static final String localeParamName = "locale";
     public static final String dateFormatParamName = "dateFormat";
@@ -57,16 +57,22 @@ public class ClientApiConstants {
     public static final String officeOptionsParamName = "officeOptions";
     public static final String clientCategoryDatas="clientCategoryDatas";
     public static final String currencyParamName="currency";
+    public static final String closureDateParamName = "closureDate";
+    public static final String closureReasonIdParamName = "closureReasonId";
 
     public static final Set<String> CLIENT_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, groupIdParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,
             lastnameParamName, fullnameParamName, officeIdParamName, activeParamName, activationDateParamName,clientCategoryParamName,
-            addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,homePhoneNumberParamName,stateParamName,streetParamName,zipCodeParamName,loginParamName,passwordParamName,flagParamName));
+            addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,homePhoneNumberParamName,stateParamName,streetParamName,
+            zipCodeParamName,loginParamName,passwordParamName,flagParamName));
 
     public static final Set<String> CLIENT_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,clientCategoryParamName,
-
-            lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,homePhoneNumberParamName,emailParamName,officeIdParamName));
+            lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,homePhoneNumberParamName,
+            emailParamName,officeIdParamName));
+    
+    public static final Set<String> CLIENT_CLOSE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
+            dateFormatParamName, closureDateParamName, closureReasonIdParamName));
 
 
 
