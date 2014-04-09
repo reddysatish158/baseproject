@@ -361,7 +361,7 @@ public class CommandWrapperBuilder {
 		this.entityId = clientId;
 		this.clientId = clientId;
 		this.href = "/clients/" + clientId;
-		this.json = "{}";
+		//this.json = "{}";
 		return this;
 	}
 

@@ -22,6 +22,9 @@ import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
 import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.eventaction.service.EventActionConstants;
+import org.mifosplatform.billing.inventory.exception.ActivePlansFoundException;
+import org.mifosplatform.billing.order.data.OrderData;
+import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.codes.domain.CodeValue;
 import org.mifosplatform.infrastructure.codes.domain.CodeValueRepository;
@@ -73,6 +76,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
     private final AddressRepository addressRepository;
     private final CodeValueRepository codeValueRepository;
+    private final OrderReadPlatformService orderReadPlatformService;
    
 
     @Autowired
@@ -81,7 +85,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final ClientDataValidator fromApiJsonDeserializer, final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
             final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final GroupRepository groupRepository,
             final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-            final CodeValueRepository codeValueRepository) {
+            final CodeValueRepository codeValueRepository,final OrderReadPlatformService orderReadPlatformService) {
     	
         this.context = context;
         this.clientRepository = clientRepository;
@@ -94,6 +98,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
         this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
         this.addressRepository=addressRepository;
+        this.orderReadPlatformService=orderReadPlatformService;
     }
 
     @Transactional
@@ -125,8 +130,14 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final Client client = this.clientRepository.findOneWithNotFoundDetection(clientId);
             final LocalDate closureDate = command.localDateValueOfParameterNamed(ClientApiConstants.closureDateParamName);
             final Long closureReasonId = command.longValueOfParameterNamed(ClientApiConstants.closureReasonIdParamName);
-
             final CodeValue closureReason = this.codeValueRepository.findByCodeNameAndId(ClientApiConstants.CLIENT_CLOSURE_REASON, closureReasonId);
+            
+            List<OrderData> orderDatas=this.orderReadPlatformService.getActivePlans(clientId, null);
+            
+            if(!orderDatas.isEmpty()){
+            	
+            	 throw new ActivePlansFoundException(clientId);
+            }
 
             if (ClientStatus.fromInt(client.getStatus()).isClosed()) {
                 final String errorMessage = "Client is alread closed.";
@@ -142,7 +153,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             client.close(currentUser,closureReason, closureDate.toDate());
             this.clientRepository.saveAndFlush(client);
             
-            List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_CLIENT);
+            List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CLOSE_CLIENT);
 			if(actionDetaislDatas.size() != 0){
 			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), clientId.toString());
 			}
@@ -262,7 +273,6 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             if (clientOffice == null) { throw new OfficeNotFoundException(officeId); }
             final Map<String, Object> changes = clientForUpdate.update(command);
             clientForUpdate.setOffice(clientOffice);
-           
             this.clientRepository.saveAndFlush(clientForUpdate);
             transactionHistoryWritePlatformService.saveTransactionHistory(clientForUpdate.getId(), "Update Client", clientForUpdate.getActivationDate(),
             		"Changes:"+changes.toString(),"Name:"+clientForUpdate.getName(),"ImageKey:"+clientForUpdate.imageKey(),"AccountNumber:"+clientForUpdate.getAccountNo());

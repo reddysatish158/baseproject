@@ -544,7 +544,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				      for(OrderPrice orderprice:orderPrices){
 	                	  
 	                	  orderprice.setBillEndDate(renewalEndDate);
-	                	  this.OrderPriceRepository.save(orderprice);
+	                	 // this.OrderPriceRepository.save(orderprice);
 	                  }
 				      
 	           		   requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY).getValue();

@@ -2,11 +2,13 @@ package org.mifosplatform.billing.association.data;
 
 public class HardwareAssociationData {
 	
-	private final Long id;
-	private final String serialNo;
-	private final Long planId;
-	private final Long orderId;
+	private  Long id;
+	private  String serialNo;
+	private  Long planId;
+	private  Long orderId;
 	private String itemCode;
+	private String provSerialNum;
+	
 
 	public HardwareAssociationData(Long id, String serialNo, Long planId,Long orderId, String itemCode) {
                 
@@ -15,6 +17,15 @@ public class HardwareAssociationData {
 		this.serialNo=serialNo;
 		this.orderId=orderId;
 		this.itemCode=itemCode;
+	
+	}
+
+	public HardwareAssociationData(Long id, String serialNo,String provSerialNum) {
+		
+		this.id=id;
+		this.serialNo=serialNo;
+		this.provSerialNum=provSerialNum;
+
 	
 	}
 
@@ -40,6 +51,10 @@ public class HardwareAssociationData {
 
 	public String getItemCode() {
 		return itemCode;
+	}
+
+	public String getProvSerialNum() {
+		return provSerialNum;
 	}
 
 	

@@ -64,11 +64,11 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				//if(EventActionConstants.EVENT_CREATE_PAYMENT.equalsIgnoreCase(detailsData.getaActionName())){}
 				
 				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.EVENT_CREATE_PAYMENT,detailsData.getaActionName(),resourceId);
-				  
+				     JSONObject jsonObject=new JSONObject();
 				     if(actionProcedureData.isCheck()){
 				    	 
 				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-				    	 JSONObject jsonObject=new JSONObject();
+				    	// JSONObject jsonObject=new JSONObject();
 				    	
 				    	 List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
 				    	 
@@ -134,11 +134,12 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				  			this.billingOrderApiResourse.retrieveBillingProducts(order.getClientId(),jsonObject.toString());
 				  			
 				          }
-				          }
-				  }else if(actionProcedureData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
+				        }
+				           
+				  }else if(detailsData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
 		        	   
 		        	   eventAction=new EventAction(new Date(), "CREATE", "Client",EventActionConstants.ACTION_SEND_PROVISION.toString(),"/processrequest/"+clientId, 
-		        	   Long.parseLong(resourceId),null,clientId,clientId);
+		        	   Long.parseLong(resourceId),jsonObject.toString(),clientId,clientId);
 		        	   this.eventActionRepository.save(eventAction);
 		        	   
 		          }

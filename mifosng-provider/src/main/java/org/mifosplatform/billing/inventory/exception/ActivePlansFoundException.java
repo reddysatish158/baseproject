@@ -13,6 +13,12 @@ public class ActivePlansFoundException extends AbstractPlatformDomainRuleExcepti
 		
 		 super("error.msg.billing.active.plans.found.for.client", "plans are activated with this hardWare",errorCode);
 	}
+
+	public ActivePlansFoundException(Long clientId) {
+		
+		
+		super("error.msg.close.active.plans.found.for.client.close", "Client cannot be closed because of actvie plans",clientId);
+	}
     
    
 }

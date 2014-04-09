@@ -6,6 +6,6 @@ public class ProvisioningApiConstants {
 	
 	public static final String PROV_COMVENIENT="Comvenient";
 	
-	public static final String REQUEST_TERMINATE="Terminate";
+	public static final String REQUEST_TERMINATE="TERMINATE";
 
 }
