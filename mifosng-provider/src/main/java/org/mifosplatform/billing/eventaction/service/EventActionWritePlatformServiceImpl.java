@@ -136,7 +136,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				          }
 				        }
 				           
-				  }else if(detailsData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
+				  } if(detailsData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
 		        	   
 		        	   eventAction=new EventAction(new Date(), "CREATE", "Client",EventActionConstants.ACTION_SEND_PROVISION.toString(),"/processrequest/"+clientId, 
 		        	   Long.parseLong(resourceId),jsonObject.toString(),clientId,clientId);

@@ -335,7 +335,8 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					public OrderData retrieveOrderDetails(Long orderId) {
 						try {
 							final ClientOrderMapper mapper = new ClientOrderMapper();
-							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.id=? and o.is_deleted='n' and o.contract_period = co.id order by o.id desc";
+							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.id=? and " +
+									" o.is_deleted='n' and o.contract_period = co.id order by o.id desc";
 							return jdbcTemplate.queryForObject(sql, mapper, new Object[] { orderId});
 							} catch (EmptyResultDataAccessException e) {
 							return null;
