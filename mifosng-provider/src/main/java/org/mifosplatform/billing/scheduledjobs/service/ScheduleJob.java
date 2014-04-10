@@ -51,7 +51,7 @@ public boolean checkClientBalanceForOrderrenewal(OrderData orderData,Long client
   			 discountAmount=discountMasterData.getDiscountAmount();
   		    }
     	    orderPrice=orderPrice.subtract(discountAmount);
-    	    BigDecimal  reqRenewalAmount=orderPrice.divide(new BigDecimal(2),RoundingMode.CEILING);
+    	    BigDecimal  reqRenewalAmount=orderPrice;//orderPrice.divide(new BigDecimal(2),RoundingMode.CEILING);
     	    
             if(clientBalance!=null){        	  
         	     BigDecimal resultanceBal=clientBalance.getBalanceAmount().add(reqRenewalAmount);   

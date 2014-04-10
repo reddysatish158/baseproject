@@ -76,7 +76,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 */
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
 				
-				Order order=this.orderRepository.findOne(eventActionData.getOrderId());
+				//Order order=this.orderRepository.findOne(eventActionData.getOrderId());
 				this.orderWritePlatformService.reconnectOrder(eventActionData.getOrderId());
 			/*	
 				transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(),"ORDER_"+UserActionStatusTypeEnum.RECONNECTION.toString(), order.getStartDate(),
@@ -126,11 +126,13 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 	    	this.eventActionRepository.save(eventAction);
 	    	
 		}catch(DataIntegrityViolationException exception){
+			eventAction.updateStatus('F');
+	    	this.eventActionRepository.save(eventAction);
 			exception.printStackTrace();
 		}catch (Exception exception) {
-		//	EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
-	    	/*eventAction.updateStatus('F');
-	    	this.eventActionRepository.save(eventAction);*/
+	//EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
+	    	eventAction.updateStatus('F');
+	    	this.eventActionRepository.save(eventAction);
 			
 		}
 		
