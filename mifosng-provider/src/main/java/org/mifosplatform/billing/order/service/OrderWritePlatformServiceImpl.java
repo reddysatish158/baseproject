@@ -24,6 +24,7 @@ import org.mifosplatform.billing.eventaction.domain.EventActionRepository;
 import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.billing.eventaction.service.EventActionConstants;
+import org.mifosplatform.billing.order.data.CustomValidationData;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.billing.order.data.UserActionStatusEnumaration;
 import org.mifosplatform.billing.order.domain.Order;
@@ -181,10 +182,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			
 		//Check for Custome_Validation
-			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER,command.json());
+			CustomValidationData customValidationData   = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER,command.json());
 			
-			if(errorCode != 0){
-				throw new ActivePlansFoundException(errorCode); 
+			if(customValidationData.getErrorCode() != 0 && customValidationData.getErrorMessage() != null){
+				throw new ActivePlansFoundException(customValidationData.getErrorMessage()); 
 				
 			}
 			
@@ -895,10 +896,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.fromApiJsonDeserializer.validateForCreate(command.json());
 		LocalDate startDate=command.localDateValueOfParameterNamed("start_date");	
 		//Check for Custome_Validation
-			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER,command.json());
-			if(errorCode != 0){
-				throw new ActivePlansFoundException(errorCode); 
+			CustomValidationData customValidationData = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER,command.json());
 			
+			if(customValidationData.getErrorCode() != 0 && customValidationData.getErrorMessage() != null){
+				throw new ActivePlansFoundException(customValidationData.getErrorMessage()); 
+				
 			}
 		//Check for Active Orders	
 			 Long activeorderId=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId,null);

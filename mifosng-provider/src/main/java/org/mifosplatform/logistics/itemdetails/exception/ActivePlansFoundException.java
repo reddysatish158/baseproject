@@ -9,9 +9,9 @@ public class ActivePlansFoundException extends AbstractPlatformDomainRuleExcepti
         super("error.msg.billing.active.plans.found", " plans are activated with this hardWare ");
     }
 
-	public ActivePlansFoundException(int errorCode) {
+	public ActivePlansFoundException(String errorCode) {
 		
-		 super("error.msg.billing.active.plans.found.for.client", "plans are activated with this hardWare",errorCode);
+		 super(errorCode, "plans are activated with this hardWare",errorCode);
 	}
     
    

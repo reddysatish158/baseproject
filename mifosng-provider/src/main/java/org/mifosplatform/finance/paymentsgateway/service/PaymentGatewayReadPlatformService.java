@@ -11,7 +11,7 @@ public interface PaymentGatewayReadPlatformService {
 	
 	Long retrieveClientIdForProvisioning(String serialNum);
 
-	Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchItemDetails, String type);
+	Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchItemDetails, String type, String source);
 
 	List<MediaEnumoptionData> retrieveTemplateData();
 

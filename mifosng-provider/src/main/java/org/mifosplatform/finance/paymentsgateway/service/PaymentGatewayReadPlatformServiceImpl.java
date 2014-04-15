@@ -104,8 +104,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	}
 
 	@Override
-	public Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchPaymentDetail
-			,String tabType) {	
+	public Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchPaymentDetail,String tabType,String source) {	
 		// TODO Auto-generated method stub
 		context.authenticatedUser();
 		PaymentMapper mapper=new PaymentMapper();
@@ -115,25 +114,33 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select ");
         sqlBuilder.append(mapper.schema());
-       
+        sqlBuilder.append(" where ");
+        
+       if(source != null){
+    	   
+    	   sqlBuilder.append("  p.source like '%"+source+"%' and ");
+       }
           
         if (tabType!=null ) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where p.status like '"+tabType+"' order by payment_date desc ");
+		        	sqlBuilder.append("  p.status like '"+tabType+"'  ");
 		  
 		    	    if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc";
+		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') ";
 		    	    }
 		                sqlBuilder.append(extraCriteria);
+		                
 	    }else if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc ";
-    	}else {
-    		extraCriteria = " order by payment_date desc ";
+    	    	extraCriteria = "   (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')  ";
     	}
-                sqlBuilder.append(extraCriteria);
+        
+       // extraCriteria = " order by payment_date desc ";
+        sqlBuilder.append(extraCriteria);
+        sqlBuilder.append(" order by payment_date desc ");
+                
         
         
         if (searchPaymentDetail.isLimited()) {
