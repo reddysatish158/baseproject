@@ -988,4 +988,9 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
 		}
 
+		public boolean isCreateProvisioning() {
+			
+			return this.actionName.equalsIgnoreCase("ADD") && this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
+		}
+
 }

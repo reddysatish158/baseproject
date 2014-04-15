@@ -29,6 +29,9 @@ public class ClientEnumerations {
             case DEACTIVE:
                 optionData = new EnumOptionData(ClientStatus.DEACTIVE.getValue().longValue(), ClientStatus.DEACTIVE.getCode(), "DeActive");
             break;
+            case CLOSED:
+                optionData = new EnumOptionData(ClientStatus.CLOSED.getValue().longValue(), ClientStatus.CLOSED.getCode(), "Closed");
+            break;
         }
 
         return optionData;

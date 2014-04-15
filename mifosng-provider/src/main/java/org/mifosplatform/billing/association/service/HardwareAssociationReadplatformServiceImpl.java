@@ -298,4 +298,52 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			}
 
 		}
+		
+		@Transactional
+		@Override
+		public List<HardwareAssociationData> retrieveClientAllocatedHardwareDetails(Long clientId) {
+            try
+            {
+          	  String sql=null;
+          	  GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+          	ClientHarderwareMapper mapper = new ClientHarderwareMapper();
+          	  
+          	  if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+			       sql = "select " + mapper.schema();
+			      
+          	  }else if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+          		  
+          		  sql = "select " + mapper.ownDeviceSchema();
+          	  }
+			      return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
+
+		}catch(EmptyResultDataAccessException accessException){
+			return null;
+		}
+		}
+		private static final class ClientHarderwareMapper implements RowMapper<HardwareAssociationData> {
+
+			public String schema() {
+				return "  a.id AS id, a.serial_no AS serialNo,a.provisioning_serialno as provSerialNum FROM  b_item_detail a where a.client_id=?";
+
+			}
+			
+			public String ownDeviceSchema() {
+				return " o.id as id ,o.serial_number as serialNo,o.provisioning_serial_number as provSerialNum   FROM b_owned_hardware o" +
+						"  where o.client_id =? and o.is_deleted='N'";
+
+			}
+
+			@Override
+			public HardwareAssociationData mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				
+					Long id= rs.getLong("id");
+					String serialNo = rs.getString("serialNo");
+					String provSerialNum = rs.getString("provSerialNum");
+					
+					return  new HardwareAssociationData(id, serialNo,provSerialNum);
+
+				}
+			}
 }

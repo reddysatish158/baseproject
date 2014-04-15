@@ -51,17 +51,20 @@ public class ProvisioningApiResource {
 	  private final ApiRequestParameterHelper apiRequestParameterHelper;
 	  private final ProvisioningReadPlatformService provisioningReadPlatformService;
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	  
 	 
 	  
 	  @Autowired
 	    public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	    final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService) {
+		  
 		        this.context = context;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.toApiJsonSerializer=toApiJsonSerializer;
 		        this.provisioningReadPlatformService=provisioningReadPlatformService;
+		       
 		    }
 	
 	 @GET
@@ -109,7 +112,7 @@ public class ProvisioningApiResource {
 	 @POST
 	 @Consumes({MediaType.APPLICATION_JSON})
 	 @Produces({MediaType.APPLICATION_JSON})
-		public String addProvisiongSystemDetail(final String apiRequestBodyAsJson) {
+		public String addProvisiongSystemDetails(final String apiRequestBodyAsJson) {
 		 final CommandWrapper commandRequest = new CommandWrapperBuilder().provisiongSystem().withJson(apiRequestBodyAsJson).build();
 	     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	     return this.toApiJsonSerializer.serialize(result);
@@ -136,7 +139,6 @@ public class ProvisioningApiResource {
 			   return this.toApiJsonSerializer.serialize(result);
 		}
 	 
-	 
-
+	
 }
 

@@ -50,7 +50,7 @@ public final class ServiceCommandFromApiJsonDeserializer {
         final JsonElement element = fromApiJsonHelper.parse(json);
 
         final String serviceCode = fromApiJsonHelper.extractStringNamed("serviceCode", element);
-        baseDataValidator.reset().parameter("serviceCode").value(serviceCode).notBlank().notExceedingLengthOf(100);
+        baseDataValidator.reset().parameter("serviceCode").value(serviceCode).notBlank().notExceedingLengthOf(10);
         final String serviceDescription = fromApiJsonHelper.extractStringNamed("serviceDescription", element);
         baseDataValidator.reset().parameter("serviceDescription").value(serviceDescription).notBlank();
         final String  serviceType = fromApiJsonHelper.extractStringNamed("serviceType", element);

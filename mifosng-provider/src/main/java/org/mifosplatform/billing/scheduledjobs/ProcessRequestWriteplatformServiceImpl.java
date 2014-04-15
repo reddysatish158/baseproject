@@ -21,6 +21,7 @@ import org.mifosplatform.billing.preparerequest.service.PrepareRequestReadplatfo
 import org.mifosplatform.billing.processrequest.data.ProcessingDetailsData;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
 import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.billing.provisioning.api.ProvisioningApiConstants;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
@@ -111,7 +112,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 		@Override
 		public void notifyProcessingDetails(ProcessingDetailsData detailsData) {
 			try{
-				if(detailsData!=null){
+				if(detailsData!=null && !(detailsData.getRequestType().equalsIgnoreCase(ProvisioningApiConstants.REQUEST_TERMINATE))){
 					
 				 Order order=this.orderRepository.findOne(detailsData.getOrderId());
 				 Client client=this.clientRepository.findOne(order.getClientId());

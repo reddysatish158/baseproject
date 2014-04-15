@@ -2,10 +2,13 @@ package org.mifosplatform.billing.provisioning.service;
 
 import java.util.Map;
 
+import org.mifosplatform.billing.order.domain.OrderRepository;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
 import org.mifosplatform.billing.provisioning.domain.ProvisioningCommand;
 import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandParameters;
 import org.mifosplatform.billing.provisioning.domain.ProvisioningCommandRepository;
 import org.mifosplatform.billing.provisioning.serialization.ProvisioningCommandFromApiJsonDeserializer;
+import org.mifosplatform.billing.servicemaster.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
@@ -29,17 +32,25 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
     private final FromJsonHelper fromApiJsonHelper;
     private final ProvisioningCommandRepository provisioningCommandRepository;
+    private final ProcessRequestRepository processRequestRepository;
+    private final OrderRepository orderRepository;
+    private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
     
     @Autowired
-	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,
-			final TenantAwareRoutingDataSource dataSource,final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,
-		   	final FromJsonHelper fromApiJsonHelper,final ProvisioningCommandRepository provisioningCommandRepository) {
+	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final TenantAwareRoutingDataSource dataSource,
+			final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,final FromJsonHelper fromApiJsonHelper,
+			final ProvisioningCommandRepository provisioningCommandRepository,
+			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,
+			final ProvisionServiceDetailsRepository provisionServiceDetailsRepository) {
 		
 		this.context = context;		
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.fromApiJsonHelper=fromApiJsonHelper;
 		this.provisioningCommandRepository=provisioningCommandRepository;
+		this.processRequestRepository=processRequestRepository;
+		this.orderRepository=orderRepository;
+		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
 		
 
 	}
@@ -137,5 +148,6 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			return new CommandProcessingResult(Long.valueOf(-1));
 		}
 	}
+
 	
 }

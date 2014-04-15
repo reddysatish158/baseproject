@@ -103,7 +103,7 @@ public class HardwarePlanReadPlatformServiceImpl implements HardwarePlanReadPlat
 			RowMapper<PlanCodeData> {
 
 		public String schema() {
-			return " p.id as id,p.plan_code as planCode,p.plan_description as planDescription from b_plan_master p";
+			return " p.id as id,p.plan_code as planCode,p.plan_description as planDescription from b_plan_master p where p.is_deleted = 'N'";
 
 		}
 

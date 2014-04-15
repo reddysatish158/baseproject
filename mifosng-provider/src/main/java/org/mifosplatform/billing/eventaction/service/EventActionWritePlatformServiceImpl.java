@@ -52,19 +52,24 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 	
 	@Override
 	public void AddNewActions(List<ActionDetaislData> actionDetaislDatas,final Long clientId,final String resourceId) {
-    try{
+    
+		try{
     	
 		if(actionDetaislDatas!=null){
 			
+			 EventAction eventAction=null;
+			
 			for(ActionDetaislData detailsData:actionDetaislDatas){
 				
+				//if(EventActionConstants.EVENT_CREATE_PAYMENT.equalsIgnoreCase(detailsData.getaActionName())){}
+				
 				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.EVENT_CREATE_PAYMENT,detailsData.getaActionName(),resourceId);
-				  
+				     JSONObject jsonObject=new JSONObject();
 				     if(actionProcedureData.isCheck()){
 				    	 
 				    	  SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-				    	 JSONObject jsonObject=new JSONObject();
-				    	 EventAction eventAction=null;
+				    	// JSONObject jsonObject=new JSONObject();
+				    	
 				    	 List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
 				    	 
 				           if(actionProcedureData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
@@ -72,6 +77,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					          AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(actionProcedureData.getOrderId());
  					         
 					          if(associationData ==null){
+					        	  
 						           throw new HardwareDetailsNotFoundException(actionProcedureData.getOrderId().toString());
 					            }
 					          
@@ -128,8 +134,15 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				  			this.billingOrderApiResourse.retrieveBillingProducts(order.getClientId(),jsonObject.toString());
 				  			
 				          }
-				          }
-				  }
+				        }
+				           
+				  } if(detailsData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
+		        	   
+		        	   eventAction=new EventAction(new Date(), "CREATE", "Client",EventActionConstants.ACTION_SEND_PROVISION.toString(),"/processrequest/"+clientId, 
+		        	   Long.parseLong(resourceId),jsonObject.toString(),clientId,clientId);
+		        	   this.eventActionRepository.save(eventAction);
+		        	   
+		          }
 				
 			}
 		}

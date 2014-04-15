@@ -361,7 +361,7 @@ public class CommandWrapperBuilder {
 		this.entityId = clientId;
 		this.clientId = clientId;
 		this.href = "/clients/" + clientId;
-		this.json = "{}";
+		//this.json = "{}";
 		return this;
 	}
 
@@ -2073,5 +2073,7 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     this.href = "/orders/extenstion"+clientId;
     return this;
 }
+
+
 
 }

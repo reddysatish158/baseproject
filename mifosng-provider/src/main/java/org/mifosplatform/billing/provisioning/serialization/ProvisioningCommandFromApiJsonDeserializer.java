@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
 import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
@@ -32,7 +31,8 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
-    		"commandParameters","commandParam","paramType","paramDefault"));
+    		"commandParameters","commandParam","paramType","paramDefault","orderId","planName","deviceId","clientName","serviceName","groupName","ipAddress",
+    		"vLan"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -75,10 +75,12 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
 	}
 
 	
-   private void throwExceptionIfValidationWarningsExist(final List<ApiParameterError> dataValidationErrors) {
+    private void throwExceptionIfValidationWarningsExist(final List<ApiParameterError> dataValidationErrors) {
 	        if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException("validation.msg.validation.errors.exist",
 	                "Validation errors exist.", dataValidationErrors); }
 	        }
+
+   
 		
 	
 }

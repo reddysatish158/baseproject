@@ -1,5 +1,10 @@
 package org.mifosplatform.billing.eventactionmapping.service;
 
+import java.util.Date;
+import java.util.List;
+
+import org.mifosplatform.billing.association.data.HardwareAssociationData;
+import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.billingorder.service.InvoiceClient;
 import org.mifosplatform.billing.eventaction.domain.EventAction;
 import org.mifosplatform.billing.eventaction.domain.EventActionRepository;
@@ -9,6 +14,10 @@ import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderHistoryRepository;
 import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.billing.order.service.OrderWritePlatformService;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequest;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequestDetails;
+import org.mifosplatform.billing.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.billing.provisioning.api.ProvisioningApiConstants;
 import org.mifosplatform.billing.scheduledjobs.data.EventActionData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -34,13 +43,16 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
     private final OrderHistoryRepository orderHistory;
     private final OrderRepository orderRepository;
     private final InvoiceClient invoiceClient;
+    private final ProcessRequestRepository processRequestRepository;
+    private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
     
  
 
 	@Autowired
 	public ProcessEventActionServiceImpl(final EventActionRepository eventActionRepository,final FromJsonHelper fromJsonHelper,
 			final OrderWritePlatformService orderWritePlatformService,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
-			final OrderHistoryRepository orderHistory,final OrderRepository orderRepository,final InvoiceClient invoiceClient)
+			final OrderHistoryRepository orderHistory,final OrderRepository orderRepository,final InvoiceClient invoiceClient,
+			final ProcessRequestRepository processRequestRepository,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService)
 	{
 		this.eventActionRepository=eventActionRepository;
         this.fromApiJsonHelper=fromJsonHelper;
@@ -49,6 +61,8 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
         this.orderRepository=orderRepository;
         this.invoiceClient=invoiceClient;
         this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
+        this.processRequestRepository=processRequestRepository;
+        this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
 	}
 	
 	@Override
@@ -114,6 +128,25 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 
 				//CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
 			   this.invoiceClient.createInvoiceBill(command);
+				}catch(Exception exception){
+					
+				}
+				//For Transaction History
+
+			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_PROVISION)){
+
+				try{
+				
+		List<HardwareAssociationData> associationDatas= this.hardwareAssociationReadplatformService.retrieveClientAllocatedHardwareDetails(eventActionData.getClientId());
+					
+		   Long none=new Long(0);
+					ProcessRequest processRequest=new ProcessRequest(eventActionData.getClientId(), none,ProvisioningApiConstants.PROV_STALKER,'N', null,
+							ProvisioningApiConstants.REQUEST_TERMINATE,none);
+					ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(none,none,null,"success",associationDatas.get(0).getProvSerialNum(), 
+							new Date(), null, new Date(),null,'N', ProvisioningApiConstants.REQUEST_TERMINATE);
+					processRequest.add(processRequestDetails);
+					this.processRequestRepository.save(processRequest);
+					
 				}catch(Exception exception){
 					
 				}
