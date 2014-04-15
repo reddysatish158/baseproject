@@ -177,7 +177,21 @@ public class ProvisioningApiResource {
 	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
 		}
 
-	 
+	 @GET
+	 @Path("serviceparmas/{orderId}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+	 public String retrieveOrderServicesData(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
+		 
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<ServiceParameterData> parameterDatas=this.provisioningReadPlatformService.getProvisionedSerivceParameters(orderId);
+		Collection<MCodeData> vlanDatas=this.codeReadPlatformService.getCodeValue("VLANS");
+		List<IpPoolData> ipPoolDatas=this.ipPoolManagementReadPlatformService.getUnallocatedIpAddressDetailds();
+		List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
+		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,parameterDatas);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
+		}
 
 }
 

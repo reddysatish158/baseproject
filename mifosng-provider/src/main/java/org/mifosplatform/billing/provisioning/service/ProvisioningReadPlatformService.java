@@ -20,5 +20,7 @@ public interface ProvisioningReadPlatformService {
 	List<ProvisioningCommandParameterData> retrieveCommandParams(Long id);
 
 	List<ServiceParameterData> getSerivceParameters(Long orderId);
+
+	List<ServiceParameterData> getProvisionedSerivceParameters(Long orderId);
 	
 }

@@ -36,7 +36,7 @@ public final class OfficeCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("name", "parentId", "openingDate", "externalId",
-            "locale", "dateFormat"));
+            "locale", "dateFormat","officeType"));
 
     private final FromJsonHelper fromApiJsonHelper;
 
@@ -66,6 +66,9 @@ public final class OfficeCommandFromApiJsonDeserializer {
             final String externalId = fromApiJsonHelper.extractStringNamed("externalId", element);
             baseDataValidator.reset().parameter("externalId").value(externalId).notExceedingLengthOf(100);
         }
+        
+        final Long officeType=fromApiJsonHelper.extractLongNamed("officeType", element);
+        baseDataValidator.reset().parameter("officeType").value(officeType).notNull();
 
         if (fromApiJsonHelper.parameterExists("parentId", element)) {
             final Long parentId = fromApiJsonHelper.extractLongNamed("parentId", element);
@@ -96,6 +99,10 @@ public final class OfficeCommandFromApiJsonDeserializer {
             baseDataValidator.reset().parameter("name").value(name).notBlank().notExceedingLengthOf(100);
         }
 
+        final Long officeType=fromApiJsonHelper.extractLongNamed("officeType", element);
+        baseDataValidator.reset().parameter("officeType").value(officeType).notNull();
+
+        
         if (fromApiJsonHelper.parameterExists("openingDate", element)) {
             final LocalDate openingDate = fromApiJsonHelper.extractLocalDateNamed("openingDate", element);
             baseDataValidator.reset().parameter("openingDate").value(openingDate).notNull();

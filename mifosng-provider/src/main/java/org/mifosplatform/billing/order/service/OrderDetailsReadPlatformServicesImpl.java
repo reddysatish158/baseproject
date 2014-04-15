@@ -138,13 +138,13 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 
 
 		@Override
-		public int checkForCustomValidations(Long clientId,String eventName) {
+		public int checkForCustomValidations(Long clientId,String eventName,String strjson) {
 		       
 			
 					  jdbcCall.setProcedureName("custom_validation");
 					  MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 					  parameterSource.addValue("p_clientid", clientId, Types.INTEGER);
-					  parameterSource.addValue("keyid", clientId, Types.INTEGER);
+					  parameterSource.addValue("strjson", strjson, Types.VARCHAR);
 					  parameterSource.addValue("event_name", eventName, Types.VARCHAR);
 					  Map<String, Object> out = jdbcCall.execute(parameterSource);
 					  int errCode=(Integer)out.get("err_code");

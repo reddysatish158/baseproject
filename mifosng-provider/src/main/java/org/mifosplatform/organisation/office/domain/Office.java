@@ -51,12 +51,15 @@ public class Office extends AbstractPersistable<Long> {
     @Column(name = "opening_date", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date openingDate;
+    
+    @Column(name="office_type",nullable = false)
+    private Long officeType;
 
     @Column(name = "external_id", length = 100)
     private String externalId;
 
     public static Office headOffice(final String name, final LocalDate openingDate, final String externalId) {
-        return new Office(null, name, openingDate, externalId);
+        return new Office(null, name, openingDate, externalId,null);
     }
 
     public static Office fromJson(final Office parentOffice, final JsonCommand command) {
@@ -64,7 +67,8 @@ public class Office extends AbstractPersistable<Long> {
         final String name = command.stringValueOfParameterNamed("name");
         final LocalDate openingDate = command.localDateValueOfParameterNamed("openingDate");
         final String externalId = command.stringValueOfParameterNamed("externalId");
-        return new Office(parentOffice, name, openingDate, externalId);
+        final Long officeType=command.longValueOfParameterNamed("officeType");
+        return new Office(parentOffice, name, openingDate, externalId,officeType);
     }
 
     protected Office() {
@@ -74,7 +78,7 @@ public class Office extends AbstractPersistable<Long> {
         this.externalId = null;
     }
 
-    private Office(final Office parent, final String name, final LocalDate openingDate, final String externalId) {
+    private Office(final Office parent, final String name, final LocalDate openingDate, final String externalId, Long officeType) {
         this.parent = parent;
         this.openingDate = openingDate.toDateMidnight().toDate();
         if (parent != null) {
@@ -91,6 +95,8 @@ public class Office extends AbstractPersistable<Long> {
         } else {
             this.externalId = null;
         }
+        
+        this.officeType=officeType;
     }
 
     private void addChild(final Office office) {
@@ -129,6 +135,15 @@ public class Office extends AbstractPersistable<Long> {
             final String newValue = command.stringValueOfParameterNamed(nameParamName);
             actualChanges.put(nameParamName, newValue);
             this.name = newValue;
+        }
+        
+        final String officeTypeParam="officeType";
+        if(command.isChangeInLongParameterNamed(officeTypeParam, this.officeType)){
+        	
+        	final Long newValue=command.longValueOfParameterNamed(officeTypeParam);
+        	actualChanges.put(officeTypeParam, newValue);
+        	this.officeType=newValue;
+        	
         }
 
         final String externalIdParamName = "externalId";

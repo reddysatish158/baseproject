@@ -13,6 +13,6 @@ public interface OrderDetailsReadPlatformServices {
 
 	List<PriceData> retrieveDefaultPrices(Long planId, String billingFrequency,Long clientId);
 
-	int checkForCustomValidations(Long clientId, String eventCreateOrder);
+	int checkForCustomValidations(Long clientId, String eventCreateOrder, String strjson);
 
 }

@@ -181,7 +181,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			
 		//Check for Custome_Validation
-			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER);
+			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER,command.json());
+			
 			if(errorCode != 0){
 				throw new ActivePlansFoundException(errorCode); 
 				
@@ -894,7 +895,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.fromApiJsonDeserializer.validateForCreate(command.json());
 		LocalDate startDate=command.localDateValueOfParameterNamed("start_date");	
 		//Check for Custome_Validation
-			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER);
+			int errorCode = this.orderDetailsReadPlatformServices.checkForCustomValidations(clientId,EventActionConstants.EVENT_CREATE_ORDER,command.json());
 			if(errorCode != 0){
 				throw new ActivePlansFoundException(errorCode); 
 			

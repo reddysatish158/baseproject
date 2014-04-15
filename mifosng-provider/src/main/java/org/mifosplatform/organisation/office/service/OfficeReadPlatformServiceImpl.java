@@ -46,10 +46,11 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
     private static final class OfficeMapper implements RowMapper<OfficeData> {
 
         public String officeSchema() {
-            return " o.id as id, o.name as name, "
-                    + nameDecoratedBaseOnHierarchy
-                    + " as nameDecorated, o.external_id as externalId, o.opening_date as openingDate, o.hierarchy as hierarchy, parent.id as parentId, parent.name as parentName "
-                    + "from m_office o LEFT JOIN m_office AS parent ON parent.id = o.parent_id ";
+            return "o.id AS id,o.name AS name,"
+            	       +nameDecoratedBaseOnHierarchy+
+            	       "AS nameDecorated,o.external_id AS externalId,o.opening_date AS openingDate,o.hierarchy AS hierarchy," +
+            	       "parent.id AS parentId,parent.name AS parentName,c.code_value as officeType" +
+            	       " FROM m_office o LEFT JOIN m_office AS parent ON parent.id = o.parent_id left join m_code_value c on c.id=o.office_type ";
         }
 
         @Override
@@ -63,8 +64,9 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
             final String hierarchy = rs.getString("hierarchy");
             final Long parentId = JdbcSupport.getLong(rs, "parentId");
             final String parentName = rs.getString("parentName");
+            final String officeType = rs.getString("officeType");
 
-            return new OfficeData(id, name, nameDecorated, externalId, openingDate, hierarchy, parentId, parentName, null);
+            return new OfficeData(id, name, nameDecorated, externalId, openingDate, hierarchy, parentId, parentName, null,null,officeType);
         }
     }
 
@@ -173,7 +175,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
 
         context.authenticatedUser();
 
-        return OfficeData.template(null, new LocalDate());
+        return OfficeData.template(null,new LocalDate(),null);
     }
 
     @Override

@@ -165,6 +165,12 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 							" pd.service_code = s.service_code and sd.service_id=s.id";
 				}
 			    
+			    
+			    public String provisionedschema() {
+					return "  s.id AS id,s.parameter_name AS paramName,s.parameter_value AS paramValue  FROM b_service_parameters s " +
+							"  WHERE s.order_id = ?";
+				}
+			    
 		        @Override
 		        public ServiceParameterData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 		        	
@@ -174,6 +180,25 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 				  return new ServiceParameterData(id,paramName,paramValue);
 		       }
 		}
+		 
+		 
+		 @Transactional
+		 @Override
+		public List<ServiceParameterData> getProvisionedSerivceParameters(Long orderId) {
+			
+			try{
+				this.context.authenticatedUser();
+				ServiceParameterMapper mapper=new ServiceParameterMapper();
+				final String sql="select "+mapper.provisionedschema();
+				return this.jdbcTemplate.query(sql, mapper,new Object[] {orderId});
+				
+			}catch(EmptyResultDataAccessException exception){
+				return null;
+			}
+			
+		}
+
+	
 
 
 }

@@ -262,8 +262,9 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					private static final class OrderHistoryMapper implements RowMapper<OrderHistoryData> {
 
 					public String clientOrderLookupSchema() {
-					return " h.id AS id,h.transaction_date AS transDate,h.actual_date AS actualDate,h.transaction_type AS transactionType," +
-							"h.prepare_id AS PrepareRequsetId  FROM b_orders_history h  where h.order_id =?";
+					return "  h.id AS id,h.transaction_date AS transDate,h.actual_date AS actualDate,h.transaction_type AS transactionType," +
+							" h.prepare_id AS PrepareRequsetId, ifnull(a.username,'by Scheduler job') as userName  FROM b_orders_history h" +
+							"  left join m_appuser a on a.id=h.createdby_id WHERE h.order_id = ? ";
 					}
 
 					@Override
@@ -275,8 +276,9 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					final LocalDate provisionongDate=JdbcSupport.getLocalDate(rs,"actualDate");
 					final String transactionType=rs.getString("transactionType");
 					final Long PrepareRequsetId=rs.getLong("PrepareRequsetId");
+					final String userName=rs.getString("userName");
 
-					return new OrderHistoryData(id,transDate,actualDate,provisionongDate,transactionType,PrepareRequsetId );
+					return new OrderHistoryData(id,transDate,actualDate,provisionongDate,transactionType,PrepareRequsetId,userName);
 					}
 			}
 
