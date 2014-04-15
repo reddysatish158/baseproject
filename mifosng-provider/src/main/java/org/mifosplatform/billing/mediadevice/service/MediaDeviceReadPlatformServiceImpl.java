@@ -49,7 +49,7 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 					"  FROM b_allocation a,m_code_value mc, m_client c left join b_client_balance b on b.client_id = c.id WHERE  a.client_id = c.id AND " +
 					"  mc.id = c.category_type AND serial_no = ? AND a.is_deleted = 'N' UNION SELECT a.id,a.client_id,mc.code_value,mc.id, b.balance_amount as balanceAmount" +
 					"  FROM b_owned_hardware a, m_code_value mc, m_client c left join b_client_balance b on b.client_id = c.id WHERE a.client_id = c.id AND mc.id = c.category_type" +
-					"  AND serial_number =?"; 
+					"  AND serial_number =?  and a.is_deleted ='N'"; 
   
 		}
 		@Override
