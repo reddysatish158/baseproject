@@ -192,6 +192,16 @@ public class ProvisioningApiResource {
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
 		}
+	 
+	 @PUT
+	 @Path("serviceparams/{orderId}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+		public String updateProvisiongServiceParams(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateprovisiongServiceParams(orderId).withJson(apiRequestBodyAsJson).build();
+	     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	     return this.toApiJsonSerializer.serialize(result);
+	} 
 
 }
 

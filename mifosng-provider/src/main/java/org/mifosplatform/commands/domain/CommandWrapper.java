@@ -1002,4 +1002,8 @@ public class CommandWrapper {
 
 		}
 
+		public boolean isProvisioningParams() {
+			return  this.entityName.equalsIgnoreCase("PROVISIONINGSERVICEPARAMS");
+		}
+
 }

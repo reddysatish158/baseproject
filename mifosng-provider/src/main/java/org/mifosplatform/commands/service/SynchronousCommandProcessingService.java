@@ -927,6 +927,13 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+				     
+			   }else if(wrapper.isProvisioningParams()){
+				     if(wrapper.isUpdateOperation()) {
+				         handler = applicationContext.getBean("updateProvisioningServiceParamsCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
 			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }

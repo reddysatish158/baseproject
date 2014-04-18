@@ -2102,4 +2102,13 @@ public CommandWrapperBuilder createIpPoolManagement() {
 
 }
 
+public CommandWrapperBuilder updateprovisiongServiceParams(Long id) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGSERVICEPARAMS";
+    this.entityId=id;
+    this.href = "/serviceparams/"+clientId;
+	return this;
+}
+
 }
