@@ -3,9 +3,6 @@ package org.mifosplatform.logistics.itemdetails.mrn.service;
 import java.text.ParseException;
 import java.util.List;
 
-import org.mifosplatform.billing.logistics.itemdetails.domain.InventoryTransactionHistory;
-import org.mifosplatform.billing.logistics.itemdetails.domain.InventoryTransactionHistoryJpaRepository;
-import org.mifosplatform.billing.logistics.itemdetails.domain.MRNDetails;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -13,6 +10,9 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
+import org.mifosplatform.logistics.itemdetails.domain.InventoryTransactionHistory;
+import org.mifosplatform.logistics.itemdetails.domain.InventoryTransactionHistoryJpaRepository;
+import org.mifosplatform.logistics.itemdetails.domain.MRNDetails;
 import org.mifosplatform.logistics.itemdetails.mrn.api.MRNDetailsJpaRepository;
 import org.mifosplatform.logistics.itemdetails.mrn.data.MRNMoveDetailsData;
 import org.mifosplatform.logistics.itemdetails.mrn.serialization.MRNDetailsCommandFromApiJsonDeserializer;

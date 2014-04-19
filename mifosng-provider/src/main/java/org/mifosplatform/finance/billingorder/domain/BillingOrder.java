@@ -17,8 +17,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.mifosplatform.billing.order.domain.Order;
-import org.mifosplatform.billing.order.domain.OrderDiscount;
+import org.mifosplatform.portfolio.order.domain.Order;
+import org.mifosplatform.portfolio.order.domain.OrderDiscount;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity

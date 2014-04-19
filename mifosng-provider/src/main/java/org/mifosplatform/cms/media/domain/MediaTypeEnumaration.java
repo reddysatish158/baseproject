@@ -1,7 +1,7 @@
 package org.mifosplatform.cms.media.domain;
-import org.mifosplatform.billing.message.data.EnumMessageType;
 import org.mifosplatform.finance.paymentsgateway.data.PaymentEnum;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
+import org.mifosplatform.organisation.message.data.EnumMessageType;
 
 public class MediaTypeEnumaration {
 	public static MediaEnumoptionData enumOptionData(final int id) {

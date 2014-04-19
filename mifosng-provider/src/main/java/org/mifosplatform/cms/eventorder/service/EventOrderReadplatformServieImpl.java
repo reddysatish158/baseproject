@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.cms.eventmaster.data.EventMasterData;
 import org.mifosplatform.cms.eventorder.data.EventOrderData;
 import org.mifosplatform.cms.eventorder.data.EventOrderDeviceData;
@@ -19,6 +18,7 @@ import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.onetimesale.data.OneTimeSaleData;
+import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

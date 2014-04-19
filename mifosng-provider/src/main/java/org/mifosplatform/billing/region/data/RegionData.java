@@ -2,8 +2,8 @@ package org.mifosplatform.billing.region.data;
 
 import java.util.List;
 
-import org.mifosplatform.billing.address.data.CountryDetails;
-import org.mifosplatform.billing.address.data.StateDetails;
+import org.mifosplatform.organisation.address.data.CountryDetails;
+import org.mifosplatform.organisation.address.data.StateDetails;
 
 public class RegionData {
 	

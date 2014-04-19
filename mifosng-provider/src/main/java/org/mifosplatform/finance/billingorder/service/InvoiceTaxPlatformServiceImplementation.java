@@ -2,8 +2,6 @@ package org.mifosplatform.finance.billingorder.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mifosplatform.billing.order.domain.OrderPriceRepository;
-import org.mifosplatform.billing.order.domain.OrderRepository;
 import org.mifosplatform.finance.billingorder.commands.InvoiceTaxCommand;
 import org.mifosplatform.finance.billingorder.data.ProcessDate;
 import org.mifosplatform.finance.billingorder.domain.BillingOrderRepository;
@@ -14,6 +12,8 @@ import org.mifosplatform.finance.billingorder.domain.InvoiceTaxRepository;
 import org.mifosplatform.finance.clientbalance.domain.ClientBalanceRepository;
 import org.mifosplatform.finance.clientbalance.service.UpdateClientBalance;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.order.domain.OrderPriceRepository;
+import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

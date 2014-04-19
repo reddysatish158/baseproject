@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 
 /**
  * @author Praveen

@@ -17,7 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.billing.servicemapping.data.ServiceCodeData;
 import org.mifosplatform.billing.servicemapping.data.ServiceMappingData;
 import org.mifosplatform.billing.servicemapping.service.ServiceMappingReadPlatformService;
@@ -32,6 +31,7 @@ import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSeria
 import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterData;
 import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.plan.service.PlanReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

@@ -2,12 +2,12 @@ package org.mifosplatform.cms.eventorder.service;
 
 
 
-import org.mifosplatform.billing.order.domain.Order;
-import org.mifosplatform.billing.plan.domain.Plan;
-import org.mifosplatform.billing.preparerequest.domain.PrepareRequest;
-import org.mifosplatform.billing.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.order.domain.Order;
+import org.mifosplatform.portfolio.plan.domain.Plan;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

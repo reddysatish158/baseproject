@@ -5,11 +5,11 @@
  */
 package org.mifosplatform.logistics.itemdetails.handler;
 
-import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingWritePlatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsWritePlatformService;
+import org.mifosplatform.workflow.eventactionmapping.service.EventActionMappingWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

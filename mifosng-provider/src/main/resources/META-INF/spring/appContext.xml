@@ -37,7 +37,8 @@
 										  org.mifosplatform.portfolio.*,
 										  org.mifosplatform.billing.*,
 										  org.mifosplatform.logistics.*,
-										  org.mifosplatform.useradministration.*">
+										  org.mifosplatform.useradministration.*,
+										  org.mifosplatform.*">
 		<context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
 	</context:component-scan>
 	
@@ -55,6 +56,7 @@
     <jpa:repositories base-package="org.mifosplatform.crm.*" />
     <jpa:repositories base-package="org.mifosplatform.finance.*" />
     <jpa:repositories base-package="org.mifosplatform.logistics.*" />
+    <jpa:repositories base-package="org.mifosplatform.*" />
     
 
     <import resource="infrastructure.xml" />

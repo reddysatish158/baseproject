@@ -14,7 +14,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.plan.data.PlanData;
 import org.mifosplatform.cms.mediadetails.exception.NoMediaDeviceFoundException;
 import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.cms.mediadevice.exception.NoPlanDataFoundException;
@@ -24,6 +23,7 @@ import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.plan.data.PlanData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

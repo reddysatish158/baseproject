@@ -2,9 +2,9 @@ package org.mifosplatform.billing.region.service;
 
 import java.util.List;
 
-import org.mifosplatform.billing.address.data.StateDetails;
 import org.mifosplatform.billing.region.data.RegionData;
 import org.mifosplatform.billing.region.data.RegionDetailsData;
+import org.mifosplatform.organisation.address.data.StateDetails;
 
 public interface RegionReadPlatformService {
 

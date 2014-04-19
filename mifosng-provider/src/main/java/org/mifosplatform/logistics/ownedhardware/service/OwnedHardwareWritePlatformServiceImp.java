@@ -4,10 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.billing.association.data.HardwareAssociationData;
-import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
-import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
-import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.codes.exception.DiscountNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
@@ -21,6 +17,10 @@ import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsReadP
 import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
 import org.mifosplatform.logistics.ownedhardware.serialization.OwnedHardwareFromApiJsonDeserializer;
+import org.mifosplatform.portfolio.association.data.HardwareAssociationData;
+import org.mifosplatform.portfolio.association.service.HardwareAssociationReadplatformService;
+import org.mifosplatform.portfolio.association.service.HardwareAssociationWriteplatformService;
+import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.servicemaster.service.ServiceMasterWritePlatformServiceImpl;
-import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.finance.billingmaster.domain.BillDetail;
 import org.mifosplatform.finance.billingmaster.domain.BillMaster;
 import org.mifosplatform.finance.billingmaster.domain.BillMasterRepository;
@@ -17,6 +15,8 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
+import org.mifosplatform.portfolio.service.service.ServiceMasterWritePlatformServiceImpl;
+import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,7 +8,6 @@ import java.util.List;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.mifosplatform.finance.adjustment.service.AdjustmentReadPlatformService;
 import org.mifosplatform.finance.billingorder.commands.BillingOrderCommand;
@@ -21,6 +20,7 @@ import org.mifosplatform.finance.billingorder.service.BillingOrderWritePlatformS
 import org.mifosplatform.finance.billingorder.service.GenerateBill;
 import org.mifosplatform.finance.billingorder.service.GenerateBillingOrderService;
 import org.mifosplatform.finance.clientbalance.data.ClientBalanceData;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.logistics.onetimesale.data.OneTimeSaleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

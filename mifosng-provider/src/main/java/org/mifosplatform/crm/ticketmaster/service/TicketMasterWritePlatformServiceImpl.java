@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 
-import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.crm.ticketmaster.command.TicketMasterCommand;
 import org.mifosplatform.crm.ticketmaster.domain.TicketDetail;
 import org.mifosplatform.crm.ticketmaster.domain.TicketMaster;
@@ -21,6 +20,7 @@ import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.documentmanagement.command.DocumentCommand;
 import org.mifosplatform.infrastructure.documentmanagement.exception.DocumentManagementException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.cms.eventmaster.data.EventDetailsData;
 import org.mifosplatform.cms.eventmaster.service.EventMasterReadPlatformService;
 import org.mifosplatform.cms.eventpricing.data.ClientTypeData;
@@ -31,6 +30,7 @@ import org.mifosplatform.cms.mediadetails.service.MediaAssetDetailsReadPlatformS
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.api.ApiParameterHelper;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;

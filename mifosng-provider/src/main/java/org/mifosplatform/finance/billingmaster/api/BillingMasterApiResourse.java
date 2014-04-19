@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.finance.billingmaster.domain.BillMaster;
 import org.mifosplatform.finance.billingmaster.domain.BillMasterRepository;
@@ -34,6 +33,7 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

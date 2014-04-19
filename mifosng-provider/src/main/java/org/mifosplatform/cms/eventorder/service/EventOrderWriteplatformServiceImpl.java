@@ -3,7 +3,6 @@ package org.mifosplatform.cms.eventorder.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.cms.eventmaster.domain.EventDetails;
 import org.mifosplatform.cms.eventmaster.domain.EventDetailsRepository;
 import org.mifosplatform.cms.eventmaster.domain.EventMaster;
@@ -32,6 +31,7 @@ import org.mifosplatform.logistics.onetimesale.data.OneTimeSaleData;
 import org.mifosplatform.logistics.onetimesale.serialization.EventOrderCommandFromApiJsonDeserializer;
 import org.mifosplatform.logistics.onetimesale.service.InvoiceOneTimeSale;
 import org.mifosplatform.logistics.onetimesale.service.OneTimeSaleReadPlatformService;
+import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

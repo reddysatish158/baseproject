@@ -18,9 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.address.data.CountryDetails;
-import org.mifosplatform.billing.address.data.StateDetails;
-import org.mifosplatform.billing.address.service.AddressReadPlatformService;
 import org.mifosplatform.billing.region.data.RegionData;
 import org.mifosplatform.billing.region.data.RegionDetailsData;
 import org.mifosplatform.billing.region.service.RegionReadPlatformService;
@@ -34,6 +31,9 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.address.data.CountryDetails;
+import org.mifosplatform.organisation.address.data.StateDetails;
+import org.mifosplatform.organisation.address.service.AddressReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

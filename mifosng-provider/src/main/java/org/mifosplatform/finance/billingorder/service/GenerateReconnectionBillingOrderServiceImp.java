@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.finance.billingorder.commands.BillingOrderCommand;
 import org.mifosplatform.finance.billingorder.data.BillingOrderData;
 import org.mifosplatform.finance.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.finance.billingorder.exceptions.BillingOrderNoRecordsFoundException;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

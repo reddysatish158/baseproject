@@ -2,7 +2,6 @@ package org.mifosplatform.finance.creditdistribution.service;
 
 import java.math.BigDecimal;
 
-import org.mifosplatform.billing.plan.service.PlanWritePlatformServiceImpl;
 import org.mifosplatform.finance.billingorder.domain.Invoice;
 import org.mifosplatform.finance.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.finance.creditdistribution.domain.CreditDistribution;
@@ -14,6 +13,7 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.plan.service.PlanWritePlatformServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

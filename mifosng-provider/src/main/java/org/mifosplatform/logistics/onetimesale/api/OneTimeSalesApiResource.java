@@ -18,12 +18,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.charge.data.ChargesData;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.cms.eventorder.data.EventOrderData;
 import org.mifosplatform.cms.eventorder.service.EventOrderReadplatformServie;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.api.JsonQuery;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;

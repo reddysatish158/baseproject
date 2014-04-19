@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.mifosplatform.billing.message.data.BillingMessageData;
-import org.mifosplatform.billing.plan.data.SystemData;
-import org.mifosplatform.billing.scheduledjobs.data.JobParameterData;
-import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
+import org.mifosplatform.organisation.message.data.BillingMessageData;
+import org.mifosplatform.portfolio.plan.data.SystemData;
+import org.mifosplatform.scheduledjobs.scheduledjobs.data.JobParameterData;
+import org.mifosplatform.scheduledjobs.scheduledjobs.data.ScheduleJobData;
 
 public class JobDetailData {
 

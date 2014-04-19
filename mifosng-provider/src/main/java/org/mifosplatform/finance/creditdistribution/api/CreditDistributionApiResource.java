@@ -17,7 +17,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.invoice.data.InvoiceData;
 import org.mifosplatform.billing.invoice.service.InvoiceReadPlatformService;
-import org.mifosplatform.billing.transactionhistory.data.TransactionHistoryData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -32,6 +31,7 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.transactionhistory.data.TransactionHistoryData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

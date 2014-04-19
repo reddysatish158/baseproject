@@ -3,13 +3,13 @@ package org.mifosplatform.crm.clientprospect.service;
 import java.util.Collection;
 import java.util.List;
 
-import org.mifosplatform.billing.plan.data.PlanCodeData;
 import org.mifosplatform.crm.clientprospect.data.ClientProspectData;
 import org.mifosplatform.crm.clientprospect.data.ProspectDetailAssignedToData;
 import org.mifosplatform.crm.clientprospect.data.ProspectDetailData;
 import org.mifosplatform.crm.clientprospect.data.ProspectPlanCodeData;
 import org.mifosplatform.crm.ticketmaster.data.UsersData;
 import org.mifosplatform.infrastructure.core.service.Page;
+import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 
 public interface ClientProspectReadPlatformService {
 

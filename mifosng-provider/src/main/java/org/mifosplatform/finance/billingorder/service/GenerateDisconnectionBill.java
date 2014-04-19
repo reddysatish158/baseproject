@@ -3,18 +3,18 @@ package org.mifosplatform.finance.billingorder.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 import org.joda.time.Weeks;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.mifosplatform.finance.billingorder.commands.BillingOrderCommand;
 import org.mifosplatform.finance.billingorder.commands.InvoiceTaxCommand;
 import org.mifosplatform.finance.billingorder.data.BillingOrderData;
 import org.mifosplatform.finance.billingorder.domain.BillingOrderRepository;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

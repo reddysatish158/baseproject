@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.contract.data.PeriodData;
-import org.mifosplatform.billing.mcodevalues.data.MCodeData;
+import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
+import org.mifosplatform.portfolio.contract.data.PeriodData;
 public class PromotionCodeData {
 	
 	

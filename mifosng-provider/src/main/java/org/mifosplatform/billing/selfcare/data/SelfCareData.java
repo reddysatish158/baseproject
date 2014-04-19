@@ -2,13 +2,13 @@ package org.mifosplatform.billing.selfcare.data;
 
 import java.util.List;
 
-import org.mifosplatform.billing.address.data.AddressData;
-import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
 import org.mifosplatform.finance.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.finance.payments.data.PaymentData;
+import org.mifosplatform.organisation.address.data.AddressData;
 import org.mifosplatform.portfolio.client.data.ClientData;
+import org.mifosplatform.portfolio.order.data.OrderData;
 
 
 public class SelfCareData {

@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
-import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.api.JsonQuery;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -20,6 +19,7 @@ import org.mifosplatform.logistics.onetimesale.data.OneTimeSaleData;
 import org.mifosplatform.logistics.onetimesale.domain.OneTimeSale;
 import org.mifosplatform.logistics.onetimesale.domain.OneTimeSaleRepository;
 import org.mifosplatform.logistics.onetimesale.serialization.OneTimesaleCommandFromApiJsonDeserializer;
+import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

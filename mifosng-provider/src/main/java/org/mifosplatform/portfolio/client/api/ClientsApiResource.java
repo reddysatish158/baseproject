@@ -23,9 +23,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
-import org.mifosplatform.billing.address.data.AddressData;
-import org.mifosplatform.billing.address.service.AddressReadPlatformService;
-import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -39,8 +36,11 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.address.data.AddressData;
+import org.mifosplatform.organisation.address.service.AddressReadPlatformService;
 import org.mifosplatform.organisation.office.data.OfficeData;
 import org.mifosplatform.organisation.office.service.OfficeReadPlatformService;
+import org.mifosplatform.portfolio.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.client.service.ClientCategoryData;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;

@@ -1,7 +1,7 @@
 package org.mifosplatform.billing.pricing.data;
 
-import org.mifosplatform.billing.plan.service.ChargeVariant;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.portfolio.plan.service.ChargeVariant;
 
 
 public class SavingChargeVaraint {

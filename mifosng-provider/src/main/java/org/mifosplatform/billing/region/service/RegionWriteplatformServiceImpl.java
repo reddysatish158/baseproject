@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.mifosplatform.accounting.autoposting.exception.RegionDuplicateException;
-import org.mifosplatform.billing.order.exceptions.CountryRegionDuplicateException;
 import org.mifosplatform.billing.region.data.RegionDetailsData;
 import org.mifosplatform.billing.region.domain.RegionDetails;
 import org.mifosplatform.billing.region.domain.RegionJpaRepository;
@@ -17,6 +16,7 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsWritePlatformServiceImp;
+import org.mifosplatform.portfolio.order.exceptions.CountryRegionDuplicateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

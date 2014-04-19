@@ -2,8 +2,8 @@ package org.mifosplatform.cms.mediadevice.service;
 
 import java.util.List;
 
-import org.mifosplatform.billing.plan.data.PlanData;
 import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
+import org.mifosplatform.portfolio.plan.data.PlanData;
 
 
 public interface MediaDeviceReadPlatformService {

@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.paymode.data.McodeData;
-import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.cms.media.data.MediaAssetData;
 import org.mifosplatform.cms.media.data.MediaassetAttribute;
 import org.mifosplatform.cms.media.data.MediaassetAttributeData;
@@ -37,6 +36,7 @@ import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.plan.service.PlanReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
