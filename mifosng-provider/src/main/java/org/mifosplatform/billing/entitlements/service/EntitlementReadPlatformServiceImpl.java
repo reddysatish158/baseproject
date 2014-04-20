@@ -135,10 +135,14 @@ public class EntitlementReadPlatformServiceImpl implements
 			}
 			
 			public String schema() {
-				return " DISTINCT a.serial_no AS mac,a.client_id AS ls,o.order_status as status,c.firstname as fname,c.phone as phone," +
+				/*return " DISTINCT a.serial_no AS mac,a.client_id AS ls,o.order_status as status,c.firstname as fname,c.phone as phone," +
 						" o.end_date as end_date, 'Ellinika' as tariff FROM b_allocation a, m_client c,b_plan_master pm,b_orders o," +
 						" b_item_detail i WHERE a.client_id = c.id AND c.id= o.client_id" +
-						" AND o.plan_id=pm.id AND a.serial_no=i.serial_no group by ls and a.serial_no=?";
+						" AND o.plan_id=pm.id AND a.serial_no=i.serial_no group by ls and a.serial_no=?";*/
+				return "DISTINCT i.provisioning_serialno AS mac,i.client_id AS ls,o.order_status as status,c.firstname as fname," +
+						" c.phone as phone,o.end_date as end_date, 'Ellinika' as tariff FROM b_allocation a,m_client c,b_plan_master pm," +
+						" b_orders o,b_item_detail i WHERE i.client_id = c.id AND c.id= o.client_id and i.serial_no=a.serial_no " +
+						" AND o.plan_id=pm.id and i.provisioning_serialno=? group by ls";
 			}
 
 }
