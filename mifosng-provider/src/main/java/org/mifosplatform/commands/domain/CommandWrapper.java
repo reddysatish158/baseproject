@@ -937,5 +937,9 @@ public class CommandWrapper {
 			
 			return this.actionName.equalsIgnoreCase("APPLYPROMO") && this.entityName.equalsIgnoreCase("ORDER");
 		}
+
+		public boolean isDeAllocateHardwareResource() {
+			return this.actionName.equalsIgnoreCase("DEALLOCATE") && this.entityName.equalsIgnoreCase("INVENTORY");
+		}
 		
 }

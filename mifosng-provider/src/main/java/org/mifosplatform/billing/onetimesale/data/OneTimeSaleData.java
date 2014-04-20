@@ -33,6 +33,7 @@ public class OneTimeSaleData {
 	private Long discountId;
 	private List<OneTimeSaleData> oneTimeSaleData;
 	private List<EventOrderData> eventOrdersData;
+	private String serialNo;
 	
 	
 	public OneTimeSaleData(List<ChargesData> chargeDatas,List<ItemData> itemData, OneTimeSaleData salesData, List<DiscountMasterData> discountdata) {
@@ -47,7 +48,7 @@ public class OneTimeSaleData {
 	/*hardware allocated and flag is added by rahman */
 
 	public OneTimeSaleData(Long id, LocalDate saleDate, String itemCode,
-			String chargeCode, String quantity, BigDecimal totalPrice,String hardwareAllocated,String itemClass) {
+			String chargeCode, String quantity, BigDecimal totalPrice,String hardwareAllocated,String itemClass, String serialNo) {
 		this.id=id;
 		this.saleDate=saleDate;
 		this.itemCode=itemCode;
@@ -57,6 +58,7 @@ public class OneTimeSaleData {
 		this.hardwareAllocated = hardwareAllocated;
 		this.flag = hardwareAllocated.equalsIgnoreCase("ALLOCATED")?true:false;
 		this.itemClass = itemClass;
+		this.serialNo=serialNo;
 		
 	}
 

@@ -621,7 +621,10 @@ public class SynchronousCommandProcessingService implements
 				if(wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryItemAllocationCommandHandler",NewCommandSourceHandler.class);
 				}
-			} else if (wrapper.isUploadStatusResource()) {
+			}else if (wrapper.isDeAllocateHardwareResource()) {
+				
+					handler = applicationContext.getBean("deAllocateItemCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isUploadStatusResource()) {
 	        	if (wrapper.isCreate()) {
 					handler = applicationContext.getBean("uploadStatusWritePlatformService", NewCommandSourceHandler.class);
 				}	

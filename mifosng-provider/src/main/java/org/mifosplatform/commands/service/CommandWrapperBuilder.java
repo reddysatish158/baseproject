@@ -1950,4 +1950,12 @@ public CommandWrapperBuilder applyPromo(Long orderId) {
 	return this;
 }
 
+public CommandWrapperBuilder deAllocate(Long id) {
+	this.actionName = "DEALLOCATE";
+	this.entityName = "INVENTORY";
+	this.entityId = id;
+	this.href = "/itemdetails/template";
+	return this;
+}
+
 }
