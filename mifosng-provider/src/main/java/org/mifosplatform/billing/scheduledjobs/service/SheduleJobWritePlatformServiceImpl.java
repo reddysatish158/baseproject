@@ -224,7 +224,7 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
 	}
 	
-	@Transactional
+	
 	@Override
 	@CronTarget(jobName = JobName.REQUESTOR)
 	public void processRequest() {
