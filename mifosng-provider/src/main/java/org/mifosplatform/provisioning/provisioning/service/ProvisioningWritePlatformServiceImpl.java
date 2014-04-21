@@ -222,7 +222,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			
 				
 			//PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(prepareId.longValue());
-			prepareRequest.updateProvisioning();
+			prepareRequest.updateProvisioning('Y');
 			this.prepareRequsetRepository.save(prepareRequest);
 			
 			//}

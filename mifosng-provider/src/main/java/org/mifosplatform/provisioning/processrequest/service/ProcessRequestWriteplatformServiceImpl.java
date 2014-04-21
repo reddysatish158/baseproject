@@ -92,7 +92,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
                                      this.processingClientDetails(clientOrderIds,requestData);
                                     //Update RequestData
                                      PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
-                                     prepareRequest.updateProvisioning();
+                                     prepareRequest.updateProvisioning('Y');
                                      this.prepareRequsetRepository.save(prepareRequest);
                             }
             }

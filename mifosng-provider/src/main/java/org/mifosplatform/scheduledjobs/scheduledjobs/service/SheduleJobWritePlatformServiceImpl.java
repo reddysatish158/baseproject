@@ -4,6 +4,7 @@ package org.mifosplatform.scheduledjobs.scheduledjobs.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -80,8 +81,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 @Service
-public class SheduleJobWritePlatformServiceImpl implements
-		SheduleJobWritePlatformService {
+public class SheduleJobWritePlatformServiceImpl implements  SheduleJobWritePlatformService {
 	
 	
 	private final SheduleJobReadPlatformService sheduleJobReadPlatformService;
@@ -538,70 +538,10 @@ this.globalConfigurationRepository=globalConfigurationRepository;
                }	
              for (OrderData orderData : orderDatas)
                {
- /*fw.append("OrderData id="+orderData.getId()+" ,ClientId="+orderData.getClientId()+" ,Status="+orderData.getStatus()
-+" ,PlanCode="+orderData.getPlan_code()+" ,ServiceCode="+orderData.getService_code()+" ,Price="+
-orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
+            	 
+            	 this.scheduleJob.ProcessAutoExipiryDetails(orderData,fw,exipirydate,data);
 
-                  if(!(orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.DISCONNECTED.toString()) || orderData.getStatus().equalsIgnoreCase(StatusTypeEnum.PENDING.toString())))
-                      {
-
-                        if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate()))
-                          {
-
-                             JSONObject jsonobject = new JSONObject();
-                                if(data.getIsAutoRenewal().equalsIgnoreCase("Y")){
-
-                                   Order order=this.orderRepository.findOne(orderData.getId());
-                                   List<OrderPrice> orderPrice=order.getPrice();
-
-                                    boolean isSufficientAmountForRenewal=this.scheduleJob.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
-
-                                 if(isSufficientAmountForRenewal){
-
-                                    List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
-                                      jsonobject.put("renewalPeriod",subscriptionDatas.get(0).getId());	
-                                       jsonobject.put("description","Order Renewal By Scheduler");
-                                       final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-                                       final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"RENEWAL",clientId, null,
-                                        null,clientId, null, null, null,null, null, null);
-                                      fw.append("sending json data for Renewal Order is : "+jsonobject.toString()+"\r\n");
-                                      this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
-                                      fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been renewaled for one month via " +
-                                      "Auto Exipiry on Dated"+exipirydate);
-
-                               }else{
-
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-                                    jsonobject.put("disconnectReason","Date Expired");
-                                    jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
-                                    jsonobject.put("dateFormat","dd MMMM yyyy");
-                                    jsonobject.put("locale","en");
-                                  fw.append("sending json data for Disconnecting the Order is : "+jsonobject.toString()+"\r\n");
-                                    
-                                  final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-
-                                      final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
-                                       null,clientId, null, null, null,null, null, null);
-                                       this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
-                                       fw.append("Client Id"+order.getClientId()+" With this Orde"+order.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
-                                    }
-                                  
-                                    }else if (orderData.getEndDate().equals(exipirydate) || exipirydate.isAfter(orderData.getEndDate())){
-
-                                           SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-                                               jsonobject.put("disconnectReason","Date Expired");
-                                               jsonobject.put("disconnectionDate",dateFormat.format(orderData.getEndDate().toDate()));
-                                               jsonobject.put("dateFormat","dd MMMM yyyy");
-                                               jsonobject.put("locale","en");
-                                       final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
-                                         final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",clientId, null,
-                                         null,clientId, null, null, null,null, null, null);
-                                         this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
-                                        fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
-                                   }
-                              }
-                         }
-                     }
+               }
                 }
                 fw.append("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
                 fw.flush();
@@ -611,7 +551,12 @@ orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
             System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 
 }
+}catch(IOException exception){
+	
+	System.out.println(exception);
+	
 }catch (Exception dve) {
+	
 System.out.println(dve.getMessage());
 handleCodeDataIntegrityIssues(null, dve);
 

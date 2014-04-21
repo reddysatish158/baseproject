@@ -199,7 +199,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 					  }
 	                       this.processRequestRepository.save(processRequest);				
 	                       //PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
-                           prepareRequest.updateProvisioning();
+                           prepareRequest.updateProvisioning('Y');
                            this.prepareRequsetRepository.save(prepareRequest);
                          
                            
@@ -209,7 +209,9 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 						 this.orderRepository.save(order);
 					 }
 				}catch(Exception exception){
-					exception.printStackTrace();
+					  PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
+					 prepareRequest.updateProvisioning('F');
+                     this.prepareRequsetRepository.save(prepareRequest);
 				}
 	              
 				}

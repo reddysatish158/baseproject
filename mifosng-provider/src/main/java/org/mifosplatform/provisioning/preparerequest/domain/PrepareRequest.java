@@ -85,8 +85,8 @@ public class PrepareRequest extends AbstractAuditableCustom<AppUser, Long>{
 	}
 
 
-	public void updateProvisioning() {
-		this.isProvisioning='Y';
+	public void updateProvisioning(char status) {
+		this.isProvisioning=status;
 		this.status=StatusTypeEnum.ACTIVE.toString();
 		
 	}
