@@ -424,7 +424,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   return new CommandProcessingResult(command.entityId());
            }catch(DataIntegrityViolationException exception){
         	   
-        	   return null;
+        	   return new CommandProcessingResult(Long.valueOf(-1));
            }
 		}
 }

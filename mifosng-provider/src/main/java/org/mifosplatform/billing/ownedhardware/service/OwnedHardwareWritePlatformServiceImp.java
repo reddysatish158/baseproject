@@ -7,7 +7,9 @@ import java.util.Map;
 import org.mifosplatform.billing.association.data.HardwareAssociationData;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
+import org.mifosplatform.billing.inventory.exception.ActivePlansFoundException;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsReadPlatformService;
+import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.billing.ownedhardware.domain.OwnedHardwareJpaRepository;
 import org.mifosplatform.billing.ownedhardware.serialization.OwnedHardwareFromApiJsonDeserializer;
@@ -43,7 +45,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	private final HardwareAssociationWriteplatformService hardwareAssociationWriteplatformService;
 	private final HardwareAssociationReadplatformService associationReadplatformService;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
-	public final static String CONFIG_PROPERTY="Implicit Association";
+	private final OrderReadPlatformService orderReadPlatformService; 
 	
 	
 	@Autowired
@@ -51,7 +53,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 			final OwnedHardwareFromApiJsonDeserializer apiJsonDeserializer,final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService,
 			final InventoryItemDetailsReadPlatformService inventoryItemDetailsReadPlatformService,final GlobalConfigurationRepository globalConfigurationRepository,
 			final HardwareAssociationWriteplatformService hardwareAssociationWriteplatformService,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderReadPlatformService orderReadPlatformService) {
 		this.ownedHardwareJpaRepository = ownedHardwareJpaRepository;
 		this.context = context;
 		this.apiJsonDeserializer = apiJsonDeserializer;
@@ -61,6 +63,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		this.hardwareAssociationWriteplatformService=hardwareAssociationWriteplatformService;
 		this.associationReadplatformService=hardwareAssociationReadplatformService;
 		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
+		this.orderReadPlatformService=orderReadPlatformService;
 	}
 	
 	
@@ -84,7 +87,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		this.ownedHardwareJpaRepository.save(ownedHardware);
 		
 		  //For Plan And HardWare Association
-		GlobalConfigurationProperty configurationProperty=this.globalConfigurationRepository.findOneByName(CONFIG_PROPERTY);
+		GlobalConfigurationProperty configurationProperty=this.globalConfigurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IMPLICIT_ASSOCIATION);
 		
 		if(configurationProperty.isEnabled()){
 			
@@ -172,13 +175,20 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
     		 throw new DiscountNotFoundException(id.toString());
     	 }
     	 
+    	 //Check if Active plans are exist
+    	 Long activeorders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber());
+  	   if(activeorders!= 0){
+  		   throw new ActivePlansFoundException();
+  	   }
+    	 
+    	
     	 ownedHardware.delete();
     	 this.ownedHardwareJpaRepository.save(ownedHardware);
     	 return new CommandProcessingResult(id);
     	 
     	 
-     }catch(Exception exception){
-    	 return null;
+     }catch(DataIntegrityViolationException exception){
+    	 return new CommandProcessingResult(Long.valueOf(-1));
      }
 	}
 }

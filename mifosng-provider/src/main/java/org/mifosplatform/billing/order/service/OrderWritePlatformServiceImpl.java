@@ -465,13 +465,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 				
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId();
-				Long activeOrders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(order.getClientId(), null);
-
-                   if(activeOrders == 0){
-					   Client client=this.clientRepository.findOne(order.getClientId());
-					 client.setStatus(ClientStatus.DEACTIVE.getValue());
-					 this.clientRepository.saveAndFlush(client);
-				 }
+				
 				
 			}else{
 			
@@ -482,8 +476,20 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	        }
 			order.update(command,orderStatus);
 			order.setuserAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
-			this.orderRepository.save(order);
+			this.orderRepository.saveAndFlush(order);
 			
+			
+			//Update Client Status
+			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
+			Long activeOrders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(order.getClientId(), null);
+
+            if(activeOrders == 0){
+         	   
+				   Client client=this.clientRepository.findOne(order.getClientId());
+				 client.setStatus(ClientStatus.DEACTIVE.getValue());
+				 this.clientRepository.saveAndFlush(client);
+			 }
+			}
 			//for Prepare Request
 			String requstStatus =UserActionStatusTypeEnum.DISCONNECTION.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
