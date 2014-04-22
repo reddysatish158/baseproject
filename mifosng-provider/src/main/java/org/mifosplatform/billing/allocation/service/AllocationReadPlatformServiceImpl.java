@@ -68,8 +68,11 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 			public String clientDeAssociationLookupSchema() {
 				return " a.id AS id, a.order_id AS orderId,a.client_id AS clientId,i.provisioning_serialno as serialNum FROM b_association a, b_item_detail i  " +
 						" WHERE order_id = ? and a.hw_serial_no=i.serial_no AND a.id = (SELECT MAX(id) FROM b_association a WHERE  a.client_id =?  and a.is_deleted = 'Y')  limit 1";
-
-
+				}
+			
+			public String clientOwnHwDeAssociationLookupSchema() {
+				return " a.id AS id,a.order_id AS orderId,a.client_id AS clientId,a.hw_serial_no AS serialNum FROM b_association a  " +
+						" WHERE order_id =? AND a.id = (SELECT MAX(id) FROM b_association a  WHERE a.client_id =? AND a.is_deleted = 'Y') LIMIT 1";
 				}
 
 			@Override
@@ -163,12 +166,21 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 				}
 
 					@Override
-					public AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId) {
+					public AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId,String associationType) {
 
 						try {
 							
 							final ClientOrderMapper mapper = new ClientOrderMapper();
-							final String sql = "select " + mapper.clientDeAssociationLookupSchema();
+							String sql=null; 
+							if(associationType.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+							
+								 sql = "select " + mapper.clientDeAssociationLookupSchema();
+								 
+							}else if(associationType.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+								
+								 sql = "select " + mapper.clientOwnHwDeAssociationLookupSchema();
+							}
+							
 							return jdbcTemplate.queryForObject(sql, mapper, new Object[] {  orderId,clientId });
 							} catch (EmptyResultDataAccessException e) {
 							return null;

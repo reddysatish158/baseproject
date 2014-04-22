@@ -164,4 +164,11 @@ public class OwnedHardware extends AbstractAuditableCustom<AppUser, Long>{
 		}
 		
 	}
+
+	public void updateSerialNumbers(String provisionNum) {
+
+		this.serialNumber=provisionNum;
+		this.provisioningSerialNumber=provisionNum;
+		
+	}
 }
