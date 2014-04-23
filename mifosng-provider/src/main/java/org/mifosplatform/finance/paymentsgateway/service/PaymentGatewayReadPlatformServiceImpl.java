@@ -116,7 +116,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
         sqlBuilder.append(mapper.schema());
         sqlBuilder.append(" where p.id is not null  ");
         
-       if(source != null){
+       if(source != null && !source.equalsIgnoreCase("all")){
     	   
     	   sqlBuilder.append(" and  p.source like '%"+source+"%'  ");
        }
