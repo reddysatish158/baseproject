@@ -16,13 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.mifosplatform.billing.address.domain.Address;
-import org.mifosplatform.billing.address.domain.AddressRepository;
-import org.mifosplatform.billing.eventaction.data.ActionDetaislData;
-import org.mifosplatform.billing.eventaction.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.billing.eventaction.service.ActiondetailsWritePlatformService;
-import org.mifosplatform.billing.eventaction.service.EventActionConstants;
-import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -31,6 +24,8 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.documentmanagement.exception.DocumentManagementException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.address.domain.Address;
+import org.mifosplatform.organisation.address.domain.AddressRepository;
 import org.mifosplatform.organisation.office.domain.Office;
 import org.mifosplatform.organisation.office.domain.OfficeRepository;
 import org.mifosplatform.organisation.office.exception.OfficeNotFoundException;
@@ -45,6 +40,11 @@ import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.group.domain.Group;
 import org.mifosplatform.portfolio.group.domain.GroupRepository;
 import org.mifosplatform.portfolio.group.exception.GroupNotFoundException;
+import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
+import org.mifosplatform.workflow.eventaction.service.ActionDetailsReadPlatformService;
+import org.mifosplatform.workflow.eventaction.service.ActiondetailsWritePlatformService;
+import org.mifosplatform.workflow.eventaction.service.EventActionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,7 +176,9 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             }
             
             List<ActionDetaislData> actionDetailsDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CREATE_CLIENT);
+            if(!actionDetailsDatas.isEmpty()){
             this.actiondetailsWritePlatformService.AddNewActions(actionDetailsDatas,newClient.getId(),newClient.getId().toString());
+            }
             
             transactionHistoryWritePlatformService.saveTransactionHistory(newClient.getId(), "New Client", newClient.getActivationDate(),
             		"Name:"+newClient.getName(),"ImageKey:"+newClient.imageKey(),"AccountNumber:"+newClient.getAccountNo());

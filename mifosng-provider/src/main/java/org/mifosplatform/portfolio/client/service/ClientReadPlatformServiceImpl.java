@@ -303,6 +303,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
             builder.append(" a.zip as zipcode,b.balance_amount as balanceAmount,bc.currency as currency,");
+            
             if(configProp.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
             	
                 builder.append("IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id  AND ba.is_deleted = 'N'),'No Hardware') HW_Serial ");

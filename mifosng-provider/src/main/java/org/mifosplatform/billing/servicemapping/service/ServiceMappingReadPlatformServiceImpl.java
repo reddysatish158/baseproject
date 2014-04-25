@@ -65,7 +65,7 @@ public class ServiceMappingReadPlatformServiceImpl implements ServiceMappingRead
 
 	public List<ServiceCodeData> getServiceCode(){
 		String sql = "select bs.id as id,bs.service_code as serviceCode,bs.service_type as serviceType  from b_service bs " +
-				"where bs.status='ACTIVE'  order by bs.id";
+				"where bs.status='ACTIVE'  and bs.is_deleted ='N'  order by bs.id";
 		ServiceCodeDataMapper rowMapper = new ServiceCodeDataMapper();
 		return jdbcTemplate.query(sql, rowMapper);
 	}

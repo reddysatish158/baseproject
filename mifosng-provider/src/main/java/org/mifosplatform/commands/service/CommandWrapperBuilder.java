@@ -2073,6 +2073,17 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     return this;
 }
 
+
+
+public CommandWrapperBuilder addNewProvisioning(Long clientId) {
+	
+	this.actionName = "ADD";
+    this.entityName = "PROVISIONINGSYSTEM";
+    this.entityId=clientId;
+    this.href = "/provisionings/"+clientId;
+    return this;
+}
+
 public CommandWrapperBuilder createGroupsDetails() {
 	this.actionName = "CREATE";
 	this.entityName = "GROUPS";
@@ -2081,11 +2092,22 @@ public CommandWrapperBuilder createGroupsDetails() {
 	return this;
 }
 
+
 public CommandWrapperBuilder createIpPoolManagement() {
 	
 	this.actionName = "CREATE";
     this.entityName = "IPPOOLMANAGEMENT";
     this.href = "/ippool";
+	return this;
+
+}
+
+public CommandWrapperBuilder updateprovisiongServiceParams(Long id) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGSERVICEPARAMS";
+    this.entityId=id;
+    this.href = "/serviceparams/"+clientId;
 	return this;
 }
 

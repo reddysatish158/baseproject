@@ -3,8 +3,8 @@ package org.mifosplatform.billing.invoice.service;
 
 import java.util.List;
 
-import org.mifosplatform.billing.creditdistribution.data.CreditDistributionData;
 import org.mifosplatform.billing.invoice.data.InvoiceData;
+import org.mifosplatform.finance.creditdistribution.data.CreditDistributionData;
 
 
 public interface InvoiceReadPlatformService {

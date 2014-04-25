@@ -992,8 +992,18 @@ public class CommandWrapper {
 			
 		}
 
+		public boolean isCreateProvisioning() {
+			
+			return this.actionName.equalsIgnoreCase("ADD") && this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
+		}
+
 		public boolean isCreateIpPoolManagement() {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
+
+		}
+
+		public boolean isProvisioningParams() {
+			return  this.entityName.equalsIgnoreCase("PROVISIONINGSERVICEPARAMS");
 		}
 
 }

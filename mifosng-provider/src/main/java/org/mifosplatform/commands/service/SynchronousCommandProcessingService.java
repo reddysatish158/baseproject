@@ -895,6 +895,8 @@ public class SynchronousCommandProcessingService implements
 				    	 handler = applicationContext.getBean("updatingProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else if(wrapper.isDeleteProvisioning()) {
 				    	 handler = applicationContext.getBean("deleteProvisioningCommandHandler",NewCommandSourceHandler.class);
+				     }else if(wrapper.isCreateProvisioning()) {
+				    	 handler = applicationContext.getBean("createProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
@@ -922,6 +924,13 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isCreateIpPoolManagement()){
 				     if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createIpPoolManagementCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+				     
+			   }else if(wrapper.isProvisioningParams()){
+				     if(wrapper.isUpdateOperation()) {
+				         handler = applicationContext.getBean("updateProvisioningServiceParamsCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }

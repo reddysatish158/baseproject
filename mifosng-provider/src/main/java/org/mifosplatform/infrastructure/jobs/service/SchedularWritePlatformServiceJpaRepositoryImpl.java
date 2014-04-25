@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.billing.scheduledjobs.domain.ScheduleJobs;
-import org.mifosplatform.billing.scheduledjobs.domain.ScheduledJobRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -18,6 +16,8 @@ import org.mifosplatform.infrastructure.jobs.domain.SchedulerDetail;
 import org.mifosplatform.infrastructure.jobs.domain.SchedulerDetailRepository;
 import org.mifosplatform.infrastructure.jobs.exception.JobNotFoundException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.scheduledjobs.scheduledjobs.domain.ScheduleJobs;
+import org.mifosplatform.scheduledjobs.scheduledjobs.domain.ScheduledJobRepository;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

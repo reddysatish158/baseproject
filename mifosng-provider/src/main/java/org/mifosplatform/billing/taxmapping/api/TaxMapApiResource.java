@@ -18,8 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.chargecode.data.ChargeCodeData;
-import org.mifosplatform.billing.priceregion.data.PriceRegionData;
-import org.mifosplatform.billing.priceregion.service.RegionalPriceReadplatformService;
 import org.mifosplatform.billing.taxmapping.data.TaxMapData;
 import org.mifosplatform.billing.taxmapping.service.TaxMapReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -30,6 +28,8 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.priceregion.data.PriceRegionData;
+import org.mifosplatform.organisation.priceregion.service.RegionalPriceReadplatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
