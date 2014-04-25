@@ -40,15 +40,18 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	public Long retrieveClientIdForProvisioning(String serialNum) {
 		try{
 			this.context.authenticatedUser();
-			String serialNumber=null;
-			if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
+			//String serialNumber=null;
+			serialNum=serialNum.trim();
+			/*if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
 				serialNumber=serialNum;
 			}else{
 				
 				serialNumber="N"+serialNum;
-			}
-		String sql = "select client_id as clientId from b_item_detail where serial_no = '"+serialNumber+"' ";
-		return jdbcTemplate.queryForLong(sql);
+			}*/
+		String sql = " select client_id as clientId from b_item_detail  " +
+				" where serial_no = ? or provisioning_serialno = ? and client_id is not null  limit 1";
+		
+		return jdbcTemplate.queryForLong(sql, new Object[] {serialNum,serialNum});
 		} catch(EmptyResultDataAccessException e){
 			return null;
 		}

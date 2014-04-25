@@ -184,10 +184,11 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			  JsonElement element=null;
 			  Long resourceId = null;
 			  String OBSPAYMENTTYPE = null;
+			  element= fromApiJsonHelper.parse(command.json());
 			try {
 				   context.authenticatedUser();
 				   this.paymentGatewayCommandFromApiJsonDeserializer.validateForCreate(command.json());
-				   element= fromApiJsonHelper.parse(command.json());
+				  
 				   if(element!=null){  
 					   OBSPAYMENTTYPE  = fromApiJsonHelper.extractStringNamed("OBSPAYMENTTYPE", element);
 					   if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
@@ -221,19 +222,19 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 		    		   return null;
 		    	  }
 			   } catch (Exception dve) {
-				    handleCodeDataIntegrityIssues(element, dve);
+				    handleCodeDataIntegrityIssues(command, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
 	        }		
 			
 		}
 
-		private void handleCodeDataIntegrityIssues(JsonElement element,
+		private void handleCodeDataIntegrityIssues(JsonCommand command,
 				Exception dve) {
 			String realCause=dve.toString();
-			  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
+			  final String receiptNo=command.stringValueOfParameterNamed("receipt");//fromApiJsonHelper.extractStringNamed("receipt", command);
 		        if (realCause.contains("reference")) {
 		        	
-		            final String name = fromApiJsonHelper.extractStringNamed("reference", element);
+		            final String name =command.stringValueOfParameterNamed("reference");// fromApiJsonHelper.extractStringNamed("reference", command);
 		          
 		            throw new PlatformDataIntegrityException("error.msg.code.reference", "A reference with this value '" + name + "' does not exists");
 		        }else if(realCause.contains("receiptNo")){
