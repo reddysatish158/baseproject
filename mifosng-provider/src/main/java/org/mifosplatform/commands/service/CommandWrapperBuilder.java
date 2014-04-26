@@ -2074,6 +2074,15 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     return this;
 }
 
+public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGDETAILS";
+    this.entityId=processrequestId;
+    this.href = "/provisioning/updateprovisiondetails"+processrequestId;
+    return this;
+}
+
 
 
 }

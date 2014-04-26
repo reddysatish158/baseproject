@@ -184,6 +184,13 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 	            actualChanges.put(quality, newValue);
 	            this.quality = StringUtils.defaultIfEmpty(newValue, null);
 	        }
+	        
+	        final String provisionSerialNum = "provisioningSerialNumber";
+	        if (command.isChangeInStringParameterNamed(quality, this.provisioningSerialNumber)) {
+	            final String newValue = command.stringValueOfParameterNamed(provisionSerialNum);
+	            actualChanges.put(provisionSerialNum, newValue);
+	            this.provisioningSerialNumber = StringUtils.defaultIfEmpty(newValue, null);
+	        }
 	        			
 	        return actualChanges;
 

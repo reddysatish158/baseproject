@@ -5,14 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.mifosplatform.billing.association.data.HardwareAssociationData;
+import org.mifosplatform.billing.association.domain.HardwareAssociation;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
 import org.mifosplatform.billing.inventory.exception.ActivePlansFoundException;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsReadPlatformService;
+import org.mifosplatform.billing.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.billing.order.service.OrderReadPlatformService;
 import org.mifosplatform.billing.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.billing.ownedhardware.domain.OwnedHardwareJpaRepository;
 import org.mifosplatform.billing.ownedhardware.serialization.OwnedHardwareFromApiJsonDeserializer;
+import org.mifosplatform.billing.provisioning.service.ProvisioningWritePlatformService;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.codes.exception.DiscountNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
@@ -46,6 +49,8 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	private final HardwareAssociationReadplatformService associationReadplatformService;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	private final OrderReadPlatformService orderReadPlatformService; 
+	private final HardwareAssociationRepository associationRepository;
+	private final ProvisioningWritePlatformService provisioningWritePlatformService;
 	
 	
 	@Autowired
@@ -53,7 +58,8 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 			final OwnedHardwareFromApiJsonDeserializer apiJsonDeserializer,final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService,
 			final InventoryItemDetailsReadPlatformService inventoryItemDetailsReadPlatformService,final GlobalConfigurationRepository globalConfigurationRepository,
 			final HardwareAssociationWriteplatformService hardwareAssociationWriteplatformService,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderReadPlatformService orderReadPlatformService) {
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
+			final HardwareAssociationRepository associationRepository,final ProvisioningWritePlatformService provisioningWritePlatformService) {
 		this.ownedHardwareJpaRepository = ownedHardwareJpaRepository;
 		this.context = context;
 		this.apiJsonDeserializer = apiJsonDeserializer;
@@ -64,6 +70,8 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		this.associationReadplatformService=hardwareAssociationReadplatformService;
 		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
 		this.orderReadPlatformService=orderReadPlatformService;
+		this.associationRepository=associationRepository;
+		this.provisioningWritePlatformService=provisioningWritePlatformService;
 	}
 	
 	
@@ -132,6 +140,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
                 "Unknown data integrity issue with resource: " + realCause.getMessage());
     }
 
+	@Transactional
 	@Override
 	public CommandProcessingResult updateOwnedHardware(JsonCommand command,Long id)
 	{
@@ -141,10 +150,19 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
         	this.apiJsonDeserializer.validateForCreate(command.json());
         	
         	OwnedHardware ownedHardware=OwnedHardwareretrieveById(id);
-        	final Map<String, Object> changes = ownedHardware.update(command);  
+        	
+        	final String oldHardware=ownedHardware.getSerialNumber();
+        	final Map<String, Object> changes = ownedHardware.update(command); 
         	
         	if(!changes.isEmpty()){
         		this.ownedHardwareJpaRepository.save(ownedHardware);
+        	}
+        
+        	if(!oldHardware.equalsIgnoreCase(ownedHardware.getSerialNumber())){
+        	  
+        		this.provisioningWritePlatformService.updateHardwareDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber(),
+        				ownedHardware.getProvisioningSerialNumber(),oldHardware);
+        		
         	}
         	
         	return new CommandProcessingResult(id);

@@ -3,6 +3,7 @@ package org.mifosplatform.billing.provisioning.service;
 import java.util.List;
 
 import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.provisioning.data.ProcessRequestData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningData;
 
@@ -17,5 +18,10 @@ public interface ProvisioningReadPlatformService {
 	ProvisioningData retrieveIdData(Long id);
 
 	List<ProvisioningCommandParameterData> retrieveCommandParams(Long id);
+
+	Long getHardwareDetails(String oldHardWare, Long clientId, String name);
 	
+	List<ProcessRequestData> getProcessRequestData(Long clientId);
+
+	ProcessRequestData getProcessRequestIDData(Long id);
 }
