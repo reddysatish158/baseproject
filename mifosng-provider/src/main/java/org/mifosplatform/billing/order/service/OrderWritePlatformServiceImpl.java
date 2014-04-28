@@ -10,6 +10,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.billing.association.data.AssociationData;
+import org.mifosplatform.billing.association.domain.HardwareAssociation;
 import org.mifosplatform.billing.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.billing.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.billing.association.service.HardwareAssociationWriteplatformService;
@@ -33,6 +34,7 @@ import org.mifosplatform.billing.inventory.exception.ActivePlansFoundException;
 import org.mifosplatform.billing.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.billing.order.data.OrderStatusEnumaration;
 import org.mifosplatform.billing.order.data.UserActionStatusEnumaration;
+import org.mifosplatform.billing.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.billing.order.domain.Order;
 import org.mifosplatform.billing.order.domain.OrderDiscount;
 import org.mifosplatform.billing.order.domain.OrderDiscountRepository;
@@ -120,6 +122,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
     private final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices; 
     private final EventActionRepository eventActionRepository;
+    private final HardwareAssociationRepository associationRepository;
     public final static String CONFIG_PROPERTY="Implicit Association";
     public final static String CPE_TYPE="CPE_TYPE";
 
@@ -137,7 +140,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    final OrderDiscountRepository orderDiscountRepository,final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
 		    final ClientRepository clientRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
 		    final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices,
-		    final EventActionRepository eventActionRepository) {
+		    final EventActionRepository eventActionRepository,final HardwareAssociationRepository associationRepository) {
 		
 		this.context = context;
 		this.orderRepository = orderRepository;
@@ -168,6 +171,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		this.orderDetailsReadPlatformServices=orderDetailsReadPlatformServices;
 		this.eventActionRepository=eventActionRepository;
+		this.associationRepository=associationRepository;
 		
 
 	}
@@ -835,6 +839,16 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			newOrder.setuserAction(UserActionStatusTypeEnum.CHANGE_PLAN.toString());
 			this.orderRepository.save(newOrder);
 			Plan plan=this.planRepository.findOne(newOrder.getPlanId());
+			
+			Long id=hardwareAssociationReadplatformService.retrieveOrderAssociationDetails(order.getId(),order.getClientId());
+			
+			if(id != null  && id != new Long(0)){
+				HardwareAssociation association=this.associationRepository.findOne(id);
+				if(association != null){
+				association.delete();
+				this.associationRepository.save(association);
+				}
+			}
 			
 			//Prepare a Requset For Order
 		     CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(newOrder,plan,UserActionStatusTypeEnum.CHANGE_PLAN.toString());

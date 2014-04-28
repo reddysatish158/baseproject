@@ -175,10 +175,10 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 		 private static final class ProcessRequestMapper implements RowMapper<ProcessRequestData> {
 
 			    public String schema() {
-					return " p.id as id,p.client_id as clientId, p.order_id as orderId,p.request_type as requestType,p.is_processed as isProcessed," +
-							" pr.hardware_id as hardwareId, pr.receive_message as receiveMessage, pr.sent_message as sentMessage " +
-							" from b_process_request p inner join b_process_request_detail pr on pr.processrequest_id=p.id where" +
-							" p.client_id=? group by p.id ";
+					return "  p.id AS id,p.client_id AS clientId,p.order_id AS orderId,p.request_type AS requestType,p.is_processed AS isProcessed, " +
+							"pr.hardware_id AS hardwareId,pr.receive_message AS receiveMessage, pr.sent_message AS sentMessage  " +
+							" FROM b_process_request p INNER JOIN b_process_request_detail pr ON pr.processrequest_id = p.id WHERE p.client_id = ?" +
+							"  and pr.id=(select max(id) from b_process_request_detail prd2 where prd2.processrequest_id = pr.processrequest_id)";
 				}
 			    
 			    public String schemaForId() {

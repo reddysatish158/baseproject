@@ -186,7 +186,7 @@ public class InventoryItemDetails extends AbstractAuditableCustom<AppUser, Long>
 	        }
 	        
 	        final String provisionSerialNum = "provisioningSerialNumber";
-	        if (command.isChangeInStringParameterNamed(quality, this.provisioningSerialNumber)) {
+	        if (command.isChangeInStringParameterNamed(provisionSerialNum, this.provisioningSerialNumber)) {
 	            final String newValue = command.stringValueOfParameterNamed(provisionSerialNum);
 	            actualChanges.put(provisionSerialNum, newValue);
 	            this.provisioningSerialNumber = StringUtils.defaultIfEmpty(newValue, null);

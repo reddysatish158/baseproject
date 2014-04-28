@@ -1739,7 +1739,7 @@ public CommandWrapperBuilder createEpgXsls(Long i) {
 
 public CommandWrapperBuilder updateJobParametersDetail(Long jobId) {
 	     this.actionName = "UPDATE";
-	    this.entityName = "SCHEDULE";
+	    this.entityName = "SCHEDULERJOBPARAMETER";
 	    this.entityId = jobId;
 	    this.href = "/job/" + jobId + "/jobparameters";
 	    return this;

@@ -197,7 +197,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	        	this.inventoryItemCommandFromApiJsonDeserializer.validateForUpdate(command.json());
 	        	
 	        	InventoryItemDetails inventoryItemDetails=ItemretrieveById(id);
-	        	final String oldHardware =inventoryItemDetails.getSerialNumber();
+	        	final String oldHardware =inventoryItemDetails.getProvisioningSerialNumber();
 	        	final Map<String, Object> changes = inventoryItemDetails.update(command);  
 	        	
 	        	if(!changes.isEmpty()){
@@ -205,7 +205,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	        	}
 	        
 	        	
-	        	if(!oldHardware.equalsIgnoreCase(inventoryItemDetails.getSerialNumber())){
+	        	if(!oldHardware.equalsIgnoreCase(inventoryItemDetails.getProvisioningSerialNumber())){
 	          	  
 	        		this.provisioningWritePlatformService.updateHardwareDetails(inventoryItemDetails.getClientId(),inventoryItemDetails.getSerialNumber(),
 	        				inventoryItemDetails .getProvisioningSerialNumber(),oldHardware);

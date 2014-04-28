@@ -762,10 +762,53 @@ handleCodeDataIntegrityIssues(null, dve);
 									
 	                                if(error.equalsIgnoreCase("Login already in use")){
 	                                	
-	                                	String query2 = "status=" + new Long(1);
+	                                	
+	            						// Updating Plan	
+	            						
+	            						fw.append("PlanData is Updating For Current Mac Id: "+ entitlementsData.getHardwareId()+" \r\n");					
+	            						String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
+	            						fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
+	            						StringEntity se1 = new StringEntity(query1.trim());					
+	            						String url1=""+data.getUrl() + "accounts/" + clientId ;
+	            						HttpPut putrequest1 = new HttpPut(url1.trim());
+	            						putrequest1.setEntity(se1);
+	            						putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
+	            						HttpResponse response1 = httpClient.execute(putrequest1);
+	            						if (response1.getStatusLine().getStatusCode() == 404) {
+	            							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+	            							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
+	            							fw.flush();
+	            						    fw.close();
+	            						    continue;
+	            						}else if (response.getStatusLine().getStatusCode() == 401) {
+	            							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
+	            							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
+	            							fw.flush();
+	            						    fw.close();
+	            							return;
+	            						}else if (response1.getStatusLine().getStatusCode() != 200) {
+	            							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
+	            							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
+	            							continue;
+	            						}
+	            						BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
+	            						String output1="";
+	            						while ((output1 = br2.readLine()) != null) {							
+	            							final JsonElement ele1 = fromApiJsonHelper.parse(output1);
+	            							final String status1 = fromApiJsonHelper.extractStringNamed("status", ele1);
+	            							 fw.append("status of the output is : "+ status1+" \r\n");
+	            							if (status1.equalsIgnoreCase("ERROR")) {
+	            								final String error1 = fromApiJsonHelper.extractStringNamed("error", ele1);
+	            								fw.append("error of the output is : "+ error1+" \r\n");
+	            								fw.append("Plan Updation Failed \r\n");
+	            							}
+	            						}
+	            			
+	            						// status change 
+	            						String query2 = "status=" + new Long(1);
 	            						fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 	            						StringEntity se2 = new StringEntity(query2.trim());					
-	            						String url=""+data.getUrl() + "stb/" + macId ;
+	            						String url=""+data.getUrl() + "stb/" + clientId ;
 	            						fw.append("Url for RECONNECTION request:"+ url +"\r\n");
 	            						HttpPut putrequest = new HttpPut(url.trim());
 	            						putrequest.setEntity(se2);
@@ -801,47 +844,6 @@ handleCodeDataIntegrityIssues(null, dve);
 	            							}
 	            						}
 	            				 
-	            						// Updating Plan	
-	            						
-	            						fw.append("PlanData is Updating For Current Mac Id: "+ entitlementsData.getHardwareId()+" \r\n");					
-	            						String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
-	            						fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
-	            						StringEntity se1 = new StringEntity(query1.trim());					
-	            						String url1=""+data.getUrl() + "accounts/" + macId ;
-	            						HttpPut putrequest1 = new HttpPut(url1.trim());
-	            						putrequest1.setEntity(se1);
-	            						putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
-	            						HttpResponse response1 = httpClient.execute(putrequest1);
-	            						if (response1.getStatusLine().getStatusCode() == 404) {
-	            							System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
-	            							fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
-	            							fw.flush();
-	            						    fw.close();
-	            						    continue;
-	            						}else if (response.getStatusLine().getStatusCode() == 401) {
-	            							System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
-	            							fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
-	            							fw.flush();
-	            						    fw.close();
-	            							return;
-	            						}else if (response1.getStatusLine().getStatusCode() != 200) {
-	            							System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
-	            							fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
-	            							continue;
-	            						}
-	            						BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
-	            						String output1="";
-	            						while ((output1 = br2.readLine()) != null) {							
-	            							final JsonElement ele1 = fromApiJsonHelper.parse(output1);
-	            							final String status1 = fromApiJsonHelper.extractStringNamed("status", ele1);
-	            							 fw.append("status of the output is : "+ status1+" \r\n");
-	            							if (status1.equalsIgnoreCase("ERROR")) {
-	            								final String error1 = fromApiJsonHelper.extractStringNamed("error", ele1);
-	            								fw.append("error of the output is : "+ error1+" \r\n");
-	            								fw.append("Plan Updation Failed \r\n");
-	            							}
-	            						}
-	            			
 										
 									}else{
 										fw.append("error of the output is : "+ error+" \r\n");
@@ -856,7 +858,7 @@ handleCodeDataIntegrityIssues(null, dve);
 							
 		                    if(!(status.equalsIgnoreCase("ERROR") || status.equalsIgnoreCase(""))){
 		                    fw.append("Url for account_subscription request:"+data.getUrl() + "account_subscription/"+ macId +"\r\n");
-							String query1 = data.getUrl() + "account_subscription/"+ macId;
+							String query1 = data.getUrl() + "account_subscription/"+ clientId;
 							String queryData = "subscribed[]="+ entitlementsData.getProduct();
 							fw.append("data Sending to Stalker Server is: "+queryData+" \r\n");
 							StringEntity se1 = new StringEntity(queryData.trim());
@@ -903,7 +905,7 @@ handleCodeDataIntegrityIssues(null, dve);
 									    ReceiveMessage = "Success";
 									}else{
 										fw.append("Client account_subscription request Failed. \r\n");
-										ReceiveMessage = ReceiveMessage+", And account_subscription Failed the result= "+ results;
+										//ReceiveMessage = ReceiveMessage/*", And account_subscription Failed the result= "+ results;*/
 									}
 									
 								}
@@ -914,7 +916,7 @@ handleCodeDataIntegrityIssues(null, dve);
 							String query = "status=" + new Long(1);
 							fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 							StringEntity se = new StringEntity(query.trim());					
-							String url=""+data.getUrl() + "stb/" + macId ;
+							String url=""+data.getUrl() + "stb/" + clientId ;
 							fw.append("Url for RECONNECTION request:"+ url +"\r\n");
 							HttpPut putrequest = new HttpPut(url.trim());
 							putrequest.setEntity(se);
@@ -962,7 +964,7 @@ handleCodeDataIntegrityIssues(null, dve);
 							String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
 							fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
 							StringEntity se1 = new StringEntity(query1.trim());					
-							String url1=""+data.getUrl() + "accounts/" + macId ;
+							String url1=""+data.getUrl() + "accounts/" + clientId ;
 							HttpPut putrequest1 = new HttpPut(url1.trim());
 							putrequest1.setEntity(se1);
 							putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
@@ -1002,7 +1004,7 @@ handleCodeDataIntegrityIssues(null, dve);
 							String query = "status=" + new Long(0);
 							fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 							StringEntity se = new StringEntity(query.trim());					
-							String url=""+data.getUrl() + "stb/" + macId ;
+							String url=""+data.getUrl() + "stb/" + clientId ;
 							fw.append("Url for DISCONNECTION request:"+ url +"\r\n");
 							HttpPut putrequest = new HttpPut(url.trim());
 							putrequest.setEntity(se);
@@ -1043,46 +1045,7 @@ handleCodeDataIntegrityIssues(null, dve);
 								}
 							}
 							
-	                        // Updating Plan	
-							
-							fw.append("PlanData is Updating For Current Mac Id: "+ entitlementsData.getHardwareId()+" \r\n");					
-							String query1 = "stb_mac="+ entitlementsData.getHardwareId()+"&tariff_plan="+entitlementsData.getProduct();
-							fw.append("data Sending to Stalker Server is: "+query1+" \r\n");
-							StringEntity se1 = new StringEntity(query1.trim());					
-							String url1=""+data.getUrl() + "accounts/" + macId ;
-							HttpPut putrequest1 = new HttpPut(url1.trim());
-							putrequest1.setEntity(se1);
-							putrequest1.setHeader("Authorization", "Basic " + new String(encoded));
-							HttpResponse response1 = httpClient.execute(putrequest1);
-							if (response1.getStatusLine().getStatusCode() == 404) {
-								System.out.println("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode());
-								fw.append("ResourceNotFoundException : HTTP error code : "+ response1.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
-								fw.flush();
-							    fw.close();
-							    continue;
-							}else if (response.getStatusLine().getStatusCode() == 401) {
-								System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
-								fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
-								fw.flush();
-							    fw.close();
-								return;
-							}else if (response1.getStatusLine().getStatusCode() != 200) {
-								System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
-								fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
-								continue;
-							}
-							BufferedReader br1 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
-							String output1="";
-							while ((output1 = br1.readLine()) != null) {							
-								final JsonElement ele = fromApiJsonHelper.parse(output1);
-								final String status = fromApiJsonHelper.extractStringNamed("status", ele);
-								 fw.append("status of the output is : "+ status+" \r\n");
-								if (status.equalsIgnoreCase("ERROR")) {
-									final String error = fromApiJsonHelper.extractStringNamed("error", ele);
-									fw.append("error of the output is : "+ error+" \r\n");
-									fw.append("Plan Updation Failed \r\n");
-								}
-							}
+	                        
 							
 						}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Message)){
 							String query = "msg= "+URLEncoder.encode(entitlementsData.getProduct(), "UTF-8");
@@ -1178,7 +1141,7 @@ handleCodeDataIntegrityIssues(null, dve);
 
 							fw.append("data Sending to Stalker Server is: "+query+" \r\n");
 							StringEntity se = new StringEntity(query.trim());					
-							String url=""+data.getUrl() + "accounts/" + macId ;
+							String url=""+data.getUrl() + "accounts/" + clientId ;
 							fw.append("Url for Change plan request:"+ url +"\r\n");
 							HttpPut putrequest = new HttpPut(url.trim());
 							putrequest.setEntity(se);
@@ -1220,7 +1183,7 @@ handleCodeDataIntegrityIssues(null, dve);
 							}
 						}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate)){
 					
-							String url=""+data.getUrl() + "accounts/" + macId ;
+							String url=""+data.getUrl() + "accounts/" + clientId ;
 							fw.append("Url for Delete Client:"+ url +"\r\n");
 							HttpDelete deleterequest = new HttpDelete(url.trim());
 							deleterequest.setHeader("Authorization", "Basic " + new String(encoded));

@@ -151,14 +151,14 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
         	
         	OwnedHardware ownedHardware=OwnedHardwareretrieveById(id);
         	
-        	final String oldHardware=ownedHardware.getSerialNumber();
+        	final String oldHardware=ownedHardware.getProvisioningSerialNumber();
         	final Map<String, Object> changes = ownedHardware.update(command); 
         	
         	if(!changes.isEmpty()){
         		this.ownedHardwareJpaRepository.save(ownedHardware);
         	}
         
-        	if(!oldHardware.equalsIgnoreCase(ownedHardware.getSerialNumber())){
+        	if(!oldHardware.equalsIgnoreCase(ownedHardware.getProvisioningSerialNumber())){
         	  
         		this.provisioningWritePlatformService.updateHardwareDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber(),
         				ownedHardware.getProvisioningSerialNumber(),oldHardware);
@@ -201,7 +201,14 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
     	 
     	
     	 ownedHardware.delete();
+    	 
     	 this.ownedHardwareJpaRepository.save(ownedHardware);
+    	 HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(ownedHardware.getSerialNumber());
+    	 if(hardwareAssociation != null){
+    		 hardwareAssociation.delete();
+    		 this.associationRepository.save(hardwareAssociation);
+    	 }
+    	 
     	 return new CommandProcessingResult(id);
     	 
     	 
