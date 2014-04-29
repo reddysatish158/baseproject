@@ -62,13 +62,14 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
         sqlBuilder.append("select SQL_CALC_FOUND_ROWS ");
         sqlBuilder.append(jobHistoryMapper.schema());
         sqlBuilder.append(" where job.id=?");
-        if (searchParameters.isOrderByRequested()) {
-            sqlBuilder.append(" order by ").append(searchParameters.getOrderBy());
+        sqlBuilder.append(" order by runHistory.start_time desc");
+      /*  if (searchParameters.isOrderByRequested()) {
+           
 
             if (searchParameters.isSortOrderProvided()) {
                 sqlBuilder.append(' ').append(searchParameters.getSortOrder());
             }
-        }
+        }*/
 
         if (searchParameters.isLimited()) {
             sqlBuilder.append(" limit ").append(searchParameters.getLimit());

@@ -79,15 +79,26 @@ public class ProcessRequestReadplatformServiceImpl implements ProcessRequestRead
 			public List<ProcessingDetailsData> retrieveUnProcessingDetails() {
 
 				try {
-					
-					  
 			     
 			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
 					final ClientOrderMapper mapper = new ClientOrderMapper();
-
 					final String sql = "select " + mapper.processLookupSchema()+" where p.is_processed='N'";
-
 					return jdbcTemplate.query(sql, mapper, new Object[] { });
+					} catch (EmptyResultDataAccessException e) {
+					return null;
+					}
+			}
+			
+			@Override
+			public Long retrievelatestReqId(Long clientId, String oldHardware) {
+
+				try {
+					
+			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+					final String sql = "SELECT max(p.id) FROM b_process_request p, b_process_request_detail pr WHERE p.id = pr.processrequest_id AND " +
+							" pr.hardware_id = ?  and p.client_id=? AND p.is_processed ='F'";
+					
+					return jdbcTemplate.queryForLong(sql, new Object[] {oldHardware,clientId });
 					} catch (EmptyResultDataAccessException e) {
 					return null;
 					}
@@ -95,7 +106,8 @@ public class ProcessRequestReadplatformServiceImpl implements ProcessRequestRead
 					
 			}
 
-	
+
+		
 			
 
 }

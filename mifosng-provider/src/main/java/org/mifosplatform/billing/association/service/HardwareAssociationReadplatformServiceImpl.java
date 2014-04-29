@@ -330,7 +330,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			
 			public String ownDeviceSchema() {
 				return " o.id as id ,o.serial_number as serialNo,o.provisioning_serial_number as provSerialNum   FROM b_owned_hardware o" +
-						"  where o.client_id =? and o.is_deleted='N'";
+						" where o.client_id = ? and o.is_deleted='Y' and o.id=(select max(id) from b_owned_hardware a where a.client_id= o.client_id )";
 
 			}
 
@@ -345,5 +345,23 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 					return  new HardwareAssociationData(id, serialNo,provSerialNum);
 
 				}
+			}
+		@Override
+		public Long retrieveOrderAssociationDetails(Long orderid, Long clientId) {
+			  try
+	            {
+	          	  String sql=null;
+	          	 // GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+	          //	ClientHarderwareMapper mapper = new ClientHarderwareMapper();
+	          	  
+	          	 
+				       sql = "select id as id from b_association where order_id=? and client_id=? limit 1";
+				      
+	          	
+				      return this.jdbcTemplate.queryForLong(sql, new Object[] {orderid,clientId});
+
+			}catch(EmptyResultDataAccessException accessException){
+				return null;
+			}
 			}
 }

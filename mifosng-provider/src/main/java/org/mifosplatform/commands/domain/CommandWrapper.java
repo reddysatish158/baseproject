@@ -714,7 +714,7 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("BATCH");
 		}
 		public boolean isSchedulling(){
-			return this.entityName.equalsIgnoreCase("SCHEDULE");
+			return this.entityName.equalsIgnoreCase("SCHEDULERJOBPARAMETER");
 		}
 
 		public boolean isDeleteBillingMessage() {
@@ -991,6 +991,10 @@ public class CommandWrapper {
 		public boolean isCreateProvisioning() {
 			
 			return this.actionName.equalsIgnoreCase("ADD") && this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
+		}
+
+		public boolean isProvisioningDetails() {
+			return  this.entityName.equalsIgnoreCase("PROVISIONINGDETAILS");
 		}
 
 }

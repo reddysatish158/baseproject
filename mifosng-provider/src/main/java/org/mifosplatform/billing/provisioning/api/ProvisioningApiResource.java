@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.provisioning.data.ProcessRequestData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.billing.provisioning.data.ProvisioningData;
 import org.mifosplatform.billing.provisioning.service.ProvisioningReadPlatformService;
@@ -35,7 +36,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 
-@Path("/provisionings")
+@Path("/provisioning")
 @Component
 @Scope("singleton")
 public class ProvisioningApiResource {
@@ -51,19 +52,22 @@ public class ProvisioningApiResource {
 	  private final ApiRequestParameterHelper apiRequestParameterHelper;
 	  private final ProvisioningReadPlatformService provisioningReadPlatformService;
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	  final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest;
 	  
 	 
 	  
 	  @Autowired
 	    public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	    final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
-	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService) {
+	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService,
+	   final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest) {
 		  
 		        this.context = context;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.toApiJsonSerializer=toApiJsonSerializer;
 		        this.provisioningReadPlatformService=provisioningReadPlatformService;
+		        this.toApiJsonSerializerProcessRequest=toApiJsonSerializerProcessRequest;
 		       
 		    }
 	
@@ -139,6 +143,41 @@ public class ProvisioningApiResource {
 			   return this.toApiJsonSerializer.serialize(result);
 		}
 	 
+	 @PUT
+	 @Path("updateprovisiondetails/{processrequestId}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+		public String updateProvisiongDetails(@PathParam("processrequestId") final Long processrequestId) {
+		 
+		 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateprovisiongDetails(processrequestId).build();
+	     final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	     return this.toApiJsonSerializer.serialize(result);
+	} 
 	
+	 @GET
+	 @Path("template/{clientId}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+		public String retrieveProcessRequest(@Context final UriInfo uriInfo,@PathParam("clientId") final Long clientId) {
+		 
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<ProcessRequestData> provisioning=this.provisioningReadPlatformService.getProcessRequestData(clientId);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	    return this.toApiJsonSerializerProcessRequest.serialize(settings, provisioning, RESPONSE_DATA_PARAMETERS);
+		}
+	 
+	 @GET
+	 @Path("processRequest/{id}")
+	 @Consumes({MediaType.APPLICATION_JSON})
+	 @Produces({MediaType.APPLICATION_JSON})
+		public String retrieveProcessRequestId(@Context final UriInfo uriInfo,@PathParam("id") final Long id) {
+		 
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		ProcessRequestData provisioning=this.provisioningReadPlatformService.getProcessRequestIDData(id);
+		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	    return this.toApiJsonSerializerProcessRequest.serialize(settings, provisioning, RESPONSE_DATA_PARAMETERS);
+	    
+		}
+	 
 }
 

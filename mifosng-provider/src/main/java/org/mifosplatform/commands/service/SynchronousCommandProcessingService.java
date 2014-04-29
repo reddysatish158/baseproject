@@ -904,18 +904,25 @@ public class SynchronousCommandProcessingService implements
 				     } 
 				   else if(wrapper.isUpdate()) {
 				         handler = applicationContext.getBean("updateUserChatMessageCommandHandler",NewCommandSourceHandler.class);
-				   
 				   }else if(wrapper.isDelete()) {
 				         handler = applicationContext.getBean("deleteUserChatMessageCommandHandler",NewCommandSourceHandler.class);
 				   }   
-		
 			   }else if(wrapper.isCreditDistributionResource()){
 				     if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createCreditDistributionCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
-			   }else {
+			   }else if(wrapper.isProvisioningDetails()){
+				   
+				   if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateProvisioningDetailsCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+				   
+			   }
+			   else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       

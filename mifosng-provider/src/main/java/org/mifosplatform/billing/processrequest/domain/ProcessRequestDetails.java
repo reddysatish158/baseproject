@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.useradministration.domain.AppUser;
@@ -150,6 +151,29 @@ public class ProcessRequestDetails extends
 
 	public Date getEndDate() {
 		return endDate;
+	}
+
+	public void updateDetails(JsonCommand command) {
+
+		
+		  final String firstnameParamName = "hardwareId";
+	        if (command.isChangeInStringParameterNamed(firstnameParamName, this.hardwareId)) {
+	            final String newValue = command.stringValueOfParameterNamed(firstnameParamName);
+	            this.hardwareId= StringUtils.defaultIfEmpty(newValue, null);
+	        }
+
+	        final String sentMessageParamName="sentMessage";
+	        if(command.isChangeInStringParameterNamed(sentMessageParamName,this.sentMessage)){
+	        	final String newValue = command.stringValueOfParameterNamed(sentMessageParamName);
+	        	this.sentMessage=newValue;
+	        }
+		
+	}
+
+	public void update(String provSerilaNum) {
+		
+		this.hardwareId=provSerilaNum;
+		
 	}
 	
 	

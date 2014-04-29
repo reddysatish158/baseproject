@@ -1739,7 +1739,7 @@ public CommandWrapperBuilder createEpgXsls(Long i) {
 
 public CommandWrapperBuilder updateJobParametersDetail(Long jobId) {
 	     this.actionName = "UPDATE";
-	    this.entityName = "SCHEDULE";
+	    this.entityName = "SCHEDULERJOBPARAMETER";
 	    this.entityId = jobId;
 	    this.href = "/job/" + jobId + "/jobparameters";
 	    return this;
@@ -2071,6 +2071,15 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     this.entityName = "ORDER";
     this.entityId=orderId;
     this.href = "/orders/extenstion"+clientId;
+    return this;
+}
+
+public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGDETAILS";
+    this.entityId=processrequestId;
+    this.href = "/provisioning/updateprovisiondetails"+processrequestId;
     return this;
 }
 
