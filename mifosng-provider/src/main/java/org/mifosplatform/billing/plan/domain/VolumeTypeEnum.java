@@ -3,7 +3,7 @@ package org.mifosplatform.billing.plan.domain;
 
 public enum VolumeTypeEnum {
 
-	IPTV(1, "CategoryType.iptv"), //
+	LD(1, "CategoryType.ld"), //
 	VOD(2, "CategoryType.vod"),
 	INVALID(3, "CategoryType.invalid");
 
@@ -29,7 +29,7 @@ public enum VolumeTypeEnum {
 		VolumeTypeEnum volumeTypeEnum = VolumeTypeEnum.INVALID;
 		switch (frequency) {
 		case 1:
-			volumeTypeEnum = VolumeTypeEnum.IPTV;
+			volumeTypeEnum = VolumeTypeEnum.LD;
 			break;
 		case 2:
 			volumeTypeEnum = VolumeTypeEnum.VOD;

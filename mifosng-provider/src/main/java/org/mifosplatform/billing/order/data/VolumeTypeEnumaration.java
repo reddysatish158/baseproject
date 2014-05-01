@@ -16,8 +16,8 @@ public class VolumeTypeEnumaration {
 		final String codePrefix = "volume.type.";
 		EnumOptionData optionData = null;
 		switch (type) {
-		case IPTV:
-			optionData = new EnumOptionData(VolumeTypeEnum.IPTV.getValue().longValue(), codePrefix + VolumeTypeEnum.IPTV.getCode(), "IPTV");
+		case LD:
+			optionData = new EnumOptionData(VolumeTypeEnum.LD.getValue().longValue(), codePrefix + VolumeTypeEnum.LD.getCode(), "Legal Document");
 			break;
 		case VOD:
 			optionData = new EnumOptionData(VolumeTypeEnum.VOD.getValue().longValue(), codePrefix + VolumeTypeEnum.VOD.getCode(), "VOD");
