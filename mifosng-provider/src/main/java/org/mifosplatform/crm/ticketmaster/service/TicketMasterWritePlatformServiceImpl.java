@@ -7,9 +7,9 @@ import java.text.ParseException;
 
 import org.mifosplatform.crm.ticketmaster.command.TicketMasterCommand;
 import org.mifosplatform.crm.ticketmaster.domain.TicketDetail;
+import org.mifosplatform.crm.ticketmaster.domain.TicketDetailsRepository;
 import org.mifosplatform.crm.ticketmaster.domain.TicketMaster;
-import org.mifosplatform.crm.ticketmaster.repository.TicketDetailsRepository;
-import org.mifosplatform.crm.ticketmaster.repository.TicketMasterRepository;
+import org.mifosplatform.crm.ticketmaster.domain.TicketMasterRepository;
 import org.mifosplatform.crm.ticketmaster.serialization.TicketMasterCloseFromApiJsonDeserializer;
 import org.mifosplatform.crm.ticketmaster.serialization.TicketMasterFromApiJsonDeserializer;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;

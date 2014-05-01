@@ -1006,4 +1006,8 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("PROVISIONINGSERVICEPARAMS");
 		}
 
+		public boolean isItemSale() {
+			return  this.entityName.equalsIgnoreCase("ITEMSALE");
+		}
+
 }

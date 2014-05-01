@@ -29,7 +29,7 @@ import org.mifosplatform.crm.ticketmaster.data.ProblemsData;
 import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
 import org.mifosplatform.crm.ticketmaster.data.UsersData;
 import org.mifosplatform.crm.ticketmaster.domain.TicketDetail;
-import org.mifosplatform.crm.ticketmaster.repository.TicketDetailsRepository;
+import org.mifosplatform.crm.ticketmaster.domain.TicketDetailsRepository;
 import org.mifosplatform.crm.ticketmaster.service.TicketMasterReadPlatformService;
 import org.mifosplatform.crm.ticketmaster.service.TicketMasterWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiParameterHelper;
