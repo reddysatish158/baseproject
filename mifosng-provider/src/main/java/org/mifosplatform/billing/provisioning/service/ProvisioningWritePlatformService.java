@@ -13,7 +13,7 @@ public interface ProvisioningWritePlatformService {
 
 	CommandProcessingResult updateProvisioningDetails(Long entityId);
 
-	void updateHardwareDetails(Long clientId, String serialNumber,String provSerailNum,String oldHardware);
+	void updateHardwareDetails(Long clientId, String serialNumber,String oldSerialnumber, String provSerilaNum, String oldHardware);
 
 
 }

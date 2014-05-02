@@ -228,15 +228,15 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 
     @Transactional
 	@Override
-	public void updateHardwareDetails(Long clientId, String serialNumber,String provSerilaNum,String oldHardware) {
+	public void updateHardwareDetails(Long clientId, String serialNumber,String oldSerialnumber,String provSerilaNum,String oldHardware) {
 		
-		Long activeorders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId,oldHardware);
+		Long activeorders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(clientId,oldSerialnumber);
 	    if(activeorders!= 0){
 		   throw new ActivePlansFoundException(serialNumber);
 	   }
 	   
 	  //Update in Association table if Exist
-	   HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(oldHardware);
+	   HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(oldSerialnumber);
 	   if(hardwareAssociation != null){
 	   hardwareAssociation.updateserailNum(serialNumber);
 	   this.associationRepository.saveAndFlush(hardwareAssociation);

@@ -96,7 +96,7 @@ public class ProcessRequestReadplatformServiceImpl implements ProcessRequestRead
 					
 			        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
 					final String sql = "SELECT max(p.id) FROM b_process_request p, b_process_request_detail pr WHERE p.id = pr.processrequest_id AND " +
-							" pr.hardware_id = ?  and p.client_id=? AND p.is_processed ='F'";
+							" pr.hardware_id = ?  and p.client_id=? AND p.is_processed ='F' limit 1";
 					
 					return jdbcTemplate.queryForLong(sql, new Object[] {oldHardware,clientId });
 					} catch (EmptyResultDataAccessException e) {

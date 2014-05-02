@@ -152,6 +152,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
         	OwnedHardware ownedHardware=OwnedHardwareretrieveById(id);
         	
         	final String oldHardware=ownedHardware.getProvisioningSerialNumber();
+        	final String oldSerialnumber=ownedHardware.getSerialNumber();
         	final Map<String, Object> changes = ownedHardware.update(command); 
         	
         	if(!changes.isEmpty()){
@@ -160,7 +161,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
         
         	if(!oldHardware.equalsIgnoreCase(ownedHardware.getProvisioningSerialNumber())){
         	  
-        		this.provisioningWritePlatformService.updateHardwareDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber(),
+        		this.provisioningWritePlatformService.updateHardwareDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber(),oldSerialnumber,
         				ownedHardware.getProvisioningSerialNumber(),oldHardware);
         		
         	}
