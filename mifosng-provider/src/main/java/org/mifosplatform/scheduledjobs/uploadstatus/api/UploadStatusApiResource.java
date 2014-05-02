@@ -68,33 +68,22 @@ public class UploadStatusApiResource {
 	private UploadStatusWritePlatformService uploadStatusWritePlatformService;
 	@Autowired
 	private UploadStatusRepository uploadStatusRepository;
-	
-	
-	//@Autowired
-	//private PortfolioApiJsonBillingSerializerService apiJsonSerializerService;
-	
-	//private final DefaultToApiJsonSerializer<UploadStatusData> toApiJsonSerializerForItem;
-	
-	 private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
-	private final ToApiJsonSerializer<UploadStatus> toApiJsonSerializer;
 	private final PlatformSecurityContext context;
 	@Autowired
     private final UploadStatusReadPlatformService readPlatformService;
     private final DefaultToApiJsonSerializer< UploadStatusData> defaulttoApiJsonSerializerforUploadStatus;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
 	
-    //ApiRequestJsonSerializationSettings settings
 	 @Autowired
 	    public UploadStatusApiResource(PlatformSecurityContext context, final UploadStatusReadPlatformService readPlatformService,
-	            final DefaultToApiJsonSerializer<UploadStatusData> defaulttoApiJsonSerializerforUploadStatus, final ApiRequestParameterHelper apiRequestParameterHelper,final ToApiJsonSerializer<UploadStatus> toApiJsonSerializer
-	            ,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
+	            final DefaultToApiJsonSerializer<UploadStatusData> defaulttoApiJsonSerializerforUploadStatus, 
+	            final ApiRequestParameterHelper apiRequestParameterHelper) {
 	        this.context = context;
 	        this.readPlatformService = readPlatformService;
 	        this.defaulttoApiJsonSerializerforUploadStatus = defaulttoApiJsonSerializerforUploadStatus;
 	        this.apiRequestParameterHelper = apiRequestParameterHelper;
-	        this.toApiJsonSerializer=toApiJsonSerializer;
-	        this.commandsSourceWritePlatformService=commandsSourceWritePlatformService;
+	      
 
 	    }
 	
