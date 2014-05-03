@@ -1697,7 +1697,7 @@ public CommandWrapperBuilder createRandomGenerator()
 
 public CommandWrapperBuilder updateJobDetail(final Long jobId) {
     this.actionName = "UPDATE";
-    this.entityName = "SCHEDULERJOB";
+    this.entityName = "SCHEDULER";
     this.entityId = jobId;
     this.href = "/updateJobDetail/" + jobId + "/updateJobDetail";
     return this;
@@ -1705,14 +1705,14 @@ public CommandWrapperBuilder updateJobDetail(final Long jobId) {
 
 public CommandWrapperBuilder addNewJob() {
 	this.actionName = "CREATE";
-    this.entityName = "SCHEDULERJOB";
+    this.entityName = "SCHEDULER";
     this.href = "/job";
     return this;
 }
 
 public CommandWrapperBuilder deleteJob(Long jobId) {
 	this.actionName = "DELETE";
-    this.entityName = "SCHEDULERJOB";
+    this.entityName = "SCHEDULER";
     this.entityId=jobId;
     this.href = "/job/"+jobId;
     return this;
