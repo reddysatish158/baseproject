@@ -128,7 +128,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             boolean currentlyRunning = rs.getBoolean("currentlyRunning");
             Long historyId=rs.getLong("historyId");  
             Long version = rs.getLong("version");
-            LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"lastRunStartTime");
+            Date jobRunStartTime = rs.getTimestamp("lastRunStartTime");
             Date jobRunEndTime = rs.getTimestamp("lastRunEndTime");
             String status = rs.getString("status");
             String jobRunErrorMessage = rs.getString("jobRunErrorMessage");
@@ -160,7 +160,8 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
         @Override
         public JobDetailHistoryData mapRow(ResultSet rs, @SuppressWarnings("unused") int rowNum) throws SQLException {
             Long version = rs.getLong("version");
-            LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"runStartTime");
+           // LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"runStartTime");
+            Date jobRunStartTime = rs.getTimestamp("runStartTime");
             Date jobRunEndTime = rs.getTimestamp("runEndTime");
             String status = rs.getString("status");
             String jobRunErrorMessage = rs.getString("jobRunErrorMessage");

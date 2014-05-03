@@ -198,6 +198,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	        	
 	        	InventoryItemDetails inventoryItemDetails=ItemretrieveById(id);
 	        	final String oldHardware =inventoryItemDetails.getProvisioningSerialNumber();
+	        	final String oldSerilaNumber =inventoryItemDetails.getSerialNumber();
 	        	final Map<String, Object> changes = inventoryItemDetails.update(command);  
 	        	
 	        	if(!changes.isEmpty()){
@@ -207,7 +208,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	        	
 	        	if(!oldHardware.equalsIgnoreCase(inventoryItemDetails.getProvisioningSerialNumber())){
 	          	  
-	        		this.provisioningWritePlatformService.updateHardwareDetails(inventoryItemDetails.getClientId(),inventoryItemDetails.getSerialNumber(),
+	        		this.provisioningWritePlatformService.updateHardwareDetails(inventoryItemDetails.getClientId(),inventoryItemDetails.getSerialNumber(),oldSerilaNumber,
 	        				inventoryItemDetails .getProvisioningSerialNumber(),oldHardware);
 	        		
 	        	}

@@ -138,7 +138,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				try{
 				
 		List<HardwareAssociationData> associationDatas= this.hardwareAssociationReadplatformService.retrieveClientAllocatedHardwareDetails(eventActionData.getClientId());
-					
+					if(!associationDatas.isEmpty()){
 		   Long none=new Long(0);
 					ProcessRequest processRequest=new ProcessRequest(eventActionData.getClientId(), none,ProvisioningApiConstants.PROV_STALKER,'N', null,
 							ProvisioningApiConstants.REQUEST_TERMINATE,none);
@@ -146,6 +146,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 							new Date(), null, new Date(),null,'N', ProvisioningApiConstants.REQUEST_TERMINATE);
 					processRequest.add(processRequestDetails);
 					this.processRequestRepository.save(processRequest);
+					}
 					
 				}catch(Exception exception){
 					
