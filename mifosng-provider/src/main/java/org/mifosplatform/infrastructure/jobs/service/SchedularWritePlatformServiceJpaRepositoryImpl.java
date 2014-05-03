@@ -131,6 +131,7 @@ public class SchedularWritePlatformServiceJpaRepositoryImpl implements Schedular
     @Override
     public boolean processJobDetailForExecution(String jobKey, String triggerType) {
         boolean isStopExecution = false;
+        
         final ScheduledJobDetail scheduledJobDetail = scheduledJobDetailsRepository.findByJobKeyWithLock(jobKey);
         if(scheduledJobDetail!=null){
         if (scheduledJobDetail.isCurrentlyRunning()
