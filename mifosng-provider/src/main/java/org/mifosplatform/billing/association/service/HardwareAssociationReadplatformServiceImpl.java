@@ -324,7 +324,9 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 		private static final class ClientHarderwareMapper implements RowMapper<HardwareAssociationData> {
 
 			public String schema() {
-				return "  a.id AS id, a.serial_no AS serialNo,a.provisioning_serialno as provSerialNum FROM  b_item_detail a where a.client_id=?";
+				return " max(a.id) AS id,a.serial_no AS serialNo,a.provisioning_serialno AS provSerialNum  " +
+					   " FROM b_item_detail a, b_allocation l where a.serial_no = l.serial_no and l.client_id = ? " +
+					   " and l.is_deleted = 'Y' and a.client_id is null";
 
 			}
 			
