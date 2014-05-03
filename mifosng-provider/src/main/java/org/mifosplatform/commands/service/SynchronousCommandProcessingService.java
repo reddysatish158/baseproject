@@ -934,6 +934,12 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+			   }else if(wrapper.isItemSale()){
+				     if(wrapper.isCreate()) {
+				         handler = applicationContext.getBean("createItemSaleCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
 			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }

@@ -41,10 +41,9 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
 	private final PlanReadPlatformService planReadPlatformService;
 	private final VolumeDetailsRepository volumeDetailsRepository;
 	private final EventActionReadPlatformService eventActionReadPlatformService;
-	private final PlanHardWareDetailsRepository planHardWareDetailsRepository;
 	
 	@Autowired
-	public PlanWritePlatformServiceImpl(final PlatformSecurityContext context,PlanHardWareDetailsRepository planHardWareDetailsRepository,
+	public PlanWritePlatformServiceImpl(final PlatformSecurityContext context,
 			final PlanRepository planRepository,final PlanReadPlatformService planReadPlatformService,
 			final ServiceMasterRepository serviceMasterRepository,final VolumeDetailsRepository volumeDetailsRepository,
 			final PlanCommandFromApiJsonDeserializer fromApiJsonDeserializer,final EventActionReadPlatformService eventActionReadPlatformService) {
@@ -55,7 +54,6 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
 		this.planReadPlatformService=planReadPlatformService;
 		this.volumeDetailsRepository=volumeDetailsRepository;
 		this.eventActionReadPlatformService=eventActionReadPlatformService;
-		this.planHardWareDetailsRepository=planHardWareDetailsRepository;
 
 	}
      @Transactional

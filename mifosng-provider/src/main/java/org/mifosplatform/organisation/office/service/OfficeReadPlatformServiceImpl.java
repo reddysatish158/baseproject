@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
@@ -225,4 +226,20 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
 
         return OfficeTransactionData.template(new LocalDate(), parentLookups, currencyOptions);
     }
+
+	@Override
+	public List<OfficeData> retrieveAgentTypeData() {
+
+        final AppUser currentUser = context.authenticatedUser();
+
+        final String hierarchy = currentUser.getOffice().getHierarchy();
+        final String hierarchySearchString = hierarchy + "%";
+
+        final OfficeDropdownMapper rm = new OfficeDropdownMapper();
+        final String sql = "select " + rm.schema() + ", m_code_value c  WHERE o.office_type = c.id AND c.code_value = 'agent' AND o.hierarchy LIKE ? " +
+        		" ORDER BY o.name";
+
+        return this.jdbcTemplate.query(sql, rm, new Object[] { hierarchySearchString });
+    
+	}
 }

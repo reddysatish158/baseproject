@@ -2111,4 +2111,11 @@ public CommandWrapperBuilder updateprovisiongServiceParams(Long id) {
 	return this;
 }
 
+public CommandWrapperBuilder createItemSale() {
+	this.actionName = "CREATE";
+    this.entityName = "ITEMSALE";
+    this.href = "/agents/";
+	return this;
+}
+
 }

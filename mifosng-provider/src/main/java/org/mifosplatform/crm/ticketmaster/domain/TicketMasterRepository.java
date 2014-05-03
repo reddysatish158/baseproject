@@ -1,4 +1,4 @@
-package org.mifosplatform.crm.ticketmaster.repository;
+package org.mifosplatform.crm.ticketmaster.domain;
 
 import org.mifosplatform.crm.ticketmaster.domain.TicketMaster;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -44,11 +44,9 @@ public class UploadStatusReadPlatformServiceImpl implements UploadStatusReadPlat
          final Long id = rs.getLong("Id");
         final String uploadProcess=rs.getString("uploadProcess");
        	 final String uploadFilePath=rs.getString("uploadFilePath");
-       	 System.out.println(uploadFilePath );
        	 File  uploadFile=new File(uploadFilePath);
        	 String fileName=uploadFile.getName();
        	 String filePath=uploadFilePath.substring(0,11).concat("......").concat(File.separator+fileName);
-       	 System.out.println(filePath);
       
          final LocalDate processDate= JdbcSupport.getLocalDate(rs,"processDate");
        	 final String processStatus=rs.getString("processStatus");
