@@ -61,7 +61,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
         StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select SQL_CALC_FOUND_ROWS ");
         sqlBuilder.append(jobHistoryMapper.schema());
-        sqlBuilder.append(" where job.id=?");
+        sqlBuilder.append(" where job.id=? and runHistory.file_path is not null");
         sqlBuilder.append(" order by runHistory.start_time desc");
       /*  if (searchParameters.isOrderByRequested()) {
            
