@@ -98,8 +98,11 @@ private AgentItemSaleData handleAgenttemplateData(AgentItemSaleData  itemSaleDat
 	
 	List<OfficeData> officeDatas=this.officeReadPlatformService.retrieveAgentTypeData();
 	List<ItemData> itemDatas=this.itemReadPlatformService.retrieveAllItems();
-	
-	return AgentItemSaleData.templateData(itemSaleData,officeDatas,itemDatas);
+	if(itemSaleData == null){
+	return  AgentItemSaleData.withTemplateData(officeDatas,itemDatas);
+	}else{
+		return AgentItemSaleData.instance(itemSaleData, officeDatas, itemDatas);
+	}
 }
 
 @GET
@@ -119,12 +122,13 @@ public String retrieveAllSaleData(@Context final UriInfo uriInfo){
 public String retrieveSingleItemSaleData(@PathParam("id") final Long id,@Context final UriInfo uriInfo){
 	
 	this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	AgentItemSaleData agentDatas=this.agentReadPlatformService.retrieveSingleItemSaleData(id);
+	AgentItemSaleData itemSaleData=this.agentReadPlatformService.retrieveSingleItemSaleData(id);
 	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	if(settings.isTemplate()){
+		itemSaleData=handleAgenttemplateData(itemSaleData);	
 		
 	}
-	return this.toApiJsonSerializer.serialize(settings, agentDatas, RESPONSE_AGENT_DATA_PARAMETERS);
+	return this.toApiJsonSerializer.serialize(settings, itemSaleData, RESPONSE_AGENT_DATA_PARAMETERS);
 	
 }
 

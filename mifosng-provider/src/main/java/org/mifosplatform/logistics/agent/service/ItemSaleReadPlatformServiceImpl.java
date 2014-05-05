@@ -54,7 +54,7 @@ private static final class ItemSaleMapper implements RowMapper<AgentItemSaleData
 
 	public String schema() {
 		return "  it.id as id,it.item_id as itemId,it.agent_id as agentId,im.item_description AS itemName,o.name AS agentName," +
-				" it.purchase_date AS purchaseDate,it.order_quantity AS orderQunatity,i.charge_amount AS , " +
+				" it.purchase_date AS purchaseDate,it.order_quantity AS orderQunatity,i.charge_amount AS chargeAmount, " +
 				" i.tax_percantage AS tax,i.invoice_amount AS invoiceAmount FROM b_itemsale it, m_invoice i,b_item_master im," +
 				" m_office o WHERE it.item_id = im.id AND it.agent_id = o.id AND it.id = i.sale_id";
 
@@ -74,7 +74,7 @@ private static final class ItemSaleMapper implements RowMapper<AgentItemSaleData
 		BigDecimal chargeAmount=rs.getBigDecimal("chargeAmount");
 	    BigDecimal tax=rs.getBigDecimal("tax");
 	    BigDecimal invoiceAmount=rs.getBigDecimal("invoiceAmount");
-		return new AgentItemSaleData(id,itemId,agentId,itemName,agentName,orderQunatity,chargeAmount,tax,invoiceAmount);
+		return new AgentItemSaleData(id,itemId,agentId,itemName,agentName,orderQunatity,chargeAmount,tax,invoiceAmount,null,null);
 
 	}
 }
