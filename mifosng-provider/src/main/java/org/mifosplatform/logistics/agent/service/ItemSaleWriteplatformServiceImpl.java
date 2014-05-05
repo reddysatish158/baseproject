@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-public class AgentWriteplatformServiceImpl implements AgentWriteplatformService{
+public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformService{
 
 	private final PlatformSecurityContext context;
 	private final ItemSaleRepository itemSaleRepository;
@@ -26,7 +26,7 @@ public class AgentWriteplatformServiceImpl implements AgentWriteplatformService{
 	private final AgentItemSaleCommandFromApiJsonDeserializer apiJsonDeserializer;
 	
 	@Autowired
-	public AgentWriteplatformServiceImpl(final PlatformSecurityContext context,final ItemSaleRepository itemSaleRepository,
+	public ItemSaleWriteplatformServiceImpl(final PlatformSecurityContext context,final ItemSaleRepository itemSaleRepository,
 			final ItemSaleInvoiceRepository itemSaleInvoiceRepository,final AgentItemSaleCommandFromApiJsonDeserializer apiJsonDeserializer){
 		
 		   this.context=context;

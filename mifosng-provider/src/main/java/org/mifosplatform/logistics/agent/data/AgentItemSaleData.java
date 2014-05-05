@@ -20,8 +20,26 @@ public class AgentItemSaleData {
 	private BigDecimal invoiceAmount;
 	private BigDecimal tax;
 	
+	
+	public static AgentItemSaleData templateData(AgentItemSaleData itemSaleData, List<OfficeData> officeDatas,List<ItemData> itemDatas) {
 
-	public AgentItemSaleData(List<OfficeData> officeDatas, List<ItemData> itemDatas) {
+		return null;
+	}
+
+	public AgentItemSaleData(AgentItemSaleData itemSaleData, List<OfficeData> officeDatas, List<ItemData> itemDatas) {
+		
+		if(itemSaleData !=null){
+			this.id=itemSaleData.id;
+			this.itemId=itemSaleData.itemId;
+			this.agentId=itemSaleData.agentId;
+			this.agentName=itemSaleData.agentName;
+			this.itemName=itemSaleData.itemName;
+			this.orderQunatity=itemSaleData.orderQunatity;
+			this.chargeAmount=itemSaleData.chargeAmount;
+			this.invoiceAmount=itemSaleData.invoiceAmount;
+			this.tax=itemSaleData.tax;
+			
+		}
 
 		this.officeDatas=officeDatas;
 		this.itemDatas=itemDatas;
@@ -88,6 +106,8 @@ public class AgentItemSaleData {
 	public BigDecimal getTax() {
 		return tax;
 	}
+
+	
 
 	
 	

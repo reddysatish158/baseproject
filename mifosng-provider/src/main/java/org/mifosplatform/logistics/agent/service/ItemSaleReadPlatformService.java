@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
 
-public interface AgentReadPlatformService {
+public interface ItemSaleReadPlatformService {
 
 	List<AgentItemSaleData> retrieveAllData();
+
+	AgentItemSaleData retrieveSingleItemSaleData(Long id);
 
 }

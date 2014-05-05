@@ -9,6 +9,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -23,7 +24,7 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
-import org.mifosplatform.logistics.agent.service.AgentReadPlatformService;
+import org.mifosplatform.logistics.agent.service.ItemSaleReadPlatformService;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.item.service.ItemReadPlatformService;
 import org.mifosplatform.organisation.office.data.OfficeData;
@@ -34,10 +35,10 @@ import org.springframework.stereotype.Component;
 
 
 
-@Path("agents")
+@Path("itemsales")
 @Component
 @Scope("singleton")
-public class AgentAPiResource {
+public class ItemSaleAPiResource {
 	
 	private static final Set<String> RESPONSE_AGENT_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("agentId",
 			"agentName","purchaseDate","orderQuantity","itemCode","itemId","invoiceAmount","taxAmount","chargeAmount","itemPrice"));
@@ -49,14 +50,14 @@ public class AgentAPiResource {
 	private final DefaultToApiJsonSerializer<AgentItemSaleData> toApiJsonSerializer;
 	private final OfficeReadPlatformService officeReadPlatformService;
 	private final ItemReadPlatformService itemReadPlatformService;
-	private final AgentReadPlatformService  agentReadPlatformService;
+	private final ItemSaleReadPlatformService  agentReadPlatformService;
 	private final PlatformSecurityContext context;
 	
 	@Autowired
-	public AgentAPiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,
+	public ItemSaleAPiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,
 			final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<AgentItemSaleData> apiJsonSerializer,
 			final PlatformSecurityContext context,final OfficeReadPlatformService officeReadPlatformService,
-			final ItemReadPlatformService itemReadPlatformService,final AgentReadPlatformService  agentReadPlatformService)
+			final ItemReadPlatformService itemReadPlatformService,final ItemSaleReadPlatformService  agentReadPlatformService)
 	{
 		
 		this.context=context;
@@ -76,9 +77,10 @@ public class AgentAPiResource {
 public String retrieveTemplateData(@Context final UriInfo uriInfo){
 	
 	this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	AgentItemSaleData  agentData=handleAgenttemplateData();
+	AgentItemSaleData  itemSaleData=null;
+	itemSaleData=handleAgenttemplateData(itemSaleData);
 	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-	return this.toApiJsonSerializer.serialize(settings, agentData, RESPONSE_AGENT_DATA_PARAMETERS);
+	return this.toApiJsonSerializer.serialize(settings, itemSaleData, RESPONSE_AGENT_DATA_PARAMETERS);
 	
 }
 
@@ -92,12 +94,12 @@ public String createOffice(final String apiRequestBodyAsJson) {
     return this.toApiJsonSerializer.serialize(result);
 }
 
-private AgentItemSaleData handleAgenttemplateData() {
+private AgentItemSaleData handleAgenttemplateData(AgentItemSaleData  itemSaleData) {
 	
 	List<OfficeData> officeDatas=this.officeReadPlatformService.retrieveAgentTypeData();
 	List<ItemData> itemDatas=this.itemReadPlatformService.retrieveAllItems();
 	
-	return new AgentItemSaleData(officeDatas,itemDatas);
+	return AgentItemSaleData.templateData(itemSaleData,officeDatas,itemDatas);
 }
 
 @GET
@@ -108,6 +110,20 @@ public String retrieveAllSaleData(@Context final UriInfo uriInfo){
 	this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	List<AgentItemSaleData> agentDatas=this.agentReadPlatformService.retrieveAllData();
 	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	return this.toApiJsonSerializer.serialize(settings, agentDatas, RESPONSE_AGENT_DATA_PARAMETERS);
+}
+@GET
+@Path("{id}")
+@Consumes({ MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_JSON })
+public String retrieveSingleItemSaleData(@PathParam("id") final Long id,@Context final UriInfo uriInfo){
+	
+	this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	AgentItemSaleData agentDatas=this.agentReadPlatformService.retrieveSingleItemSaleData(id);
+	final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	if(settings.isTemplate()){
+		
+	}
 	return this.toApiJsonSerializer.serialize(settings, agentDatas, RESPONSE_AGENT_DATA_PARAMETERS);
 	
 }

@@ -5,11 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
-import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-public class AgentReadPlatformServiceImpl implements AgentReadPlatformService{
+public class ItemSaleReadPlatformServiceImpl implements ItemSaleReadPlatformService{
 	
 private final JdbcTemplate jdbcTemplate;
 private final PlatformSecurityContext context;
 	
 @Autowired	
-public AgentReadPlatformServiceImpl(final PlatformSecurityContext context,final TenantAwareRoutingDataSource dataSource){
+public ItemSaleReadPlatformServiceImpl(final PlatformSecurityContext context,final TenantAwareRoutingDataSource dataSource){
 	
 	this.jdbcTemplate=new JdbcTemplate(dataSource);
 	this.context=context;
@@ -79,6 +77,21 @@ private static final class ItemSaleMapper implements RowMapper<AgentItemSaleData
 		return new AgentItemSaleData(id,itemId,agentId,itemName,agentName,orderQunatity,chargeAmount,tax,invoiceAmount);
 
 	}
+}
+
+@Override
+public AgentItemSaleData retrieveSingleItemSaleData(Long id) {
+ try{
+		 
+		 this.context.authenticatedUser();
+		 ItemSaleMapper mapper=new ItemSaleMapper();
+		 final String sql="select "+mapper.schema()+" AND it.id=? ";
+		 return this.jdbcTemplate.queryForObject(sql,mapper,new Object[]{id});
+		 
+	 }catch(EmptyResultDataAccessException exception){
+		 return null;
+	 }
+
 }
 
 
