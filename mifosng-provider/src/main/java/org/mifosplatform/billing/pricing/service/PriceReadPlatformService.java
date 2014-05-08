@@ -4,10 +4,9 @@ import java.util.List;
 
 import org.mifosplatform.billing.charge.data.ChargesData;
 import org.mifosplatform.billing.contract.data.SubscriptionData;
-import org.mifosplatform.billing.plan.data.PlanData;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.pricing.data.PricingData;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
 public interface PriceReadPlatformService {

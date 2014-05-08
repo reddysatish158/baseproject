@@ -17,10 +17,10 @@ import org.mifosplatform.billing.billingorder.service.BillingOrderWritePlatformS
 import org.mifosplatform.billing.billingorder.service.GenerateBill;
 import org.mifosplatform.billing.billingorder.service.GenerateBillingOrderService;
 import org.mifosplatform.billing.clientbalance.data.ClientBalanceData;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
 import org.mifosplatform.billing.onetimesale.data.OneTimeSaleData;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

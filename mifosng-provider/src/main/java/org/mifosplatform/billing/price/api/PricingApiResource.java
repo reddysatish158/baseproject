@@ -19,12 +19,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.priceregion.data.PriceRegionData;
 import org.mifosplatform.billing.priceregion.service.RegionalPriceReadplatformService;
 import org.mifosplatform.billing.pricing.data.PricingData;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;

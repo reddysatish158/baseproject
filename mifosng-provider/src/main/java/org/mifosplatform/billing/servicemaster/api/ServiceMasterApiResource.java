@@ -19,8 +19,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
-import org.mifosplatform.billing.service.ServiceMasterReadPlatformService;
 import org.mifosplatform.billing.servicemaster.data.ServiceMasterOptionsData;
+import org.mifosplatform.billing.servicemaster.service.ServiceMasterReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;

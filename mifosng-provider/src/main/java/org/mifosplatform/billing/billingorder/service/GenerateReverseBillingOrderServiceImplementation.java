@@ -12,9 +12,9 @@ import org.mifosplatform.billing.billingorder.domain.BillingOrder;
 import org.mifosplatform.billing.billingorder.domain.Invoice;
 import org.mifosplatform.billing.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.billing.billingorder.domain.InvoiceTax;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

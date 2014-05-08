@@ -3,9 +3,9 @@ package org.mifosplatform.billing.pricing.data;
 import java.util.List;
 
 import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.priceregion.data.PriceRegionData;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
 

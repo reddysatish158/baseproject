@@ -9,9 +9,9 @@ import org.mifosplatform.billing.billingorder.service.BillingOrderReadPlatformSe
 import org.mifosplatform.billing.billingorder.service.GenerateBill;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalance;
 import org.mifosplatform.billing.clientbalance.domain.ClientBalanceRepository;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.order.data.OrderData;
 import org.mifosplatform.billing.order.domain.OrderPrice;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

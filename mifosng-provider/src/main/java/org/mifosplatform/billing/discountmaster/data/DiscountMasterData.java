@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.service;
+package org.mifosplatform.billing.discountmaster.data;
 
 import java.math.BigDecimal;
 import java.util.Collection;

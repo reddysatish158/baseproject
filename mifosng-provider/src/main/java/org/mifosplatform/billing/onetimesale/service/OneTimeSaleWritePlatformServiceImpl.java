@@ -3,6 +3,7 @@ package org.mifosplatform.billing.onetimesale.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.inventory.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.billing.item.data.ItemData;
 import org.mifosplatform.billing.item.domain.ItemMaster;
@@ -13,7 +14,6 @@ import org.mifosplatform.billing.onetimesale.domain.OneTimeSale;
 import org.mifosplatform.billing.onetimesale.domain.OneTimeSaleRepository;
 import org.mifosplatform.billing.onetimesale.serialization.OneTimesaleCommandFromApiJsonDeserializer;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.billing.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.api.JsonQuery;

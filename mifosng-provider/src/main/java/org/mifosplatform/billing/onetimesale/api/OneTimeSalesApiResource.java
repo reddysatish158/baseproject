@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.eventorder.data.EventOrderData;
 import org.mifosplatform.billing.eventorder.service.EventOrderReadplatformServie;
 import org.mifosplatform.billing.item.data.ItemData;
@@ -26,7 +27,6 @@ import org.mifosplatform.billing.onetimesale.data.OneTimeSaleData;
 import org.mifosplatform.billing.onetimesale.service.OneTimeSaleReadPlatformService;
 import org.mifosplatform.billing.onetimesale.service.OneTimeSaleWritePlatformService;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;

@@ -20,13 +20,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.billing.contract.data.PeriodData;
 import org.mifosplatform.billing.contract.service.ContractPeriodReadPlatformService;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.eventactionmapping.service.EventActionMappingReadPlatformService;
 import org.mifosplatform.billing.mcodevalues.data.MCodeData;
 import org.mifosplatform.billing.mcodevalues.service.MCodeReadPlatformService;
 import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.billing.promotioncodes.data.PromotionCodeData;
 import org.mifosplatform.billing.promotioncodes.service.PromotionCodeReadPlatformService;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;

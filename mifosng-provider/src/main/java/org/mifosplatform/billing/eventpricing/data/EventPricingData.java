@@ -6,9 +6,9 @@ package org.mifosplatform.billing.eventpricing.data;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.eventpricing.domain.EventPricing;
 import org.mifosplatform.billing.mediadetails.data.MediaAssetLocationDetails;
-import org.mifosplatform.billing.service.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
 /**

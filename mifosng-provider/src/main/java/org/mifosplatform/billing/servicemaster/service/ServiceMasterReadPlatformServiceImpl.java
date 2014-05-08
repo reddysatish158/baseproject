@@ -5,9 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.mifosplatform.billing.service.ServiceMasterReadPlatformService;
-import org.mifosplatform.billing.servicemaster.data.ServiceMasterOptionsData;
 import org.mifosplatform.billing.servicemaster.data.ServiceMasterData;
+import org.mifosplatform.billing.servicemaster.data.ServiceMasterOptionsData;
 import org.mifosplatform.billing.servicemaster.data.ServiceStatusEnumaration;
 import org.mifosplatform.billing.servicemaster.data.ServiceTypeEnum;
 import org.mifosplatform.billing.servicemaster.data.ServiceUnitTypeEnum;
