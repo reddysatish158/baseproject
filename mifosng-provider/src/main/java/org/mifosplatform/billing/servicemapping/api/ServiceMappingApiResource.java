@@ -50,19 +50,20 @@ public class ServiceMappingApiResource {
 	private PlatformSecurityContext context;
 	private ServiceMappingReadPlatformService serviceMappingReadPlatformService;
 	private final PlanReadPlatformService planReadPlatformService;
-	private final ReadReportingService readReportingService;
 	
 	@Autowired
-	public ServiceMappingApiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,final DefaultToApiJsonSerializer<ServiceMappingData> toApiJsonSerializer,
-							     final ApiRequestParameterHelper apiRequestParameterHelper,final PlatformSecurityContext context,final ReadReportingService readReportingService,
-							     final ServiceMappingReadPlatformService serviceMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
-		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
-		this.toApiJsonSerializer = toApiJsonSerializer;
-		this.apiRequestParameterHelper = apiRequestParameterHelper;
+	public ServiceMappingApiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,
+			final DefaultToApiJsonSerializer<ServiceMappingData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
+			final PlatformSecurityContext context,final ServiceMappingReadPlatformService serviceMappingReadPlatformService,
+			final PlanReadPlatformService planReadPlatformService) {
+		
 		this.context = context;
-		this.serviceMappingReadPlatformService = serviceMappingReadPlatformService;
+		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.planReadPlatformService=planReadPlatformService;
-		this.readReportingService=readReportingService;
+		this.apiRequestParameterHelper = apiRequestParameterHelper;
+		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
+		this.serviceMappingReadPlatformService = serviceMappingReadPlatformService;
+		
 	}
 
 	
@@ -84,11 +85,9 @@ public class ServiceMappingApiResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	public String getTemplateRelatedData(@Context final UriInfo uriInfo){
 
-		//context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);		
 		
 		List<ServiceCodeData> serviceCodeData = this.serviceMappingReadPlatformService.getServiceCode();
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
-		 //Collection<ReportParameterData> serviceParameters=this.readReportingService.getAllowedServiceParameters(); 
 		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status,null);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, serviceMappingData, RESPONSE_PARAMETERS); 
