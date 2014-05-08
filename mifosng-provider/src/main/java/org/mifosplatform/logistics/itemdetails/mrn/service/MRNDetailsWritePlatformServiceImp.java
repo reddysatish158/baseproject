@@ -79,9 +79,10 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 		InventoryTransactionHistory transactionHistory = null;
 		try {
 			MRNMoveDetailsData mrnMoveDetailsData = MRNMoveDetailsData.fromJson(command);
-			final Long mrnId = command.longValueOfParameterNamed("mrnId");
-			MRNDetails mrnDetails = mrnDetailsJpaRepository.findOne(mrnId);
-			List<Long> itemMasterId = mrnDetailsReadPlatformService.retriveItemMasterId(mrnId);
+			final Long mrnId =mrnMoveDetailsData.getMrnId();// command.longValueOfParameterNamed("mrnId");
+			MRNDetails mrnDetails = mrnDetailsJpaRepository.findOne(mrnMoveDetailsData.getMrnId());
+			//List<Long> itemMasterId = mrnDetailsReadPlatformService.retriveItemMasterId(mrnId);
+			
 			
 			final List<String> serialNumber = mrnDetailsReadPlatformService.retriveSerialNumbers(mrnDetails.getFromOffice(),mrnId);
 			
@@ -89,8 +90,8 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation", "invalid.serialnumber.allocation", "serialNumber","");
 			}
 			
-			List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0));
-			InventoryItemDetails details = inventoryItemDetailsRepository.findOne(itemDetailsId.get(0));
+			//List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(mrnMoveDetailsData.getSerialNumber(),mrnDetails.getItemMasterId());
+			InventoryItemDetails details = inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(mrnMoveDetailsData.getSerialNumber());
 			
 			
 			
@@ -105,7 +106,8 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 				throw new PlatformDataIntegrityException("received.quantity.is.full", "received.quantity.is.full", "received.quantity.is.full");
 			}
 			
-			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), mrnMoveDetailsData.getMrnId(),"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getFromOffice(), mrnDetails.getToOffice());
+			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), mrnMoveDetailsData.getMrnId(),"MRN",
+					mrnMoveDetailsData.getSerialNumber(), mrnDetails.getItemMasterId(),mrnDetails.getFromOffice(), mrnDetails.getToOffice());
 			//InventoryTransactionHistory transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(),mrnMoveDetailsData.getMrnId(),"MRN",mrnMoveDetailsData.getSerialNumber(),mrnDetails.getFromOffice(),mrnDetails.getToOffice(),itemMasterId.get(0));
 			
 			details.setOfficeId(mrnDetails.getToOffice());

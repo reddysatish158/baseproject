@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
 import org.mifosplatform.cms.eventorder.data.EventOrderData;
 import org.mifosplatform.cms.eventorder.service.EventOrderReadplatformServie;

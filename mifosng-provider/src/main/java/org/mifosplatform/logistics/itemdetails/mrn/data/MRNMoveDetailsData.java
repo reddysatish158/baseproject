@@ -1,8 +1,6 @@
 package org.mifosplatform.logistics.itemdetails.mrn.data;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;

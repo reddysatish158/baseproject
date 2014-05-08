@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.charge.data;
+package org.mifosplatform.billing.chargecode.data;
 
 public class ChargesData {
 

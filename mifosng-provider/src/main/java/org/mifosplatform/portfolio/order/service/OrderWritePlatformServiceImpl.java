@@ -38,8 +38,10 @@ import org.mifosplatform.portfolio.client.domain.AccountNumberGeneratorFactory;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.client.domain.ClientStatus;
+import org.mifosplatform.portfolio.contract.data.SubscriptionData;
 import org.mifosplatform.portfolio.contract.domain.Contract;
 import org.mifosplatform.portfolio.contract.domain.SubscriptionRepository;
+import org.mifosplatform.portfolio.contract.service.ContractPeriodReadPlatformService;
 import org.mifosplatform.portfolio.order.data.CustomValidationData;
 import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
 import org.mifosplatform.portfolio.order.data.UserActionStatusEnumaration;
@@ -121,6 +123,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
     private final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices; 
     private final EventActionRepository eventActionRepository;
+    private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
     public final static String CONFIG_PROPERTY="Implicit Association";
     public final static String CPE_TYPE="CPE_TYPE";
 
@@ -138,37 +141,38 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    final OrderDiscountRepository orderDiscountRepository,final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
 		    final ClientRepository clientRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
 		    final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices,
-		    final EventActionRepository eventActionRepository) {
+		    final EventActionRepository eventActionRepository,final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
 		
 		this.context = context;
-		this.orderRepository = orderRepository;
-		this.OrderPriceRepository = OrderPriceRepository;
+		this.reverseInvoice=reverseInvoice;
 		this.planRepository = planRepository;
-		this.prepareRequestWriteplatformService=prepareRequestWriteplatformService;
+		this.orderRepository = orderRepository;
+		this.clientRepository=clientRepository;
+		this.promotionRepository=promotionRepository;
+		this.paymentsApiResource=paymentsApiResource;
+		this.OrderPriceRepository = OrderPriceRepository;
+		this.eventActionRepository=eventActionRepository;
+		this.orderHistoryRepository=orderHistoryRepository;
 		this.subscriptionRepository = subscriptionRepository;
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
-		this.discountMasterRepository=discountMasterRepository;
-		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
-		this.orderHistoryRepository=orderHistoryRepository;
-		this.reverseInvoice=reverseInvoice;
 		this.configurationRepository=configurationRepository;
+		this.orderDiscountRepository=orderDiscountRepository;
+		this.discountMasterRepository=discountMasterRepository;
+		this.processRequestRepository=processRequestRepository;
+		this.prepareRequsetRepository=prepareRequsetRepository;
+		this.orderReadPlatformService = orderReadPlatformService;
 		this.allocationReadPlatformService=allocationReadPlatformService;
 		this.associationWriteplatformService=associationWriteplatformService;
-		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
-		this.processRequestRepository=processRequestRepository;
-		this.orderReadPlatformService = orderReadPlatformService;
-		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
-		this.paymentsApiResource=paymentsApiResource;
-		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
-		this.prepareRequsetRepository=prepareRequsetRepository;
-		this.promotionRepository=promotionRepository;
-		this.orderDiscountRepository=orderDiscountRepository;
-		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
-		this.clientRepository=clientRepository;
 		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
-		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		this.orderDetailsReadPlatformServices=orderDetailsReadPlatformServices;
-		this.eventActionRepository=eventActionRepository;
+		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
+		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
+		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
+		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
+		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
+		this.prepareRequestWriteplatformService=prepareRequestWriteplatformService;
+		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
+		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 		
 
 	}
@@ -638,8 +642,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		  }
 		  
 		  final LocalDate startDate=new LocalDate();
-		  Long contractId=order.getContarctPeriod();
-		  Contract contractPeriod=this.subscriptionRepository.findOne(contractId);
+		  List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
+		  Contract contractPeriod=this.subscriptionRepository.findOne(subscriptionDatas.get(0).getId());
 		  LocalDate EndDate=calculateEndDate(startDate,contractPeriod.getSubscriptionType(),contractPeriod.getUnits());
 		   order.setStartDate(startDate);
 		   order.setEndDate(EndDate);

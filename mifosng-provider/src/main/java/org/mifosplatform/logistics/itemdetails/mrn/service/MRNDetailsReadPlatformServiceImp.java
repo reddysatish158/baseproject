@@ -223,7 +223,9 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	
 	@Override
 	public List<String> retriveSerialNumbers(Long fromOffice, Long mrnId) {
-		final String sql = "select idt.serial_no as serialNumber from b_mrn ots left join b_item_detail idt on idt.item_master_id = ots.item_master_id where ots.id = ? and idt.client_id is null and idt.office_id=?";//"select serial_no as serialNumber from b_item_detail where item_master_id=? and client_id is null";
+		
+		final String sql = "select idt.serial_no as serialNumber from b_mrn ots left join b_item_detail idt on " +
+				" idt.item_master_id = ots.item_master_id where ots.id = ? and idt.client_id is null and idt.office_id=?";//"select serial_no as serialNumber from b_item_detail where item_master_id=? and client_id is null";
 		final MRNDetailsSerialMapper rowMapper = new MRNDetailsSerialMapper();
 		return jdbcTemplate.query(sql,rowMapper,new Object[]{mrnId,fromOffice});
 	}

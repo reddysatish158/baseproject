@@ -13,7 +13,6 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.useradministration.domain.AppUser;
-import org.springframework.data.jpa.domain.AbstractAuditable;
 
 @Entity
 @Table(name="b_mrn")
@@ -100,6 +99,10 @@ public class MRNDetails extends AbstractAuditableCustom<AppUser, Long>{
 		this.status = status;
 	} 
 	
+	public Long getItemMasterId() {
+		return itemMasterId;
+	}
+
 	public static MRNDetails formJson(JsonCommand command) throws ParseException{
 //		final Date requestedDate  = command.DateValueOfParameterNamed("requestedDate");
 		final Long fromOffice = command.longValueOfParameterNamed("fromOffice");

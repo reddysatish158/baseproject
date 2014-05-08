@@ -1,9 +1,9 @@
-package org.mifosplatform.billing.charge.data;
+package org.mifosplatform.billing.chargecode.data;
 
-public class ChargeCodeData {
+public class ChargeCodeTemplateData {
 private Long id;
 private String chargeCode;
-public ChargeCodeData(Long id,String chargeCode)
+public ChargeCodeTemplateData(Long id,String chargeCode)
 {
 	this.id=id;
 	this.chargeCode=chargeCode;
