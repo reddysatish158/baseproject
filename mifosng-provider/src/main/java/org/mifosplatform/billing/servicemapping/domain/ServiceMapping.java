@@ -27,6 +27,12 @@ public class ServiceMapping extends AbstractPersistable<Long>{
 	
 	@Column(name = "image", nullable = false, length = 100)
 	private String image;
+	
+	@Column(name = "category")
+	private String category;
+	
+	@Column(name = "subCategory")
+	private String subCategory;
 
 	@Column(name = "is_deleted")
 	private String isDeleted="n";
@@ -39,11 +45,13 @@ public ServiceMapping()
 
 
 public ServiceMapping(Long serviceId, String serviceUrl, String status,
-		String image) {
+		String image,String category,String subCategory) {
 	this.serviceId=serviceId;
 	this.serviceIdentification=serviceUrl;
 	this.status=status;
 	this.image=image;
+	this.category=category;
+	this.subCategory=subCategory;
 }
 
 
@@ -52,10 +60,12 @@ public static ServiceMapping fromJson(JsonCommand command){
 	final String serviceIdentification = command.stringValueOfParameterNamed("serviceIdentification");
 	final String status = command.stringValueOfParameterNamed("status");
 	final String image = command.stringValueOfParameterNamed("image");
+	final String category=command.stringValueOfParameterNamed("category");
+	final String subcategory=command.stringValueOfParameterNamed("subCategory");
 
 	
 	
-	return new ServiceMapping(serviceId,serviceIdentification,status,image);
+	return new ServiceMapping(serviceId,serviceIdentification,status,image,category,subcategory);
 }
 
 
@@ -116,7 +126,21 @@ public Map<String, Object> update(JsonCommand command) {
            actualChanges.put(imageParamName, newValue);
            this.image = StringUtils.defaultIfEmpty(newValue, null);
        }
-					
+			
+       final String categoryParamName = "category";
+       if (command.isChangeInStringParameterNamed(categoryParamName, this.category)) {
+           final String newValue = command.stringValueOfParameterNamed(categoryParamName);
+           actualChanges.put(categoryParamName, newValue);
+           this.category = StringUtils.defaultIfEmpty(newValue, null);
+       }
+       
+       final String subCategoryParamName = "subCategory";
+       if (command.isChangeInStringParameterNamed(subCategoryParamName, this.subCategory)) {
+           final String newValue = command.stringValueOfParameterNamed(subCategoryParamName);
+           actualChanges.put(subCategoryParamName, newValue);
+           this.subCategory = StringUtils.defaultIfEmpty(newValue, null);
+       }
+       
        return actualChanges;
 
 

@@ -98,7 +98,7 @@ public class EventOrderApiResource {
 			
 			final List<EventOrderDeviceData> devices = eventOrderReadplatformServie.getDevices(clientId);
 			//final List<EventMasterData> events = eventOrderReadplatformServie.getEvents();
-			final List<EventMasterData> events = this.eventMasterReadPlatformService.retrieveEventMasterData();
+			final List<EventMasterData> events = this.eventMasterReadPlatformService.retrieveEventMasterDataForEventOrders();
 			final List<EnumOptionData> optType = this.eventMasterReadPlatformService.retrieveOptTypeData();
 			final Collection<MCodeData> codes = this.codeReadPlatformService.getCodeValue("MediaFormat");
 			final List<ClientTypeData> clientType = this.eventPricingReadService.clientType();
