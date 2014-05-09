@@ -714,7 +714,7 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("BATCH");
 		}
 		public boolean isSchedulling(){
-			return this.entityName.equalsIgnoreCase("SCHEDULE");
+			return this.entityName.equalsIgnoreCase("SCHEDULERJOBPARAMETER");
 		}
 
 		public boolean isDeleteBillingMessage() {
