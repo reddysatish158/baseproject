@@ -141,10 +141,10 @@ public class MessageGmailBackedPlatformEmailService implements
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 		
 		Email email = new SimpleEmail();
-		String authuserName = "info@hugotechnologies.com";
+		String authuserName ="billing@clear-tv.com";// "info@hugotechnologies.com";
 
-		String authuser = "kiran@hugotechnologies.com";
-		String authpwd = "kirankiran";
+		String authuser ="billing@clear-tv.com";// "kiran@hugotechnologies.com";
+		String authpwd = "BrownTablet123";
 
 		// Very Important, Don't use email.setAuthentication()
 		email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
@@ -161,10 +161,10 @@ public class MessageGmailBackedPlatformEmailService implements
 			email.setSubject(subjectBuilder.toString());
 
 			String sendToEmail = emailDetail.getMessageTo();
-			StringBuilder messageBuilder = new StringBuilder()
-					.append(emailDetail.getHeader()).append(".")
-					.append(emailDetail.getBody()).append(",")
-					.append(emailDetail.getFooter());
+			 StringBuilder messageBuilder = new StringBuilder()
+		     .append(emailDetail.getHeader()+'\n')   
+		     .append(emailDetail.getBody()+'\n')
+		     .append(emailDetail.getFooter());
 			email.addTo(sendToEmail, emailDetail.getMessageFrom());
 			// email.setHtmlMsg("<html>"+messageBuilder.toString()+"</html>");
 			email.setMsg(messageBuilder.toString());
@@ -246,8 +246,8 @@ public class MessageGmailBackedPlatformEmailService implements
 		 Date date=new Date();
 		 String dateTime=date.getHours()+""+date.getMinutes();
 	     String fileLocation="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
-		final String username = "kiran@hugotechnologies.com";
-		final String password = "kirankiran";
+		final String username = "billing@clear-tv.com";//"kiran@hugotechnologies.com";
+		final String password = "BrownTablet123";//"kirankiran";
 
 		    Properties props = new Properties();
 

@@ -61,14 +61,15 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
         StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select SQL_CALC_FOUND_ROWS ");
         sqlBuilder.append(jobHistoryMapper.schema());
-        sqlBuilder.append(" where job.id=?");
-        if (searchParameters.isOrderByRequested()) {
-            sqlBuilder.append(" order by ").append(searchParameters.getOrderBy());
+        sqlBuilder.append(" where job.id=? and runHistory.file_path is not null");
+        sqlBuilder.append(" order by runHistory.start_time desc");
+      /*  if (searchParameters.isOrderByRequested()) {
+           
 
             if (searchParameters.isSortOrderProvided()) {
                 sqlBuilder.append(' ').append(searchParameters.getSortOrder());
             }
-        }
+        }*/
 
         if (searchParameters.isLimited()) {
             sqlBuilder.append(" limit ").append(searchParameters.getLimit());
@@ -127,7 +128,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
             boolean currentlyRunning = rs.getBoolean("currentlyRunning");
             Long historyId=rs.getLong("historyId");  
             Long version = rs.getLong("version");
-            LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"lastRunStartTime");
+            Date jobRunStartTime = rs.getTimestamp("lastRunStartTime");
             Date jobRunEndTime = rs.getTimestamp("lastRunEndTime");
             String status = rs.getString("status");
             String jobRunErrorMessage = rs.getString("jobRunErrorMessage");
@@ -159,7 +160,8 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
         @Override
         public JobDetailHistoryData mapRow(ResultSet rs, @SuppressWarnings("unused") int rowNum) throws SQLException {
             Long version = rs.getLong("version");
-            LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"runStartTime");
+           // LocalDate jobRunStartTime = JdbcSupport.getLocalDate(rs,"runStartTime");
+            Date jobRunStartTime = rs.getTimestamp("runStartTime");
             Date jobRunEndTime = rs.getTimestamp("runEndTime");
             String status = rs.getString("status");
             String jobRunErrorMessage = rs.getString("jobRunErrorMessage");

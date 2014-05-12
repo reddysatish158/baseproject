@@ -10,7 +10,7 @@ public class JobDetailHistoryData {
     private final Long version;
 
     @SuppressWarnings("unused")
-    private final LocalDate jobRunStartTime;
+    private final Date jobRunStartTime;
 
     @SuppressWarnings("unused")
     private final Date jobRunEndTime;
@@ -32,7 +32,7 @@ public class JobDetailHistoryData {
 
 	private Long historyId;
 
-    public JobDetailHistoryData(final Long version, final LocalDate jobRunStartTime, final Date jobRunEndTime, final String status,
+    public JobDetailHistoryData(final Long version, final Date jobRunStartTime, final Date jobRunEndTime, final String status,
             final String jobRunErrorMessage, final String triggerType, final String jobRunErrorLog,final String runFilePath, Long historyId) {
         this.version = version;
         this.jobRunStartTime = jobRunStartTime;

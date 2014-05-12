@@ -20,4 +20,8 @@ public interface HardwareAssociationReadplatformService {
 
 	List<AssociationData> retrieveplanData(Long clientId);
 
+	List<HardwareAssociationData> retrieveClientAllocatedHardwareDetails(Long clientId);
+
+	Long retrieveOrderAssociationDetails(Long id, Long clientId);
+
 }

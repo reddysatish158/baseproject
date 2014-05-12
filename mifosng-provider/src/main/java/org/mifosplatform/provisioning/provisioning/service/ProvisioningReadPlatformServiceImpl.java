@@ -5,8 +5,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.provisioning.provisioning.data.ProcessRequestData;
 import org.mifosplatform.provisioning.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.provisioning.provisioning.data.ProvisioningData;
 import org.mifosplatform.provisioning.provisioning.data.ServiceParameterData;
@@ -199,6 +201,81 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 		}
 
 	
+		@Override
+		public Long getHardwareDetails(String oldHardWare, Long clientId,String name) {
+			try {
+				
+				 String sql=null;
+				 if(name.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+					 
+				  sql = "select a.id as id  from b_owned_hardware a where a.serial_number = ? and a.client_id=? and is_deleted = 'N' limit 1";
+				 
+				 }else{
+					 
+					 sql = "select i.id as id from  b_item_detail i where i.provisioning_serialno=? and i.client_id=1 limit 1";
+				 }
+				 return jdbcTemplate.queryForLong(sql, new Object[] {oldHardWare,clientId});
+				} catch (EmptyResultDataAccessException e) {
+				return null;
+				}
+		}
+		
+		@Override
+		public List<ProcessRequestData> getProcessRequestData(Long orderId) {
+		      
+			context.authenticatedUser();
+
+			ProcessRequestMapper mapper = new ProcessRequestMapper();
+
+			String sql = "select " + mapper.schema();
+
+			return this.jdbcTemplate.query(sql, mapper, new Object[] {orderId});
+		}
+		
+		 private static final class ProcessRequestMapper implements RowMapper<ProcessRequestData> {
+
+			    public String schema() {
+					return "  p.id AS id,p.client_id AS clientId,o.id as orderId,o.order_no AS orderNo,p.request_type AS requestType,p.is_processed AS isProcessed," +
+							"pr.hardware_id AS hardwareId,pr.receive_message AS receiveMessage,pr.sent_message AS sentMessage  FROM b_process_request p" +
+							" INNER JOIN b_process_request_detail pr ON pr.processrequest_id = p.id left join b_orders o on p.order_id=o.id  WHERE   " +
+							"  p.order_id =? AND pr.id = (SELECT max(id) FROM b_process_request_detail prd2 WHERE prd2.processrequest_id = pr.processrequest_id)";
+				}
+			    public String schemaForId() {
+			    	
+			    	return " p.id as id,p.client_id as clientId, p.order_id as orderId,p.order_id as orderNo,p.request_type as requestType,p.is_processed as isProcessed, " +
+							" pr.hardware_id as hardwareId, pr.receive_message as receiveMessage, pr.sent_message as sentMessage " +
+							" from b_process_request p inner join b_process_request_detail pr on pr.processrequest_id=p.id where" +
+							" p.id=? group by p.id ";
+			    }
+		        @Override
+		        public ProcessRequestData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+				  Long id = rs.getLong("id");
+				  Long clientId = rs.getLong("clientId");
+				  Long orderId = rs.getLong("orderId");
+				  String requestType=rs.getString("requestType");
+				  String hardwareId=rs.getString("hardwareId");
+				  String receiveMessage=rs.getString("receiveMessage");
+				  String sentMessage=rs.getString("sentMessage");
+				  String orderNo=rs.getString("orderNo");
+				  String isProcessed=rs.getString("isProcessed");
+				  return new ProcessRequestData(id,clientId,orderId,requestType,hardwareId,receiveMessage,sentMessage,isProcessed,orderNo);
+		       }
+		}
+
+		@Override
+		public ProcessRequestData getProcessRequestIDData(Long id) {
+			
+			context.authenticatedUser();
+
+			ProcessRequestMapper mapper = new ProcessRequestMapper();
+
+			String sql = "select " + mapper.schemaForId();
+
+			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {id});
+		}
+		
+		
+
 
 
 }

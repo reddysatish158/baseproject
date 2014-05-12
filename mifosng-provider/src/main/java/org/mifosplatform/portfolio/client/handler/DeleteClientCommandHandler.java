@@ -27,6 +27,6 @@ public class DeleteClientCommandHandler implements NewCommandSourceHandler {
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        return this.clientWritePlatformService.deleteClient(command.entityId());
+        return this.clientWritePlatformService.deleteClient(command.entityId(),command);
     }
 }

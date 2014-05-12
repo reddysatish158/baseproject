@@ -1010,4 +1010,10 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("ITEMSALE");
 		}
 
+	
+
+		public boolean isProvisioningDetails() {
+			return  this.entityName.equalsIgnoreCase("PROVISIONINGDETAILS");
+		}
+
 }

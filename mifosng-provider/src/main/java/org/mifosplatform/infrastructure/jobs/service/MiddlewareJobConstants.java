@@ -8,5 +8,6 @@ public interface MiddlewareJobConstants {
 	 public static final String Message = "MESSAGE";
 	 public static final String ChangePlan = "CHANGE_PLAN";
 	 public static final String STBChange = "DEVICE_SWAP";
+	 public static final String Terminate = "TERMINATE";
 	 
 }

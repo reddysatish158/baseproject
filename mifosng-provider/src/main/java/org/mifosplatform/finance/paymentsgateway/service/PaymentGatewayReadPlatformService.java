@@ -13,6 +13,7 @@ public interface PaymentGatewayReadPlatformService {
 
 	Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchItemDetails, String type, String source);
 
+
 	List<MediaEnumoptionData> retrieveTemplateData();
 
 	PaymentGatewayData retrievePaymentGatewayIdData(Long id);

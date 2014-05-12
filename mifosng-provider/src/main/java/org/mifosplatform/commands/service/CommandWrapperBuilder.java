@@ -361,7 +361,7 @@ public class CommandWrapperBuilder {
 		this.entityId = clientId;
 		this.clientId = clientId;
 		this.href = "/clients/" + clientId;
-		this.json = "{}";
+		//this.json = "{}";
 		return this;
 	}
 
@@ -2117,5 +2117,15 @@ public CommandWrapperBuilder createItemSale() {
     this.href = "/agents/";
 	return this;
 }
+public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGDETAILS";
+    this.entityId=processrequestId;
+    this.href = "/provisioning/updateprovisiondetails"+processrequestId;
+    return this;
+}
+
+
 
 }

@@ -40,6 +40,7 @@ import org.mifosplatform.portfolio.association.service.HardwareAssociationWritep
 import org.mifosplatform.portfolio.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.provisioning.provisioning.service.ProvisioningWritePlatformService;
 import org.mifosplatform.scheduledjobs.uploadstatus.domain.UploadStatus;
 import org.mifosplatform.scheduledjobs.uploadstatus.domain.UploadStatusRepository;
 import org.mifosplatform.workflow.eventactionmapping.exception.EventActionMappingNotFoundException;
@@ -77,6 +78,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	private final ItemRepository itemRepository;
     private final OneTimeSaleReadPlatformService oneTimeSaleReadPlatformService;
     private final OrderReadPlatformService orderReadPlatformService;
+    private final ProvisioningWritePlatformService provisioningWritePlatformService;
 	public final static String CONFIG_PROPERTY="Implicit Association";
 	
 	
@@ -89,7 +91,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 			final UploadStatusRepository uploadStatusRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
 			final InventoryTransactionHistoryJpaRepository inventoryTransactionHistoryJpaRepository,final GlobalConfigurationRepository  configurationRepository,
 			final HardwareAssociationReadplatformService associationReadplatformService,final HardwareAssociationWriteplatformService associationWriteplatformService,
-			final ItemRepository itemRepository,final OrderReadPlatformService orderReadPlatformService) 
+			final ItemRepository itemRepository,final OrderReadPlatformService orderReadPlatformService,final ProvisioningWritePlatformService provisioningWritePlatformService) 
 	{
 		this.inventoryItemDetailsReadPlatformService = inventoryItemDetailsReadPlatformService;
 		this.context=context;
@@ -109,6 +111,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 		this.associationWriteplatformService=associationWriteplatformService;
 		this.itemRepository=itemRepository;
 		this.orderReadPlatformService=orderReadPlatformService;
+		this.provisioningWritePlatformService=provisioningWritePlatformService;
 		
 	}
 	
@@ -193,11 +196,21 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 	        	this.context.authenticatedUser();
 	        	this.inventoryItemCommandFromApiJsonDeserializer.validateForUpdate(command.json());
 	        	
-	        	InventoryItemDetails itemId=ItemretrieveById(id);
-	        	final Map<String, Object> changes = itemId.update(command);  
+	        	InventoryItemDetails inventoryItemDetails=ItemretrieveById(id);
+	        	final String oldHardware =inventoryItemDetails.getProvisioningSerialNumber();
+	        	final String oldSerilaNumber =inventoryItemDetails.getSerialNumber();
+	        	final Map<String, Object> changes = inventoryItemDetails.update(command);  
 	        	
 	        	if(!changes.isEmpty()){
-	        		this.inventoryItemDetailsRepository.save(itemId);
+	        		this.inventoryItemDetailsRepository.save(inventoryItemDetails);
+	        	}
+	        
+	        	
+	        	if(!oldHardware.equalsIgnoreCase(inventoryItemDetails.getProvisioningSerialNumber())){
+	          	  
+	        		this.provisioningWritePlatformService.updateHardwareDetails(inventoryItemDetails.getClientId(),inventoryItemDetails.getSerialNumber(),oldSerilaNumber,
+	        				inventoryItemDetails .getProvisioningSerialNumber(),oldHardware);
+	        		
 	        	}
 	        	
 	        	return new CommandProcessingResult(id);
@@ -424,7 +437,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
         	   return new CommandProcessingResult(command.entityId());
            }catch(DataIntegrityViolationException exception){
         	   
-        	   return null;
+        	   return new CommandProcessingResult(Long.valueOf(-1));
            }
 		}
 }

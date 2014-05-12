@@ -126,7 +126,7 @@ public class PaymentsApiResource {
 		  object.addProperty("paymentDate",date);
 		  object.addProperty("amountPaid",amount);
 		  object.addProperty("isChequeSelected","no");
-		  object.addProperty("receiptNo","1234");
+		  object.addProperty("receiptNo",txnId);
 		  object.addProperty("remarks",payerEmail);
 		  object.addProperty("paymentCode",27);
 		  

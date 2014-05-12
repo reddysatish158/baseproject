@@ -13,7 +13,8 @@ public enum ClientStatus {
     INVALID(0, "clientStatusType.invalid"), //
     NEW(100, "clientStatusType.pending"), //
     ACTIVE(300, "clientStatusType.active"), //
-    DEACTIVE(600, "clientStatusType.closed");
+    DEACTIVE(600, "clientStatusType.closed"),
+    CLOSED(400, "clientStatusType.closed");
 
     private final Integer value;
     private final String code;
@@ -27,6 +28,9 @@ public enum ClientStatus {
             break;
             case 300:
                 enumeration = ClientStatus.ACTIVE;
+            break;
+            case 400:
+                enumeration = ClientStatus.CLOSED;
             break;
             case 600:
                 enumeration = ClientStatus.DEACTIVE;
@@ -62,5 +66,8 @@ public enum ClientStatus {
 
     public boolean isDeactive() {
         return this.value.equals(ClientStatus.DEACTIVE.getValue());
+    }
+    public boolean isClosed() {
+        return this.value.equals(ClientStatus.CLOSED.getValue());
     }
 }

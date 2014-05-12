@@ -200,6 +200,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 
 			final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.client_id= ? and o.is_deleted='n' and " +
 					"o.contract_period = co.id and c.id=o.client_id order by o.id desc";
+
 			return jdbcTemplate.query(sql, mapper, new Object[] { clientId});
 			} catch (EmptyResultDataAccessException e) {
 			return null;
@@ -312,8 +313,8 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 
 						public String activePlanLookupSchema() {
 						return "o.id AS orderId,p.plan_code AS planCode,p.plan_description as planDescription,o.billing_frequency AS billingFreq," +
-								"c.contract_period as contractPeriod,(SELECT sum(ol.price) AS price FROM b_order_price ol"
-					+" WHERE o.id = ol.order_id)  AS price  FROM b_orders o, b_plan_master p, b_contract_period c WHERE client_id =?" +
+								"o.end_date as endDate,c.contract_period as contractPeriod,(SELECT sum(ol.price) AS price FROM b_order_price ol"
+					            +" WHERE o.id = ol.order_id)  AS price  FROM b_orders o, b_plan_master p, b_contract_period c WHERE client_id =?" +
 								" AND p.id = o.plan_id  and o.contract_period=c.id and o.order_status=1 ";
 						}
 
@@ -325,10 +326,11 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 						final String planDescription=rs.getString("planDescription");
 						final String billingFreq=rs.getString("billingFreq");
 						final String contractPeriod=rs.getString("contractPeriod");
+						final LocalDate endDate=JdbcSupport.getLocalDate(rs,"endDate");
 						final Double price=rs.getDouble("price");
 						
 
-						return new OrderData(orderId,planCode,planDescription,billingFreq,contractPeriod,price);
+						return new OrderData(orderId,planCode,planDescription,billingFreq,contractPeriod,price,endDate);
 						}
 				}
 
@@ -338,6 +340,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 							final ClientOrderMapper mapper = new ClientOrderMapper();
 							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.id=? and o.is_deleted='n'" +
 									" and o.contract_period = co.id  and  c.id=o.client_id order by o.id desc";
+
 							return jdbcTemplate.queryForObject(sql, mapper, new Object[] { orderId});
 							} catch (EmptyResultDataAccessException e) {
 							return null;

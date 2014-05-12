@@ -189,6 +189,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 				   context.authenticatedUser();
 				   this.paymentGatewayCommandFromApiJsonDeserializer.validateForCreate(command.json());
 				  
+
 				   if(element!=null){  
 					   OBSPAYMENTTYPE  = fromApiJsonHelper.extractStringNamed("OBSPAYMENTTYPE", element);
 					   if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
@@ -228,14 +229,12 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			
 		}
 
-		private void handleCodeDataIntegrityIssues(JsonCommand command,
-				Exception dve) {
+		private void handleCodeDataIntegrityIssues(JsonCommand command,Exception dve) {
 			String realCause=dve.toString();
 			  final String receiptNo=command.stringValueOfParameterNamed("receipt");//fromApiJsonHelper.extractStringNamed("receipt", command);
 		        if (realCause.contains("reference")) {
 		        	
 		            final String name =command.stringValueOfParameterNamed("reference");// fromApiJsonHelper.extractStringNamed("reference", command);
-		          
 		            throw new PlatformDataIntegrityException("error.msg.code.reference", "A reference with this value '" + name + "' does not exists");
 		        }else if(realCause.contains("receiptNo")){
 		        	
