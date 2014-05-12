@@ -1010,4 +1010,12 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("ITEMSALE");
 		}
 
+		public boolean isOfficeAdjustmentResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEADJUSTMENT");
+		}
+
+		public boolean isOfficePaymentResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEPAYMENT");
+		}
+
 }
