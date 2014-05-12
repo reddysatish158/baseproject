@@ -193,7 +193,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			
 			public String ownDeviceSchema() {
 				return " o.serial_number  AS serialNum, o.provisioning_serial_number  AS provisionNum FROM b_owned_hardware o " +
-						" WHERE o.client_id = ?"; 
+						" WHERE o.client_id = ? and o.is_deleted = 'N'"; 
 			}
 
 			@Override

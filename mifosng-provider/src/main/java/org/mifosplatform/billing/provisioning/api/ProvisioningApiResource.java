@@ -158,10 +158,10 @@ public class ProvisioningApiResource {
 	 @Path("template/{clientId}")
 	 @Consumes({MediaType.APPLICATION_JSON})
 	 @Produces({MediaType.APPLICATION_JSON})
-		public String retrieveProcessRequest(@Context final UriInfo uriInfo,@PathParam("clientId") final Long clientId) {
+		public String retrieveProcessRequest(@Context final UriInfo uriInfo,@PathParam("clientId") final Long orderId) {
 		 
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		List<ProcessRequestData> provisioning=this.provisioningReadPlatformService.getProcessRequestData(clientId);
+		List<ProcessRequestData> provisioning=this.provisioningReadPlatformService.getProcessRequestData(orderId);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializerProcessRequest.serialize(settings, provisioning, RESPONSE_DATA_PARAMETERS);
 		}

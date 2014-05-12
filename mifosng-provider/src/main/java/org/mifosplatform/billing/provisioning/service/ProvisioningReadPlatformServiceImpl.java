@@ -161,7 +161,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 		}
 		
 		@Override
-		public List<ProcessRequestData> getProcessRequestData(Long clientId) {
+		public List<ProcessRequestData> getProcessRequestData(Long orderId) {
 		      
 			context.authenticatedUser();
 
@@ -169,27 +169,24 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 
 			String sql = "select " + mapper.schema();
 
-			return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
+			return this.jdbcTemplate.query(sql, mapper, new Object[] {orderId});
 		}
 		
 		 private static final class ProcessRequestMapper implements RowMapper<ProcessRequestData> {
 
 			    public String schema() {
-					return "  p.id AS id,p.client_id AS clientId,p.order_id AS orderId,p.request_type AS requestType,p.is_processed AS isProcessed, " +
-							"pr.hardware_id AS hardwareId,pr.receive_message AS receiveMessage, pr.sent_message AS sentMessage  " +
-							" FROM b_process_request p INNER JOIN b_process_request_detail pr ON pr.processrequest_id = p.id WHERE p.client_id = ?" +
-							"  and pr.id=(select max(id) from b_process_request_detail prd2 where prd2.processrequest_id = pr.processrequest_id)";
+					return "  p.id AS id,p.client_id AS clientId,o.id as orderId,o.order_no AS orderNo,p.request_type AS requestType,p.is_processed AS isProcessed," +
+							"pr.hardware_id AS hardwareId,pr.receive_message AS receiveMessage,pr.sent_message AS sentMessage  FROM b_process_request p" +
+							" INNER JOIN b_process_request_detail pr ON pr.processrequest_id = p.id left join b_orders o on p.order_id=o.id  WHERE   " +
+							"  p.order_id =? AND pr.id = (SELECT max(id) FROM b_process_request_detail prd2 WHERE prd2.processrequest_id = pr.processrequest_id)";
 				}
-			    
 			    public String schemaForId() {
 			    	
-			    	return " p.id as id,p.client_id as clientId, p.order_id as orderId,p.request_type as requestType,p.is_processed as isProcessed, " +
+			    	return " p.id as id,p.client_id as clientId, p.order_id as orderId,p.order_id as orderNo,p.request_type as requestType,p.is_processed as isProcessed, " +
 							" pr.hardware_id as hardwareId, pr.receive_message as receiveMessage, pr.sent_message as sentMessage " +
 							" from b_process_request p inner join b_process_request_detail pr on pr.processrequest_id=p.id where" +
 							" p.id=? group by p.id ";
-			    	
 			    }
-			    
 		        @Override
 		        public ProcessRequestData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 				  Long id = rs.getLong("id");
@@ -199,8 +196,9 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 				  String hardwareId=rs.getString("hardwareId");
 				  String receiveMessage=rs.getString("receiveMessage");
 				  String sentMessage=rs.getString("sentMessage");
+				  String orderNo=rs.getString("orderNo");
 				  String isProcessed=rs.getString("isProcessed");
-				  return new ProcessRequestData(id,clientId,orderId,requestType,hardwareId,receiveMessage,sentMessage,isProcessed);
+				  return new ProcessRequestData(id,clientId,orderId,requestType,hardwareId,receiveMessage,sentMessage,isProcessed,orderNo);
 		       }
 		}
 

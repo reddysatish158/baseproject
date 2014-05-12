@@ -122,7 +122,7 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 
 						return " o.id AS id,o.serial_number AS serialNo,i.item_description AS itemDescription  FROM b_item_master i," +
 								" b_owned_hardware o, b_hw_plan_mapping hm WHERE o.item_type = i.id AND i.item_code = hm.item_code" +
-								" AND o.client_id = ?  AND hm.plan_code =? GROUP BY o.client_id ";
+								" AND o.client_id = ?  AND hm.plan_code =? and o.is_deleted = 'N' GROUP BY o.client_id ";
 						}
 
 					@Override
