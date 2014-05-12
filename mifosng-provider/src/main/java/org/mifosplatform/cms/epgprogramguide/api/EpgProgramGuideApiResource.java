@@ -17,8 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.accounting.journalentry.api.DateParam;
-import org.mifosplatform.billing.epgprogramguide.data.EpgProgramGuideData;
-import org.mifosplatform.billing.epgprogramguide.service.EpgProgramGuideReadPlatformService;
+import org.mifosplatform.cms.epgprogramguide.data.EpgProgramGuideData;
+import org.mifosplatform.cms.epgprogramguide.service.EpgProgramGuideReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.billing.chargecode.data.ChargeCodeData;
-import org.mifosplatform.billing.priceregion.data.PriceRegionData;
+import org.mifosplatform.organisation.priceregion.data.PriceRegionData;
 
 public class TaxMapData {
 	

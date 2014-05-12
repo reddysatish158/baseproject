@@ -10,9 +10,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.StringUtils;
-import org.mifosplatform.billing.plan.data.ServiceData;
 import org.mifosplatform.billing.pricing.exceptions.ChargeCOdeExists;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
+import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity

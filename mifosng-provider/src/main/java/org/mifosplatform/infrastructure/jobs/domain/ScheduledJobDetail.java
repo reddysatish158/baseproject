@@ -17,9 +17,9 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.mifosplatform.billing.scheduledjobs.domain.JobParameters;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.jobs.api.SchedulerJobApiConstants;
+import org.mifosplatform.scheduledjobs.scheduledjobs.domain.JobParameters;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity

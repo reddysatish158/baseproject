@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.mifosplatform.billing.charge.data.ChargesData;
 import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
-import org.mifosplatform.billing.plan.data.ServiceData;
-import org.mifosplatform.billing.priceregion.data.PriceRegionData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.organisation.priceregion.data.PriceRegionData;
+import org.mifosplatform.portfolio.plan.data.ServiceData;
 
 
 public class PricingData {

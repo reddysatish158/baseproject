@@ -6,10 +6,10 @@
 package org.mifosplatform.billing.discountmaster.handler;
 
 import org.mifosplatform.billing.discountmaster.service.DiscountWritePlatformService;
-import org.mifosplatform.billing.plan.service.PlanWritePlatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.portfolio.plan.service.PlanWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
