@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.ticketmaster.command.TicketMasterCommand;
-import org.mifosplatform.billing.ticketmaster.service.TicketMasterWritePlatformService;
+import org.mifosplatform.crm.ticketmaster.command.TicketMasterCommand;
+import org.mifosplatform.crm.ticketmaster.service.TicketMasterWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiConstants;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;

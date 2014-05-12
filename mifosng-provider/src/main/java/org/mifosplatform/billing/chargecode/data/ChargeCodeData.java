@@ -3,8 +3,8 @@ package org.mifosplatform.billing.chargecode.data;
 import java.util.Collection;
 import java.util.List;
 
-import org.mifosplatform.billing.priceregion.data.PriceRegionData;
 import org.mifosplatform.billing.taxmapping.data.TaxMapData;
+import org.mifosplatform.organisation.priceregion.data.PriceRegionData;
 
 
 public class ChargeCodeData {	

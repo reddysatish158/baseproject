@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.scheduledjobs.data.ScheduleJobData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
@@ -16,6 +15,7 @@ import org.mifosplatform.infrastructure.jobs.data.JobDetailHistoryData;
 import org.mifosplatform.infrastructure.jobs.exception.JobNotFoundException;
 import org.mifosplatform.infrastructure.jobs.exception.OperationNotAllowedException;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
+import org.mifosplatform.scheduledjobs.scheduledjobs.data.ScheduleJobData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -61,7 +61,7 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
         StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select SQL_CALC_FOUND_ROWS ");
         sqlBuilder.append(jobHistoryMapper.schema());
-        sqlBuilder.append(" where job.id=?");
+        sqlBuilder.append(" where job.id=? and runHistory.file_path is not null");
         sqlBuilder.append(" order by runHistory.start_time desc");
       /*  if (searchParameters.isOrderByRequested()) {
            
