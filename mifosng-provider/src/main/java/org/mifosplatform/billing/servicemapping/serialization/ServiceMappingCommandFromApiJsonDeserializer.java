@@ -23,7 +23,7 @@ import com.google.gson.reflect.TypeToken;
 @Component
 public class ServiceMappingCommandFromApiJsonDeserializer {
 	
-	final private Set<String> supportedParameters = new HashSet<String>(Arrays.asList("serviceId","serviceIdentification","status","image"));
+	final private Set<String> supportedParameters = new HashSet<String>(Arrays.asList("serviceId","serviceIdentification","status","image","category","subCategory"));
 	private final FromJsonHelper fromApiJsonHelper;  
 	
 	@Autowired
@@ -46,11 +46,15 @@ public class ServiceMappingCommandFromApiJsonDeserializer {
 	        final String serviceIdentification = fromApiJsonHelper.extractStringNamed("serviceIdentification", element);
 	        final String status = fromApiJsonHelper.extractStringNamed("status", element);
 	        final String image = fromApiJsonHelper.extractStringNamed("image",element);
+	        final String category=fromApiJsonHelper.extractStringNamed("category", element);
+	        final String subCategory=fromApiJsonHelper.extractStringNamed("subCategory", element);
 	        
 	        baseDataValidator.reset().parameter("serviceId").value(serviceId).notBlank();
 			baseDataValidator.reset().parameter("serviceIdentification").value(serviceIdentification).notBlank();
 			baseDataValidator.reset().parameter("status").value(status).notBlank();
 			baseDataValidator.reset().parameter("image").value(image).notBlank();
+			/*baseDataValidator.reset().parameter("category").value(category).notBlank();
+			baseDataValidator.reset().parameter("subCategory").value(subCategory).notBlank();*/
 		
 
 	        throwExceptionIfValidationWarningsExist(dataValidationErrors);

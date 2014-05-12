@@ -64,5 +64,7 @@ public interface EventMasterReadPlatformService {
 	 * @return
 	 */
 	List<EventDetailsData> retrieveEventDetailsData(Integer eventId);
+
+	List<EventMasterData> retrieveEventMasterDataForEventOrders();
 	
 }

@@ -1,6 +1,7 @@
 package org.mifosplatform.billing.servicemapping.api;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.plan.service.PlanReadPlatformService;
 import org.mifosplatform.billing.servicemapping.data.ServiceCodeData;
 import org.mifosplatform.billing.servicemapping.data.ServiceMappingData;
@@ -50,20 +53,23 @@ public class ServiceMappingApiResource {
 	private PlatformSecurityContext context;
 	private ServiceMappingReadPlatformService serviceMappingReadPlatformService;
 	private final PlanReadPlatformService planReadPlatformService;
-	
+	private final ReadReportingService readReportingService;
+	private final PaymodeReadPlatformService paymodeReadPlatformService;
 	@Autowired
-	public ServiceMappingApiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,
-			final DefaultToApiJsonSerializer<ServiceMappingData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
-			final PlatformSecurityContext context,final ServiceMappingReadPlatformService serviceMappingReadPlatformService,
-			final PlanReadPlatformService planReadPlatformService) {
-		
-		this.context = context;
+	public ServiceMappingApiResource(final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,final DefaultToApiJsonSerializer<ServiceMappingData> toApiJsonSerializer,
+							     final ApiRequestParameterHelper apiRequestParameterHelper,final PlatformSecurityContext context,final ReadReportingService readReportingService,
+							     final ServiceMappingReadPlatformService serviceMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService,
+							     final PaymodeReadPlatformService paymodeReadPlatformService) {
+		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
+
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.planReadPlatformService=planReadPlatformService;
 		this.apiRequestParameterHelper = apiRequestParameterHelper;
 		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
 		this.serviceMappingReadPlatformService = serviceMappingReadPlatformService;
-		
+		this.readReportingService=readReportingService;
+		this.paymodeReadPlatformService=paymodeReadPlatformService;
+
 	}
 
 	
@@ -87,8 +93,12 @@ public class ServiceMappingApiResource {
 
 		
 		List<ServiceCodeData> serviceCodeData = this.serviceMappingReadPlatformService.getServiceCode();
-		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
-		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status,null);
+
+		List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
+		 //Collection<ReportParameterData> serviceParameters=this.readReportingService.getAllowedServiceParameters();
+		Collection<McodeData> categories = this.paymodeReadPlatformService.retrievemCodeDetails("Service Category");
+		Collection<McodeData> subCategories = this.paymodeReadPlatformService.retrievemCodeDetails("Asset language");
+		ServiceMappingData serviceMappingData = new ServiceMappingData(null,serviceCodeData,status,null,categories,subCategories);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, serviceMappingData, RESPONSE_PARAMETERS); 
 	}
@@ -113,8 +123,13 @@ public class ServiceMappingApiResource {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		ServiceMappingData serviceMappingData = serviceMappingReadPlatformService.getServiceMapping(serviceMappingId);
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
+		 Collection<McodeData> categories = this.paymodeReadPlatformService.retrievemCodeDetails("Service Category");
+		 Collection<McodeData> subCategories = this.paymodeReadPlatformService.retrievemCodeDetails("Asset language");
+		 
 		serviceMappingData.setServiceCodeData(this.serviceMappingReadPlatformService.getServiceCode());
 		serviceMappingData.setStatusData(status);
+		serviceMappingData.setCategories(categories);
+		serviceMappingData.setSubCategories(subCategories);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, serviceMappingData, RESPONSE_PARAMETERS); 
 	}

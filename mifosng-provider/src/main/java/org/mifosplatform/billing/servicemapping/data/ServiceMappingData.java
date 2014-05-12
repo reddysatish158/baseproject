@@ -3,6 +3,7 @@ package org.mifosplatform.billing.servicemapping.data;
 import java.util.Collection;
 import java.util.List;
 
+import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.dataqueries.data.ReportParameterData;
 
@@ -15,27 +16,56 @@ public class ServiceMappingData {
 	private String serviceIdentification;
 	private String status;
 	private String image;
+	private String category;
+	private String subCategory;
 	private List<ServiceMappingData> serviceMappingData;
 	private List<ServiceCodeData> serviceCodeData;
 	private List<EnumOptionData> statusData;
 	private Collection<ReportParameterData> serviceParameters;
+	private Collection<McodeData> categories;
+	
+	public Collection<McodeData> getCategories() {
+		return categories;
+	}
 
-	public ServiceMappingData(Long id, String serviceCode, String serviceIndentification,String status,String image) {
+	public void setCategories(Collection<McodeData> categories) {
+		this.categories = categories;
+	}
+
+	public Collection<McodeData> getSubCategories() {
+		return subCategories;
+	}
+
+	public void setSubCategories(Collection<McodeData> subCategories) {
+		this.subCategories = subCategories;
+	}
+
+
+
+	private Collection<McodeData> subCategories;
+	
+
+	public ServiceMappingData(Long id, String serviceCode, String serviceIndentification,String status,
+				String image,String category,String subCategory) {
 		
 		this.id=id;
 		this.serviceCode=serviceCode;
 		this.serviceIdentification=serviceIndentification;
 		this.status=status;
 		this.image=image;
+		this.category=category;
+		this.subCategory=subCategory;
 	}
 	
 	public ServiceMappingData( List<ServiceMappingData> serviceMappingData,	List<ServiceCodeData> serviceCodeData, List<EnumOptionData> status, 
-			Collection<ReportParameterData> serviceParameters) {
+			Collection<ReportParameterData> serviceParameters, Collection<McodeData> categories, Collection<McodeData> subCategories) {
 
 		this.serviceMappingData=serviceMappingData;
 		this.serviceCodeData=serviceCodeData;
 		this.statusData=status;
 		this.serviceParameters=serviceParameters;
+		this.categories=categories;
+		this.subCategories=subCategories;
 	}
 	
 	public List<ServiceCodeData> getServiceCodeData() {
