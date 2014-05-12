@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.epgprogramguide.api;
+package org.mifosplatform.cms.epgprogramguide.api;
 
 import java.util.Arrays;
 import java.util.Date;
