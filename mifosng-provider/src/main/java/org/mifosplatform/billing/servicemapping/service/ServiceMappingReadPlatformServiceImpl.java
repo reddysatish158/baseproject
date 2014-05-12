@@ -28,7 +28,7 @@ public class ServiceMappingReadPlatformServiceImpl implements ServiceMappingRead
 		public String schema() {
 			
 			return " ps.id as id, bs.service_code as serviceCode, ps.service_identification as serviceIdentification, bs.status as status,ps.image as image, "
-					+ "ps.category as category,ps.subCategory as subCategory from  b_service bs,  b_prov_service_details ps where bs.status='ACTIVE' and ps.service_id=bs.id ORDER BY ps.id ";
+					+ "ps.category as category,ps.sub_category as subCategory from  b_service bs,  b_prov_service_details ps where bs.status='ACTIVE' and ps.service_id=bs.id ORDER BY ps.id ";
 			
 		}
 		
@@ -90,7 +90,7 @@ private class ServiceMappingDataByIdRowMapper implements RowMapper<ServiceMappin
 	
 	
 	public ServiceMappingData getServiceMapping(Long serviceMappingId){
-		String sql = "select bs.id as serviceId,bs.service_code as serviceCode, ps.service_identification as serviceIdentification, bs.status as status,ps.image as image,ps.category as category,ps.subCategory as subCategory " +
+		String sql = "select bs.id as serviceId,bs.service_code as serviceCode, ps.service_identification as serviceIdentification, bs.status as status,ps.image as image,ps.category as category,ps.sub_category as subCategory " +
 				" from b_service bs, b_prov_service_details ps  where ps.service_id=bs.id and ps.id=?";
 		ServiceMappingDataByIdRowMapper rowMapper = new ServiceMappingDataByIdRowMapper();
 		return jdbcTemplate.queryForObject(sql, rowMapper,new Object[]{serviceMappingId});

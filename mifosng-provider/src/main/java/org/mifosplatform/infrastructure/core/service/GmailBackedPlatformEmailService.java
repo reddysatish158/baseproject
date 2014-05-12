@@ -21,7 +21,7 @@ public class GmailBackedPlatformEmailService implements PlatformEmailService {
 
         String authuserName = "Open Billing System Community";
 
-        String authuser = "kiran@hugotechnologies.com";//"info@openbillingsystem.com";
+        String authuser = "kiran@hugotechnologies.com";//"billing@clear-tv.com";//"info@openbillingsystem.com";
         String authpwd ="kirankiran"; //"openbs@13";
 
         // Very Important, Don't use email.setAuthentication()

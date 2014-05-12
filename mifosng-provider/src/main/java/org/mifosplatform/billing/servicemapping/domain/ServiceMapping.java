@@ -31,7 +31,7 @@ public class ServiceMapping extends AbstractPersistable<Long>{
 	@Column(name = "category")
 	private String category;
 	
-	@Column(name = "subCategory")
+	@Column(name = "sub_category")
 	private String subCategory;
 
 	@Column(name = "is_deleted")

@@ -61,7 +61,7 @@ public class ServiceMappingApiResource {
 							     final ServiceMappingReadPlatformService serviceMappingReadPlatformService,final PlanReadPlatformService planReadPlatformService,
 							     final PaymodeReadPlatformService paymodeReadPlatformService) {
 		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
-
+        this.context=context;
 		this.toApiJsonSerializer = toApiJsonSerializer;
 		this.planReadPlatformService=planReadPlatformService;
 		this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -120,7 +120,7 @@ public class ServiceMappingApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	public String getServiceMappingForEdit(@PathParam("serviceMappingId") final Long serviceMappingId, @Context final UriInfo uriInfo){
-		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		ServiceMappingData serviceMappingData = serviceMappingReadPlatformService.getServiceMapping(serviceMappingId);
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 		 Collection<McodeData> categories = this.paymodeReadPlatformService.retrievemCodeDetails("Service Category");
