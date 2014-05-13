@@ -15,7 +15,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.mifosplatform.portfolio.plan.domain.PlanDetails;
 
 @Entity
 @Table(name = "b_bill_master")
