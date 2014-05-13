@@ -51,8 +51,8 @@ public class OfficePaymentsWritePlatformServiceImpl implements OfficePaymentsWri
 		 Throwable realCause = dve.getMostSpecificCause();
 	        if (realCause.getMessage().contains("receipt_no")) {
 	            final String name = command.stringValueOfParameterNamed("receiptNo");
-	            throw new PlatformDataIntegrityException("error.msg.receiptNo.duplicate.name", "A Receipt Number with this Code'"
-	                    + name + "'already exists", "displayName", name);
+	            throw new PlatformDataIntegrityException("error.msg.officePayment_receiptNo.duplicate.name", "A Receipt Number with this Code'"
+	                    + name + "'already exists", "receiptNo", name);
 	        }
 
 	        logger.error(dve.getMessage(), dve);
