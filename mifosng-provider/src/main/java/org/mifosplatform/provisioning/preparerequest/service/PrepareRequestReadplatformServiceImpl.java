@@ -178,21 +178,21 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 							  HardWareId=detailsData.getSerialNo();
 						  }
 						  
-						  ProvisionServiceDetails provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+						  List<ProvisionServiceDetails> provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 						
-						  if(provisionServiceDetails!=null){
+						  if(!provisionServiceDetails.isEmpty()){
 							 
                               if(requestData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DEVICE_SWAP.toString())){
                             	  
                             	   requestType=UserActionStatusTypeEnum.ACTIVATION.toString();
                             		 AllocationDetailsData allocationDetailsData=this.allocationReadPlatformService.getDisconnectedHardwareItemDetails(requestData.getOrderId(),requestData.getClientId(),configProp);
                             		 
-                            		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
+                            		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
                             				 allocationDetailsData.getSerialNo(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.DISCONNECTION.toString());
                             		 processRequest.add(processRequestDetails);
                               }
                            
-						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
+						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
 								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
 						  processRequest.add(processRequestDetails);
 						  
