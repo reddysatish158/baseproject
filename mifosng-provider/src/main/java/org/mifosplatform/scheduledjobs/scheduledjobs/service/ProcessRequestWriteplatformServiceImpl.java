@@ -2,8 +2,6 @@ package org.mifosplatform.scheduledjobs.scheduledjobs.service;
 
 import java.util.List;
 
-import org.mifosplatform.cms.eventorder.domain.PrepareRequest;
-import org.mifosplatform.cms.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
@@ -20,6 +18,8 @@ import org.mifosplatform.portfolio.plan.domain.PlanRepository;
 import org.mifosplatform.portfolio.plan.domain.StatusTypeEnum;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.provisioning.preparerequest.data.PrepareRequestData;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.provisioning.processrequest.data.ProcessingDetailsData;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;

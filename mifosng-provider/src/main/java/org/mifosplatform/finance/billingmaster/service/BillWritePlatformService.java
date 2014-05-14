@@ -1,11 +1,11 @@
-package org.mifosplatform.finance.billmaster.service;
+package org.mifosplatform.finance.billingmaster.service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.mifosplatform.finance.billingmaster.domain.BillDetail;
+import org.mifosplatform.finance.billingmaster.domain.BillMaster;
 import org.mifosplatform.finance.billingorder.data.BillDetailsData;
-import org.mifosplatform.finance.billmaster.domain.BillDetail;
-import org.mifosplatform.finance.billmaster.domain.BillMaster;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 

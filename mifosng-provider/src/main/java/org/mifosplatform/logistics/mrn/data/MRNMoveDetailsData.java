@@ -1,4 +1,4 @@
-package org.mifosplatform.logistics.itemdetails.mrn.data;
+package org.mifosplatform.logistics.mrn.data;
 
 import java.text.DateFormat;
 import java.text.ParseException;

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.infrastructure.codes.exception.DiscountNotFoundException;
+import org.mifosplatform.billing.discountmaster.exceptions.DiscountNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;

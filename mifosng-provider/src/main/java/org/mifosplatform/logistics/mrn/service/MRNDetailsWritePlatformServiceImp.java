@@ -10,8 +10,8 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
-import org.mifosplatform.logistics.itemdetails.mrn.data.MRNMoveDetailsData;
 import org.mifosplatform.logistics.mrn.api.MRNDetailsJpaRepository;
+import org.mifosplatform.logistics.mrn.data.MRNMoveDetailsData;
 import org.mifosplatform.logistics.mrn.domain.InventoryTransactionHistory;
 import org.mifosplatform.logistics.mrn.domain.InventoryTransactionHistoryJpaRepository;
 import org.mifosplatform.logistics.mrn.domain.MRNDetails;
