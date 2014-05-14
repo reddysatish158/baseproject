@@ -2118,4 +2118,19 @@ public CommandWrapperBuilder createItemSale() {
 	return this;
 }
 
+public CommandWrapperBuilder createOfficeAdjustment(Long officeId) {
+	this.actionName = "CREATE";
+	this.entityName = "OFFICEADJUSTMENT";
+	this.entityId = officeId;
+	this.href = "/officeadjustments/"+officeId;
+	return this;
+}
+
+public CommandWrapperBuilder createOfficePayment(Long officeId) {
+	this.actionName = "CREATE";
+	this.entityName = "OFFICEPAYMENT";
+	this.entityId = officeId;
+	this.href = "/officepayments/"+officeId;
+	return this;
+}
 }
