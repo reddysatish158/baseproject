@@ -940,7 +940,21 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
-			   }else {
+			   }else if (wrapper.isOfficeAdjustmentResource()) {
+
+		        	if (wrapper.isCreate()) {
+		                handler = applicationContext.getBean("createOfficeAdjustmentsCommandHandler", NewCommandSourceHandler.class);
+		            } else {
+		                throw new UnsupportedCommandException(wrapper.commandName());
+		            }
+
+		        }else if (wrapper.isOfficePaymentResource()) {
+		        	if (wrapper.isCreate()) {
+		                handler = applicationContext.getBean("createOfficePaymentsCommandHandler", NewCommandSourceHandler.class);
+		        	}else {
+		                    throw new UnsupportedCommandException(wrapper.commandName());
+		                }
+				} else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       

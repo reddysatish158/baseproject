@@ -64,7 +64,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 			String transactionCategory=rs.getString("transType");
 			//boolean flag=rs.getBoolean("flag");
 
-			return new FinancialTransactionsData(transactionId,transDate,transactionType,null,null,amount,null,transactionCategory,false);
+			return new FinancialTransactionsData(null,transactionId,transDate,transactionType,null,null,amount,null,transactionCategory,false);
 		}
 
 		public String financialTransactionsSchema() {
@@ -152,7 +152,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 			boolean flag=rs.getBoolean("flag");
 			LocalDate transDate=JdbcSupport.getLocalDate(rs,"TransDate");
 
-			return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName,transactionCategory,flag);
+			return new FinancialTransactionsData(null,transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName,transactionCategory,flag);
 		}
 
 		public String financialTransactionsSchema() {
@@ -457,7 +457,7 @@ public class BillMasterReadPlatformServiceImplementation implements
 				boolean flag=rs.getBoolean("flag");
 				LocalDate transDate=JdbcSupport.getLocalDate(rs,"TransDate");
 				
-				return new FinancialTransactionsData(transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName,transactionCategory,flag);
+				return new FinancialTransactionsData(null,transactionId,transDate,transactionType,debitAmount,creditAmount,null,userName,transactionCategory,flag);
 			}
 
 			public String financialTypeSchema() {
