@@ -9,5 +9,6 @@ public interface PrepareRequestReadplatformService {
 	List<Long> retrieveRequestClientOrderDetails(Long clientId);
 	void processingClientDetails(PrepareRequestData requestData, String configProp);
 	List<Long> getPrepareRequestDetails(Long id);
+	int getLastPrepareId(Long orderId);
 
 }
