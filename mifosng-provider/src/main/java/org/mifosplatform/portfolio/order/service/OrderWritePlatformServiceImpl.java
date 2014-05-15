@@ -783,11 +783,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 						HardWareId = detailsData.getSerialNo();
 					}
 
-					ProvisionServiceDetails provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+					List<ProvisionServiceDetails> provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 					
 					if (provisionServiceDetails != null) {
 						if (message == null) {
-							message = provisionServiceDetails.getServiceIdentification();
+							message = provisionServiceDetails.get(0).getServiceIdentification();
 						}
 						ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(orderLine.getId(), orderLine.getServiceId(),message, "Recieved",
 								HardWareId,order.getStartDate(), order.getEndDate(), null,null, 'N',requstStatus);

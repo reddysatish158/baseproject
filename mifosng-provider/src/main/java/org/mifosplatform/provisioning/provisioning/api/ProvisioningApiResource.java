@@ -222,13 +222,13 @@ public class ProvisioningApiResource {
 	} 
 	
 	 @GET
-	 @Path("template/{clientId}")
+	 @Path("template/{orderNo}")
 	 @Consumes({MediaType.APPLICATION_JSON})
 	 @Produces({MediaType.APPLICATION_JSON})
-		public String retrieveProcessRequest(@Context final UriInfo uriInfo,@PathParam("clientId") final Long orderId) {
+		public String retrieveProcessRequest(@Context final UriInfo uriInfo,@PathParam("orderNo") final String orderNo) {
 		 
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		List<ProcessRequestData> provisioning=this.provisioningReadPlatformService.getProcessRequestData(orderId);
+		List<ProcessRequestData> provisioning=this.provisioningReadPlatformService.getProcessRequestData(orderNo);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializerProcessRequest.serialize(settings, provisioning, RESPONSE_DATA_PARAMETERS);
 		}

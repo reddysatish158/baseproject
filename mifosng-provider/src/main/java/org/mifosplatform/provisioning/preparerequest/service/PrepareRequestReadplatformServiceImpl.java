@@ -200,7 +200,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 					  }
 	                       this.processRequestRepository.save(processRequest);				
 	                       //PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
-                           prepareRequest.updateProvisioning('Y');
+                           prepareRequest.setIsProvisioning('Y');
                            this.prepareRequsetRepository.save(prepareRequest);
                          
                            
@@ -247,6 +247,17 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 				
 				
 			}
-				
+			@Override
+			public int getLastPrepareId(Long orderId) {
+			try {
+
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+			String sql = "select max(id)from b_prepare_request where order_id=? and request_type='ACTIVATION'";
+
+			return jdbcTemplate.queryForInt(sql, new Object[] { orderId });
+			} catch (EmptyResultDataAccessException e) {
+			return 0;
+			}
+			}		
 			
 }
