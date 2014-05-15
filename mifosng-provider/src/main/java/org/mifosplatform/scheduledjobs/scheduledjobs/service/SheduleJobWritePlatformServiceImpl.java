@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -1156,6 +1157,47 @@ fw.append("Plan Change SuccessFully Completed. \r\n");
 ReceiveMessage = "Success";
 }
 }
+}else if(entitlementsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate)){
+	
+	String url=""+data.getUrl() + "accounts/" + clientId ;
+	fw.append("Url for Delete Client:"+ url +"\r\n");
+	HttpDelete deleterequest = new HttpDelete(url.trim());
+	deleterequest.setHeader("Authorization", "Basic " + new String(encoded));
+	HttpResponse response = httpClient.execute(deleterequest);
+	if (response.getStatusLine().getStatusCode() == 404) {
+		System.out.println("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode());
+		fw.append("ResourceNotFoundException : HTTP error code : "+ response.getStatusLine().getStatusCode()+", Request url:"+data.getUrl() +"accounts/"+ clientId +" is not Found. \r\n");
+		fw.flush();
+	    fw.close();
+		return;
+	}else if (response.getStatusLine().getStatusCode() == 401) {
+		System.out.println(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode());
+		fw.append(" Unauthorized Exception : HTTP error code : "+ response.getStatusLine().getStatusCode()+" , The UserName or Password you entered is incorrect."+ "\r\n");
+		fw.flush();
+	    fw.close();
+		return;
+	}else if (response.getStatusLine().getStatusCode() != 200) {
+		System.out.println("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode());
+		fw.append("Failed : HTTP error code : "+ response.getStatusLine().getStatusCode()+" \r\n");
+		continue;
+	}
+	BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
+	String output="";
+	while ((output = br.readLine()) != null) {
+		System.out.println(output);
+		fw.append("Output From Staker : "+ output+" \r\n");
+		final JsonElement ele = fromApiJsonHelper.parse(output);
+		final String status = fromApiJsonHelper.extractStringNamed("status", ele);
+		 fw.append("status of the output is : "+ status+" \r\n");
+		if (status.equalsIgnoreCase("ERROR")) {
+			final String error = fromApiJsonHelper.extractStringNamed("error", ele);
+			fw.append("error of the output is : "+ error+" \r\n");
+			ReceiveMessage = "failure :" + error;
+		}else{
+			fw.append("Client Account Successfully Deleted. \r\n");
+			ReceiveMessage = "Success";
+		}
+	}
 }else{
 fw.append("Request Type is:"+entitlementsData.getRequestType());
 fw.append("Unknown Request Type for Stalker (or) This Request Type is Not Handle in Middleware Job");

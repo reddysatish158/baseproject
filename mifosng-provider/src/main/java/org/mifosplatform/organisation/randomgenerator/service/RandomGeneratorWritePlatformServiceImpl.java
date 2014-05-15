@@ -55,6 +55,7 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 			generateRandomNumbers(randomGenerator);
 
 			this.randomGeneratorRepository.save(randomGenerator);
+			
 			return new CommandProcessingResult(randomGenerator.getId());
 
 		} catch (ParseException e) {
