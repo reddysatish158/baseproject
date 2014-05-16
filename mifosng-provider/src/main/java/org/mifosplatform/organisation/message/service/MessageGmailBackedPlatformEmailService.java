@@ -141,10 +141,10 @@ public class MessageGmailBackedPlatformEmailService implements
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 		
 		Email email = new SimpleEmail();
-		String authuserName ="billing@clear-tv.com";// "info@hugotechnologies.com";
+		String authuserName ="info@hugotechnologies.com";
 
-		String authuser ="billing@clear-tv.com";// "kiran@hugotechnologies.com";
-		String authpwd = "BrownTablet123";
+		String authuser ="kiran@hugotechnologies.com";
+		String authpwd = "kirankiran";
 
 		// Very Important, Don't use email.setAuthentication()
 		email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
