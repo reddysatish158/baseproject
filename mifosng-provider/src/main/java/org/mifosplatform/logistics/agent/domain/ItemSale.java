@@ -69,6 +69,32 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 		this.itemSaleInvoice=invoice;
 		
 	}
+
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+
+	public Long getAgentId() {
+		return agentId;
+	}
+
+
+	public Date getPurchaseDate() {
+		return purchaseDate;
+	}
+
+
+	public Long getOrderQuantity() {
+		return orderQuantity;
+	}
+
+
+	public ItemSaleInvoice getItemSaleInvoice() {
+		return itemSaleInvoice;
+	}
+	
 	
 	
 

@@ -11,6 +11,9 @@ import org.mifosplatform.logistics.agent.domain.ItemSaleInvoice;
 import org.mifosplatform.logistics.agent.domain.ItemSaleInvoiceRepository;
 import org.mifosplatform.logistics.agent.domain.ItemSaleRepository;
 import org.mifosplatform.logistics.agent.serialization.AgentItemSaleCommandFromApiJsonDeserializer;
+import org.mifosplatform.logistics.item.domain.ItemMaster;
+import org.mifosplatform.logistics.item.domain.ItemRepository;
+import org.mifosplatform.logistics.item.exception.ItemNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -24,15 +27,18 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
 	private final ItemSaleRepository itemSaleRepository;
 	private final ItemSaleInvoiceRepository itemSaleInvoiceRepository;
 	private final AgentItemSaleCommandFromApiJsonDeserializer apiJsonDeserializer;
+	private final ItemRepository itemRepository;
 	
 	@Autowired
 	public ItemSaleWriteplatformServiceImpl(final PlatformSecurityContext context,final ItemSaleRepository itemSaleRepository,
-			final ItemSaleInvoiceRepository itemSaleInvoiceRepository,final AgentItemSaleCommandFromApiJsonDeserializer apiJsonDeserializer){
+			final ItemSaleInvoiceRepository itemSaleInvoiceRepository,final AgentItemSaleCommandFromApiJsonDeserializer apiJsonDeserializer,
+			final ItemRepository itemRepository){
 		
 		   this.context=context;
 		   this.itemSaleRepository=itemSaleRepository;
 		   this.itemSaleInvoiceRepository=itemSaleInvoiceRepository;
 		   this.apiJsonDeserializer=apiJsonDeserializer;
+		   this.itemRepository=itemRepository;
 		
 	}
 	
@@ -47,8 +53,12 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
         	this.context.authenticatedUser();
         	this.apiJsonDeserializer.validateForCreate(command.json());
         	ItemSale itemSale=ItemSale.fromJson(command);
-        	
-        	
+            ItemMaster itemMaster=this.itemRepository.findOne(itemSale.getItemId());
+            
+            if(itemMaster == null){
+        	  throw new ItemNotFoundException(itemSale.getItemId().toString());
+            }
+          
         	ItemSaleInvoice invoice=ItemSaleInvoice.fromJson(command);
         	BigDecimal taxAmount=this.calculateTaxAmount(invoice.getChargeAmount(),invoice.getTaxPercantage());
 

@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -42,7 +43,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.mifosplatform.billing.paymode.data.McodeData;
-import org.mifosplatform.billing.paymode.exception.PaymodeNotFoundException;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
@@ -63,11 +63,10 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.item.exception.ItemNotFoundException;
 import org.mifosplatform.logistics.itemdetails.api.InventoryItemDetailsApiResource;
-import org.mifosplatform.logistics.itemdetails.command.ItemDetailsCommand;
 import org.mifosplatform.logistics.itemdetails.data.InventoryItemDetailsData;
 import org.mifosplatform.logistics.itemdetails.exception.OrderQuantityExceedsException;
-import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.scheduledjobs.importfile.data.MRNErrorData;
@@ -621,11 +620,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								}else{
 									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 								}
-
-				        	
-				        		  
-				        
-						
 						}catch(AdjustmentCodeNotFoundException e){
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 
@@ -974,6 +968,107 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 	
+			
+		}else if(uploadProcess.equalsIgnoreCase("ItemSale") && new File(fileLocation).getName().contains(".csv")){
+
+			//ArrayList<ItemDetailsCSVData> CSVData = new ArrayList<ItemDetailsCSVData>();
+			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
+			BufferedReader csvFileBufferedReader = null;
+			String line = null;
+			String splitLineRegX = ",";
+			int i=1;
+			Long processRecordCount=0L;
+			Long totalRecordCount=0L;
+			JSONObject jsonObject = new JSONObject();
+			UploadStatus uploadStatusForItemSale = this.uploadStatusRepository.findOne(orderId);
+			uploadStatusForItemSale.setProcessStatus("Running...");
+			this.uploadStatusRepository.save(uploadStatusForItemSale);
+			
+			try{
+				csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
+				line = csvFileBufferedReader.readLine();
+				while((line = csvFileBufferedReader.readLine()) != null){
+					try{
+					String[] currentLineData = line.split(splitLineRegX);
+					
+					if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
+						uploadStatusForItemSale.setProcessRecords(processRecordCount);
+						uploadStatusForItemSale.setUnprocessedRecords(totalRecordCount-processRecordCount);
+						uploadStatusForItemSale.setTotalRecords(totalRecordCount);
+						writeCSVData(fileLocation, errorData,uploadStatusForItemSale);
+						processRecordCount=0L;totalRecordCount=0L;
+						uploadStatusForItemSale=null;
+						writeToFile(fileLocation,errorData);
+						return new CommandProcessingResult(Long.valueOf(-1));
+					}
+					
+					if(currentLineData.length>=6){
+						
+						jsonObject.put("agentId",currentLineData[0]);
+						jsonObject.put("itemId",currentLineData[1]);
+						jsonObject.put("orderQuantity",currentLineData[2]);
+						jsonObject.put("chargeAmount",currentLineData[3]);
+						jsonObject.put("taxPercantage", currentLineData[4]);
+						
+						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMMM-yy");
+				    	Date date=formatter.parse(currentLineData[5]);
+				    	SimpleDateFormat formatter1 = new SimpleDateFormat("dd MMMM yyyy");
+				    	   
+						     jsonObject.put("locale", "en");
+			                 jsonObject.put("dateFormat","dd MMMM yyyy");
+			                 jsonObject.put("purchaseDate",formatter1.format(date));
+						//jsonObject.put("clientId", 1);
+						//jsonObject.put("officeId", 1);
+						totalRecordCount++;
+						final CommandWrapper commandRequest = new CommandWrapperBuilder().createItemSale().withJson(jsonObject.toString().toString()).build();
+						final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+						 if(result!=null){
+						    	//Long rsId = result.resourceId();
+						    	processRecordCount++;
+						    	errorData.add(new MRNErrorData((long)i, "Success."));
+						 }
+					}else{
+						errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
+						totalRecordCount++;
+					}
+					
+					}catch(ItemNotFoundException e){
+						errormessage ="Invalid Item id";
+						errorData.add(new MRNErrorData((long)i,errormessage));
+					}
+					catch(Exception e){
+						if(e.toString().contains("PlatformApiDataValidationException")){
+							errormessage ="missing some value in this record";
+							errorData.add(new MRNErrorData((long)i, errormessage));
+						}
+					}
+					i++;
+				}
+				
+				uploadStatusForItemSale.setProcessRecords(processRecordCount);
+				uploadStatusForItemSale.setUnprocessedRecords(totalRecordCount-processRecordCount);
+				uploadStatusForItemSale.setTotalRecords(totalRecordCount);
+				writeCSVData(fileLocation, errorData,uploadStatusForItemSale);
+				processRecordCount=0L;totalRecordCount=0L;
+				uploadStatusForItemSale=null;
+				
+			}catch (FileNotFoundException e) {
+				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
+			}catch (Exception e) {
+				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
+				
+			}finally{
+				if(csvFileBufferedReader!=null){
+					try{
+						csvFileBufferedReader.close();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			
+			writeToFile(fileLocation,errorData);
 			
 		}else{
 		try {

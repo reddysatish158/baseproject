@@ -1,4 +1,4 @@
-package org.mifosplatform.finance.billmaster.service;
+package org.mifosplatform.finance.billingmaster.service;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
