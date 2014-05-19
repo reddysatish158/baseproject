@@ -2142,4 +2142,13 @@ public CommandWrapperBuilder createRedemption(Long clientId, String pinNumber) {
 	this.href = "/redemption/"+clientId+"/"+pinNumber;
 	return this;
 }
+
+public CommandWrapperBuilder moveItemSale() {
+	 this.actionName = "MOVEITEM";
+	 this.entityName = "MRN";
+	 this.entityId = null;
+	 this.href = "/mrndetails/movemrn/itemsale"+clientId;
+	 return this;
+
+}
 }
