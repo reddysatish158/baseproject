@@ -8,6 +8,8 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.agent.domain.ItemSale;
+import org.mifosplatform.logistics.agent.domain.ItemSaleRepository;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.logistics.itemdetails.mrn.data.MRNMoveDetailsData;
@@ -30,6 +32,7 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(MRNDetailsWritePlatformServiceImp.class);
 	
 	private final MRNDetailsJpaRepository mrnDetailsJpaRepository;
+	private final ItemSaleRepository itemSaleRepository;
 	private final PlatformSecurityContext context; 
 	private final MRNDetailsCommandFromApiJsonDeserializer apiJsonDeserializer;
 	private final MRNDetailsReadPlatformService mrnDetailsReadPlatformService;
@@ -41,13 +44,15 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			, final MRNDetailsCommandFromApiJsonDeserializer apiJsonDeserializer
 			,final MRNDetailsReadPlatformService mrnDetailsReadPlatformService
 			, final InventoryTransactionHistoryJpaRepository inventoryTransactionHistoryJpaRepository
-			,final InventoryItemDetailsRepository inventoryItemDetailsRepository) {
+			,final InventoryItemDetailsRepository inventoryItemDetailsRepository
+			,final ItemSaleRepository itemSaleRepository) {
 		this.mrnDetailsJpaRepository = mrnDetailsJpaRepository;
 		this.context = context;
 		this.apiJsonDeserializer = apiJsonDeserializer;
 		this.mrnDetailsReadPlatformService = mrnDetailsReadPlatformService;
 		this.inventoryTransactionHistoryJpaRepository = inventoryTransactionHistoryJpaRepository;
 		this.inventoryItemDetailsRepository = inventoryItemDetailsRepository;
+		this.itemSaleRepository=itemSaleRepository;
 	}
 	
 	
@@ -78,8 +83,9 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 		apiJsonDeserializer.validateForMove(command.json());
 		InventoryTransactionHistory transactionHistory = null;
 		try {
-			MRNMoveDetailsData mrnMoveDetailsData = MRNMoveDetailsData.fromJson(command);
 			final Long mrnId = command.longValueOfParameterNamed("mrnId");
+			MRNMoveDetailsData mrnMoveDetailsData = MRNMoveDetailsData.fromJson(command,mrnId);
+			
 			MRNDetails mrnDetails = mrnDetailsJpaRepository.findOne(mrnId);
 			List<Long> itemMasterId = mrnDetailsReadPlatformService.retriveItemMasterId(mrnId);
 			
@@ -105,7 +111,7 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 				throw new PlatformDataIntegrityException("received.quantity.is.full", "received.quantity.is.full", "received.quantity.is.full");
 			}
 			
-			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), mrnMoveDetailsData.getMrnId(),"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getFromOffice(), mrnDetails.getToOffice());
+			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), mrnId,"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getFromOffice(), mrnDetails.getToOffice());
 			//InventoryTransactionHistory transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(),mrnMoveDetailsData.getMrnId(),"MRN",mrnMoveDetailsData.getSerialNumber(),mrnDetails.getFromOffice(),mrnDetails.getToOffice(),itemMasterId.get(0));
 			
 			details.setOfficeId(mrnDetails.getToOffice());
@@ -142,4 +148,66 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
        }
        logger.error(dve.getMessage(), dve);   	
 }
+
+
+	@Override
+	public CommandProcessingResult moveItemSale(JsonCommand command) {
+		
+		context.authenticatedUser();
+		apiJsonDeserializer.validateForMove(command.json());
+		InventoryTransactionHistory transactionHistory = null;
+		try {
+			final Long itemId = command.longValueOfParameterNamed("itemId");
+			MRNMoveDetailsData mrnMoveDetailsData = MRNMoveDetailsData.fromJson(command,itemId);
+			
+			ItemSale mrnDetails = itemSaleRepository.findOne(itemId);
+			List<Long> itemMasterId = mrnDetailsReadPlatformService.retriveItemMasterIdForSale(itemId);
+			
+			final List<String> serialNumber = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(mrnDetails.getAgentId(),itemId);
+			
+			if(!serialNumber.contains(mrnMoveDetailsData.getSerialNumber())){
+				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation", "invalid.serialnumber.allocation", "serialNumber","");
+			}
+			
+			List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0));
+			InventoryItemDetails details = inventoryItemDetailsRepository.findOne(itemDetailsId.get(0));
+			
+			
+			
+			/*if(details.getOfficeId().equals(mrnDetails.getAgentId())){
+				throw new PlatformDataIntegrityException("invalid.move.operation", "invalid.move.operation", "invalid.move.operation");
+			}*/
+			details.setOfficeId(mrnDetails.getAgentId());
+			if(mrnDetails.getReceivedQuantity() < mrnDetails.getOrderQuantity()){
+				mrnDetails.setReceivedQuantity(mrnDetails.getReceivedQuantity()+1);
+				mrnDetails.setStatus("Pending");
+			} else if(mrnDetails.getReceivedQuantity().equals(mrnDetails.getOrderQuantity())){
+				throw new PlatformDataIntegrityException("received.quantity.is.full", "received.quantity.is.full", "received.quantity.is.full");
+			}
+			
+			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), itemId,"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getAgentId(), mrnDetails.getAgentId());
+			//InventoryTransactionHistory transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(),mrnMoveDetailsData.getMrnId(),"MRN",mrnMoveDetailsData.getSerialNumber(),mrnDetails.getFromOffice(),mrnDetails.getToOffice(),itemMasterId.get(0));
+			
+			details.setOfficeId(mrnDetails.getAgentId());
+			inventoryItemDetailsRepository.save(details);
+			inventoryTransactionHistoryJpaRepository.save(transactionHistory);
+			if(mrnDetails.getOrderQuantity().equals(mrnDetails.getReceivedQuantity())){
+				mrnDetails.setStatus("Completed");
+			}
+			itemSaleRepository.save(mrnDetails);
+			
+			
+		} catch (ParseException e) {
+			throw new PlatformDataIntegrityException("invalid.moved.date", "invalid.moved.date", "invalid.moved.date");
+		} catch (EmptyResultDataAccessException e) {
+			throw new PlatformDataIntegrityException("serial.number.doest.not.exist", "serial.number.doest.not.exist", "serial.number.doest.not.exist");
+		}
+	
+		
+		/*
+		 * take data from mrndetails update office id with tooffice id in itemdetails table then update mrntransaction history table 
+		 * */
+		
+		return new CommandProcessingResultBuilder().withEntityId(transactionHistory.getId()).build();
+	}
 }

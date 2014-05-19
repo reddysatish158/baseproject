@@ -26,12 +26,26 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	@Column(name="agent_id")
 	private Long agentId;
 	
+	@Column(name="received_quantity")
+	private Long receivedQuantity=0L;
+
+	@Column(name="status")
+	private String status="New";
+
+
 	@Column(name = "purchase_date")
 	private Date purchaseDate;
 	
 	@Column(name="order_quantity")
 	private Long orderQuantity;
 	
+	
+
+	public void setOrderQuantity(Long orderQuantity) {
+		this.orderQuantity = orderQuantity;
+	}
+
+
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "itemsale", orphanRemoval = true)
 	private ItemSaleInvoice itemSaleInvoice = new ItemSaleInvoice();
@@ -81,6 +95,24 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	}
 
 
+	public Long getReceivedQuantity() {
+		return receivedQuantity;
+	}
+
+
+	public void setReceivedQuantity(Long receivedQuantity) {
+		this.receivedQuantity = receivedQuantity;
+	}
+
+
+	public String getStatus() {
+		return status;
+	}
+
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	public Date getPurchaseDate() {
 		return purchaseDate;
 	}
@@ -89,6 +121,11 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	public Long getOrderQuantity() {
 		return orderQuantity;
 	}
+
+	public void setAgentId(Long agentId) {
+		this.agentId = agentId;
+	}
+
 
 
 	public ItemSaleInvoice getItemSaleInvoice() {

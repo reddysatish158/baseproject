@@ -295,6 +295,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					
 					jsonObject.put("mrnId",currentLineData[0]);
 					jsonObject.put("serialNumber",currentLineData[1]);
+					jsonObject.put("type",currentLineData[2]);
 					jsonObject.put("locale","en");
 					totalRecordCount++;
 					context.authenticatedUser().validateHasReadPermission(MRN_RESOURCE_TYPE);
@@ -439,7 +440,109 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-		*/}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
+		*/}else if(uploadProcess.equalsIgnoreCase("Move Itemsale") && new File(fileLocation).getName().contains(".csv")){
+			
+		ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
+		BufferedReader csvFileBufferedReader = null;
+		String line = null;
+		String splitLineRegX = ",";
+		int i=1;
+		Long processRecordCount=0L;
+		Long totalRecordCount=0L;
+		JSONObject jsonObject = new JSONObject();
+		UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
+		uploadStatusForMrn.setProcessStatus("Running...");
+		this.uploadStatusRepository.save(uploadStatusForMrn);
+		try{
+			csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
+			line = csvFileBufferedReader.readLine();
+			while((line = csvFileBufferedReader.readLine()) != null){
+				try{
+				String[] currentLineData = line.split(splitLineRegX);
+				
+				if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
+					uploadStatusForMrn.setProcessRecords(processRecordCount);
+					uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
+					uploadStatusForMrn.setTotalRecords(totalRecordCount);
+					writeCSVData(fileLocation, errorData,uploadStatusForMrn);
+					processRecordCount=0L;totalRecordCount=0L;
+					uploadStatusForMrn=null;
+					writeToFile(fileLocation,errorData);
+					return new CommandProcessingResult(Long.valueOf(-1));
+				}
+				
+				if(currentLineData.length>=2){
+					
+					jsonObject.put("itemId",currentLineData[0]);
+					jsonObject.put("serialNumber",currentLineData[1]);
+					jsonObject.put("type",currentLineData[2]);
+					jsonObject.put("locale","en");
+					totalRecordCount++;
+					context.authenticatedUser().validateHasReadPermission(MRN_RESOURCE_TYPE);
+					final CommandWrapper commandRequest = new CommandWrapperBuilder().moveItemSale().withJson(jsonObject.toString().toString()).build();
+					final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+					 if(result!=null){
+					    	//Long rsId = result.resourceId();
+					    	processRecordCount++;
+					    	errorData.add(new MRNErrorData((long)i, "Success."));
+					 }
+				}else{
+					errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
+				}
+				
+				}catch(OrderQuantityExceedsException e){
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+				}catch(NoGrnIdFoundException e){
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+				}catch (PlatformApiDataValidationException e) {
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
+					
+				}catch (PlatformDataIntegrityException e) {
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
+					
+				}catch (NullPointerException e) {
+					errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
+					
+				}catch (IllegalStateException e) {
+					errorData.add(new MRNErrorData((long)i,e.getMessage()));
+					
+				}catch (Exception e) {
+					errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
+					
+				}
+				i++;
+			}
+			
+			uploadStatusForMrn.setProcessRecords(processRecordCount);
+			uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
+			uploadStatusForMrn.setTotalRecords(totalRecordCount);
+			writeCSVData(fileLocation, errorData,uploadStatusForMrn);
+			processRecordCount=0L;totalRecordCount=0L;
+			uploadStatusForMrn=null;
+			
+		}catch (FileNotFoundException e) {
+			throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
+		}catch (Exception e) {
+			errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
+			
+		}finally{
+			if(csvFileBufferedReader!=null){
+				try{
+					csvFileBufferedReader.close();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		writeToFile(fileLocation,errorData);
+		
+		}
+		
+		
+		
+		else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
 			
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			BufferedReader csvFileBufferedReader = null;

@@ -8,6 +8,7 @@ import java.util.List;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
+import org.mifosplatform.logistics.itemdetails.mrn.data.MRNDetailsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -94,5 +95,20 @@ public AgentItemSaleData retrieveSingleItemSaleData(Long id) {
 
 }
 
+public List<MRNDetailsData> retriveItemsaleIds() {
+	final String sql = "select id as itemsaleId,(select item_description from b_item_master where id=item_id) as itemDescription,item_id as itemMasterId  from b_itemsale where order_quantity>0 order by purchase_date desc";//"select id as mrnId,(select item_description from b_item_master where id=item_master_id) as itemDescription, item_master_id as itemMasterId from b_mrn order by requested_date desc";
+	ItemSaleDetailsMrnIDsMapper rowMapper = new ItemSaleDetailsMrnIDsMapper();
+	return jdbcTemplate.query(sql,rowMapper);
+}
+
+private final class ItemSaleDetailsMrnIDsMapper implements RowMapper<MRNDetailsData>{
+	@Override
+	public MRNDetailsData mapRow(ResultSet rs, int rowNum) throws SQLException {
+		final Long itemsaleId = rs.getLong("itemsaleId");
+		final Long itemMasterId = rs.getLong("itemMasterId");
+		final String itemDescription = rs.getString("itemDescription");
+		return new MRNDetailsData(itemDescription,itemsaleId,itemMasterId);
+	}
+}
 
 }

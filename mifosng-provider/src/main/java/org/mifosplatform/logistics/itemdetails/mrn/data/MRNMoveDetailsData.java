@@ -8,15 +8,24 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 public class MRNMoveDetailsData{
 
 	private String 	serialNumber;
+	private Long id;
 	private Long mrnId;
 	private Date movedDate;
 	private Long fromOffice;
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	private Long toOffice;
 	
 	
-	public MRNMoveDetailsData(final String serialNumber, final Long mrnId, final Date movedDate) {
+	public MRNMoveDetailsData(final String serialNumber, final Long id, final Date movedDate) {
 		this.serialNumber = serialNumber;
-		this.mrnId = mrnId;
+		this.id = id;
 		this.movedDate = movedDate;
 	}
 	
@@ -74,12 +83,12 @@ public class MRNMoveDetailsData{
 		this.toOffice = toOffice;
 	}
 
-	public static MRNMoveDetailsData fromJson(JsonCommand command) throws ParseException {
-		final Long mrnId = command.longValueOfParameterNamed("mrnId");
+	public static MRNMoveDetailsData fromJson(JsonCommand command,Long id) throws ParseException {
+		final Long idValue=id;
 		final String serialNumber = command.stringValueOfParameterNamed("serialNumber");
 		
 		
-		return new MRNMoveDetailsData(serialNumber, mrnId, new Date());
+		return new MRNMoveDetailsData(serialNumber, idValue, new Date());
 	}
 	
 	

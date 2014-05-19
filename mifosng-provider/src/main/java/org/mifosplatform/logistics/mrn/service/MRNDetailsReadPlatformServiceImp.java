@@ -322,6 +322,36 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 		final MRNDetailsMapper rowMapper = new MRNDetailsMapper();
 		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{mrnId});
 	}
+
+	@Override
+	public MRNDetailsData retriveAgentId(Long itemsaleId) {
+		final String sql = "select agent_id as agentId from b_itemsale where id=?";
+		final AgentDetailsMapper rowMapper = new AgentDetailsMapper(); 
+		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{itemsaleId});
+	}
+	
+	private final class AgentDetailsMapper implements RowMapper<MRNDetailsData>{
+		@Override
+		public MRNDetailsData mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			final Long agentId = rs.getLong("agentId");
+			return new MRNDetailsData(agentId);
+		}
+	}
+	
+	@Override
+	public List<String> retriveSerialNumbersForItems(Long agentId, Long itemsaleId) {
+		final String sql = "select idt.serial_no as serialNumber from b_itemsale bi left join b_item_detail idt on idt.item_master_id = bi.item_id where bi.id = ? and idt.client_id is null and idt.office_id=?";//"select serial_no as serialNumber from b_item_detail where item_master_id=? and client_id is null";
+		final MRNDetailsSerialMapper rowMapper = new MRNDetailsSerialMapper();
+		return jdbcTemplate.query(sql,rowMapper,new Object[]{itemsaleId,agentId});
+	}
+	
+	@Override
+	public List<Long> retriveItemMasterIdForSale(Long itemId) {
+		final String sql = "select item_id as itemMasterId from b_itemsale where id = ?";
+		final MRNDetailsItemMasterId rowMapper = new MRNDetailsItemMasterId();
+		return jdbcTemplate.query(sql,rowMapper,new Object[]{itemId});
+	}
 	
 }
 

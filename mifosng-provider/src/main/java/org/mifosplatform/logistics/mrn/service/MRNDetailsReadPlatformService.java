@@ -33,4 +33,10 @@ public interface MRNDetailsReadPlatformService {
 	 Page<MRNDetailsData> retriveMRNDetails(SearchSqlQuery searchMRNDetails);
 
 	InventoryTransactionHistoryData retriveSingleMovedMrn(Long mrnId);
+
+	MRNDetailsData retriveAgentId(Long itemsaleId);
+
+	List<String> retriveSerialNumbersForItems(Long officeId, Long itemsaleId);
+
+	List<Long> retriveItemMasterIdForSale(Long mrnId);
 }
