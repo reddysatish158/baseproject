@@ -26,8 +26,10 @@ public class MRNDetailsData {
 	private String itemCode;
 	private String itemDescription;
 	private Collection<MRNDetailsData> mrnIds;
+	private List<MRNDetailsData> itemsaleIds;
 	private Long mrnId;
 	private List<String> serialNumber;
+	private List<String> serialNumberForItems;
 	private Long fromOfficeNum;
 	private Long toOfficeNum;
 	
@@ -70,8 +72,9 @@ public class MRNDetailsData {
 		this.officeData = officeData;
 		this.itemMasterData = itemMasterData;
 	}
-	public MRNDetailsData(Collection<MRNDetailsData> mrnIds) {
+	public MRNDetailsData(Collection<MRNDetailsData> mrnIds,List<MRNDetailsData> itemsaleIds) {
 	this.mrnIds = mrnIds;
+	this.itemsaleIds=itemsaleIds;
 	}
 	public MRNDetailsData(Long mrnId,String itemDescription, Long itemId) {
 		this.mrnId = mrnId;
@@ -86,6 +89,19 @@ public class MRNDetailsData {
 	public MRNDetailsData(Long fromOffice, Long toOffice) {
 		this.fromOfficeNum = fromOffice;
 		this.toOfficeNum = toOffice;
+	}
+
+	public MRNDetailsData(String itemDescription, Long itemsaleId,
+			Long itemMasterId) {
+		
+			this.id=itemsaleId;
+			this.itemId=itemMasterId;
+			this.itemDescription=itemDescription;
+	}
+
+	public MRNDetailsData(Long agentId) {
+		
+			this.officeId=agentId;
 	}
 
 	public LocalDate getRequestedDate() {
