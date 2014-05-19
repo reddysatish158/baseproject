@@ -23,6 +23,9 @@ public class RandomGeneratorDetails extends AbstractPersistable<Long> {
 	@Column(name = "serial_no", nullable = false)
 	private Long serialNo;
 	
+	@Column(name = "client_id", nullable = true)
+	private Long clientId;
+	
 	
 	public RandomGeneratorDetails(){
 		

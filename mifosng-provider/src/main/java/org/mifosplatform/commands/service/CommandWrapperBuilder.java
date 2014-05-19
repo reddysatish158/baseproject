@@ -2133,4 +2133,13 @@ public CommandWrapperBuilder createOfficePayment(Long officeId) {
 	this.href = "/officepayments/"+officeId;
 	return this;
 }
+
+public CommandWrapperBuilder createRedemption(Long clientId, String pinNumber) {
+	this.actionName = "CREATE";
+	this.entityName = "REDEMPTION";
+	this.entityId = clientId;
+	this.supportedEntityType = pinNumber;
+	this.href = "/redemption/"+clientId+"/"+pinNumber;
+	return this;
+}
 }
