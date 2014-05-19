@@ -187,6 +187,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	public CommandProcessingResult createOrder(Long clientId,JsonCommand command) {
 	
 		try{
+			LocalDate endDate = null;
+			Long orderStatus=null;
 			//context.authenticatedUser().
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			
@@ -195,11 +197,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			if(customValidationData.getErrorCode() != 0 && customValidationData.getErrorMessage() != null){
 				throw new ActivePlansFoundException(customValidationData.getErrorMessage()); 
-				
 			}
 			
-			 LocalDate endDate = null;
-			 Long orderStatus=null;
+			
 			List<OrderLine> serviceDetails = new ArrayList<OrderLine>();
 			List<OrderPrice> orderprice = new ArrayList<OrderPrice>();
 			List<PriceData> datas = new ArrayList<PriceData>();
