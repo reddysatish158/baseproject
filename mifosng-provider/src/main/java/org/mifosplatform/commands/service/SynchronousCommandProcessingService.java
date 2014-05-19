@@ -823,6 +823,9 @@ public class SynchronousCommandProcessingService implements
 		    }
 			
 			else if(wrapper.isMRN()){
+						if(wrapper.isMoveItemSale()){
+							handler=applicationContext.getBean("createItemSaleDetailsMoveCommandHandler",NewCommandSourceHandler.class);
+						}
 			           if(wrapper.isCreateMRN()){
 			               handler = applicationContext.getBean("createMRNDetailsCommandHandler",NewCommandSourceHandler.class);
 			              }else if(wrapper.moveMRN()){

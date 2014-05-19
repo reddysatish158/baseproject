@@ -817,6 +817,10 @@ public class CommandWrapper {
 		public boolean moveMRN(){
 			   return this.actionName.equalsIgnoreCase("MOVE") && this.entityName.equalsIgnoreCase("MRN");
 		}
+		
+		public boolean isMoveItemSale(){
+			   return this.actionName.equalsIgnoreCase("MOVEITEM") && this.entityName.equalsIgnoreCase("MRN");
+		}
 
 		public boolean isSupplier() {
 			   return this.entityName.equalsIgnoreCase("SUPPLIER");

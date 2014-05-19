@@ -26,12 +26,59 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	@Column(name="agent_id")
 	private Long agentId;
 	
+	@Column(name="received_quantity")
+	private Long receivedQuantity=0L;
+	
+	public Long getReceivedQuantity() {
+		return receivedQuantity;
+	}
+
+
+	public void setReceivedQuantity(Long receivedQuantity) {
+		this.receivedQuantity = receivedQuantity;
+	}
+
+
+	public String getStatus() {
+		return status;
+	}
+
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+
+	@Column(name="status")
+	private String status="New";
+
+	
+	public Long getAgentId() {
+		return agentId;
+	}
+
+
+	public void setAgentId(Long agentId) {
+		this.agentId = agentId;
+	}
+
+
 	@Column(name = "purchase_date")
 	private Date purchaseDate;
 	
 	@Column(name="order_quantity")
 	private Long orderQuantity;
 	
+	public Long getOrderQuantity() {
+		return orderQuantity;
+	}
+
+
+	public void setOrderQuantity(Long orderQuantity) {
+		this.orderQuantity = orderQuantity;
+	}
+
+
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "itemsale", orphanRemoval = true)
 	private ItemSaleInvoice itemSaleInvoice = new ItemSaleInvoice();
