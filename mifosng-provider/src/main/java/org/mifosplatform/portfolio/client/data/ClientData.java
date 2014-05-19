@@ -177,7 +177,7 @@ final public class ClientData implements Comparable<ClientData> {
         
     }
 
-    public Long id() {
+	public Long id() {
         return this.id;
     }
 
@@ -263,6 +263,5 @@ final public class ClientData implements Comparable<ClientData> {
 	public void setConfigurationProperty(GlobalConfigurationProperty configurationProperty) {
 		this.configurationProperty = configurationProperty;
 	}
-	
-	
+
 }
