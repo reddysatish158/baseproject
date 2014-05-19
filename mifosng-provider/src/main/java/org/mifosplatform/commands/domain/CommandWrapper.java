@@ -1027,4 +1027,8 @@ public class CommandWrapper {
 
 		}
 
+		public boolean isRedemptionResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
+		}
+
 }
