@@ -117,11 +117,16 @@ public class SynchronousCommandProcessingService implements
 				.withEntityId(commandSourceResult.getResourceId()).build();
 	}
 
-	private NewCommandSourceHandler findCommandHandler(final CommandWrapper wrapper) {
-		NewCommandSourceHandler handler = null;
-
-		if (wrapper.isConfigurationResource()) {
-			handler = applicationContext.getBean("updateGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
+		private NewCommandSourceHandler findCommandHandler(final CommandWrapper wrapper) {
+			NewCommandSourceHandler handler = null;
+		
+			if (wrapper.isConfigurationResource()) {
+				if(wrapper.isCreate()){
+				handler = applicationContext.getBean("createGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
+				}
+				else if(wrapper.isUpdateOperation()){
+				handler = applicationContext.getBean("updateGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
+				}
 		} else if (wrapper.isDatatableResource()) {
 			if (wrapper.isCreate()) {
 				handler = applicationContext.getBean("createDatatableEntryCommandHandler",NewCommandSourceHandler.class);

@@ -9,25 +9,54 @@ import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
+import org.mifosplatform.infrastructure.configuration.serialization.GlobalConfigurationCommandFromApiJsonDeserializer;
+import org.mifosplatform.infrastructure.configuration.service.GlobalConfigurationDataValidator;
 import org.mifosplatform.infrastructure.core.domain.EmailDetail;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.commons.codec.binary.Base64;
 
 @Service
 public class GmailBackedPlatformEmailService implements PlatformEmailService {
-
+	 private final GlobalConfigurationRepository repository;
+	 String mailId;
+     String encodedPassword;
+     String decodePassword;
+     String hostName;
+     @Autowired
+     public GmailBackedPlatformEmailService(final GlobalConfigurationRepository repository) {
+         this.repository = repository;
+     }
     @Override
     public void sendToUserAccount(final EmailDetail emailDetail, final String unencodedPassword) {
         Email email = new SimpleEmail();
-
+        GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
+        String value= configuration.getValue();
+       
+        try {
+			JSONObject object =new JSONObject(value);
+			mailId=(String) object.get("mailId");
+			encodedPassword=(String) object.get("password");
+			decodePassword=new String(Base64.decodeBase64(encodedPassword));
+			hostName=(String) object.get("hostName");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+        
         String authuserName = "Open Billing System Community";
-
-        String authuser = "kiran@hugotechnologies.com";//"info@openbillingsystem.com";
-        String authpwd ="kirankiran"; //"openbs@13";
-
+        
+        String authuser = mailId;//"info@openbillingsystem.com";
+        String authpwd =decodePassword; //"openbs@13";
+        
         // Very Important, Don't use email.setAuthentication()
         email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
         email.setDebug(false); // true if you want to debug
-        email.setHostName("smtp.gmail.com");
+        email.setHostName(hostName);
         try {
             email.getMailSession().getProperties().put("mail.smtp.starttls.enable", "true");
             email.setFrom(authuser, authuserName);
