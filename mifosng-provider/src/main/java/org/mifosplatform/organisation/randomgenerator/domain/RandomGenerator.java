@@ -95,9 +95,9 @@ public RandomGenerator(){
 		    final BigDecimal serialNo = command.bigDecimalValueOfParameterNamed("serialNo");
 		    final String pinType = command.stringValueOfParameterNamed("pinType");
 		    final BigDecimal pinVal = command.bigDecimalValueOfParameterNamed("pinValue");
-		    final String pinExtention = command.stringValueOfParameterNamed("pinExtention");
+		   // final String pinExtention = command.stringValueOfParameterNamed("pinExtention");
 		    final LocalDate expiryDate = command.localDateValueOfParameterNamed("expiryDate");
-		    String pinValue=pinVal.toString()+" "+pinExtention;
+		    String pinValue=pinVal.toString();//+" "+pinExtention;
 		return new RandomGenerator(batchName,batchDescription,length.longValue(),beginWith,pinCategory,quantity.longValue(),serialNo.longValue(),pinType,pinValue,expiryDate.toDate());
 	}
 	

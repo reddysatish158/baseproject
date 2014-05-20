@@ -2144,12 +2144,11 @@ public CommandWrapperBuilder createOfficePayment(Long officeId) {
 	return this;
 }
 
-public CommandWrapperBuilder createRedemption(Long clientId, String pinNumber) {
+public CommandWrapperBuilder createRedemption() {
 	this.actionName = "CREATE";
 	this.entityName = "REDEMPTION";
 	this.entityId = clientId;
-	this.supportedEntityType = pinNumber;
-	this.href = "/redemption/"+clientId+"/"+pinNumber;
+	this.href = "/redemption/"+clientId+"/";
 	return this;
 }
 

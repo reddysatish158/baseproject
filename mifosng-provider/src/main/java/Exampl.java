@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.text.ParseException;
 
 import org.codehaus.jettison.json.JSONException;
@@ -9,12 +10,11 @@ public class Exampl {
   
     public static void main(String[] args) throws ParseException, JSONException {
 
-    	String string="{'name':'kiran'}";
-				JSONObject jsonObject=new JSONObject(string);
-				System.out.println(jsonObject.get("name"));
-			}
+    BigDecimal bigDecimal=new BigDecimal("20.0");
+    
+    System.out.println(bigDecimal);
 
 		
-
+    }
     }
 

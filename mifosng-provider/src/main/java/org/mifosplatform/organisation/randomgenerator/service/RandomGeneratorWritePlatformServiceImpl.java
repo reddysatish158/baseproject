@@ -46,11 +46,9 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 	public CommandProcessingResult createRandomGenerator(JsonCommand command) {
 		try {
 			context.authenticatedUser();
-			 this.fromApiJsonDeserializer
-					.validateForCreate(command.json());
+			 this.fromApiJsonDeserializer.validateForCreate(command.json());
 
-			final RandomGenerator randomGenerator = RandomGenerator
-					.fromJson(command);
+			final RandomGenerator randomGenerator = RandomGenerator.fromJson(command);
 
 			generateRandomNumbers(randomGenerator);
 
