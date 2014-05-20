@@ -43,10 +43,15 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			//String serialNumber=null;
 			serialNum=serialNum.trim();
 			/*if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
+=======
+			String serialNumber=null;
+			if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
+>>>>>>> obsplatform-1.01:mifosng-provider/src/main/java/org/mifosplatform/finance/paymentsgateway/service/PaymentGatewayReadPlatformServiceImpl.java
 				serialNumber=serialNum;
 			}else{
 				
 				serialNumber="N"+serialNum;
+<<<<<<< HEAD:mifosng-provider/src/main/java/org/mifosplatform/finance/paymentsgateway/service/PaymentGatewayReadPlatformServiceImpl.java
 			}*/
 		String sql = " select client_id as clientId from b_item_detail  " +
 				" where serial_no = ? or provisioning_serialno = ? and client_id is not null  limit 1";
@@ -108,6 +113,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 
 	@Override
 	public Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchPaymentDetail,String tabType,String source) {	
+
 		// TODO Auto-generated method stub
 		context.authenticatedUser();
 		PaymentMapper mapper=new PaymentMapper();
@@ -123,6 +129,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
     	   
     	   sqlBuilder.append(" and  p.source like '%"+source+"%'  ");
        }
+
           
         if (tabType!=null ) {
         	
@@ -144,6 +151,7 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
         sqlBuilder.append(extraCriteria);
         sqlBuilder.append(" order by payment_date desc ");
                 
+
         
         
         if (searchPaymentDetail.isLimited()) {

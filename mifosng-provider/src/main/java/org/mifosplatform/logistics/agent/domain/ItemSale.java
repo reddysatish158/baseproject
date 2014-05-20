@@ -28,39 +28,9 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	
 	@Column(name="received_quantity")
 	private Long receivedQuantity=0L;
-	
-	public Long getReceivedQuantity() {
-		return receivedQuantity;
-	}
-
-
-	public void setReceivedQuantity(Long receivedQuantity) {
-		this.receivedQuantity = receivedQuantity;
-	}
-
-
-	public String getStatus() {
-		return status;
-	}
-
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 
 	@Column(name="status")
 	private String status="New";
-
-	
-	public Long getAgentId() {
-		return agentId;
-	}
-
-
-	public void setAgentId(Long agentId) {
-		this.agentId = agentId;
-	}
 
 
 	@Column(name = "purchase_date")
@@ -69,10 +39,7 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	@Column(name="order_quantity")
 	private Long orderQuantity;
 	
-	public Long getOrderQuantity() {
-		return orderQuantity;
-	}
-
+	
 
 	public void setOrderQuantity(Long orderQuantity) {
 		this.orderQuantity = orderQuantity;
@@ -116,6 +83,55 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 		this.itemSaleInvoice=invoice;
 		
 	}
+
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+
+	public Long getAgentId() {
+		return agentId;
+	}
+
+
+	public Long getReceivedQuantity() {
+		return receivedQuantity;
+	}
+
+
+	public void setReceivedQuantity(Long receivedQuantity) {
+		this.receivedQuantity = receivedQuantity;
+	}
+
+
+	public String getStatus() {
+		return status;
+	}
+
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Date getPurchaseDate() {
+		return purchaseDate;
+	}
+
+
+	public Long getOrderQuantity() {
+		return orderQuantity;
+	}
+
+	public void setAgentId(Long agentId) {
+		this.agentId = agentId;
+	}
+
+
+
+	public ItemSaleInvoice getItemSaleInvoice() {
+		return itemSaleInvoice;
+	}
+	
 	
 	
 

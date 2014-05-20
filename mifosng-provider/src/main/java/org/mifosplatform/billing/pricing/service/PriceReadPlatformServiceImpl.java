@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.billing.pricing.data.PricingData;
 import org.mifosplatform.billing.pricing.data.SavingChargeVaraint;
 import org.mifosplatform.finance.data.DiscountMasterData;

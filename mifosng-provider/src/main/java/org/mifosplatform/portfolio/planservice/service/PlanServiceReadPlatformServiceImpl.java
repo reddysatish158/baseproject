@@ -44,19 +44,23 @@ public class PlanServiceReadPlatformServiceImpl implements PlanServiceReadPlatfo
 			Long serviceId=rs.getLong("serviceId");
 			Long clientId=rs.getLong("clientId");
 			String serviceName = rs.getString("serviceName");
+			String channelName = rs.getString("channelName");
 			String logo=rs.getString("logo");
 			String url=rs.getString("serviceIdentification");
+			String category=rs.getString("category");
+			String subCategory=rs.getString("subCategory");
 
        
-			return new PlanServiceData(serviceId,clientId,serviceName,logo,url);
+			return new PlanServiceData(serviceId,clientId,serviceName,logo,url,channelName,category,subCategory);
 
 		}
 
 
 		public String schema() {
-			return " s.id as serviceId,o.client_id as clientId,s.service_code as serviceName,sd.image as logo, sd.service_identification as serviceIdentification" +
-					" FROM b_orders o,b_plan_detail p,b_service s,b_prov_service_details sd  WHERE o.client_id = ? AND p.plan_id = o.plan_id " +
-					"AND s.service_code = p.service_code AND s.service_type =? AND s.id = sd.service_id";
+			return " s.id AS serviceId,o.client_id AS clientId,s.service_code AS channelName,s.service_description AS serviceName,sd.image AS logo," +
+					"sd.service_identification AS serviceIdentification,sd.category as category,sd.sub_category as subCategory FROM b_orders o," +
+					"b_plan_detail p,b_service s,b_prov_service_details sd WHERE     o.client_id = ? AND p.plan_id = o.plan_id AND s.service_code = p.service_code" +
+					"AND s.service_type = ? AND s.id = sd.service_id AND o.order_status = 1 GROUP BY s.id";
 		}
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.item.data.ItemData;
-import org.mifosplatform.portfolio.hardwareplanmapping.data.HardwarePlanData;
+import org.mifosplatform.organisation.hardwareplanmapping.data.HardwarePlanData;
 import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

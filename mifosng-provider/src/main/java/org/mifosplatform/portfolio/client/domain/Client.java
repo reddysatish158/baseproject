@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -28,6 +29,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormatter;
+import org.mifosplatform.infrastructure.codes.domain.CodeValue;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
@@ -37,6 +39,7 @@ import org.mifosplatform.infrastructure.security.service.RandomPasswordGenerator
 import org.mifosplatform.organisation.office.domain.Office;
 import org.mifosplatform.portfolio.client.api.ClientApiConstants;
 import org.mifosplatform.portfolio.group.domain.Group;
+import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 
@@ -104,7 +107,13 @@ public final class Client extends AbstractPersistable<Long> {
     @Column(name = "group_name", length = 100)
     private String groupName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "closure_reason_cv_id", nullable = true)
+    private CodeValue closureReason;
     
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "closedon_userid", nullable = true)
+    private AppUser closeddBy;
     
 
     @ManyToMany
@@ -113,6 +122,11 @@ public final class Client extends AbstractPersistable<Long> {
 
     @Transient
     private boolean accountNumberRequiresAutoGeneration = false;
+
+    @Column(name = "closedon_date", nullable = true)
+    @Temporal(TemporalType.DATE)
+    private Date closureDate;
+
 
     public static Client createNew(final Office clientOffice, final Group clientParentGroup, final JsonCommand command) {
 
@@ -449,7 +463,7 @@ public final class Client extends AbstractPersistable<Long> {
         this.displayName = nameBuilder.toString();
     }
 
-    private LocalDate getActivationLocalDate() {
+    public LocalDate getActivationLocalDate() {
         LocalDate activationLocalDate = null;
         if (this.activationDate != null) {
             activationLocalDate = LocalDate.fromDateFields(this.activationDate);
@@ -563,5 +577,12 @@ public final class Client extends AbstractPersistable<Long> {
 		this.status=status;
 		
 	}
+	   public void close(final AppUser currentUser, final CodeValue closureReason, final Date closureDate) {
+	        this.closureReason = closureReason;
+	        this.closureDate = closureDate;
+	        this.closeddBy = currentUser;
+	        this.status = ClientStatus.CLOSED.getValue();
+	    }
+
     
 }

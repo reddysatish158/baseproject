@@ -3,8 +3,6 @@ package org.mifosplatform.organisation.redemption.service;
 
 
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -14,11 +12,10 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
-import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.randomgenerator.domain.RandomGenerator;
 import org.mifosplatform.organisation.randomgenerator.domain.RandomGeneratorDetails;
-import org.mifosplatform.organisation.redemption.domain.RedemptionRepository;
+import org.mifosplatform.organisation.randomgenerator.domain.RandomGeneratorDetailsRepository;
 import org.mifosplatform.organisation.redemption.exception.PinNumberNotFoundException;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -26,13 +23,13 @@ import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.contract.data.SubscriptionData;
 import org.mifosplatform.portfolio.contract.service.ContractPeriodReadPlatformService;
 import org.mifosplatform.portfolio.order.data.OrderData;
+import org.mifosplatform.portfolio.order.domain.Order;
+import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,27 +42,28 @@ public class RedemptionWritePlatformServiceImpl implements
 	private final static Logger logger = LoggerFactory.getLogger(RedemptionWritePlatformServiceImpl.class);
 	private final PlatformSecurityContext context;
 	private final FromJsonHelper fromJsonHelper;
-	private final JdbcTemplate jdbcTemplate;
-	private final RedemptionRepository redemptionRepository;
+	private final RandomGeneratorDetailsRepository randomGeneratorDetailsRepository;
 	private final ClientRepository clientRepository;
 	private final AdjustmentWritePlatformService adjustmentWritePlatformService;
 	private final OrderWritePlatformService orderWritePlatformService;
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
+	private final RedemptionReadPlatformService redemptionReadPlatformService;
+	private final OrderRepository orderRepository;
 	
 	@Autowired
-	public RedemptionWritePlatformServiceImpl(final PlatformSecurityContext context,final RedemptionRepository redemptionRepository,
-									final TenantAwareRoutingDataSource dataSource,final ClientRepository clientRepository,
-									final AdjustmentWritePlatformService adjustmentWritePlatformService,
-									final FromJsonHelper fromJsonHelper,final OrderWritePlatformService orderWritePlatformService,
-									final ContractPeriodReadPlatformService contractPeriodReadPlatformService) {
+	public RedemptionWritePlatformServiceImpl(final PlatformSecurityContext context,final RandomGeneratorDetailsRepository randomGeneratorDetailsRepository,
+		final ClientRepository clientRepository,final AdjustmentWritePlatformService adjustmentWritePlatformService,final FromJsonHelper fromJsonHelper,
+		final OrderWritePlatformService orderWritePlatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
+		final RedemptionReadPlatformService redemptionReadPlatformService,final OrderRepository orderRepository) {
 		this.context = context;
-		this.redemptionRepository = redemptionRepository;
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.randomGeneratorDetailsRepository = randomGeneratorDetailsRepository;
 		this.clientRepository = clientRepository;
 		this.adjustmentWritePlatformService = adjustmentWritePlatformService;
 		this.fromJsonHelper = fromJsonHelper;
 		this.orderWritePlatformService = orderWritePlatformService;
 		this.contractPeriodReadPlatformService = contractPeriodReadPlatformService;
+		this.redemptionReadPlatformService=redemptionReadPlatformService;
+		this.orderRepository=orderRepository;
 	}
 	
 	@Transactional
@@ -73,11 +71,13 @@ public class RedemptionWritePlatformServiceImpl implements
 	public CommandProcessingResult createRedemption(JsonCommand command) {
 		try {
 			context.authenticatedUser();
-			Long clientId = command.entityId();
-			 clientObjectRetrieveById(clientId);
-			 RandomGeneratorDetails randomGeneratorDetails = retrieveRandomDetailsByPinNo(command.getSupportedEntityType());
+			final Long clientId = command.longValueOfParameterNamed("clientId");
+			final String pinNum=command.stringValueOfParameterNamed("pinNumber");
+			this.clientObjectRetrieveById(clientId);
+			 RandomGeneratorDetails randomGeneratorDetails = retrieveRandomDetailsByPinNo(pinNum);
 			 RandomGenerator randomGenerator = randomGeneratorDetails.getRandomGenerator();
 			 String pinType = randomGenerator.getPinType();
+			 
 			 if(pinType.equalsIgnoreCase("VALUE")){
 				 
 				 BigDecimal pinValue = new BigDecimal(randomGenerator.getPinValue());
@@ -90,12 +90,14 @@ public class RedemptionWritePlatformServiceImpl implements
 		          this.adjustmentWritePlatformService.createAdjustments(commd);
 			 }
 			 if(pinType.equalsIgnoreCase("PRODUCT")){
+				 
 				 Long planId = Long.parseLong(randomGenerator.getPinValue());
-				 List<OrderData> ordersDatas = retrieveOrdersData(clientId,planId);
+				 List<Long> orderIds=this.redemptionReadPlatformService.retrieveOrdersData(clientId,planId);
 				 JsonObject json = new JsonObject();
 				 List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
 				 
-				 if(ordersDatas.isEmpty()){
+				 if(orderIds.isEmpty()){
+					 
 					 json.addProperty("billAlign", false);json.addProperty("planCode", planId);
 					 json.addProperty("contractPeriod", subscriptionDatas.get(0).getId());json.addProperty("isNewplan", true);
 					 json.addProperty("paytermCode", "Monthly");json.addProperty("locale", "en");
@@ -103,21 +105,30 @@ public class RedemptionWritePlatformServiceImpl implements
 					 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null,clientId, null, null, null, null, null, null, null, null, null);
 					    this.orderWritePlatformService.createOrder(clientId, commd);
 				 }else {
-					 Long planStatus = ordersDatas.get(0).getPlanStatus();
 					 
-						if(planStatus == 3){
+					 Long orderId = orderIds.get(0);
+					 
+					 Order order=this.orderRepository.findOne(orderId);
+					 
+						if(order.getStatus() == 3){
 							
-						   this.orderWritePlatformService.reconnectOrder(planId);
+						   this.orderWritePlatformService.reconnectOrder(orderId);
 						}
-						else if(planStatus == 1){
+						
+						else if(order.getStatus() == 1){
 							
 							 json.addProperty("renewalPeriod", subscriptionDatas.get(0).getId());
 							 json.addProperty("description", "Order Renewal By Redemption");
 							 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, clientId, null, null, clientId, null, null, null, null, null, null);
-						   this.orderWritePlatformService.renewalClientOrder(commd, planId);
+						   this.orderWritePlatformService.renewalClientOrder(commd, orderId);
 						}
 				 }
 			 }
+			 
+			 
+			 randomGeneratorDetails.setClientId(clientId);
+			 this.randomGeneratorDetailsRepository.save(randomGeneratorDetails);
+			 
 			 return new CommandProcessingResult(clientId);
 	    }catch(DataIntegrityViolationException dve){
 	    	handleCodeDataIntegrityIssues(command, dve);
@@ -126,27 +137,9 @@ public class RedemptionWritePlatformServiceImpl implements
 		
 	}
 	
-	@Transactional
-	private List<OrderData> retrieveOrdersData(Long clientId,Long planId){
-		OrderMapper mapper = new OrderMapper();
-		String sql = "select plan_id as planId,order_status as status from b_orders where client_id = ? and plan_id = ? ";
-		return this.jdbcTemplate.query(sql, mapper, new Object[] { clientId, planId });
-	}
-	private static final class OrderMapper implements RowMapper<OrderData>{
-		
-		@Override
-		public OrderData mapRow(ResultSet rs, int rowNum) throws SQLException {
-			
-			Long planId=rs.getLong("planId");
-			Long planStatus=rs.getLong("status");
-			return new  OrderData(planId,planStatus);
-		}
-		
-	}
-	
 	private RandomGeneratorDetails retrieveRandomDetailsByPinNo(String pinNumber) {
 		
-			RandomGeneratorDetails randomDetails = this.redemptionRepository.findOneByPinNumber(pinNumber);
+			RandomGeneratorDetails randomDetails = this.randomGeneratorDetailsRepository.findOneByPinNumber(pinNumber);
 			if(randomDetails == null){throw new PinNumberNotFoundException(pinNumber);}
 		return randomDetails;
 	}

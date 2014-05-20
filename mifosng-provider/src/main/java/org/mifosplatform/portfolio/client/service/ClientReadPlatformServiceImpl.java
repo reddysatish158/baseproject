@@ -15,6 +15,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.mifosplatform.accounting.closure.data.LoanStatusEnumData;
+import org.mifosplatform.infrastructure.codes.data.CodeValueData;
+import org.mifosplatform.infrastructure.codes.service.CodeValueReadPlatformService;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -56,13 +58,16 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
     private final ClientLookupMapper lookupMapper = new ClientLookupMapper();
     private final ClientMembersOfGroupMapper membersOfGroupMapper = new ClientMembersOfGroupMapper();
     private final ParentGroupsMapper clientGroupsMapper = new ParentGroupsMapper();
+	private final CodeValueReadPlatformService codeValueReadPlatformService;
 
     @Autowired
     public ClientReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
-            final OfficeReadPlatformService officeReadPlatformService,final GlobalConfigurationRepository configurationRepository) {
+            final OfficeReadPlatformService officeReadPlatformService,final GlobalConfigurationRepository configurationRepository,
+            final CodeValueReadPlatformService codeValueReadPlatformService) {
         this.context = context;
         this.officeReadPlatformService = officeReadPlatformService;
         this.configurationRepository=configurationRepository;
+        this.codeValueReadPlatformService=codeValueReadPlatformService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
     
@@ -81,7 +86,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         final Long officeId = currentUser.getOffice().getId();
 
-        return ClientData.template(officeId, new LocalDate(), offices,categoryDatas, groupDatas);
+        return ClientData.template(officeId, new LocalDate(), offices,categoryDatas, groupDatas,null);
     }
 
     @Override
@@ -663,5 +668,12 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	    		
 	    		return new GroupData(id,groupName);
 	    	}
+}
+
+	    @Override
+	    public ClientData retrieveAllClosureReasons(final String clientClosureReason) {
+	        final List<CodeValueData> closureReasons = new ArrayList<CodeValueData>(
+	                this.codeValueReadPlatformService.retrieveCodeValuesByCode(clientClosureReason));
+	        return ClientData.template(null, null, null, null, closureReasons);
 	    }
 }

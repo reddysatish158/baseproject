@@ -30,6 +30,7 @@ import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundExcepti
 import org.mifosplatform.logistics.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.portfolio.allocation.service.AllocationReadPlatformService;
 import org.mifosplatform.portfolio.association.data.AssociationData;
+import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
 import org.mifosplatform.portfolio.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationWriteplatformService;
@@ -38,11 +39,14 @@ import org.mifosplatform.portfolio.client.domain.AccountNumberGeneratorFactory;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.client.domain.ClientStatus;
+import org.mifosplatform.portfolio.contract.data.SubscriptionData;
 import org.mifosplatform.portfolio.contract.domain.Contract;
 import org.mifosplatform.portfolio.contract.domain.SubscriptionRepository;
+import org.mifosplatform.portfolio.contract.service.ContractPeriodReadPlatformService;
 import org.mifosplatform.portfolio.order.data.CustomValidationData;
 import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
 import org.mifosplatform.portfolio.order.data.UserActionStatusEnumaration;
+import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderDiscount;
 import org.mifosplatform.portfolio.order.domain.OrderDiscountRepository;
@@ -121,6 +125,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
     private final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices; 
     private final EventActionRepository eventActionRepository;
+    private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
+    private final HardwareAssociationRepository associationRepository;
     public final static String CONFIG_PROPERTY="Implicit Association";
     public final static String CPE_TYPE="CPE_TYPE";
 
@@ -138,37 +144,40 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    final OrderDiscountRepository orderDiscountRepository,final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
 		    final ClientRepository clientRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
 		    final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices,
-		    final EventActionRepository eventActionRepository) {
+		    final EventActionRepository eventActionRepository,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
+		   final HardwareAssociationRepository associationRepository) {
 		
 		this.context = context;
-		this.orderRepository = orderRepository;
-		this.OrderPriceRepository = OrderPriceRepository;
+		this.reverseInvoice=reverseInvoice;
 		this.planRepository = planRepository;
-		this.prepareRequestWriteplatformService=prepareRequestWriteplatformService;
+		this.orderRepository = orderRepository;
+		this.clientRepository=clientRepository;
+		this.promotionRepository=promotionRepository;
+		this.paymentsApiResource=paymentsApiResource;
+		this.OrderPriceRepository = OrderPriceRepository;
+		this.eventActionRepository=eventActionRepository;
+		this.orderHistoryRepository=orderHistoryRepository;
 		this.subscriptionRepository = subscriptionRepository;
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
-		this.discountMasterRepository=discountMasterRepository;
-		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
-		this.orderHistoryRepository=orderHistoryRepository;
-		this.reverseInvoice=reverseInvoice;
 		this.configurationRepository=configurationRepository;
+		this.orderDiscountRepository=orderDiscountRepository;
+		this.discountMasterRepository=discountMasterRepository;
+		this.processRequestRepository=processRequestRepository;
+		this.prepareRequsetRepository=prepareRequsetRepository;
+		this.orderReadPlatformService = orderReadPlatformService;
 		this.allocationReadPlatformService=allocationReadPlatformService;
 		this.associationWriteplatformService=associationWriteplatformService;
-		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
-		this.processRequestRepository=processRequestRepository;
-		this.orderReadPlatformService = orderReadPlatformService;
-		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
-		this.paymentsApiResource=paymentsApiResource;
-		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
-		this.prepareRequsetRepository=prepareRequsetRepository;
-		this.promotionRepository=promotionRepository;
-		this.orderDiscountRepository=orderDiscountRepository;
-		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
-		this.clientRepository=clientRepository;
 		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
-		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
 		this.orderDetailsReadPlatformServices=orderDetailsReadPlatformServices;
-		this.eventActionRepository=eventActionRepository;
+		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
+		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
+		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
+		this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
+		this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
+		this.prepareRequestWriteplatformService=prepareRequestWriteplatformService;
+		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
+		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
+		this.associationRepository=associationRepository;
 		
 
 	}
@@ -178,6 +187,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	public CommandProcessingResult createOrder(Long clientId,JsonCommand command) {
 	
 		try{
+			LocalDate endDate = null;
+			Long orderStatus=null;
 			//context.authenticatedUser().
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			
@@ -186,11 +197,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			if(customValidationData.getErrorCode() != 0 && customValidationData.getErrorMessage() != null){
 				throw new ActivePlansFoundException(customValidationData.getErrorMessage()); 
-				
 			}
 			
-			 LocalDate endDate = null;
-			 Long orderStatus=null;
+			
 			List<OrderLine> serviceDetails = new ArrayList<OrderLine>();
 			List<OrderPrice> orderprice = new ArrayList<OrderPrice>();
 			List<PriceData> datas = new ArrayList<PriceData>();
@@ -467,13 +476,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
 				
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.DISCONNECTED).getId();
-				Long activeOrders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(order.getClientId(), null);
-
-                   if(activeOrders == 0){
-					   Client client=this.clientRepository.findOne(order.getClientId());
-					 client.setStatus(ClientStatus.DEACTIVE.getValue());
-					 this.clientRepository.saveAndFlush(client);
-				 }
+				
 				
 			}else{
 			
@@ -484,8 +487,20 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	        }
 			order.update(command,orderStatus);
 			order.setuserAction(UserActionStatusTypeEnum.DISCONNECTION.toString());
-			this.orderRepository.save(order);
+			this.orderRepository.saveAndFlush(order);
 			
+			
+			//Update Client Status
+			if(plan.getProvisionSystem().equalsIgnoreCase("None")){
+			Long activeOrders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(order.getClientId(), null);
+
+            if(activeOrders == 0){
+         	   
+				   Client client=this.clientRepository.findOne(order.getClientId());
+				 client.setStatus(ClientStatus.DEACTIVE.getValue());
+				 this.clientRepository.saveAndFlush(client);
+			 }
+			}
 			//for Prepare Request
 			String requstStatus =UserActionStatusTypeEnum.DISCONNECTION.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
@@ -638,8 +653,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		  }
 		  
 		  final LocalDate startDate=new LocalDate();
-		  Long contractId=order.getContarctPeriod();
-		  Contract contractPeriod=this.subscriptionRepository.findOne(contractId);
+		  List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
+		  Contract contractPeriod=this.subscriptionRepository.findOne(subscriptionDatas.get(0).getId());
 		  LocalDate EndDate=calculateEndDate(startDate,contractPeriod.getSubscriptionType(),contractPeriod.getUnits());
 		   order.setStartDate(startDate);
 		   order.setEndDate(EndDate);
@@ -768,11 +783,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 						HardWareId = detailsData.getSerialNo();
 					}
 
-					ProvisionServiceDetails provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+					List<ProvisionServiceDetails> provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 					
 					if (provisionServiceDetails != null) {
 						if (message == null) {
-							message = provisionServiceDetails.getServiceIdentification();
+							message = provisionServiceDetails.get(0).getServiceIdentification();
 						}
 						ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(orderLine.getId(), orderLine.getServiceId(),message, "Recieved",
 								HardWareId,order.getStartDate(), order.getEndDate(), null,null, 'N',requstStatus);
@@ -831,6 +846,16 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			newOrder.setuserAction(UserActionStatusTypeEnum.CHANGE_PLAN.toString());
 			this.orderRepository.save(newOrder);
 			Plan plan=this.planRepository.findOne(newOrder.getPlanId());
+			
+			Long id=hardwareAssociationReadplatformService.retrieveOrderAssociationDetails(order.getId(),order.getClientId());
+			
+			if(id != null  && id != new Long(0)){
+				HardwareAssociation association=this.associationRepository.findOne(id);
+				if(association != null){
+				association.delete();
+				this.associationRepository.save(association);
+				}
+			}
 			
 			//Prepare a Requset For Order
 		     CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(newOrder,plan,UserActionStatusTypeEnum.CHANGE_PLAN.toString());

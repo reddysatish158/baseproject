@@ -139,7 +139,7 @@ public class PaymentGatewayApiResource {
 				            builder.append("<?xml version=\"1.0\"?>")
 				                .append("<!DOCTYPE COMMAND PUBLIC \"-//Ocam//DTD XML Command 1.0//EN\" \"xml/command.dtd\">")
 				                .append("<COMMAND>")
-				                .append("<TYPE>"+TYPE)
+				                .append("<TYPE>"+"SYNC_BILLPAY_RESPONSE")
 				                .append("</TYPE>")
 				                .append("<TXNID>"+TXNID)
 				                .append("</TXNID>")

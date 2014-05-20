@@ -544,6 +544,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 			this.billMasterRepository.save(billMaster);
 			//FileInputStream inputStream = new FileInputStream(jpath +File.separator +"Bill_Mainreport.jasper");
 			String jfilepath =jpath+File.separator+"Bill_Mainreport.jasper";
+			@SuppressWarnings("rawtypes")
 			Map<String, Object> parameters = new HashMap();
 			String id = String.valueOf(billId);
 				parameters.put("param1", id);

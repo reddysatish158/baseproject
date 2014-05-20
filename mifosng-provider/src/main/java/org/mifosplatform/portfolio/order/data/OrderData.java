@@ -129,7 +129,7 @@ public class OrderData {
 	}
 
 	public OrderData(Long orderId, String planCode, String planDescription,
-			String billingFreq, String contractPeriod, Double price) {
+			String billingFreq, String contractPeriod, Double price, LocalDate endDate) {
                  
 		            this.id=orderId;
 		            this.planCode=planCode;
@@ -137,6 +137,7 @@ public class OrderData {
 		            this.billingFrequency=billingFreq;
 		            this.contractPeriod=contractPeriod;
 		            this.price=price;
+		            this.endDate=endDate;
 		           
 	}
 	

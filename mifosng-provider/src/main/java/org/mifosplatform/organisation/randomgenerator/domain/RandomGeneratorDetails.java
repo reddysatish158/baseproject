@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -43,6 +42,34 @@ public class RandomGeneratorDetails extends AbstractPersistable<Long> {
 
 	public RandomGenerator getRandomGenerator() {
 		return randomGenerator;
+	}
+
+	public String getPinNo() {
+		return pinNo;
+	}
+
+	public Long getSerialNo() {
+		return serialNo;
+	}
+
+	public Long getClientId() {
+		return clientId;
+	}
+
+	public void setRandomGenerator(RandomGenerator randomGenerator) {
+		this.randomGenerator = randomGenerator;
+	}
+
+	public void setPinNo(String pinNo) {
+		this.pinNo = pinNo;
+	}
+
+	public void setSerialNo(Long serialNo) {
+		this.serialNo = serialNo;
+	}
+
+	public void setClientId(Long clientId) {
+		this.clientId = clientId;
 	}
 	
 

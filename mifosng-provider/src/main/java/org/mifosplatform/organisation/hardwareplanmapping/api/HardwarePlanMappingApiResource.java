@@ -26,8 +26,8 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.item.data.ItemData;
+import org.mifosplatform.organisation.hardwareplanmapping.data.HardwarePlanData;
 import org.mifosplatform.organisation.hardwareplanmapping.service.HardwarePlanReadPlatformService;
-import org.mifosplatform.portfolio.hardwareplanmapping.data.HardwarePlanData;
 import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

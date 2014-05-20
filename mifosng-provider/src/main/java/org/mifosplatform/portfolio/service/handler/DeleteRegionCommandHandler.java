@@ -5,10 +5,10 @@
  */
 package org.mifosplatform.portfolio.service.handler;
 
-import org.mifosplatform.billing.region.service.RegionWriteplatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.organisation.region.service.RegionWriteplatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -87,11 +87,14 @@ public class ClientsApiResource {
     @Path("template")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    public String retrieveTemplate(@Context final UriInfo uriInfo) {
+    public String retrieveTemplate(@Context final UriInfo uriInfo,  @QueryParam("commandParam") final String commandParam) {
 
         context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
         ClientData clientData = this.clientReadPlatformService.retrieveTemplate();
-        
+        if (is(commandParam, "close")) {
+        	
+        clientData = this.clientReadPlatformService.retrieveAllClosureReasons(ClientApiConstants.CLIENT_CLOSURE_REASON);
+        }
         GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName("LOGIN");
         clientData.setConfigurationProperty(configurationProperty);
         clientData=handleAddressTemplateData(clientData);
@@ -211,6 +214,16 @@ public class ClientsApiResource {
         if (is(commandParam, "activate")) {
             final CommandWrapper commandRequest = builder.activateClient(clientId).build();
             result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        
+        }else  if (is(commandParam, "close")) {
+
+        	 final CommandWrapper commandRequest = new CommandWrapperBuilder() //
+             .deleteClient(clientId) //
+             .withJson(apiRequestBodyAsJson) //
+             .build(); //
+
+
+           result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
         }
         if (result == null) {
             throw new UnrecognizedQueryParamException("command", commandParam, new Object[] { "activate" });

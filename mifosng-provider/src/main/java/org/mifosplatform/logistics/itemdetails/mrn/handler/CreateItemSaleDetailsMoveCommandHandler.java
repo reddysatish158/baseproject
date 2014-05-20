@@ -3,7 +3,7 @@ package org.mifosplatform.logistics.itemdetails.mrn.handler;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
-import org.mifosplatform.logistics.itemdetails.mrn.service.MRNDetailsWritePlatformService;
+import org.mifosplatform.logistics.mrn.service.MRNDetailsWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

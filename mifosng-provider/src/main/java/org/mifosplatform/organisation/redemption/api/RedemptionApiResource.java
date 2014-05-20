@@ -4,7 +4,6 @@ package org.mifosplatform.organisation.redemption.api;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -41,11 +40,11 @@ public class RedemptionApiResource {
 	}
 	
 	@POST
-	@Path("clientId/{clientId}/{pinNumber}")
+	//@Path("clientId/{clientId}/{pinNumber}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String createRedemption(@PathParam("clientId") final Long clientId,@PathParam("pinNumber") final String pinNumber,final String apiRequestBodyAsJson) {
-		final CommandWrapper commandRequest = new CommandWrapperBuilder().createRedemption(clientId,pinNumber).withJson(apiRequestBodyAsJson).build();
+	public String createRedemption(final String apiRequestBodyAsJson) {
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createRedemption().withJson(apiRequestBodyAsJson).build();
 		this.writePlatformService.logCommandSource(commandRequest);
 		return null;
 		

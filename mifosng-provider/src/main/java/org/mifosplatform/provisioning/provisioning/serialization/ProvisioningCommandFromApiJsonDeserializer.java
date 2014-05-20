@@ -32,7 +32,7 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
      */
     private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
     		"commandParameters","commandParam","paramType","paramDefault","groupName","ipAddress","serviceName","vLan","planName","orderId","clientId",
-    		"macId","serviceParameters","paramName","paramValue"));
+    		"macId","serviceParameters","paramName","paramValue","orderId","deviceId","clientName"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -75,12 +75,11 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
 	}
 
 	
-   private void throwExceptionIfValidationWarningsExist(final List<ApiParameterError> dataValidationErrors) {
+    private void throwExceptionIfValidationWarningsExist(final List<ApiParameterError> dataValidationErrors) {
 	        if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException("validation.msg.validation.errors.exist",
 	                "Validation errors exist.", dataValidationErrors); }
 	        }
-	 
-	 
+
 public void validateForAddProvisioning(String json) {
 
    if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }

@@ -20,7 +20,7 @@ public interface ClientWritePlatformService {
 
     CommandProcessingResult activateClient(Long clientId, JsonCommand command);
 
-    CommandProcessingResult deleteClient(Long clientId);
+    CommandProcessingResult deleteClient(Long clientId,JsonCommand command);
 
     @PreAuthorize(value = "hasAnyRole('ALL_FUNCTIONS', 'CREATE_CLIENTIMAGE')")
     CommandProcessingResult saveOrUpdateClientImage(Long clientId, String imageName, InputStream inputStream);

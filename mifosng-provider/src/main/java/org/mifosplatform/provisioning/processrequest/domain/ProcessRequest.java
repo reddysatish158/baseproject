@@ -1,6 +1,7 @@
 package org.mifosplatform.provisioning.processrequest.domain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
@@ -59,8 +61,6 @@ public class ProcessRequest extends AbstractPersistable<Long>{
             this.clientId=clientId;
             this.orderId=orderId;
             this.provisioingSystem=provisioningSystem;
-            
-            
             this.requestType=requestType;
             this.prepareRequestId=requestId;
 	
@@ -139,6 +139,14 @@ public class ProcessRequest extends AbstractPersistable<Long>{
 
 	public List<ProcessRequestDetails> getProcessRequestDetails() {
 		return processRequestDetails;
+	}
+
+
+	public void update() {
+		
+		this.isProcessed ='N';
+		this.isNotify='N';
+		
 	}
 	
 	

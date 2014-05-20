@@ -8,28 +8,32 @@ import org.mifosplatform.organisation.office.data.OfficeData;
 
 public class AgentItemSaleData {
 
-	private List<OfficeData> officeDatas;
-	private List<ItemData> itemDatas;
-	private Long id;
-	private Long itemId;
-	private Long agentId;
-	private String agentName;
-	private String itemName;
-	private Long orderQunatity;
-	private BigDecimal chargeAmount;
-	private BigDecimal invoiceAmount;
-	private BigDecimal tax;
+	private final List<OfficeData> officeDatas;
+	private final List<ItemData> itemDatas;
+	private final Long id;
+	private final Long itemId;
+	private final Long agentId;
+	private final String agentName;
+	private final String itemName;
+	private final Long orderQunatity;
+	private final BigDecimal chargeAmount;
+	private final BigDecimal invoiceAmount;
+	private final BigDecimal tax;
 	
-
-	public AgentItemSaleData(List<OfficeData> officeDatas, List<ItemData> itemDatas) {
-
-		this.officeDatas=officeDatas;
-		this.itemDatas=itemDatas;
 	
+	public static AgentItemSaleData instance(AgentItemSaleData itemSaleData, List<OfficeData> officeDatas,List<ItemData> itemDatas) {
+
+		return new AgentItemSaleData(itemSaleData.id,itemSaleData.itemId,itemSaleData.agentId,itemSaleData.itemName,itemSaleData.agentName,
+				itemSaleData.orderQunatity,itemSaleData.chargeAmount,itemSaleData.tax,itemSaleData.invoiceAmount,officeDatas,itemDatas);
 	}
 
-	public AgentItemSaleData(Long id, Long itemId, Long agentId,String itemName, String agentName,
-			Long orderQunatity,BigDecimal chargeAmount, BigDecimal tax, BigDecimal invoiceAmount) {
+	public static AgentItemSaleData withTemplateData(List<OfficeData> officeDatas, List<ItemData> itemDatas) {
+
+		return new AgentItemSaleData(null,null,null,null,null,null,null,null,null,officeDatas,itemDatas);
+	}
+
+	public AgentItemSaleData(Long id, Long itemId, Long agentId,String itemName, String agentName,Long orderQunatity,
+			BigDecimal chargeAmount, BigDecimal tax, BigDecimal invoiceAmount,List<OfficeData> officeDatas, List<ItemData> itemDatas) {
 		
 		this.id=id;
 		this.itemId=itemId;
@@ -40,6 +44,8 @@ public class AgentItemSaleData {
 		this.chargeAmount=chargeAmount;
 		this.invoiceAmount=invoiceAmount;
 		this.tax=tax;
+		this.officeDatas=officeDatas;
+		this.itemDatas=itemDatas;
 
 	
 	
@@ -88,6 +94,8 @@ public class AgentItemSaleData {
 	public BigDecimal getTax() {
 		return tax;
 	}
+
+	
 
 	
 	
