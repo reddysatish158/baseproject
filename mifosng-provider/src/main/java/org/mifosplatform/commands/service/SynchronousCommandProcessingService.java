@@ -117,16 +117,16 @@ public class SynchronousCommandProcessingService implements
 				.withEntityId(commandSourceResult.getResourceId()).build();
 	}
 
-		private NewCommandSourceHandler findCommandHandler(final CommandWrapper wrapper) {
-			NewCommandSourceHandler handler = null;
-		
-			if (wrapper.isConfigurationResource()) {
-				if(wrapper.isCreate()){
+	private NewCommandSourceHandler findCommandHandler(final CommandWrapper wrapper) {
+		NewCommandSourceHandler handler = null;
+
+		if (wrapper.isConfigurationResource()) {
+			 if(wrapper.isCreate()){
 				handler = applicationContext.getBean("createGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
-				}
-				else if(wrapper.isUpdateOperation()){
+			 }
+			else if(wrapper.isUpdateOperation()){
 				handler = applicationContext.getBean("updateGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
-				}
+			}
 		} else if (wrapper.isDatatableResource()) {
 			if (wrapper.isCreate()) {
 				handler = applicationContext.getBean("createDatatableEntryCommandHandler",NewCommandSourceHandler.class);
@@ -842,7 +842,7 @@ public class SynchronousCommandProcessingService implements
 			                     handler = applicationContext.getBean("createRandomGeneratorCommandHandler",NewCommandSourceHandler.class);
 			                 }
 			}else if (wrapper.isSchedulerResource()) {
-			            if (wrapper.isUpdate()) {
+			            if (wrapper.isUpdateOperation()) {
 			                handler = this.applicationContext.getBean("updateJobDetailCommandhandler", NewCommandSourceHandler.class);
 			            }else if (wrapper.isCreate()) {
 			                handler = this.applicationContext.getBean("createJobDetailCommandhandler", NewCommandSourceHandler.class);
@@ -900,6 +900,8 @@ public class SynchronousCommandProcessingService implements
 				    	 handler = applicationContext.getBean("updatingProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else if(wrapper.isDeleteProvisioning()) {
 				    	 handler = applicationContext.getBean("deleteProvisioningCommandHandler",NewCommandSourceHandler.class);
+				     }else if(wrapper.isCreateProvisioning()) {
+				    	 handler = applicationContext.getBean("createProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
@@ -909,25 +911,18 @@ public class SynchronousCommandProcessingService implements
 				     } 
 				   else if(wrapper.isUpdate()) {
 				         handler = applicationContext.getBean("updateUserChatMessageCommandHandler",NewCommandSourceHandler.class);
+				   
 				   }else if(wrapper.isDelete()) {
 				         handler = applicationContext.getBean("deleteUserChatMessageCommandHandler",NewCommandSourceHandler.class);
 				   }   
+		
 			   }else if(wrapper.isCreditDistributionResource()){
 				     if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createCreditDistributionCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
-			   }else if(wrapper.isProvisioningDetails()){
-				   
-				   if(wrapper.isUpdate()) {
-				         handler = applicationContext.getBean("updateProvisioningDetailsCommandHandler",NewCommandSourceHandler.class);
-				     }else {
-				           throw new UnsupportedCommandException(wrapper.commandName());
-				     }
-				   
-			   }
-			   else {
+			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       
