@@ -121,7 +121,12 @@ public class SynchronousCommandProcessingService implements
 		NewCommandSourceHandler handler = null;
 
 		if (wrapper.isConfigurationResource()) {
-			handler = applicationContext.getBean("updateGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
+			 if(wrapper.isCreate()){
+				handler = applicationContext.getBean("createGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
+			 }
+			else if(wrapper.isUpdateOperation()){
+				handler = applicationContext.getBean("updateGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
+			}
 		} else if (wrapper.isDatatableResource()) {
 			if (wrapper.isCreate()) {
 				handler = applicationContext.getBean("createDatatableEntryCommandHandler",NewCommandSourceHandler.class);
@@ -914,6 +919,13 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isCreditDistributionResource()){
 				     if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createCreditDistributionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+
+			   }else if(wrapper.isProvisioningDetails()){
+				   if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateProvisioningDetailsCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
