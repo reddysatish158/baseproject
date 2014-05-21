@@ -1,0 +1,21 @@
+
+public class MD5Implementation{
+public static void main(String args[]){
+
+	String message="Computer";
+	/*char session[] =
+		{0x01,0x06,0x00,0x01,0x00,0x01,0x00,0x18,
+		0x00,0x01,0x00,0x01,0x00,0x00,0xf0,0xf0,0xe1,0xee,0x84,0x14,0x74,
+		0xbb,0x8e,0x30,0xad,0xd7,0xe8,0xb1,0xbd,0x52,0x0b,0xd7};*/
+
+	System.out.println("Input String : "+message);
+	byte buf[] =message.getBytes();// session.toString().getBytes();
+	System.out.println(buf);
+	MD5 md = new MD5();
+	byte out[] = new byte[16];
+	md.Update(buf);
+	MD5.asHex(out);
+	String nhash = md.asHex();
+	System.out.println("MD5 Output(Hashcode) : "+nhash);
+}
+}

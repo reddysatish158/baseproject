@@ -100,7 +100,6 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	private final PlanRepository planRepository;
 	private final SubscriptionRepository subscriptionRepository;
 	private final OrderPriceRepository OrderPriceRepository;
-	
 	private final OrderCommandFromApiJsonDeserializer fromApiJsonDeserializer;
 	private final PrepareRequestWriteplatformService prepareRequestWriteplatformService;
     private final DiscountMasterRepository discountMasterRepository;
@@ -364,11 +363,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		return contractEndDate;
 	}
 	private void handleCodeDataIntegrityIssues(JsonCommand command,DataIntegrityViolationException dve) {
-
-
-        Throwable realCause = dve.getMostSpecificCause();
-      
-    
+     //   Throwable realCause = dve.getMostSpecificCause();
         throw new PlatformDataIntegrityException("error.msg.office.unknown.data.integrity.issue",
                 "Unknown data integrity issue with resource.");
     
