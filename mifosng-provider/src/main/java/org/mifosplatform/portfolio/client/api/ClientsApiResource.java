@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
@@ -139,15 +140,19 @@ public class ClientsApiResource {
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 
         ClientData clientData = this.clientReadPlatformService.retrieveOne(clientId);
-      
+        GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+        String balanceCheck="N";
+        if(configurationProperty.isEnabled()){
+        	balanceCheck="Y";
+        }
         if (settings.isTemplate()) {
             final List<OfficeData> allowedOffices = new ArrayList<OfficeData>(officeReadPlatformService.retrieveAllOfficesForDropdown());
             final Collection<ClientCategoryData> categoryDatas=this.clientReadPlatformService.retrieveClientCategories();
             List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,allocationDetailsDatas);
+            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,allocationDetailsDatas,null);
         }else{
         	 List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-             clientData = ClientData.templateOnTop(clientData, null,null,allocationDetailsDatas);
+             clientData = ClientData.templateOnTop(clientData, null,null,allocationDetailsDatas,balanceCheck);
         }
 
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);
