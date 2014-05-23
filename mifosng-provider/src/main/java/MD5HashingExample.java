@@ -6,15 +6,15 @@ public class MD5HashingExample
 {
     public static void main(String[] args)throws Exception
     {
-    	String password = "01";
+    	String password = "010604B800010018000100010000F0F06d6109cfa94ee9b1faccb0cb523a8221";
     	char session[] =
     		{0x01,0x06,0x00,0x01,0x00,0x01,0x00,0x18,
     		0x00,0x01,0x00,0x01,0x00,0x00,0xf0,0xf0,0xe1,0xee,0x84,0x14,0x74,
     		0xbb,0x8e,0x30,0xad,0xd7,0xe8,0xb1,0xbd,0x52,0x0b,0xd7};
     	 String string=String.format("%040x", new BigInteger(1, password.getBytes("UTF-8")));
-    	 System.out.println(string);
+    	 System.out.println(session);
         MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(session.toString().getBytes());
+        md.update(password.getBytes());
  
         byte byteData[] = md.digest();
  

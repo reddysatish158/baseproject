@@ -495,7 +495,7 @@ public class MD5 {
     StringBuffer buf = new StringBuffer(hash.length * 2);
     int i;
 
-    for (i = 0; i < hash.length; i++) {
+    for (i = 0; i < hash.length * 2; i++) {
       if (((int) hash[i] & 0xff) < 0x10) 
 	buf.append("0");
 

@@ -90,7 +90,7 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 		private static final class PriceMapper implements RowMapper<PriceData> {
 
 			public String schema() {
-				return " da.id AS id,se.id AS serviceId,da.service_code AS service_code,da.charge_code AS charge_code,da.charging_variant AS charging_variant," +
+				return " da.id AS id,if(da.service_code ='None',0, se.id) AS serviceId, da.service_code AS service_code,da.charge_code AS charge_code,da.charging_variant AS charging_variant," +
 						"c.charge_type AS charge_type,c.charge_duration AS charge_duration,c.duration_type AS duration_type,da.discount_id AS discountId," +
 						"c.tax_inclusive AS taxInclusive,da.price AS price,da.price_region_id,s.id AS stateId,s.parent_code AS countryId,pd.state_id AS regionState," +
 						"pd.country_id AS regionCountryId FROM b_plan_pricing da,b_charge_codes c,b_service se,b_client_address ca,b_state s,b_priceregion_detail pd" +

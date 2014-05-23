@@ -17,6 +17,7 @@ import org.mifosplatform.portfolio.contract.data.SubscriptionData;
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.mifosplatform.portfolio.plan.service.ChargeVariant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -139,11 +140,11 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 
 				  context.authenticatedUser();
 
-			        String sql = "SELECT p.plan_code AS plan_code,pm.id AS id,pm.service_code AS service_code,se.service_description AS service_description," +
-			        		"c.charge_description AS charge_description,pm.charge_code AS charge_code,pm.charging_variant AS charging_variant,pm.price AS price," +
+			        String sql = "SELECT p.plan_code AS plan_code,pm.id AS id,pm.service_code AS serviceCode,se.service_description AS serviceDescription," +
+			        		"c.charge_description AS chargeDescription,pm.charge_code AS charge_code,pm.charging_variant AS chargingVariant,pm.price AS price," +
 			        		"pr.priceregion_name AS priceregion FROM b_plan_master p,b_service se,b_charge_codes c,b_plan_pricing pm  left join b_priceregion_master " +
-			        		"pr on  pm.price_region_id=pr.id WHERE p.id = pm.plan_id AND pm.service_code = se.service_code AND pm.charge_code=c.charge_code and " +
-			        		"pm.is_deleted='n' and se.is_deleted='n' and  pm.plan_id =?";
+			        		"pr on  pm.price_region_id=pr.id WHERE p.id = pm.plan_id  AND pm.charge_code=c.charge_code and " +
+			        		" (pm.service_code = se.service_code or pm.service_code ='None') and pm.is_deleted='n' and se.is_deleted='n' and  pm.plan_id =? group by pm.id";
 
 
 			        RowMapper<ServiceData> rm = new PriceMapper();
@@ -160,9 +161,9 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 			        Long id = rs.getLong("id");
 			            String planCode = rs.getString("plan_code");
 			            String planDescription=null;
-			            String serviceCode = rs.getString("service_description");
-			            String chargeCode = rs.getString("charge_description");
-			           String chargingVariant=rs.getString("charging_variant");
+			            String serviceCode = rs.getString("serviceCode");
+			            String chargeCode = rs.getString("chargeDescription");
+			           String chargingVariant=rs.getString("chargingVariant");
 			           String priceregion=rs.getString("priceregion");
 			            BigDecimal price=rs.getBigDecimal("price");
 			            int chargingVariant1 = new Integer(chargingVariant);
@@ -276,16 +277,20 @@ public List<ServiceData> retrieveServiceCodeDetails(Long planCode) {
 
 @Override
 public PricingData retrieveSinglePriceDetails(String priceId) {
-	 context.authenticatedUser();
-
-     String sql = "SELECT p.plan_id AS planId,pm.plan_code AS planCode,p.id as priceId,s.service_code AS serviceCode,c.charge_code AS chargeCode,p.charging_variant AS chargeVariant,p.price AS price," +
-     		      "p.discount_id AS discountId,p.price_region_id AS priceregion  FROM b_plan_pricing p, b_service s, b_charge_codes c, b_plan_master pm  WHERE " +
-     		      " p.charge_code = c.charge_code AND p.service_code = s.service_code and pm.id = p.plan_id  AND p.id =?";
-
+	 
+try{
+	context.authenticatedUser();
+     String sql = "SELECT p.plan_id AS planId,pm.plan_code AS planCode,p.id AS priceId,p.service_code AS serviceCode,c.charge_code AS chargeCode," +
+     		"p.charging_variant AS chargeVariant,p.price AS price,p.discount_id AS discountId,p.price_region_id AS priceregion FROM b_plan_pricing p," +
+     		"b_service s,b_charge_codes c,b_plan_master pm  WHERE p.charge_code = c.charge_code  AND (p.service_code = s.service_code or p.service_code ='None')" +
+     		" AND pm.id = p.plan_id AND p.id =? group by p.id";
 
      RowMapper<PricingData> rm = new PricingMapper();
-
      return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { priceId });
+
+}catch(EmptyResultDataAccessException e){
+	return null;
+}
 }
 
 
