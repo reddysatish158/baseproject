@@ -194,7 +194,7 @@ public class CommandWrapper {
     }
 
     public boolean isConfigurationResource() {
-        return this.entityName.equalsIgnoreCase("CONFIGURATION");
+        return this.entityName.equalsIgnoreCase("CONFIGURATION") || this.entityName.equalsIgnoreCase("SMTPCONFIGURATION");
     }
 
     public boolean isPermissionResource() {

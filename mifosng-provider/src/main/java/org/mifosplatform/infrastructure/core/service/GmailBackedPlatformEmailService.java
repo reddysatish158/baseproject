@@ -53,7 +53,7 @@ public class GmailBackedPlatformEmailService implements PlatformEmailService {
 			e.printStackTrace();
 		}
         
-        String authuserName = "Open Billing System Community";
+        String authuserName =mailId;// "Open Billing System Community";
         
         String authuser = mailId;//"info@openbillingsystem.com";
         String authpwd =decodePassword; //"openbs@13";

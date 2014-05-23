@@ -2085,7 +2085,7 @@ public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
 
 public CommandWrapperBuilder createGlobalConfiguration() {
 	this.actionName = "CREATE";
-	this.entityName = "CONFIGURATION";
+	this.entityName = "SMTPCONFIGURATION";
 	//this.entityId=configId;
 	this.href = "/configurations";
 	return this;
