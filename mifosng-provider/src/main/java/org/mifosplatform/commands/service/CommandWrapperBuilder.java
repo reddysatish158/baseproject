@@ -2083,6 +2083,13 @@ public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
     return this;
 }
 
+public CommandWrapperBuilder createGlobalConfiguration() {
+	this.actionName = "CREATE";
+	this.entityName = "CONFIGURATION";
+	//this.entityId=configId;
+	this.href = "/configurations";
+	return this;
+}
 
 
 }

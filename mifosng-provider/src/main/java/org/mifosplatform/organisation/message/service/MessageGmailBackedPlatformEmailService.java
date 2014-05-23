@@ -114,10 +114,15 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.SimpleEmail;
 import org.joda.time.LocalDate;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.organisation.message.data.BillingMessageDataForProcessing;
 import org.mifosplatform.organisation.message.domain.BillingMessage;
 import org.mifosplatform.organisation.message.domain.MessageDataRepository;
@@ -128,12 +133,18 @@ import org.springframework.stereotype.Service;
 public class MessageGmailBackedPlatformEmailService implements
 		MessagePlatformEmailService {
 	private final MessageDataRepository messageDataRepository;
-
+	private final GlobalConfigurationRepository repository;
+	 String mailId;
+    String encodedPassword;
+    String decodePassword;
+    String hostName;
 	@Autowired
 	public MessageGmailBackedPlatformEmailService(
-			MessageDataRepository messageDataRepository) {
+			MessageDataRepository messageDataRepository,
+			final GlobalConfigurationRepository repository) {
 
 		this.messageDataRepository = messageDataRepository;
+		this.repository=repository;
 
 	}
 
@@ -141,15 +152,37 @@ public class MessageGmailBackedPlatformEmailService implements
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 		
 		Email email = new SimpleEmail();
+/*
 		String authuserName ="info@hugotechnologies.com";
 
 		String authuser ="kiran@hugotechnologies.com";
 		String authpwd = "kirankiran";
+*/
+	/*	String authuserName ="billing@clear-tv.com";// "info@hugotechnologies.com";
 
+		String authuser ="billing@clear-tv.com";// "kiran@hugotechnologies.com";
+		String authpwd = "BrownTablet123";*/
+		GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
+        String value= configuration.getValue();
+       
+        try {
+			JSONObject object =new JSONObject(value);
+			mailId=(String) object.get("mailId");
+			encodedPassword=(String) object.get("password");
+			decodePassword=new String(Base64.decodeBase64(encodedPassword));
+			hostName=(String) object.get("hostName");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		String authuserName = mailId;
+
+
+		String authuser = mailId;
+		String authpwd = decodePassword;
 		// Very Important, Don't use email.setAuthentication()
 		email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
 		email.setDebug(false); // true if you want to debug
-		email.setHostName("smtp.gmail.com");
+		email.setHostName(hostName);
 		try {
 			email.getMailSession().getProperties()
 					.put("mail.smtp.starttls.enable", "true");

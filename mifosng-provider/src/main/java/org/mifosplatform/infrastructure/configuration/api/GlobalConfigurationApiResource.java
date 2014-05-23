@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -101,9 +102,21 @@ public class GlobalConfigurationApiResource {
                 .updateGlobalConfiguration(configId) //
                 .withJson(apiRequestBodyAsJson) //
                 .build();
-
+        
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-
+        
         return this.toApiJsonSerializer.serialize(result);
+    }
+    
+    @POST
+    @Path("smtp")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String addSMTP(final String jsonRequestBody){
+    	
+    	final CommandWrapper commandRequest = new CommandWrapperBuilder().createGlobalConfiguration().withJson(jsonRequestBody).build();
+    	final CommandProcessingResult result= this.commandsSourceWritePlatformService.logCommandSource(commandRequest); 
+    	return this.toApiJsonSerializer.serialize(result);
+    	
     }
 }
