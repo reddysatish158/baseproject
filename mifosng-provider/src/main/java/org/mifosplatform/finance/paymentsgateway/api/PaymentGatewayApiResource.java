@@ -130,7 +130,7 @@ public class PaymentGatewayApiResource {
 					
 			}else if (OBSPAYMENTTYPE.equalsIgnoreCase("TigoPesa")) {
 				
-					String TYPE = jsonData.getString("TYPE");
+					//String TYPE = jsonData.getString("TYPE");
 					String TXNID = jsonData.getString("TXNID");
 					String CUSTOMERREFERENCEID = jsonData.getString("CUSTOMERREFERENCEID");	
 					String MSISDN = jsonData.getString("MSISDN");
