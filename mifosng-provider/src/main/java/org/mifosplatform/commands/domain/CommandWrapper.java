@@ -1018,4 +1018,8 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEPAYMENT");
 		}
 
+		public boolean isClientCardDetailsResource() {
+			 return this.entityName.equals("CLIENTCARDDETAILS");
+		}
+
 }

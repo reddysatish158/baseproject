@@ -17,6 +17,8 @@ public interface IpPoolManagementReadPlatformService {
 
 	Page<IpPoolManagementData> retrieveIpPoolData(SearchSqlQuery searchItemDetails, String type);
 	
+	List<String> retrieveIpPoolIDArray(String query);
+	
 	
 
 

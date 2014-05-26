@@ -91,6 +91,19 @@ public class IpPoolManagementApiResource {
 
 	}
 	
+	@GET
+	@Path("search")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveIpPoolIDs(@Context final UriInfo uriInfo,@QueryParam("query") final String query) {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<String> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolIDArray(query);
+		IpPoolManagementData data=new IpPoolManagementData(paymentData);
+		return this.toApiJsonSerializer.serialize(data);
+
+	}
+	
 }
 
 

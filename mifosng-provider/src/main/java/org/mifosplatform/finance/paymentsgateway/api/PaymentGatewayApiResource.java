@@ -130,7 +130,7 @@ public class PaymentGatewayApiResource {
 					
 			}else if (OBSPAYMENTTYPE.equalsIgnoreCase("TigoPesa")) {
 				
-					String TYPE = jsonData.getString("TYPE");
+					//String TYPE = jsonData.getString("TYPE");
 					String TXNID = jsonData.getString("TXNID");
 					String CUSTOMERREFERENCEID = jsonData.getString("CUSTOMERREFERENCEID");	
 					String MSISDN = jsonData.getString("MSISDN");
@@ -139,7 +139,7 @@ public class PaymentGatewayApiResource {
 				            builder.append("<?xml version=\"1.0\"?>")
 				                .append("<!DOCTYPE COMMAND PUBLIC \"-//Ocam//DTD XML Command 1.0//EN\" \"xml/command.dtd\">")
 				                .append("<COMMAND>")
-				                .append("<TYPE>"+TYPE)
+				                .append("<TYPE>"+"SYNC_BILLPAY_RESPONSE")
 				                .append("</TYPE>")
 				                .append("<TXNID>"+TXNID)
 				                .append("</TXNID>")
