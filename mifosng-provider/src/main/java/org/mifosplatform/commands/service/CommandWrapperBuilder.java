@@ -361,7 +361,7 @@ public class CommandWrapperBuilder {
 		this.entityId = clientId;
 		this.clientId = clientId;
 		this.href = "/clients/" + clientId;
-		this.json = "{}";
+		//this.json = "{}";
 		return this;
 	}
 
@@ -1697,7 +1697,7 @@ public CommandWrapperBuilder createRandomGenerator()
 
 public CommandWrapperBuilder updateJobDetail(final Long jobId) {
     this.actionName = "UPDATE";
-    this.entityName = "SCHEDULERJOB";
+    this.entityName = "SCHEDULER";
     this.entityId = jobId;
     this.href = "/updateJobDetail/" + jobId + "/updateJobDetail";
     return this;
@@ -1705,14 +1705,14 @@ public CommandWrapperBuilder updateJobDetail(final Long jobId) {
 
 public CommandWrapperBuilder addNewJob() {
 	this.actionName = "CREATE";
-    this.entityName = "SCHEDULERJOB";
+    this.entityName = "SCHEDULER";
     this.href = "/job";
     return this;
 }
 
 public CommandWrapperBuilder deleteJob(Long jobId) {
 	this.actionName = "DELETE";
-    this.entityName = "SCHEDULERJOB";
+    this.entityName = "SCHEDULER";
     this.entityId=jobId;
     this.href = "/job/"+jobId;
     return this;
@@ -2117,6 +2117,16 @@ public CommandWrapperBuilder createItemSale() {
     this.href = "/agents/";
 	return this;
 }
+public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGDETAILS";
+    this.entityId=processrequestId;
+    this.href = "/provisioning/updateprovisiondetails"+processrequestId;
+    return this;
+}
+
+
 
 public CommandWrapperBuilder createOfficeAdjustment(Long officeId) {
 	this.actionName = "CREATE";
@@ -2132,6 +2142,21 @@ public CommandWrapperBuilder createOfficePayment(Long officeId) {
 	this.entityId = officeId;
 	this.href = "/officepayments/"+officeId;
 	return this;
+}
+public CommandWrapperBuilder createRedemption() {
+	this.actionName = "CREATE";
+	this.entityName = "REDEMPTION";
+	this.entityId = clientId;
+	this.href = "/redemption/"+clientId+"/";
+	return this;
+}
+
+public CommandWrapperBuilder moveItemSale() {
+	 this.actionName = "MOVEITEM";
+	 this.entityName = "MRN";
+	 this.entityId = null;
+	 this.href = "/mrndetails/movemrn/itemsale"+clientId;
+	 return this;
 }
 
 public CommandWrapperBuilder createClientCardDetails(Long clientId) {

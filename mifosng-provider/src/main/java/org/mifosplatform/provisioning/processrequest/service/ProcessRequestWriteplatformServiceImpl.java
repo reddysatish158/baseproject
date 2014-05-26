@@ -5,6 +5,8 @@ import java.util.List;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
+import org.mifosplatform.infrastructure.jobs.api.SchedulerJobApiConstants;
+import org.mifosplatform.infrastructure.jobs.service.MiddlewareJobConstants;
 import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -111,7 +113,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 		@Override
 		public void notifyProcessingDetails(ProcessingDetailsData detailsData) {
 			try{
-				if(detailsData!=null){
+				if(detailsData!=null &&!detailsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate)){
 					
 				 Order order=this.orderRepository.findOne(detailsData.getOrderId());
 				 Client client=this.clientRepository.findOne(order.getClientId());
@@ -151,6 +153,10 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 				 processRequest.setNotify();
 				 
 				 this.processRequestRepository.save(processRequest);
+				
+				}else if(detailsData !=null){
+					 ProcessRequest processRequest=this.processRequestRepository.findOne(detailsData.getId());
+					 processRequest.setNotify();
 				}
 				
 			}catch(Exception exception){

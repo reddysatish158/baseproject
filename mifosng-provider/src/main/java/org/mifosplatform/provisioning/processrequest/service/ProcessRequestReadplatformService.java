@@ -10,4 +10,6 @@ public interface ProcessRequestReadplatformService {
 
 	List<ProcessingDetailsData> retrieveUnProcessingDetails();
 
+	Long retrievelatestReqId(Long clientId, String oldHardware);
+
 }

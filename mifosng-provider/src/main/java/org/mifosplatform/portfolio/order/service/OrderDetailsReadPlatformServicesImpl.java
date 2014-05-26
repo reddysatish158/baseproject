@@ -82,7 +82,7 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 
 			String sql = "select " + mapper1.schema()+" and da.plan_id = '"+plan_code+"' and (c.billfrequency_code='"+billingFreq+"'  or c.billfrequency_code='Once')" +
 					" AND ca.client_id = ?  AND da.price_region_id =pd.priceregion_id AND s.state_name = ca.state And s.parent_code=pd.country_id" +
-					" AND pd.state_id = s.id";
+					" AND pd.state_id = s.id group by da.id";
 			return this.jdbcTemplate.query(sql, mapper1, new Object[] { clientId });
 
 		} 
@@ -94,7 +94,7 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 						"c.charge_type AS charge_type,c.charge_duration AS charge_duration,c.duration_type AS duration_type,da.discount_id AS discountId," +
 						"c.tax_inclusive AS taxInclusive,da.price AS price,da.price_region_id,s.id AS stateId,s.parent_code AS countryId,pd.state_id AS regionState," +
 						"pd.country_id AS regionCountryId FROM b_plan_pricing da,b_charge_codes c,b_service se,b_client_address ca,b_state s,b_priceregion_detail pd" +
-						" WHERE  da.charge_code = c.charge_code  AND da.service_code = se.service_code AND da.is_deleted = 'n' AND ca.address_key='PRIMARY'" ;
+						" WHERE  da.charge_code = c.charge_code  AND ( da.service_code = se.service_code or da.service_code ='None') AND da.is_deleted = 'n' AND ca.address_key='PRIMARY'" ;
 					   
 
 			}
@@ -132,7 +132,7 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 			PriceMapper mapper1 = new PriceMapper();
 			String sql = "select " + mapper1.schema()+" and da.plan_id = '"+planId+"' and (c.billfrequency_code='"+billingFrequency+"'  or c.billfrequency_code='Once')" +
 					" AND ca.client_id = ?  AND da.price_region_id =pd.priceregion_id AND s.state_name = ca.state And s.parent_code=pd.country_id" +
-					" AND pd.state_id =0";
+					" AND pd.state_id =0 group by da.id";
 			return this.jdbcTemplate.query(sql, mapper1, new Object[] { clientId });
 		}
 

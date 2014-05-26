@@ -834,6 +834,9 @@ public class SynchronousCommandProcessingService implements
 		    }
 			
 			else if(wrapper.isMRN()){
+						if(wrapper.isMoveItemSale()){
+							handler=applicationContext.getBean("createItemSaleDetailsMoveCommandHandler",NewCommandSourceHandler.class);
+						}
 			           if(wrapper.isCreateMRN()){
 			               handler = applicationContext.getBean("createMRNDetailsCommandHandler",NewCommandSourceHandler.class);
 			              }else if(wrapper.moveMRN()){
@@ -848,7 +851,7 @@ public class SynchronousCommandProcessingService implements
 			                     handler = applicationContext.getBean("createRandomGeneratorCommandHandler",NewCommandSourceHandler.class);
 			                 }
 			}else if (wrapper.isSchedulerResource()) {
-			            if (wrapper.isUpdate()) {
+			            if (wrapper.isUpdateOperation()) {
 			                handler = this.applicationContext.getBean("updateJobDetailCommandhandler", NewCommandSourceHandler.class);
 			            }else if (wrapper.isCreate()) {
 			                handler = this.applicationContext.getBean("createJobDetailCommandhandler", NewCommandSourceHandler.class);
@@ -962,6 +965,12 @@ public class SynchronousCommandProcessingService implements
 		        }else if (wrapper.isOfficePaymentResource()) {
 		        	if (wrapper.isCreate()) {
 		                handler = applicationContext.getBean("createOfficePaymentsCommandHandler", NewCommandSourceHandler.class);
+		        	}else {
+		                    throw new UnsupportedCommandException(wrapper.commandName());
+		                }
+				}else if (wrapper.isRedemptionResource()) {
+		        	if (wrapper.isCreate()) {
+		                handler = applicationContext.getBean("createRedemptionCommandHandler", NewCommandSourceHandler.class);
 		        	}else {
 		                    throw new UnsupportedCommandException(wrapper.commandName());
 		                }

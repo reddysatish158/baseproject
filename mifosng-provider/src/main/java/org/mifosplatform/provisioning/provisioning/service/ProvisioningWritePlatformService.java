@@ -13,5 +13,9 @@ public interface ProvisioningWritePlatformService {
 
 	CommandProcessingResult createNewProvisioningSystem(JsonCommand command,
 			Long entityId);
+	CommandProcessingResult updateProvisioningDetails(Long entityId);
+
+	void updateHardwareDetails(Long clientId, String serialNumber,String oldSerialnumber, String provSerilaNum, String oldHardware);
+
 
 }

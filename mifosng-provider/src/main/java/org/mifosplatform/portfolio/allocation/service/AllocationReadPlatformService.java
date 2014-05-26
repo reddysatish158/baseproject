@@ -12,6 +12,6 @@ public interface AllocationReadPlatformService {
 
 	List<String> retrieveHardWareDetails(Long clientId);
 
-	AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId);
+	AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId, String configProp);
 
 }

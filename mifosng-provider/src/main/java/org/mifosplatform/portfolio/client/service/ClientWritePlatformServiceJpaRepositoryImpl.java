@@ -16,6 +16,8 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.mifosplatform.infrastructure.codes.domain.CodeValue;
+import org.mifosplatform.infrastructure.codes.domain.CodeValueRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -24,6 +26,7 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.documentmanagement.exception.DocumentManagementException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
 import org.mifosplatform.organisation.address.domain.Address;
 import org.mifosplatform.organisation.address.domain.AddressRepository;
 import org.mifosplatform.organisation.office.domain.Office;
@@ -35,12 +38,16 @@ import org.mifosplatform.portfolio.client.domain.AccountNumberGenerator;
 import org.mifosplatform.portfolio.client.domain.AccountNumberGeneratorFactory;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepositoryWrapper;
-import org.mifosplatform.portfolio.client.exception.ClientMustBePendingToBeDeletedException;
+import org.mifosplatform.portfolio.client.domain.ClientStatus;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
+import org.mifosplatform.portfolio.client.exception.InvalidClientStateTransitionException;
 import org.mifosplatform.portfolio.group.domain.Group;
 import org.mifosplatform.portfolio.group.domain.GroupRepository;
 import org.mifosplatform.portfolio.group.exception.GroupNotFoundException;
+import org.mifosplatform.portfolio.order.data.OrderData;
+import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.useradministration.domain.AppUser;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.workflow.eventaction.service.ActiondetailsWritePlatformService;
@@ -68,6 +75,8 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
     private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
     private final AddressRepository addressRepository;
+    private final CodeValueRepository codeValueRepository;
+    private final OrderReadPlatformService orderReadPlatformService;
    
 
     @Autowired
@@ -75,30 +84,34 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final ClientRepositoryWrapper clientRepository, final OfficeRepository officeRepository, 
             final ClientDataValidator fromApiJsonDeserializer, final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
             final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final GroupRepository groupRepository,
-            final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService) {
+            final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
+            final CodeValueRepository codeValueRepository,final OrderReadPlatformService orderReadPlatformService) {
+    	
         this.context = context;
         this.clientRepository = clientRepository;
         this.officeRepository = officeRepository;
-    //    this.noteRepository = noteRepository;
         this.fromApiJsonDeserializer = fromApiJsonDeserializer;
+        this.codeValueRepository=codeValueRepository;
         this.accountIdentifierGeneratorFactory = accountIdentifierGeneratorFactory;
         this.groupRepository = groupRepository;
         this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
         this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
         this.addressRepository=addressRepository;
+        this.orderReadPlatformService=orderReadPlatformService;
     }
 
     @Transactional
     @Override
-    public CommandProcessingResult deleteClient(final Long clientId) {
+    public CommandProcessingResult deleteClient(final Long clientId,final JsonCommand command) {
+    	/*
 
         final Client client = this.clientRepository.findOneWithNotFoundDetection(clientId);
 
         if (client.isNotPending()) { throw new ClientMustBePendingToBeDeletedException(clientId); }
 
-      /*  List<Note> relatedNotes = this.noteRepository.findByClientId(clientId);
-        this.noteRepository.deleteInBatch(relatedNotes);*/
+        List<Note> relatedNotes = this.noteRepository.findByClientId(clientId);
+        this.noteRepository.deleteInBatch(relatedNotes);
 
         this.clientRepository.delete(client);
 
@@ -107,7 +120,55 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
                 .withClientId(clientId) //
                 .withEntityId(clientId) //
                 .build();
-    }
+    */
+
+        try {
+
+            final AppUser currentUser = this.context.authenticatedUser();
+            this.fromApiJsonDeserializer.validateClose(command);
+
+            final Client client = this.clientRepository.findOneWithNotFoundDetection(clientId);
+            final LocalDate closureDate = command.localDateValueOfParameterNamed(ClientApiConstants.closureDateParamName);
+            final Long closureReasonId = command.longValueOfParameterNamed(ClientApiConstants.closureReasonIdParamName);
+            final CodeValue closureReason = this.codeValueRepository.findByCodeNameAndId(ClientApiConstants.CLIENT_CLOSURE_REASON, closureReasonId);
+            
+            List<OrderData> orderDatas=this.orderReadPlatformService.getActivePlans(clientId, null);
+            
+            if(!orderDatas.isEmpty()){
+            	
+            	 throw new ActivePlansFoundException(clientId);
+            }
+
+            if (ClientStatus.fromInt(client.getStatus()).isClosed()) {
+                final String errorMessage = "Client is alread closed.";
+                throw new InvalidClientStateTransitionException("close", "is.already.closed", errorMessage);
+            } 
+
+            if (client.isNotPending() && client.getActivationLocalDate().isAfter(closureDate)) {
+                final String errorMessage = "The client closureDate cannot be before the client ActivationDate.";
+                throw new InvalidClientStateTransitionException("close", "date.cannot.before.client.actvation.date", errorMessage,
+                        closureDate, client.getActivationLocalDate());
+            }
+
+            client.close(currentUser,closureReason, closureDate.toDate());
+            this.clientRepository.saveAndFlush(client);
+            
+            List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CLOSE_CLIENT);
+			if(actionDetaislDatas.size() != 0){
+			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,command.entityId(), clientId.toString());
+			}
+
+            return new CommandProcessingResultBuilder() //
+                    .withCommandId(command.commandId()) //
+                    .withClientId(clientId) //
+                    .withEntityId(clientId) //
+                    .build();
+        } catch (final DataIntegrityViolationException dve) {
+            handleDataIntegrityIssues(command, dve);
+            return CommandProcessingResult.empty();
+        }
+    
+    	}
 
     /*
      * Guaranteed to throw an exception no matter what the data integrity issue
@@ -212,7 +273,6 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             if (clientOffice == null) { throw new OfficeNotFoundException(officeId); }
             final Map<String, Object> changes = clientForUpdate.update(command);
             clientForUpdate.setOffice(clientOffice);
-           
             this.clientRepository.saveAndFlush(clientForUpdate);
             transactionHistoryWritePlatformService.saveTransactionHistory(clientForUpdate.getId(), "Update Client", clientForUpdate.getActivationDate(),
             		"Changes:"+changes.toString(),"Name:"+clientForUpdate.getName(),"ImageKey:"+clientForUpdate.imageKey(),"AccountNumber:"+clientForUpdate.getAccountNo());

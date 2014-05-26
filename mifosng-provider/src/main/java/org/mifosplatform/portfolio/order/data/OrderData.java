@@ -51,6 +51,7 @@ public class OrderData {
 	private Collection<MCodeData> extensionReasonDatas;
 	private Collection<MCodeData> extensionPeriodDatas;
 	private String groupName;
+	private Long planStatus;
 
 	public OrderData(List<PlanCodeData> allowedtypes,List<PaytermData> paytermData,
 			List<SubscriptionData> contractPeriod, OrderData data) {
@@ -128,7 +129,7 @@ public class OrderData {
 	}
 
 	public OrderData(Long orderId, String planCode, String planDescription,
-			String billingFreq, String contractPeriod, Double price) {
+			String billingFreq, String contractPeriod, Double price, LocalDate endDate) {
                  
 		            this.id=orderId;
 		            this.planCode=planCode;
@@ -136,6 +137,7 @@ public class OrderData {
 		            this.billingFrequency=billingFreq;
 		            this.contractPeriod=contractPeriod;
 		            this.price=price;
+		            this.endDate=endDate;
 		           
 	}
 	
@@ -146,6 +148,19 @@ public class OrderData {
 		this.extensionReasonDatas=extensionReasonDatas;
 	}
 	
+	public OrderData(Long planId,Long planStatus) {
+		this.planStatus = planStatus;
+		this.pdid = planId;
+	}
+
+	public Long getPlanStatus() {
+		return planStatus;
+	}
+
+	public void setPlanStatus(Long planStatus) {
+		this.planStatus = planStatus;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -241,5 +256,5 @@ public class OrderData {
 		this.paymodes=data;
 		
 	}
-	
+
 }

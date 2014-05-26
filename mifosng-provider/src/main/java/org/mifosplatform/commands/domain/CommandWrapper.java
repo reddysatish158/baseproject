@@ -714,7 +714,7 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("BATCH");
 		}
 		public boolean isSchedulling(){
-			return this.entityName.equalsIgnoreCase("SCHEDULE");
+			return this.entityName.equalsIgnoreCase("SCHEDULERJOBPARAMETER");
 		}
 
 		public boolean isDeleteBillingMessage() {
@@ -816,6 +816,10 @@ public class CommandWrapper {
 
 		public boolean moveMRN(){
 			   return this.actionName.equalsIgnoreCase("MOVE") && this.entityName.equalsIgnoreCase("MRN");
+		}
+		
+		public boolean isMoveItemSale(){
+			   return this.actionName.equalsIgnoreCase("MOVEITEM") && this.entityName.equalsIgnoreCase("MRN");
 		}
 
 		public boolean isSupplier() {
@@ -1010,12 +1014,21 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("ITEMSALE");
 		}
 
+		public boolean isProvisioningDetails() {
+			return  this.entityName.equalsIgnoreCase("PROVISIONINGDETAILS");
+		}
+
 		public boolean isOfficeAdjustmentResource() {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEADJUSTMENT");
 		}
 
 		public boolean isOfficePaymentResource() {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEPAYMENT");
+
+		}
+
+		public boolean isRedemptionResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
 		}
 
 		public boolean isClientCardDetailsResource() {

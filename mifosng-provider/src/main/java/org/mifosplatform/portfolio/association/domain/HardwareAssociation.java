@@ -82,5 +82,11 @@ public class HardwareAssociation extends AbstractAuditableCustom<AppUser, Long> 
 		this.isDeleted="Y";
 		
 	}
+
+
+	public void updateserailNum(String serialNumber) {
+		this.serialNo=serialNumber;
+		
+	}
 }
 	

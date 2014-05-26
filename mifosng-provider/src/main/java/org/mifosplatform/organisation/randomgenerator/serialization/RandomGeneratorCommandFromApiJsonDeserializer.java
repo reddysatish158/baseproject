@@ -96,19 +96,19 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 	    
 	    final BigDecimal pinValue1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("pinValue", element);
 	    baseDataValidator.reset().parameter("pinValue").value(pinValue1).notNull();
-
+	    /*
 		final String pinExtention = fromApiJsonHelper.extractStringNamed(
 				"pinExtention", element);
 		baseDataValidator.reset().parameter("pinExtention").value(pinExtention)
 				.notBlank();
-
+*/
 		final LocalDate ExpiryDate = fromApiJsonHelper.extractLocalDateNamed(
 				"expiryDate", element);
 		baseDataValidator.reset().parameter("expiryDate").value(ExpiryDate)
 				.notBlank();
 		
 		if (!(Serial1 == null || Quantity1 == null || length1 == null
-				|| pinValue1 == null || pinExtention == null)) {
+				|| pinValue1 == null  /*|| pinExtention == null*/)) {
 
 			if (!(Serial1.longValue() < 0 || Quantity1.longValue() < 0 || length1.longValue() < 0 || pinValue1.longValue() < 0)) {
 

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.cms.eventorder.data.EventOrderData;
 import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.logistics.item.data.ItemData;

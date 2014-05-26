@@ -13,14 +13,19 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
 import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsReadPlatformService;
 import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
 import org.mifosplatform.logistics.ownedhardware.serialization.OwnedHardwareFromApiJsonDeserializer;
 import org.mifosplatform.portfolio.association.data.HardwareAssociationData;
+import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationWriteplatformService;
+import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
+import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.provisioning.provisioning.service.ProvisioningWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +48,9 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	private final HardwareAssociationWriteplatformService hardwareAssociationWriteplatformService;
 	private final HardwareAssociationReadplatformService associationReadplatformService;
 	private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
-	public final static String CONFIG_PROPERTY="Implicit Association";
+	private final OrderReadPlatformService orderReadPlatformService; 
+	private final HardwareAssociationRepository associationRepository;
+	private final ProvisioningWritePlatformService provisioningWritePlatformService;
 	
 	
 	@Autowired
@@ -51,7 +58,8 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 			final OwnedHardwareFromApiJsonDeserializer apiJsonDeserializer,final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService,
 			final InventoryItemDetailsReadPlatformService inventoryItemDetailsReadPlatformService,final GlobalConfigurationRepository globalConfigurationRepository,
 			final HardwareAssociationWriteplatformService hardwareAssociationWriteplatformService,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
+			final HardwareAssociationRepository associationRepository,final ProvisioningWritePlatformService provisioningWritePlatformService) {
 		this.ownedHardwareJpaRepository = ownedHardwareJpaRepository;
 		this.context = context;
 		this.apiJsonDeserializer = apiJsonDeserializer;
@@ -61,6 +69,9 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		this.hardwareAssociationWriteplatformService=hardwareAssociationWriteplatformService;
 		this.associationReadplatformService=hardwareAssociationReadplatformService;
 		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
+		this.orderReadPlatformService=orderReadPlatformService;
+		this.associationRepository=associationRepository;
+		this.provisioningWritePlatformService=provisioningWritePlatformService;
 	}
 	
 	
@@ -84,7 +95,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		this.ownedHardwareJpaRepository.save(ownedHardware);
 		
 		  //For Plan And HardWare Association
-		GlobalConfigurationProperty configurationProperty=this.globalConfigurationRepository.findOneByName(CONFIG_PROPERTY);
+		GlobalConfigurationProperty configurationProperty=this.globalConfigurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IMPLICIT_ASSOCIATION);
 		
 		if(configurationProperty.isEnabled()){
 			
@@ -129,6 +140,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
                 "Unknown data integrity issue with resource: " + realCause.getMessage());
     }
 
+	@Transactional
 	@Override
 	public CommandProcessingResult updateOwnedHardware(JsonCommand command,Long id)
 	{
@@ -138,10 +150,20 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
         	this.apiJsonDeserializer.validateForCreate(command.json());
         	
         	OwnedHardware ownedHardware=OwnedHardwareretrieveById(id);
-        	final Map<String, Object> changes = ownedHardware.update(command);  
+        	
+        	final String oldHardware=ownedHardware.getProvisioningSerialNumber();
+        	final String oldSerialnumber=ownedHardware.getSerialNumber();
+        	final Map<String, Object> changes = ownedHardware.update(command); 
         	
         	if(!changes.isEmpty()){
         		this.ownedHardwareJpaRepository.save(ownedHardware);
+        	}
+        
+        	if(!oldHardware.equalsIgnoreCase(ownedHardware.getProvisioningSerialNumber())){
+        	  
+        		this.provisioningWritePlatformService.updateHardwareDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber(),oldSerialnumber,
+        				ownedHardware.getProvisioningSerialNumber(),oldHardware);
+        		
         	}
         	
         	return new CommandProcessingResult(id);
@@ -172,13 +194,27 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
     		 throw new DiscountNotFoundException(id.toString());
     	 }
     	 
+    	 //Check if Active plans are exist
+    	 Long activeorders=this.orderReadPlatformService.retrieveClientActiveOrderDetails(ownedHardware.getClientId(),ownedHardware.getSerialNumber());
+  	   if(activeorders!= 0){
+  		   throw new ActivePlansFoundException();
+  	   }
+    	 
+    	
     	 ownedHardware.delete();
+    	 
     	 this.ownedHardwareJpaRepository.save(ownedHardware);
+    	 HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(ownedHardware.getSerialNumber());
+    	 if(hardwareAssociation != null){
+    		 hardwareAssociation.delete();
+    		 this.associationRepository.save(hardwareAssociation);
+    	 }
+    	 
     	 return new CommandProcessingResult(id);
     	 
     	 
-     }catch(Exception exception){
-    	 return null;
+     }catch(DataIntegrityViolationException exception){
+    	 return new CommandProcessingResult(Long.valueOf(-1));
      }
 	}
 }

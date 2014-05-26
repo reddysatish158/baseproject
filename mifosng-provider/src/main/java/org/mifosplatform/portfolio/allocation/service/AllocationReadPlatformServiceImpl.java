@@ -61,16 +61,20 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 			}
 			
 			public String clientOwnHwAssociationLookupSchema() {
-				return " a.id AS id,a.order_id AS orderId,o.provisioning_serial_number AS serialNum,a.client_id AS clientId  " +
-						" FROM b_association a, b_owned_hardware o  WHERE  a.order_id =?  AND o.serial_number = a.hw_serial_no    AND " +
-						"  a.is_deleted = 'N' and o.is_deleted = 'N' limit 1";
+
+				return "  a.id AS id,a.order_id AS orderId,o.provisioning_serial_number AS serialNum,a.client_id AS clientId" +
+						" FROM b_association a, b_owned_hardware o WHERE a.order_id =?  AND o.serial_number = a.hw_serial_no   " +
+						" AND a.is_deleted = 'N' and o.is_deleted = 'N' limit 1";
 				}
 			
 			public String clientDeAssociationLookupSchema() {
 				return " a.id AS id, a.order_id AS orderId,a.client_id AS clientId,i.provisioning_serialno as serialNum FROM b_association a, b_item_detail i  " +
 						" WHERE order_id = ? and a.hw_serial_no=i.serial_no AND a.id = (SELECT MAX(id) FROM b_association a WHERE  a.client_id =?  and a.is_deleted = 'Y')  limit 1";
-
-
+				}
+			
+			public String clientOwnHwDeAssociationLookupSchema() {
+				return " a.id AS id,a.order_id AS orderId,a.client_id AS clientId,a.hw_serial_no AS serialNum FROM b_association a  " +
+						" WHERE order_id =? AND a.id = (SELECT MAX(id) FROM b_association a  WHERE a.client_id =? AND a.is_deleted = 'Y') LIMIT 1";
 				}
 
 			@Override
@@ -119,7 +123,7 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 
 						return " o.id AS id,o.serial_number AS serialNo,i.item_description AS itemDescription  FROM b_item_master i," +
 								" b_owned_hardware o, b_hw_plan_mapping hm WHERE o.item_type = i.id AND i.item_code = hm.item_code" +
-								" AND o.client_id = ?  AND hm.plan_code =? GROUP BY o.client_id ";
+								" AND o.client_id = ?  AND hm.plan_code =? and o.is_deleted = 'N' GROUP BY o.client_id ";
 						}
 
 					@Override
@@ -164,12 +168,21 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 				}
 
 					@Override
-					public AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId) {
+					public AllocationDetailsData getDisconnectedHardwareItemDetails(Long orderId,Long clientId,String associationType) {
 
 						try {
 							
 							final ClientOrderMapper mapper = new ClientOrderMapper();
-							final String sql = "select " + mapper.clientDeAssociationLookupSchema();
+							String sql=null; 
+							if(associationType.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+							
+								 sql = "select " + mapper.clientDeAssociationLookupSchema();
+								 
+							}else if(associationType.equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+								
+								 sql = "select " + mapper.clientOwnHwDeAssociationLookupSchema();
+							}
+							
 							return jdbcTemplate.queryForObject(sql, mapper, new Object[] {  orderId,clientId });
 							} catch (EmptyResultDataAccessException e) {
 							return null;

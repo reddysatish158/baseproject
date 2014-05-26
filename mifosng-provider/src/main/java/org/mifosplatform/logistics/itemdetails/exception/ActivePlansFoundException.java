@@ -13,6 +13,17 @@ public class ActivePlansFoundException extends AbstractPlatformDomainRuleExcepti
 		
 		 super(errorCode, "plans are activated with this hardWare",errorCode);
 	}
+
+	public ActivePlansFoundException(Long clientId) {
+		
+		
+		super("error.msg.close.active.plans.found.for.client.close", "Client cannot be closed because of actvie plans",clientId);
+	}
+
+	/*public ActivePlansFoundException(String serialNumber) {
+		
+		super("error.msg.close.active.plans.found.for.hardWare", "Can not Update Serial Num",serialNumber);
+	}*/
     
    
 }

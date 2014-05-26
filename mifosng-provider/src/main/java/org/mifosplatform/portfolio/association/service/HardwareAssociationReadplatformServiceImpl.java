@@ -104,7 +104,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			public String schema() {
 				return " o.id AS id, o.plan_id AS planId,hm.item_code as itemCode  FROM b_orders o,b_hw_plan_mapping hm, b_plan_master p  WHERE NOT EXISTS  (SELECT *FROM b_association a" +
 						" WHERE  a.order_id=o.id  AND a.client_id = o.client_id  AND a.is_deleted = 'N') AND o.client_id =? AND hm.plan_code = p.plan_code" +
-						" AND o.plan_id = p.id and hm.item_code=?";
+						" AND o.plan_id = p.id and hm.item_code=?  and o.id =(select max(id) from b_orders where client_id=o.client_id )";
 
 			}
 
@@ -193,7 +193,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			
 			public String ownDeviceSchema() {
 				return " o.serial_number  AS serialNum, o.provisioning_serial_number  AS provisionNum FROM b_owned_hardware o " +
-						" WHERE o.client_id = ?"; 
+						" WHERE o.client_id = ? and o.is_deleted = 'N'"; 
 			}
 
 			@Override
@@ -298,4 +298,72 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			}
 
 		}
+		
+		@Transactional
+		@Override
+		public List<HardwareAssociationData> retrieveClientAllocatedHardwareDetails(Long clientId) {
+            try
+            {
+          	  String sql=null;
+          	  GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+          	ClientHarderwareMapper mapper = new ClientHarderwareMapper();
+          	  
+          	  if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
+			       sql = "select " + mapper.schema();
+			      
+          	  }else if(configurationProperty.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+          		  
+          		  sql = "select " + mapper.ownDeviceSchema();
+          	  }
+			      return this.jdbcTemplate.query(sql, mapper, new Object[] {clientId});
+
+		}catch(EmptyResultDataAccessException accessException){
+			return null;
+		}
+		}
+		private static final class ClientHarderwareMapper implements RowMapper<HardwareAssociationData> {
+
+			public String schema() {
+				return " max(a.id) AS id,a.serial_no AS serialNo,a.provisioning_serialno AS provSerialNum  " +
+					   " FROM b_item_detail a, b_allocation l where a.serial_no = l.serial_no and l.client_id = ? " +
+					   " and l.is_deleted = 'Y' and a.client_id is null";
+
+			}
+			
+			public String ownDeviceSchema() {
+				return " o.id as id ,o.serial_number as serialNo,o.provisioning_serial_number as provSerialNum   FROM b_owned_hardware o" +
+						" where o.client_id = ? and o.is_deleted='Y' and o.id=(select max(id) from b_owned_hardware a where a.client_id= o.client_id )";
+
+			}
+
+			@Override
+			public HardwareAssociationData mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				
+					Long id= rs.getLong("id");
+					String serialNo = rs.getString("serialNo");
+					String provSerialNum = rs.getString("provSerialNum");
+					
+					return  new HardwareAssociationData(id, serialNo,provSerialNum);
+
+				}
+			}
+		@Override
+		public Long retrieveOrderAssociationDetails(Long orderid, Long clientId) {
+			  try
+	            {
+	          	  String sql=null;
+	          	 // GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+	          //	ClientHarderwareMapper mapper = new ClientHarderwareMapper();
+	          	  
+	          	 
+				       sql = "select id as id from b_association where order_id=? and client_id=? limit 1";
+				      
+	          	
+				      return this.jdbcTemplate.queryForLong(sql, new Object[] {orderid,clientId});
+
+			}catch(EmptyResultDataAccessException accessException){
+				return null;
+			}
+			}
 }
