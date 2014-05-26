@@ -81,7 +81,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 				Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
 
 				if (clientId != null && clientId>0) {
-					
+		
 					Long paymodeId = this.paymodeReadPlatformService.getOnlinePaymode();
 					if (paymodeId == null) {
 						paymodeId = new Long(83);

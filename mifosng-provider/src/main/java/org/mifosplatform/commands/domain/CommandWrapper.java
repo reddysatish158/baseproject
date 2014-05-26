@@ -1031,4 +1031,8 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
 		}
 
+		public boolean isClientCardDetailsResource() {
+			 return this.entityName.equals("CLIENTCARDDETAILS");
+		}
+
 }
