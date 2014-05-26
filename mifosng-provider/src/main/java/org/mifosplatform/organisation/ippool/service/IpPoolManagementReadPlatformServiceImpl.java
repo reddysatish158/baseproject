@@ -156,6 +156,34 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
                 new Object[] {}, mapper);
 	
 	}
+	
+	@Override
+	public List<String> retrieveIpPoolIDArray(String query) {
+		IpAddressPoolingArrayMapper mapper = new IpAddressPoolingArrayMapper();
+		String sql = "select " + mapper.schema()+ " and  p.ip_address like '"+ query +"%'";
+		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
+	}
+
+	private static final class IpAddressPoolingArrayMapper implements RowMapper<String> {
+
+		public String schema() {
+		
+			return "p.ip_address as ipAddress from b_ippool_details p where p.status='F'";
+		}
+		
+		@Override
+		public String mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			
+			//Long id=rs.getLong("id");
+			String ipAddress=rs.getString("ipAddress");
+			/*String poolName=rs.getString("poolName");
+			String status=rs.getString("status");
+			Long ClientId=rs.getLong("ClientId");*/
+			
+			return ipAddress;
+		}
+}
 
 }
 
