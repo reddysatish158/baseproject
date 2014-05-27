@@ -7,7 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 
 public class GenerateMessageAuthenticationCode {
 	
@@ -25,10 +24,11 @@ public class GenerateMessageAuthenticationCode {
 		    Mac mac = Mac.getInstance(key.getAlgorithm());
 		    mac.init(key);
 
-		    String message = "000100010000F0F0";
-		    
+		    String message = "00010018000100010000F0F0";
+		    String string="00010018000100010000F0F0";
+		    System.out.println(string.getBytes().length);
 		    // get the string as UTF-8 bytes
-		    byte[] b = message.getBytes("UTF-8");
+		    byte[] b = message.getBytes("UTF-32");
 		    
 		    // create a digest from the byte array
 		    byte[] digest = mac.doFinal(b);
@@ -47,6 +47,8 @@ public class GenerateMessageAuthenticationCode {
 		   
             String  sEncodedString = hash.toString();
             System.out.println(sEncodedString);
+            
+            System.out.println(sEncodedString.getBytes().length);
 		      
 		   // }
 		}

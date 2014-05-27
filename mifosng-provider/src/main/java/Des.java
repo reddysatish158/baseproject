@@ -5,7 +5,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 
 /**
  * Class which provides methods for encrypting and decrypting
@@ -96,31 +95,42 @@ public class Des {
             desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
             //Instantiate the encrypter/decrypter
             //CryptString crypt = new CryptString(keyFactory.generateSecret(key));
-            byte[] text = "000100010000F0F0af2f31009a8b6b5e5f7d64060f1c9ba1".getBytes();
-           // String unencryptedString ="000100010000F0F0af2f31009a8b6b5e5f7d64060f1c9ba1";//000100010000F0F0
-           /* String encryptedString = des.encryptBase64(unencryptedString);
-            System.out.println("Encrypted String:"+encryptedString);*/
+            byte[] text = "4b09ef27a17948ed25b2b7103bda8a3a".getBytes();
+            String unencryptedString ="000100010000F0F0af2f31009a8b6b5e5f7d64060f1c9ba1";//000100010000F0F0
+            String encryptedString = des.encryptBase64(unencryptedString);
+            System.out.println("Encrypted String:"+encryptedString);
             byte[] textEncrypted = desCipher.doFinal(text);
             //Decrypt the string
         /*    String unencryptedString1 = des.decryptBase64(encryptedString);
             System.out.println("UnEncrypted String:"+unencryptedString1);*/
-            String news =new String(textEncrypted);
+         //   System.out.println(textEncrypted.);
             
             
        //    char[] b1= Hex.encodeHex(encryptedString.getBytes(encryptedString));
          //   byte[] encryptedArray=encryptedString.getBytes();
   StringBuffer buffer=new StringBuffer();
             for(byte i:textEncrypted){    
-            //	buffer.append(Integer.toHexString(i));
-            	buffer.append(String.format("%02x", i&0xff));
-            }    
+            	buffer.append(Integer.toHexString(i));
+            	//buffer.append(String.format("%02x", i&0xff));
+            }   
+            System.out.println(buffer);
+            int temp;
+            String result = "";
+            for (int i = 0; i < textEncrypted.length; ++i) {  
+                temp = textEncrypted[i] & 0xFF;  
+                if (temp < 16) {  
+                    result += "0";  
+                }  
+                result += Integer.toHexString(temp);  
+              }  
+              System.out.println(result.toUpperCase());  
       /*String bytArrayToHex(byte[] a) {
-            	   StringBuilder sb = new StringBuilder();
+            	   StringBuilder sb = new StringBuilder(); 	
             	   for(byte b: a)
             	      sb.append(String.format("%02x", b&0xff));
             	   return sb.toString();
             	}*/
-          System.out.println("Encrypted String-"+buffer);
+       //   System.out.println("Encrypted String-"+buffer);
          // System.out.println("Encrypted String in char "+b1);
         } catch (Exception e) {
             System.err.println("Error:"+e.toString());
