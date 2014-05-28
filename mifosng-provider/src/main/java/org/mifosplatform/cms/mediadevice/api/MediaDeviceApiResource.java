@@ -19,6 +19,8 @@ import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.cms.mediadevice.exception.NoPlanDataFoundException;
 import org.mifosplatform.cms.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
@@ -42,18 +44,20 @@ public class MediaDeviceApiResource {
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	    private final MediaDeviceReadPlatformService mediaDeviceReadPlatformService;
+	    private final GlobalConfigurationRepository globalConfigurationRepository;
 		
 		 @Autowired
 	    public MediaDeviceApiResource(final PlatformSecurityContext context, 
 	   final DefaultToApiJsonSerializer<MediaDeviceData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final MediaDeviceReadPlatformService mediaDeviceReadPlatformService,
-	   final DefaultToApiJsonSerializer<PlanData> toApiJsonSerializerForPlanData){
+	   final DefaultToApiJsonSerializer<PlanData> toApiJsonSerializerForPlanData,final GlobalConfigurationRepository globalConfigurationRepository){
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.mediaDeviceReadPlatformService=mediaDeviceReadPlatformService;
 		        this.toApiJsonSerializerForPlanData = toApiJsonSerializerForPlanData;
+		        this.globalConfigurationRepository=globalConfigurationRepository;
 		    }		
 		
 	
@@ -63,6 +67,8 @@ public class MediaDeviceApiResource {
 		@Produces({MediaType.APPLICATION_JSON})
 		public String retrieveSingleDeviceDetails(@PathParam("deviceId") final String deviceId, @Context final UriInfo uriInfo) {
 			MediaDeviceData datas = this.mediaDeviceReadPlatformService.retrieveDeviceDetails(deviceId);
+			GlobalConfigurationProperty paypalConfigData=this.globalConfigurationRepository.findOneByName("Is_Paypal");
+			datas.setPaypalConfigData(paypalConfigData);
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}

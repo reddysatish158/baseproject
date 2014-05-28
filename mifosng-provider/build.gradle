@@ -174,7 +174,9 @@ dependencies {
                 [group: 'com.googlecode.flyway', name: 'flyway-maven-plugin', version: '2.1.1'],
                 [group: 'org.quartz-scheduler', name: 'quartz', version: '2.1.7'],
                 [group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'],
-                 [group: 'org.json', name: 'json', version: '20070829']
+                [group: 'org.json', name: 'json', version: '20070829'],
+                [group: 'com.paypal.sdk', name: 'paypal-core', version: '1.4.3'],
+                [group: 'com.paypal.sdk', name: 'rest-api-sdk', version: '0.9.0']
  	        )
 
  	 testCompile 'junit:junit:4.11',

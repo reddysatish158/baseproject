@@ -2091,5 +2091,13 @@ public CommandWrapperBuilder createGlobalConfiguration() {
 	return this;
 }
 
+public CommandWrapperBuilder PaypalPayment(Long clientId) {
+	this.actionName = "CREATEENQUIREY";
+	this.entityName = "PAYMENT";
+	this.entityId = clientId;
+	this.href = "/payments/paypalEnquirey" + clientId;
+	return this;
+}
+
 
 }
