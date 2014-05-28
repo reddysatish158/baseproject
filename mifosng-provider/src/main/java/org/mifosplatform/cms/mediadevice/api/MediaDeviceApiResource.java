@@ -19,6 +19,8 @@ import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.cms.mediadevice.exception.NoPlanDataFoundException;
 import org.mifosplatform.cms.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
@@ -35,7 +37,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class MediaDeviceApiResource {
-	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("deviceId","clientId","clientType","balanceAmount"));
+	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("deviceId","clientId","clientType","balanceAmount","balanceCheck"));
 	private  final Set<String> RESPONSE_DATA_PARAMETERS_FOR_PLAN=new HashSet<String>(Arrays.asList("id","planCode","planDescription"));
     private final String resourceNameForPermissions = "MEDIADEVICE";
 	  private final PlatformSecurityContext context;
@@ -44,10 +46,10 @@ public class MediaDeviceApiResource {
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	    private final MediaDeviceReadPlatformService mediaDeviceReadPlatformService;
-	    private final GlobalConfigurationRepository globalConfigurationRepository;
+	    private final GlobalConfigurationRepository configurationRepository;
 		
 		 @Autowired
-	    public MediaDeviceApiResource(final PlatformSecurityContext context, 
+	    public MediaDeviceApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository, 
 	   final DefaultToApiJsonSerializer<MediaDeviceData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final MediaDeviceReadPlatformService mediaDeviceReadPlatformService,
 	   final DefaultToApiJsonSerializer<PlanData> toApiJsonSerializerForPlanData,final GlobalConfigurationRepository globalConfigurationRepository){
@@ -57,21 +59,23 @@ public class MediaDeviceApiResource {
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.mediaDeviceReadPlatformService=mediaDeviceReadPlatformService;
 		        this.toApiJsonSerializerForPlanData = toApiJsonSerializerForPlanData;
-		        this.globalConfigurationRepository=globalConfigurationRepository;
-		    }		
-		
-	
+		        this.configurationRepository=configurationRepository;
+		    }	
+
 		@GET
 		@Path("{deviceId}")
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String retrieveSingleDeviceDetails(@PathParam("deviceId") final String deviceId, @Context final UriInfo uriInfo) {
+			
 			MediaDeviceData datas = this.mediaDeviceReadPlatformService.retrieveDeviceDetails(deviceId);
-			GlobalConfigurationProperty paypalConfigData=this.globalConfigurationRepository.findOneByName("Is_Paypal");
+			GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
 			datas.setPaypalConfigData(paypalConfigData);
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}
+			 GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+			 datas.setBalanceCheck(configurationProperty.isEnabled());
 			//MediaDeviceData data = new MediaDeviceData(datas);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings,datas, RESPONSE_DATA_PARAMETERS);

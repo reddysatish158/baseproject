@@ -27,6 +27,6 @@ public class ConfigurationConstants {
 	public static final String CONFIGURATION_RESOURCE_NAME = "globalConfiguration";
 	public static final Set<String> UPDATE_CONFIGURATION_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(ENABLED, VALUE));
 	public static final Set<String> CREATE_CONFIGURATION_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(NAME, MAIL,PASSWORD,HOSTNAME,PORT));
-
+	public final static String CONFIG_PROPERTY_IS_PAYPAL_CHECK="Is_Paypal";
 
 }
