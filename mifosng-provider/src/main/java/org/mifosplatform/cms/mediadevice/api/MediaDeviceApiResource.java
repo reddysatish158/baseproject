@@ -62,6 +62,7 @@ public class MediaDeviceApiResource {
 		        this.configurationRepository=configurationRepository;
 		    }	
 
+		@SuppressWarnings("unused")
 		@GET
 		@Path("{deviceId}")
 		@Consumes({MediaType.APPLICATION_JSON})
