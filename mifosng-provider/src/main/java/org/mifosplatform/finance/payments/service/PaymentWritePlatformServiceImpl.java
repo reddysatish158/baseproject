@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONException;
@@ -261,6 +263,8 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			JSONObject object=new JSONObject(paypalGlobalData.getValue());
 			String paypalClientId=object.getString("clientId");
 			String paypalsecretCode=object.getString("secretCode");
+			Map<String, Object> changes= new HashMap<String, Object>();
+			ClientBalance clientBalance = clientBalanceRepository.findByClientId(command.entityId());
 			try{
 				OAuthTokenCredential tokenCredential = new OAuthTokenCredential(paypalClientId, paypalsecretCode);
 				com.paypal.api.payments.Payment payment = com.paypal.api.payments.Payment.get(tokenCredential.getAccessToken().trim(), paymentid);
@@ -300,21 +304,37 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 						if(i==-1){
 							paypalupdate.setStatus("Success");
 							paypalupdate.setObsPaymentId(result.resourceId());
+							changes.put("paymentId", result.resourceId());
+							changes.put("paymentStatus", "Success");
+							changes.put("totalBalance", clientBalance.getBalanceAmount());
+							changes.put("paypalException", "");
+							
 						}else{
-							paypalupdate.setStatus("Failure");
+							paypalupdate.setStatus("Fail");
 							paypalupdate.setObsPaymentId(result.resourceId());
+							changes.put("paymentId", result.resourceId());
+							changes.put("paymentStatus", "Fail");
+							changes.put("totalBalance", clientBalance.getBalanceAmount());
+							changes.put("paypalException", "");
 						}						
+					}else{
+						paypalupdate.setStatus("Failure");
 					}
 					this.paypalEnquireyRepository.save(paypalupdate);	
 					
 			} catch (PayPalRESTException e) {
 				PaypalEnquirey paypalexceptionupdate=this.paypalEnquireyRepository.findOne(paypalEnquirey.getId());
 				paypalexceptionupdate.setDescription(e.getMessage());
+				paypalexceptionupdate.setStatus("Fail");
 				this.paypalEnquireyRepository.save(paypalexceptionupdate);
+				changes.put("paymentId", new Long(-1));
+				changes.put("paymentStatus", "Fail");
+				changes.put("totalBalance", clientBalance.getBalanceAmount());
+				changes.put("paypalException", e.getMessage());
 			
 			} 
 			
-	        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paypalEnquirey.getId()).build();
+	        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paypalEnquirey.getId()).with(changes).build();
 	        
 		} catch (ParseException e) {
 			return new CommandProcessingResultBuilder().withResourceIdAsString(e.getMessage()).build();
