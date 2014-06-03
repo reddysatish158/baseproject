@@ -45,9 +45,11 @@ public class ClientCardDetailsReadPlatformServiceImpl implements ClientCardDetai
 	private static final class ClientDetailsMapper implements RowMapper<ClientCardDetailsData> {
 
         public String schema() {
-            return "cd.id as id,cd.client_id as clientId,cd.card_type as cardType,cd.name as name,cd.card_number as cardNumber,cd.aba_routing_number as routingNumber," +
-            		"cd.bank_account_number as bankAccountNumber,cd.bank_name as bankName,cd.account_type as accountType," +
-            		"cd.card_expiry_date as cardExpiryDate from m_client_card_details cd,m_client c where cd.client_id=c.id and c.id=? and cd.is_active='N'";
+        	
+        	return "cd.id as id,cd.client_id as clientId,cd.type as type,cd.name as name,cd.card_number as cardNumber," +
+        			"cd.card_type as cardType, cd.aba_routing_number as routingNumber,cd.bank_account_number as bankAccountNumber," +
+        			"cd.bank_name as bankName,cd.account_type as accountType,cd.card_expiry_date as cardExpiryDate,cd.cvv_number as cvvNumber" +
+        			" from m_client_card_details cd,m_client c where cd.client_id=c.id and c.id=? and cd.is_deleted='N'";
         }
 
         @Override
@@ -55,29 +57,32 @@ public class ClientCardDetailsReadPlatformServiceImpl implements ClientCardDetai
 
         	final Long id = JdbcSupport.getLong(rs, "id");
             final Long clientId = JdbcSupport.getLong(rs, "clientId");
+            final String type = rs.getString("type");
             final String name = rs.getString("name");
-            final String cardType = rs.getString("cardType");
             final String cardNumber = rs.getString("cardNumber");
+            final String cardType = rs.getString("cardType");
             final String routingNumber = rs.getString("routingNumber");
             final String bankAccountNumber = rs.getString("bankAccountNumber");
             final String bankName = rs.getString("bankName");
             final String accountType = rs.getString("accountType");
             final String cardExpiryDate = rs.getString("cardExpiryDate");
+            final String cvvNumber = rs.getString("cvvNumber");
 
-            return new ClientCardDetailsData(id, clientId, name, cardNumber, routingNumber,bankName,accountType,cardExpiryDate,bankAccountNumber,cardType);
+            return new ClientCardDetailsData(id, clientId, name, cardNumber, routingNumber,bankName,accountType,
+            		cardExpiryDate,bankAccountNumber,cardType,type,cvvNumber);
         }
 
     }
 
 	@Override
-	public ClientCardDetailsData retrieveClient(Long id, String cardType,Long clientId) {
+	public ClientCardDetailsData retrieveClient(Long id, String type,Long clientId) {
 		this.context.authenticatedUser();
 
         final ClientDetailsMapper rm = new ClientDetailsMapper();
 
         String sql = "select " + rm.schema();
-        sql=sql+" and cd.id=? and cd.card_type=?";
+        sql=sql+" and cd.id=? and cd.type=?";
 
-        return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { clientId,id,cardType });
+        return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { clientId,id,type });
 	}
 }

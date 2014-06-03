@@ -8,6 +8,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class GroupsDetailsApiResource {
 	
-	private final Set<String> RESPONSE_DATA_GROUPS_DETAILS_PARAMETERS = new HashSet<String>(Arrays.asList("id","groupName","groupAddress","countNo"));
+	private final Set<String> RESPONSE_DATA_GROUPS_DETAILS_PARAMETERS = new HashSet<String>(Arrays.asList("id","groupName","groupAddress","countNo","attr1","attr2","attr3","attr4"));
 	
 	private final String resourceNameForPermission = "GROUPS";
 	
@@ -76,6 +77,17 @@ public class GroupsDetailsApiResource {
 	public String addGroupDetails(final String jsonRequestBody){
 		
 		final CommandWrapper commandRequest = new CommandWrapperBuilder().createGroupsDetails().withJson(jsonRequestBody).build();
+		final CommandProcessingResult result = this.commandSourceWritePlatformService.logCommandSource(commandRequest);
+		return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@POST
+	@Path("provision/{prepareRequestId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String postProvisionDetails(@PathParam("prepareRequestId") final Long prepareRequestId,final String jsonRequestBody){
+		
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createprovisioningDetails(prepareRequestId).withJson(jsonRequestBody).build();
 		final CommandProcessingResult result = this.commandSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}

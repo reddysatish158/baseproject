@@ -1035,4 +1035,9 @@ public class CommandWrapper {
 			 return this.entityName.equals("CLIENTCARDDETAILS");
 		}
 
+		public boolean isGroupDetailsProvisionResource() {
+			
+			return this.entityName.equalsIgnoreCase("PROVISION");
+		}
+
 }

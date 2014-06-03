@@ -45,7 +45,11 @@ public class RandomGeneratorApiReswource {
 		 */
 		private static final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "batchName", "batchDescription", "length",
 				"beginWith", "pinCategory", "pinType", "quantity","serialNo","expiryDate","dateFormat","pinValue","pinNO","locale","pinExtention"));
+		
 		private final String resourceNameForPermissions = "RANDAMGENERATOR";
+		
+		private final String resourceNameForVoucherPinGenerationPermissions = "VOUCHERPINGENERATION";
+		
 		private final String resourceNameFordownloadFilePermissions = "DOWNLOAD_FILE";
 
 		private final PlatformSecurityContext context;
@@ -53,16 +57,22 @@ public class RandomGeneratorApiReswource {
 		private final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer;
 		private final ApiRequestParameterHelper apiRequestParameterHelper;
 		private final PortfolioCommandSourceWritePlatformService writePlatformService;
+		private final RandomGeneratorWritePlatformService randomGeneratorWritePlatformService;
 	   
 		@Autowired
-		public RandomGeneratorApiReswource(final PlatformSecurityContext context,final RandomGeneratorReadPlatformService readPlatformService,
-				final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
-				final PortfolioCommandSourceWritePlatformService writePlatformService) {
+		public RandomGeneratorApiReswource(final PlatformSecurityContext context,
+				final RandomGeneratorReadPlatformService readPlatformService,
+				final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer,
+				final ApiRequestParameterHelper apiRequestParameterHelper,
+				final PortfolioCommandSourceWritePlatformService writePlatformService,
+				final RandomGeneratorWritePlatformService randomGeneratorWritePlatformService) {
+			
 			this.context = context;
 			this.readPlatformService = readPlatformService;
 			this.toApiJsonSerializer = toApiJsonSerializer;
 			this.apiRequestParameterHelper = apiRequestParameterHelper;
 			this.writePlatformService = writePlatformService;
+			this.randomGeneratorWritePlatformService=randomGeneratorWritePlatformService;
 			   
 		}
 
@@ -111,6 +121,16 @@ public class RandomGeneratorApiReswource {
 			return Response.ok().entity(result).type("application/x-msdownload").
 					header("Content-Disposition","attachment;filename=" +"Vochers_"+batchId+ ".csv").build();			
 			}
+		
+		@GET
+		@Path("createVoucherpin/{batchId}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public Long createVocherReport(@PathParam("batchId") final Long batchId,@Context final UriInfo uriInfo) {
+			context.authenticatedUser().validateHasReadPermission(resourceNameForVoucherPinGenerationPermissions);
+			Long result=this.randomGeneratorWritePlatformService.GenerateVoucherPinKeys(batchId);
+			return result; 					
+		}
 		
 	
 }

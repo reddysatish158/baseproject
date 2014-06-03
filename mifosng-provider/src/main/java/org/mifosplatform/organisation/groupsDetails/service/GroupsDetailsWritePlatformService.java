@@ -6,4 +6,5 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 public interface GroupsDetailsWritePlatformService {
 
 	CommandProcessingResult addGroup(JsonCommand command);
+	CommandProcessingResult addProvision(JsonCommand command);
 }
