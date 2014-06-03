@@ -2186,4 +2186,11 @@ public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
 	this.href = "/clients/" + clientId + "/carddetails/"+id;
 	return this;	
 }
+	public CommandWrapperBuilder createprovisioningDetails(Long prepareRequestId) {
+		this.actionName = "CREATE";
+		this.entityName = "PROVISION";
+		this.entityId = prepareRequestId;
+		this.href = "/provision/"+prepareRequestId;
+		return this;
+	}
 }

@@ -4,7 +4,7 @@ public enum PinCategory {
 
 	   NUMERIC(1, "PinCategory.numeric"), //
 	   ALPHA(2, "PinCategory.alpha"),//
-	   ALPHANUMERIC(3,"CategoryType.alphanumeric"),//
+	   ALPHANUMERIC(3,"PinCategory.alphanumeric"),//
 	   INVALID(4, "CategoryType.invalid");
 
 	    private final Integer value;
