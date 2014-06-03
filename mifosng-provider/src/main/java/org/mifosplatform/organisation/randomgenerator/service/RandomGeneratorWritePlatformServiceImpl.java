@@ -76,15 +76,17 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 	@Transactional
 	@Override
 	public Long GenerateVoucherPinKeys(Long batchId) {
+		
 		RandomGenerator randomGenerator=this.randomGeneratorRepository.findOne(batchId);
+		
 		if(randomGenerator.getIsProcessed()=='N'){
-			Long id= generateRandomNumbers(randomGenerator);
-			randomGenerator.setIsProcessed('Y');
-			this.randomGeneratorRepository.save(randomGenerator);
-			return id;
-		}
-		else{	
+			
+			return generateRandomNumbers(randomGenerator);
+			
+		}else{
+			
 			throw new AlreadyProcessedException("VoucherPin Already Generated with this "+randomGenerator.getBatchName());
+			
 		}
 		
 	}
@@ -108,28 +110,25 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 				
 		Long minNo = Long.parseLong(minSerialSeries);
 		Long maxNo = Long.parseLong(maxSerialSeries);
+		
 		long no = this.randomGeneratorReadPlatformService.retrieveMaxNo(minNo,maxNo);
 		
-		 if(no==0){
-			   minSerialSeries="";
-			   for (x = 0; x < SerialNo; x++) {
-			    if (x == 0) {
-			     minSerialSeries += "1";
-			    } else {
-			     minSerialSeries += "0";
-			    }
-			   }
-			   no=Long.parseLong(minSerialSeries);
+		if(no==0){
+			no=minNo;
 		}
+		
 		Long quantity = randomGenerator.getQuantity();
 		beginKeyLength = randomGenerator.getBeginWith().length();
 		RemainingKeyLength = length - beginKeyLength;
+		
 		return RandomValueGeneration(quantity,randomGenerator,no);
 	
 	}
 	
 	private Long RandomValueGeneration(Long quantity,RandomGenerator randomGenerator, long no) {
+		
 		try{
+			
 			for (i = 0; i < quantity; i++) {
 				String name = "";
 				name += randomGenerator.getBeginWith();
@@ -148,17 +147,23 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 						}				
 				}
 			}
+			randomGenerator.setIsProcessed('Y');
+			this.randomGeneratorRepository.save(randomGenerator);
+			
 			return randomGenerator.getId();
 			
 		}catch(Exception e){
+			
 			randomGenerator.setIsProcessed('F');
 			this.randomGeneratorRepository.save(randomGenerator);
+			
 			return new Long(-1);
 		}
 		
 	}
 	
 	private String GenerateRandomSingleCode(String Type) {
+		
 		String generatedKey="";
 		if (Type.equalsIgnoreCase(Alpha)) {
 			
