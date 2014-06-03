@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 public class RandomGeneratorDetails extends AbstractPersistable<Long> {
 	
 	@ManyToOne
-    @JoinColumn(name="pin_id")
+    @JoinColumn(name="pin_id", nullable = false)
     private RandomGenerator randomGenerator;
 	
 	@Column(name = "pin_no")
@@ -30,15 +30,16 @@ public class RandomGeneratorDetails extends AbstractPersistable<Long> {
 		
 	}
 
-	public RandomGeneratorDetails(String name, Long no) {
+	public RandomGeneratorDetails(String name, Long no, RandomGenerator randomGenerator) {
 		// TODO Auto-generated constructor stub
 		this.pinNo=name;
 		this.serialNo=no;
-	}
-
-	public void update(RandomGenerator randomGenerator) {
 		this.randomGenerator=randomGenerator;
 	}
+
+	/*public void update(RandomGenerator randomGenerator) {
+		this.randomGenerator=randomGenerator;
+	}*/
 
 	public RandomGenerator getRandomGenerator() {
 		return randomGenerator;
@@ -71,6 +72,8 @@ public class RandomGeneratorDetails extends AbstractPersistable<Long> {
 	public void setClientId(Long clientId) {
 		this.clientId = clientId;
 	}
+
+	
 	
 
 }

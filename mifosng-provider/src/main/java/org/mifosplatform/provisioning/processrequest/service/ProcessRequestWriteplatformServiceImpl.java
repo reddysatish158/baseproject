@@ -2,11 +2,15 @@ package org.mifosplatform.provisioning.processrequest.service;
 
 import java.util.List;
 
+import org.mifosplatform.infrastructure.core.api.JsonCommand;
+import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.domain.MifosPlatformTenant;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.infrastructure.core.service.ThreadLocalContextUtil;
 import org.mifosplatform.infrastructure.jobs.api.SchedulerJobApiConstants;
 import org.mifosplatform.infrastructure.jobs.service.MiddlewareJobConstants;
+import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -25,12 +29,16 @@ import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetReposi
 import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.provisioning.processrequest.data.ProcessingDetailsData;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
+import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.workflow.eventaction.service.ActiondetailsWritePlatformService;
 import org.mifosplatform.workflow.eventaction.service.EventActionConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +49,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service(value = "processRequestWriteplatformService")
 public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWriteplatformService{
 
-	
+	  private static final Logger logger =LoggerFactory.getLogger(ProcessRequestReadplatformServiceImpl.class);
+	  private final PlatformSecurityContext context;
 	  private final TenantDetailsService tenantDetailsService;
 	  private final DataSourcePerTenantService dataSourcePerTenantService;
 	  private final PrepareRequestReadplatformService prepareRequestReadplatformService;
@@ -60,7 +69,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	    		final PrepareRequestReadplatformService prepareRequestReadplatformService,final OrderReadPlatformService orderReadPlatformService,
 	    		final OrderRepository orderRepository,final ProcessRequestRepository processRequestRepository,final PrepareRequsetRepository prepareRequsetRepository,
 	    		final ClientRepository clientRepository,final PlanRepository planRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-	    		final ActiondetailsWritePlatformService actiondetailsWritePlatformService) {
+	    		final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final PlatformSecurityContext context) {
 	    	
 	            this.dataSourcePerTenantService = dataSourcePerTenantService;
 	            this.tenantDetailsService = tenantDetailsService;
@@ -73,6 +82,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 	            this.planRepository=planRepository;
 	            this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
 	            this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
+	            this.context = context;
 	             
 	    }
 
@@ -164,6 +174,38 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 			}
 			
 		}
+		
+		@Transactional
+		@Override
+		public CommandProcessingResult addProcessRequest(JsonCommand command){
+			
+			try{
+				this.context.authenticatedUser();
+				ProcessRequest processRequest = ProcessRequest.fromJson(command);
+				
+				ProcessRequestDetails processRequestDetails = ProcessRequestDetails.fromJson(processRequest,command);	
+				
+				processRequest.add(processRequestDetails);
+				
+				this.processRequestRepository.save(processRequest);
+				
+				return	new CommandProcessingResult(Long.valueOf(processRequest.getPrepareRequestId()));
+			}catch(DataIntegrityViolationException dve){
+				handleCodeDataIntegrityIssues(command,dve);
+				return CommandProcessingResult.empty();
+			}
+			
+		}
+		
+		 private void handleCodeDataIntegrityIssues(JsonCommand command,
+					DataIntegrityViolationException dve) {
+				 Throwable realCause = dve.getMostSpecificCause();
+
+			        logger.error(dve.getMessage(), dve);
+			        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
+			                "Unknown data integrity issue with resource: " + realCause.getMessage());
+				
+			}
 
 		
 }

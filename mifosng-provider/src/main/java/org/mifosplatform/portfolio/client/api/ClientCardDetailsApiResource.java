@@ -46,32 +46,30 @@ import org.springframework.stereotype.Component;
 public class ClientCardDetailsApiResource {
 
 	 private static final Set<String> CLIENT_CARDDETAILS_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "clientId",
-	            "documentType", "documentKey", "description", "allowedDocumentTypes"));
+	            "type", "name", "cardNumber", "cardType", "routingNumber", "bankAccountNumber", "bankName", "accountType",
+	            "cvvNumber", "cardExpiryDate"));
 
 	    private final String resourceNameForPermissions = "CLIENTCARDDETAILS";
 
 	    private final PlatformSecurityContext context;
-	    private final ClientReadPlatformService clientReadPlatformService;
 	    private final ClientCardDetailsReadPlatformService clientCardDetailsReadPlatformService;
-	    private final CodeValueReadPlatformService codeValueReadPlatformService;
 	    private final DefaultToApiJsonSerializer<ClientCardDetailsData> toApiJsonSerializer;
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
 	    @Autowired
-	    public ClientCardDetailsApiResource(final PlatformSecurityContext context, final ClientReadPlatformService readPlatformService,
-	            final CodeValueReadPlatformService codeValueReadPlatformService,
-	            final DefaultToApiJsonSerializer<ClientCardDetailsData> toApiJsonSerializer,
+	    public ClientCardDetailsApiResource(final PlatformSecurityContext context, 
+	    		final DefaultToApiJsonSerializer<ClientCardDetailsData> toApiJsonSerializer,
 	            final ApiRequestParameterHelper apiRequestParameterHelper,
 	            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 	            final ClientCardDetailsReadPlatformService clientCardDetailsReadPlatformService) {
+	    	
 	        this.context = context;
-	        this.clientReadPlatformService = readPlatformService;
-	        this.codeValueReadPlatformService = codeValueReadPlatformService;
 	        this.toApiJsonSerializer = toApiJsonSerializer;
 	        this.apiRequestParameterHelper = apiRequestParameterHelper;
 	        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 	        this.clientCardDetailsReadPlatformService = clientCardDetailsReadPlatformService;
+	        
 	    }
 
 	    @GET
@@ -103,26 +101,26 @@ public class ClientCardDetailsApiResource {
 	    }
 
 	    @GET
-	    @Path("{id}/{cardType}")
+	    @Path("{id}/{type}")
 	    @Consumes({ MediaType.APPLICATION_JSON })
 	    @Produces({ MediaType.APPLICATION_JSON })
-	    public String retrieveClientIdentifiers(@PathParam("clientId") final Long clientId,@PathParam("cardType") final String cardType,
+	    public String retrieveClientIdentifiers(@PathParam("clientId") final Long clientId,@PathParam("type") final String type,
 	            @PathParam("id") final Long id, @Context final UriInfo uriInfo) {
 
 	        this.context.authenticatedUser().validateHasReadPermission(this.resourceNameForPermissions);	    
-	        ClientCardDetailsData clientCardDetailsData = this.clientCardDetailsReadPlatformService.retrieveClient(id,cardType,clientId);
+	        ClientCardDetailsData clientCardDetailsData = this.clientCardDetailsReadPlatformService.retrieveClient(id,type,clientId);
 	        final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, clientCardDetailsData, CLIENT_CARDDETAILS_DATA_PARAMETERS);
 	    }
 	    
 	    @PUT
-	    @Path("{id}/{cardType}")
+	    @Path("{id}/{type}")
 	    @Consumes({ MediaType.APPLICATION_JSON })
 	    @Produces({ MediaType.APPLICATION_JSON })
 	    public String updateClientIdentifer(@PathParam("clientId") final Long clientId, @PathParam("id") final Long id,
-	    		@PathParam("cardType") final String cardType, final String apiRequestBodyAsJson) {	   
+	    		@PathParam("type") final String type, final String apiRequestBodyAsJson) {	   
 	    	
-	            final CommandWrapper commandRequest = new CommandWrapperBuilder().updateCreditCardDetail(clientId, id,cardType)
+	            final CommandWrapper commandRequest = new CommandWrapperBuilder().updateCreditCardDetail(clientId, id,type)
 	                    .withJson(apiRequestBodyAsJson).build();
 
 	            final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);

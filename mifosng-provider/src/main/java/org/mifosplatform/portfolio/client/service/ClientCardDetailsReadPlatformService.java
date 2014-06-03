@@ -8,7 +8,7 @@ public interface ClientCardDetailsReadPlatformService {
 
 	List<ClientCardDetailsData> retrieveClientDetails(Long clientId);
 
-	ClientCardDetailsData retrieveClient(Long id, String cardType, Long clientId);
+	ClientCardDetailsData retrieveClient(Long id, String type, Long clientId);
 	
 	
 	

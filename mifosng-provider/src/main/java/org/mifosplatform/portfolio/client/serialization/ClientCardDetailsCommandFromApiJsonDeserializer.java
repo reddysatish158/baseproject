@@ -20,13 +20,10 @@ import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
 import org.mifosplatform.infrastructure.core.exception.PlatformApiDataValidationException;
 import org.mifosplatform.infrastructure.core.serialization.FromApiJsonDeserializer;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
-import org.mifosplatform.organisation.message.data.EnumMessageType;
 import org.mifosplatform.portfolio.client.command.ClientCommand;
-import org.mifosplatform.portfolio.client.command.ClientIdentifierCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
@@ -45,7 +42,7 @@ public class ClientCardDetailsCommandFromApiJsonDeserializer {
 	private final String ACH_CARD="ACH";
 	
 	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("clientId","name","cardNumber","routingNumber",
-    		"bankAccountNumber","bankName","accountType","cardExpiryDate","id","cardType"));
+    		"bankAccountNumber","bankName","accountType","cardExpiryDate","id","cardType","type","cvvNumber"));
   
     private final FromJsonHelper fromApiJsonHelper;
     
@@ -68,25 +65,33 @@ public class ClientCardDetailsCommandFromApiJsonDeserializer {
 
 		final JsonElement element = fromApiJsonHelper.parse(json);
 	
-		final String cardType = fromApiJsonHelper.extractStringNamed("cardType", element);
-		baseDataValidator.reset().parameter("cardType").value(cardType)
+		final String type = fromApiJsonHelper.extractStringNamed("type", element);
+		baseDataValidator.reset().parameter("type").value(type)
 		.notBlank().notExceedingLengthOf(20);
 		
 		final String Name = fromApiJsonHelper.extractStringNamed("name", element);
 		baseDataValidator.reset().parameter("name").value(Name)
 		.notBlank().notExceedingLengthOf(100);
 		
-		if(cardType.equalsIgnoreCase(CREDIT_CARD)){
+		if(type.equalsIgnoreCase(CREDIT_CARD)){
 			
 			final String cardNumber = fromApiJsonHelper.extractStringNamed("cardNumber", element);
 			baseDataValidator.reset().parameter("cardNumber").value(cardNumber)
 			.notBlank().notExceedingLengthOf(100);
 			
+			final String cardType = fromApiJsonHelper.extractStringNamed("cardType", element);
+			baseDataValidator.reset().parameter("cardType").value(cardType)
+			.notBlank().notExceedingLengthOf(20);
+			
 			final String cardExpiryDate = fromApiJsonHelper.extractStringNamed("cardExpiryDate", element);
 			baseDataValidator.reset().parameter("cardExpiryDate").value(cardExpiryDate)
 			.notBlank().notExceedingLengthOf(100);
 			
-		}else if(cardType.equalsIgnoreCase(ACH_CARD)){
+			final String cvvNumber = fromApiJsonHelper.extractStringNamed("cvvNumber", element);
+			baseDataValidator.reset().parameter("cvvNumber").value(cvvNumber)
+			.notBlank().notExceedingLengthOf(20);
+			
+		}else if(type.equalsIgnoreCase(ACH_CARD)){
 			
 			final String routingNumber = fromApiJsonHelper.extractStringNamed("routingNumber", element);
 			baseDataValidator.reset().parameter("routingNumber").value(routingNumber)
