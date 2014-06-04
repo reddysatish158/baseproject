@@ -974,7 +974,13 @@ public class SynchronousCommandProcessingService implements
 		        	}else {
 		                    throw new UnsupportedCommandException(wrapper.commandName());
 		                }
-				} else {
+				} else if (wrapper.isGroupDetailsProvisionResource()) {
+		        	if (wrapper.isCreate()) {
+		                handler = applicationContext.getBean("createGroupDetailsProvisionCommandHandler", NewCommandSourceHandler.class);
+		        	}else {
+		                    throw new UnsupportedCommandException(wrapper.commandName());
+		                }
+				}else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       

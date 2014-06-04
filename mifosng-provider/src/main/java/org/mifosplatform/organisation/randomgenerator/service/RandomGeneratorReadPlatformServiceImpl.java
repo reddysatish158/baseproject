@@ -116,8 +116,8 @@ private static final class retrieveMapper implements RowMapper<String> {
 			public String schema() {
 				return "m.id as id, m.batch_name as batchName,m.batch_description as batchDescription,m.length as length," +
 						"m.begin_with as beginWith,m.pin_category as pinCategory,m.quantity as quantity," +
-						"m.serial_no as serialNo,m.pin_type as pinType,m.pin_value as pinValue,m.expiry_date as expiryDate " +
-						"from b_pin_master m;";
+						"m.serial_no as serialNo,m.pin_type as pinType,m.pin_value as pinValue,m.expiry_date as expiryDate, " +
+						"m.is_processed as isProcessed from b_pin_master m;";
 			
 			}
 			
@@ -135,8 +135,9 @@ private static final class retrieveMapper implements RowMapper<String> {
 				 Date expiryDate=rs.getDate("expiryDate");
 				 String beginWith=rs.getString("beginWith");
 				 String pinValue=rs.getString("pinValue");
-				
-				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id);
+				 String isProcessed=rs.getString("isProcessed");	
+				 
+				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id,isProcessed);
 			}
 		}
 	
@@ -181,7 +182,7 @@ public StreamingOutput retrieveVocherDetailsCsv(final Long batchId) {
 	try{
 	
 	final String sql="SELECT pm.id AS batchId, pd.serial_no AS serialNum, pd.pin_no AS hiddenNum FROM b_pin_master pm, b_pin_details pd" +
-			" WHERE pd.pin_id = pm.id AND pm.id ="+batchId;
+			" WHERE pd.pin_id = pm.id AND pm.id ="+batchId+" order by serialNum desc ";
 	GenericResultsetData result = genericDataService.fillGenericResultSet(sql);
 	StringBuffer sb = generateCsvFileBuffer(result);
 	 InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));

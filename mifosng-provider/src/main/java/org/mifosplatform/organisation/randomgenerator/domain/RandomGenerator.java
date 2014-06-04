@@ -55,9 +55,12 @@ public class RandomGenerator extends  AbstractPersistable<Long>  {
 	@Column(name = "expiry_date")
 	private Date expiryDate;
 	
-	@LazyCollection(LazyCollectionOption.FALSE)
+	@Column(name = "is_processed")
+	private char isProcessed;
+	
+	/*@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "randomGenerator", orphanRemoval = true)
-	private List<RandomGeneratorDetails> randomGeneratorDetails = new ArrayList<RandomGeneratorDetails>();
+	private List<RandomGeneratorDetails> randomGeneratorDetails = new ArrayList<RandomGeneratorDetails>();*/
 	
 	
 
@@ -81,6 +84,7 @@ public RandomGenerator(){
 		this.pinType=pinType;
 		this.pinValue=pinValue;
 		this.expiryDate=date;
+		this.isProcessed='N';
 		
 }
 
@@ -101,7 +105,7 @@ public RandomGenerator(){
 		return new RandomGenerator(batchName,batchDescription,length.longValue(),beginWith,pinCategory,quantity.longValue(),serialNo.longValue(),pinType,pinValue,expiryDate.toDate());
 	}
 	
-	public List<RandomGeneratorDetails> getRandomGeneratorDetails() {
+	/*public List<RandomGeneratorDetails> getRandomGeneratorDetails() {
 		return randomGeneratorDetails;
 	}
 
@@ -109,7 +113,7 @@ public RandomGenerator(){
 	public void add(RandomGeneratorDetails randomGeneratorDetails) {
 		randomGeneratorDetails.update(this);
 		this.randomGeneratorDetails.add(randomGeneratorDetails);	
-	}
+	}*/
 
 
 	public String getBatchName() {
@@ -159,6 +163,16 @@ public RandomGenerator(){
 
 	public Date getExpiryDate() {
 		return expiryDate;
+	}
+
+
+	public char getIsProcessed() {
+		return isProcessed;
+	}
+
+
+	public void setIsProcessed(char isProcessed) {
+		this.isProcessed = isProcessed;
 	}
 	
 	
