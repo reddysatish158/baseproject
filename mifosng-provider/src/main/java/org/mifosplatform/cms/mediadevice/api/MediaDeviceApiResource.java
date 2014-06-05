@@ -70,11 +70,13 @@ public class MediaDeviceApiResource {
 		public String retrieveSingleDeviceDetails(@PathParam("deviceId") final String deviceId, @Context final UriInfo uriInfo) {
 			
 			MediaDeviceData datas = this.mediaDeviceReadPlatformService.retrieveDeviceDetails(deviceId);
-			GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
-			datas.setPaypalConfigData(paypalConfigData);
+			
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}
+			
+			 GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+			 datas.setPaypalConfigData(paypalConfigData);
 			 GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			 datas.setBalanceCheck(configurationProperty.isEnabled());
 			//MediaDeviceData data = new MediaDeviceData(datas);
