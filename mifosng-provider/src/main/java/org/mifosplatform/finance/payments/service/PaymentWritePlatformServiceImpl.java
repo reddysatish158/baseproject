@@ -1,7 +1,20 @@
 
 package org.mifosplatform.finance.payments.service;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.finance.billingorder.domain.Invoice;
@@ -15,12 +28,18 @@ import org.mifosplatform.finance.payments.domain.ChequePayment;
 import org.mifosplatform.finance.payments.domain.ChequePaymentRepository;
 import org.mifosplatform.finance.payments.domain.Payment;
 import org.mifosplatform.finance.payments.domain.PaymentRepository;
+import org.mifosplatform.finance.payments.domain.PaypalEnquirey;
+import org.mifosplatform.finance.payments.domain.PaypalEnquireyRepository;
 import org.mifosplatform.finance.payments.exception.PaymentDetailsNotFoundException;
 import org.mifosplatform.finance.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.finance.payments.serialization.PaymentCommandFromApiJsonDeserializer;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
+import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
@@ -34,11 +53,20 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.paypal.core.rest.OAuthTokenCredential;
+import com.paypal.core.rest.PayPalRESTException;
+
 @Service
 public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformService {
 
 	private final static Logger logger = LoggerFactory.getLogger(PaymentWritePlatformServiceImpl.class);
-
+    private final String Paypal_method="paypal";
+    private final String CreditCard_method="credit_card";
+    private final String CreditCard="creditCard";
+    private final String CreditCardToken="creditCardToken";
+	
 	private final PlatformSecurityContext context;
 	private final PaymentRepository paymentRepository;
 	private final PaymentCommandFromApiJsonDeserializer fromApiJsonDeserializer;
@@ -51,6 +79,9 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
 	private final PaymodeReadPlatformService paymodeReadPlatformService ;
 	private final InvoiceRepository invoiceRepository;
+	private final GlobalConfigurationRepository globalConfigurationRepository;
+	private final PaypalEnquireyRepository paypalEnquireyRepository;
+	private final FromJsonHelper fromApiJsonHelper;
 
 	@Autowired
 	public PaymentWritePlatformServiceImpl(final PlatformSecurityContext context,final PaymentRepository paymentRepository,
@@ -58,7 +89,8 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			final ClientBalanceRepository clientBalanceRepository,final ChequePaymentRepository chequePaymentRepository,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
 			final UpdateClientBalance updateClientBalance,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final PaymodeReadPlatformService paymodeReadPlatformService,
-			final InvoiceRepository invoiceRepository) {
+			final InvoiceRepository invoiceRepository,final GlobalConfigurationRepository globalConfigurationRepository,
+			final PaypalEnquireyRepository paypalEnquireyRepository,final FromJsonHelper fromApiJsonHelper) {
 		this.context = context;
 		this.paymentRepository = paymentRepository;
 		this.fromApiJsonDeserializer = fromApiJsonDeserializer;
@@ -71,6 +103,10 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
 		this.paymodeReadPlatformService=paymodeReadPlatformService;
 		this.invoiceRepository=invoiceRepository;
+		this.globalConfigurationRepository=globalConfigurationRepository;
+		this.paypalEnquireyRepository=paypalEnquireyRepository;
+		this.fromApiJsonHelper=fromApiJsonHelper;
+		
 	}
 
 	@Transactional
@@ -106,8 +142,6 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		}
 	}
 	
-
-	@SuppressWarnings("unused")
 	@Transactional
 	@Override
 	public Long createPayments(Long clientBalanceid, Long clientid,JsonCommand command) {
@@ -185,7 +219,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		
 	}
 
-	private void handleDataIntegrityIssues(JsonCommand command, DataIntegrityViolationException dve){
+	private void handleDataIntegrityIssues(JsonCommand command, DataIntegrityViolationException dve) {
 		Throwable realCause = dve.getMostSpecificCause(); 
 		if(realCause.getMessage().contains("receipt_no")){
 		          throw new ReceiptNoDuplicateException(command.stringValueOfParameterNamed("receiptNo"));
@@ -195,6 +229,228 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 		
 		logger.error(dve.getMessage(), dve);
 	}
+	
+	private void DataIntegrityIssues(JsonCommand command, DataIntegrityViolationException dve, String paymentid) {
+		Throwable realCause = dve.getMostSpecificCause(); 
+		if(realCause.getMessage().contains("payment_id")){
+		 throw new PlatformDataIntegrityException("error.msg.payments.paypalEnquirey.duplicate.paymentId", "A code with paymentId '"
+                  + paymentid + "' already exists", "displayName", paymentid);
+	}
+		
+		logger.error(dve.getMessage(), dve);
+	}
+
+	@Transactional
+	@Override
+	public CommandProcessingResult paypalEnquirey(JsonCommand command) {
+
+		try{
+			context.authenticatedUser();
+			this.fromApiJsonDeserializer.validateForpaypalEnquirey(command.json());
+					
+			JSONObject obj=new JSONObject(command.json()).getJSONObject("response");
+			SimpleDateFormat pattern= new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");	
+			
+			String state=obj.getString("state");
+			String paymentid=obj.getString("id");
+			String create_time=obj.getString("create_time");
+			Date date= pattern.parse(create_time);
+			
+			PaypalEnquirey  paypalEnquirey = new PaypalEnquirey(command.entityId(),state,paymentid,date);			
+			this.paypalEnquireyRepository.save(paypalEnquirey);
+			
+			JsonObject paymentobject = new JsonObject();
+			Map<String, Object> changes = new HashMap<String, Object>();
+			ClientBalance clientBalance = clientBalanceRepository.findByClientId(paypalEnquirey.getClientId());
+			
+			PaypalEnquirey paypalEnquireyUpdate = this.paypalEnquireyRepository.findOne(paypalEnquirey.getId());
+			
+			try{
+				
+				 SendingDataToPaypal(paypalEnquirey.getId());
+				 
+			}catch (PayPalRESTException e) {
+				
+				PaypalEnquirey paypalexceptionupdate=this.paypalEnquireyRepository.findOne(paypalEnquirey.getId());
+				paypalexceptionupdate.setDescription(e.getMessage());
+				paypalexceptionupdate.setStatus("Fail");
+				this.paypalEnquireyRepository.save(paypalexceptionupdate);
+				changes.put("paymentId", new Long(-1));
+				changes.put("paymentStatus", "Fail");
+				changes.put("totalBalance", clientBalance.getBalanceAmount());
+				changes.put("paypalException", e.getMessage());
+				return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paypalEnquirey.getId()).with(changes).build();
+			} 
+			 
+			    String remarks=paypalEnquireyUpdate.getPayerEmailId()!=null?paypalEnquireyUpdate.getPayerEmailId():" "+
+			                          paypalEnquireyUpdate.getCardNumber()!=null?paypalEnquireyUpdate.getCardNumber():" ";
+				
+				String paymentdate = new SimpleDateFormat("dd MMMM yyyy").format(paypalEnquireyUpdate.getPaymentDate());
+				
+				paymentobject.addProperty("txn_id", paypalEnquireyUpdate.getPaymentId());
+				paymentobject.addProperty("dateFormat", "dd MMMM yyyy");
+				paymentobject.addProperty("locale", "en");
+				paymentobject.addProperty("paymentDate", paymentdate);
+				paymentobject.addProperty("amountPaid", paypalEnquireyUpdate.getTotalAmount());
+				paymentobject.addProperty("isChequeSelected", "no");
+				paymentobject.addProperty("receiptNo", paypalEnquireyUpdate.getPaymentId());
+				paymentobject.addProperty("remarks", remarks);
+				paymentobject.addProperty("paymentCode", 27);
+				String entityName = "PAYMENT";
+				
+				final JsonElement element1 = fromApiJsonHelper.parse(paymentobject.toString());
+				JsonCommand comm = new JsonCommand(null,paymentobject.toString(), element1,fromApiJsonHelper, entityName, 
+						paypalEnquirey.getClientId(),null, null, null, null, null, null, null, null,null);
+
+				CommandProcessingResult result = createPayment(comm);
+
+				if (result.resourceId() != null) {
+					int i = new Long(0).compareTo(result.resourceId());
+					if (i == -1) {
+						paypalEnquireyUpdate.setStatus("Success");
+						paypalEnquireyUpdate.setObsPaymentId(result.resourceId());
+						changes.put("paymentId", result.resourceId());
+						changes.put("paymentStatus", "Success");
+						changes.put("totalBalance",clientBalance.getBalanceAmount());
+						changes.put("paypalException", "");
+						changes.put("Errordescription", "");
+
+					} else {
+						paypalEnquireyUpdate.setStatus("Fail");
+						paypalEnquireyUpdate.setObsPaymentId(result.resourceId());
+						changes.put("paymentId", result.resourceId());
+						changes.put("paymentStatus", "Fail");
+						changes.put("totalBalance",clientBalance.getBalanceAmount());
+						changes.put("paypalException", "");
+						changes.put("Errordescription", "Payment Error");
+					}
+				} else {
+					paypalEnquireyUpdate.setStatus("Failure");
+					changes.put("paymentId", "");
+					changes.put("paymentStatus", "Failure");
+					changes.put("totalBalance",clientBalance.getBalanceAmount());
+					changes.put("paypalException", "");
+					changes.put("Errordescription", "Payment Not Processed");
+				}
+				
+				this.paypalEnquireyRepository.save(paypalEnquireyUpdate);
+			
+	        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(paypalEnquirey.getId()).with(changes).build();
+	        
+		} catch (ParseException e) {
+			
+			return new CommandProcessingResultBuilder().withResourceIdAsString(e.getMessage()).build();
+			
+		} catch (JSONException e) {
+			
+			return new CommandProcessingResultBuilder().withResourceIdAsString(e.getMessage()).build();
+			
+		} catch (IOException e) {
+			
+			return new CommandProcessingResultBuilder().withResourceIdAsString(e.getMessage()).build();
+			
+		} catch (DataIntegrityViolationException dve){
+			
+			try {
+				JSONObject obj=new JSONObject(command.json()).getJSONObject("response");
+				String paymentid=obj.getString("id");
+				DataIntegrityIssues(command, dve, paymentid);
+				return CommandProcessingResult.empty();
+			} catch (JSONException e) {
+				return CommandProcessingResult.empty();
+			}
+			
+		}
+		
+		
+	}
+
+	private void SendingDataToPaypal(Long paypalEnquireyId) throws PayPalRESTException, IOException, JSONException {
+		
+		   try {
+				Properties prop = new Properties();
+				InputStream is = this.getClass().getClassLoader().getResourceAsStream("sdk_config.properties");
+				prop.load(is);
+				PaypalEnquirey paypalEnquirey = this.paypalEnquireyRepository.findOne(paypalEnquireyId);
+				com.paypal.api.payments.Payment.initConfig(prop);
+				GlobalConfigurationProperty paypalGlobalData = this.globalConfigurationRepository.findOneByName("Is_Paypal");
+				JSONObject object = new JSONObject(paypalGlobalData.getValue());
+				String paypalClientId = object.getString("clientId");
+				String paypalsecretCode = object.getString("secretCode");
+			
+				OAuthTokenCredential tokenCredential = new OAuthTokenCredential(paypalClientId, paypalsecretCode);
+				com.paypal.api.payments.Payment payment = com.paypal.api.payments.Payment
+						.get(tokenCredential.getAccessToken().trim(),paypalEnquirey.getPaymentId());
+
+				String paymentMethod = payment.getPayer().getPaymentMethod();
+				
+				if (paymentMethod.equalsIgnoreCase(Paypal_method)) {
+
+					String EmailId = payment.getPayer().getPayerInfo().getEmail();
+					String PayerId = payment.getPayer().getPayerInfo().getPayerId();
+					String amount = payment.getTransactions().get(0).getAmount().getTotal();
+					String currency = payment.getTransactions().get(0).getAmount().getCurrency();
+					String description = payment.getTransactions().get(0).getDescription();
+					String paymentState = payment.getTransactions().get(0).getRelatedResources().get(0).getSale().getState();
+					BigDecimal totalAmount = new BigDecimal(amount);
+
+					paypalEnquirey.fromPaypalEnquireyTransaction(EmailId,PayerId, totalAmount, currency, description, paymentState, paymentMethod);		
+					 
+				}else if(paymentMethod.equalsIgnoreCase(CreditCard_method)){	
+					JSONObject obj=new JSONObject(payment.getPayer().getFundingInstruments().get(0));
+					
+					if(obj.has(CreditCard)){
+						String cardNumber = payment.getPayer().getFundingInstruments().get(0).getCreditCard().getNumber();
+						String cardType = payment.getPayer().getFundingInstruments().get(0).getCreditCard().getType();
+						int cardExpiryMonth = payment.getPayer().getFundingInstruments().get(0).getCreditCard().getExpireMonth();
+						int cardExpiryYear = payment.getPayer().getFundingInstruments().get(0).getCreditCard().getExpireYear();
+						String amount = payment.getTransactions().get(0).getAmount().getTotal();
+						String currency = payment.getTransactions().get(0).getAmount().getCurrency();
+						String description = payment.getTransactions().get(0).getDescription();
+						String paymentState = payment.getTransactions().get(0).getRelatedResources().get(0).getSale().getState();
+						BigDecimal totalAmount = new BigDecimal(amount);
+						String cardExpiryDate=Integer.toString(cardExpiryMonth)+"/"+Integer.toString(cardExpiryYear);
+
+						paypalEnquirey.fromPaypalEnquireyTransaction(cardNumber, cardType, cardExpiryDate, totalAmount, currency, description,paymentState, paymentMethod);	
+					
+					}else if(obj.has(CreditCardToken)){
+						
+						String cardNumber = payment.getPayer().getFundingInstruments().get(0).getCreditCardToken().getLast4();
+						String cardType = payment.getPayer().getFundingInstruments().get(0).getCreditCardToken().getType();
+						int cardExpiryMonth = payment.getPayer().getFundingInstruments().get(0).getCreditCardToken().getExpireMonth();
+						int cardExpiryYear = payment.getPayer().getFundingInstruments().get(0).getCreditCardToken().getExpireYear();
+						String amount = payment.getTransactions().get(0).getAmount().getTotal();
+						String currency = payment.getTransactions().get(0).getAmount().getCurrency();
+						String description = payment.getTransactions().get(0).getDescription();
+						String paymentState = payment.getTransactions().get(0).getRelatedResources().get(0).getSale().getState();
+						BigDecimal totalAmount = new BigDecimal(amount);
+						String cardExpiryDate=Integer.toString(cardExpiryMonth)+"/"+Integer.toString(cardExpiryYear);
+						paypalEnquirey.fromPaypalEnquireyTransaction(cardNumber, cardType, cardExpiryDate, totalAmount, currency, description,paymentState, paymentMethod);	
+					}else{
+						return;
+					}
+					
+				}
+				
+				this.paypalEnquireyRepository.save(paypalEnquirey);
+				
+				
+			} catch (PayPalRESTException e) {	
+				
+				throw new PayPalRESTException(e.getMessage());		
+				
+			} catch (IOException e) {
+				
+				throw new IOException(e.getMessage());		
+				
+			} catch (JSONException e) {
+				
+				throw new JSONException(e.getMessage());	
+			}
+		
+		
+	}
+
 }
 
 

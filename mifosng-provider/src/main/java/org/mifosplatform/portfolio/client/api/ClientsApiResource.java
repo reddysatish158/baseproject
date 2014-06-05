@@ -140,7 +140,7 @@ public class ClientsApiResource {
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
         ClientData clientData = this.clientReadPlatformService.retrieveOne(clientId);
-        
+
         String balanceCheck="N";
         if(configurationProperty.isEnabled()){
         	balanceCheck="Y";
@@ -155,7 +155,10 @@ public class ClientsApiResource {
         	 List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
              clientData = ClientData.templateOnTop(clientData, null,null,allocationDetailsDatas,balanceCheck);
         }
-
+        
+        GlobalConfigurationProperty paypalconfigurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+        clientData.setConfigurationProperty(paypalconfigurationProperty);
+        
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);
     }
 

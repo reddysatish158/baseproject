@@ -603,6 +603,8 @@ public class SynchronousCommandProcessingService implements
 	                handler = applicationContext.getBean("createPaymentCommandHandler", NewCommandSourceHandler.class);
 	        	}else if (wrapper.isCancel()) {
 	                handler = applicationContext.getBean("cancelPaymentCommandHandler", NewCommandSourceHandler.class);
+	        	}else if (wrapper.isPaypalEnquirey()) {
+	                handler = applicationContext.getBean("paypalEnquireyPaymentCommandHandler", NewCommandSourceHandler.class);
 	        	}else {
 	                    throw new UnsupportedCommandException(wrapper.commandName());
 	                }

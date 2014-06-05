@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
 import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
@@ -35,6 +37,10 @@ public class PaymentCommandFromApiJsonDeserializer {
 			Arrays.asList("id", "clientId", "paymentDate", "paymentCode","amountPaid", "statmentId", "externalId", "dateFormat",
 					"locale", "remarks","receiptNo","chequeNo","chequeDate","bankName","branchName","ispaymentEnable","renewalPeriod",
 					"isChequeSelected","txn_id","cancelRemark","invoiceId"));
+	
+	private final Set<String> enquireySupportedParameters = new HashSet<String>(
+			Arrays.asList("response", "state", "id", "create_time","intent", "client", "platform", "paypal_sdk_version",
+					"product_name", "environment","response_type"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 
@@ -130,6 +136,44 @@ public class PaymentCommandFromApiJsonDeserializer {
 		baseDataValidator.reset().parameter("cancelRemark").value(cancelRemark).notBlank().notExceedingLengthOf(50);
 
 		throwExceptionIfValidationWarningsExist(dataValidationErrors);
+	}
+
+	public void validateForpaypalEnquirey(String json) {
+		
+		try{
+			if (StringUtils.isBlank(json)) {
+				throw new InvalidJsonException();
+			}
+
+			final Type typeOfMap = new TypeToken<Map<String, Object>>() {
+			}.getType();
+			fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json,enquireySupportedParameters);
+
+			final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+			final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(
+					dataValidationErrors).resource("payment");
+			
+			JSONObject ob=new JSONObject(json);
+			JSONObject obj=ob.getJSONObject("response");
+			
+			final JsonElement element = fromApiJsonHelper.parse(obj.toString());
+			
+			final String state = fromApiJsonHelper.extractStringNamed("state", element);
+			baseDataValidator.reset().parameter("state").value(state).notBlank().notExceedingLengthOf(100);
+			
+			final String id = fromApiJsonHelper.extractStringNamed("id", element);
+			baseDataValidator.reset().parameter("id").value(id).notBlank().notExceedingLengthOf(100);
+			
+			final String create_time = fromApiJsonHelper.extractStringNamed("create_time", element);
+			baseDataValidator.reset().parameter("create_time").value(create_time).notBlank().notExceedingLengthOf(100);
+		
+
+			throwExceptionIfValidationWarningsExist(dataValidationErrors);
+		} catch (JSONException e) {
+			
+		}
+
+		
 	}
 
 }

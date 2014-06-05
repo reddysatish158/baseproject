@@ -997,4 +997,8 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("PROVISIONINGDETAILS");
 		}
 
+		public boolean isPaypalEnquirey() {
+			return this.actionName.equalsIgnoreCase("CREATEENQUIREY") && this.entityName.equalsIgnoreCase("PAYMENT");
+		}
+
 }
