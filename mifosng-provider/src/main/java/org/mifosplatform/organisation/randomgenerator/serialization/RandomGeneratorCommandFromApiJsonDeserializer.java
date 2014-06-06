@@ -96,19 +96,14 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 	    
 	    final BigDecimal pinValue1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("pinValue", element);
 	    baseDataValidator.reset().parameter("pinValue").value(pinValue1).notNull();
-
-		final String pinExtention = fromApiJsonHelper.extractStringNamed(
-				"pinExtention", element);
-		baseDataValidator.reset().parameter("pinExtention").value(pinExtention)
-				.notBlank();
-
+	  
 		final LocalDate ExpiryDate = fromApiJsonHelper.extractLocalDateNamed(
 				"expiryDate", element);
 		baseDataValidator.reset().parameter("expiryDate").value(ExpiryDate)
 				.notBlank();
 		
 		if (!(Serial1 == null || Quantity1 == null || length1 == null
-				|| pinValue1 == null || pinExtention == null)) {
+				|| pinValue1 == null  /*|| pinExtention == null*/)) {
 
 			if (!(Serial1.longValue() < 0 || Quantity1.longValue() < 0 || length1.longValue() < 0 || pinValue1.longValue() < 0)) {
 
@@ -123,10 +118,10 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 					}
 				}
 
-				int minNo = Integer.parseInt(minSerialSeries);
-				int maxNo = Integer.parseInt(maxSerialSeries);
-				baseDataValidator.reset().parameter("quantity").value(Quantity1.longValue())
-						.inMinMaxRange(minNo, maxNo);
+				BigDecimal minNo = new BigDecimal(minSerialSeries);//Long.parseLong(minSerialSeries);
+				BigDecimal maxNo = new BigDecimal(maxSerialSeries);//Long.parseLong(maxSerialSeries);
+				baseDataValidator.reset().parameter("quantity").value(Quantity1.longValue()).
+				inMinAndMaxAmountRange(minNo, maxNo);
 				int val = beginWith.length();
 				baseDataValidator.reset().parameter("beginWith").value(val)
 						.notGreaterThanMax(length1);
