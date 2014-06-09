@@ -2099,5 +2099,43 @@ public CommandWrapperBuilder PaypalPayment(Long clientId) {
 	return this;
 }
 
+public CommandWrapperBuilder createClientCardDetails(Long clientId) {
+	this.actionName = "CREATE";
+	this.entityName = "CLIENTCARDDETAILS";
+	this.entityId = null;
+	this.clientId = clientId;
+	this.href = "/clients/" + clientId + "/carddetails";
+	return this;
+}
+
+public CommandWrapperBuilder updateCreditCardDetail(Long clientId, Long id,String cardType) {
+	this.actionName = "UPDATE";
+	this.entityName = "CLIENTCARDDETAILS";
+	this.entityId = clientId;
+	this.subentityId = id;
+	this.supportedEntityType=cardType;
+	this.href = "/clients/" + clientId + "/carddetails/"+id+"/"+cardType;
+	return this;
+}
+
+public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
+	this.actionName = "DELETE";
+	this.entityName = "CLIENTCARDDETAILS";
+	this.entityId = clientId;
+	this.subentityId = id;
+	this.href = "/clients/" + clientId + "/carddetails/"+id;
+	return this;	
+}
+
+public CommandWrapperBuilder processRandomGeneraror(Long batchId) {
+	
+	this.actionName = "PROCESS";
+	this.entityName = "RANDAMGENERATOR";
+	this.entityId = batchId;
+	this.href = "/randomgenerators/" + batchId;
+	return this;
+	
+}
+
 
 }

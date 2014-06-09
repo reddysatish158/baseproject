@@ -8,24 +8,25 @@ import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
 public class RandomGeneratorData {
 	
-	 Long id;
-	 String batchName;
-	 String batchDescription;
-	 Long length;
-	 String pinCategory;
-	 String pinType;
-	 Long quantity;
-	 String serialNo;
-	 LocalDate expiryDate;
-	 String beginWith;
-	 String pinValue;
-	 private List<EnumOptionData> pinCategoryData;
-	 private List<EnumOptionData> pinTypeData;
+	private Long id;
+	private String batchName;
+	private String batchDescription;
+	private Long length;
+	private String pinCategory;
+	private String pinType;
+	private Long quantity;
+	private String serialNo;
+	private LocalDate expiryDate;
+	private String beginWith;
+	private String pinValue;
+    private List<EnumOptionData> pinCategoryData;
+	private List<EnumOptionData> pinTypeData;
+	private String isProcessed;
 	
 	public RandomGeneratorData(String batchName, String batchDescription,
 			Long length, String pinCategory, String pinType, Long quantity,
 			String serial, Date expiryDate, String beginWith,
-			String pinValue, Long id) {
+			String pinValue, Long id, String isProcessed) {
 		// TODO Auto-generated constructor stub
 		this.batchName=batchName;
 		this.batchDescription=batchDescription;
@@ -38,6 +39,7 @@ public class RandomGeneratorData {
 		this.expiryDate=new LocalDate(expiryDate);
 		this.pinValue=pinValue;
 		this.id=id;
+		this.isProcessed=isProcessed;
 	}
 
 	public RandomGeneratorData() {

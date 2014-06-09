@@ -7,5 +7,8 @@ public interface RandomGeneratorWritePlatformService {
 
 	CommandProcessingResult createRandomGenerator(JsonCommand command);
 
+	CommandProcessingResult GenerateVoucherPinKeys(Long batchId);
+	
+
 	
 }

@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface RandomGenertatorRepository extends
 JpaRepository<RandomGenerator, Long>,
 JpaSpecificationExecutor<RandomGenerator>{
+	
 
 }
