@@ -2193,4 +2193,12 @@ public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
 		this.href = "/provision/"+prepareRequestId;
 		return this;
 	}
+
+	public CommandWrapperBuilder processRandomGeneraror(Long batchId) {
+		this.actionName = "PROCESS";
+		this.entityName = "RANDAMGENERATOR";
+		this.entityId = batchId;
+		this.href = "/randomgenerators/" + batchId;
+		return this;
+	}
 }

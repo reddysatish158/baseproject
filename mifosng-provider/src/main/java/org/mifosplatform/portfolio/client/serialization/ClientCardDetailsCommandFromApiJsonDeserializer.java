@@ -67,43 +67,43 @@ public class ClientCardDetailsCommandFromApiJsonDeserializer {
 	
 		final String type = fromApiJsonHelper.extractStringNamed("type", element);
 		baseDataValidator.reset().parameter("type").value(type)
-		.notBlank().notExceedingLengthOf(20);
+		.notBlank().notExceedingLengthOf(50);
 		
 		final String Name = fromApiJsonHelper.extractStringNamed("name", element);
 		baseDataValidator.reset().parameter("name").value(Name)
-		.notBlank().notExceedingLengthOf(100);
+		.notBlank().notExceedingLengthOf(500);
 		
 		if(type.equalsIgnoreCase(CREDIT_CARD)){
 			
 			final String cardNumber = fromApiJsonHelper.extractStringNamed("cardNumber", element);
 			baseDataValidator.reset().parameter("cardNumber").value(cardNumber)
-			.notBlank().notExceedingLengthOf(100);
+			.notBlank().notExceedingLengthOf(500);
 			
 			final String cardType = fromApiJsonHelper.extractStringNamed("cardType", element);
 			baseDataValidator.reset().parameter("cardType").value(cardType)
-			.notBlank().notExceedingLengthOf(20);
+			.notBlank().notExceedingLengthOf(100);
 			
 			final String cardExpiryDate = fromApiJsonHelper.extractStringNamed("cardExpiryDate", element);
 			baseDataValidator.reset().parameter("cardExpiryDate").value(cardExpiryDate)
-			.notBlank().notExceedingLengthOf(100);
+			.notBlank().notExceedingLengthOf(300);
 			
-			final String cvvNumber = fromApiJsonHelper.extractStringNamed("cvvNumber", element);
+		/*	final String cvvNumber = fromApiJsonHelper.extractStringNamed("cvvNumber", element);
 			baseDataValidator.reset().parameter("cvvNumber").value(cvvNumber)
-			.notBlank().notExceedingLengthOf(20);
+			.notBlank().notExceedingLengthOf(300);*/
 			
 		}else if(type.equalsIgnoreCase(ACH_CARD)){
 			
 			final String routingNumber = fromApiJsonHelper.extractStringNamed("routingNumber", element);
 			baseDataValidator.reset().parameter("routingNumber").value(routingNumber)
-			.notBlank().notExceedingLengthOf(100);
+			.notBlank().notExceedingLengthOf(500);
 			
 			final String bankAccountNumber = fromApiJsonHelper.extractStringNamed("bankAccountNumber", element);
 			baseDataValidator.reset().parameter("bankAccountNumber").value(bankAccountNumber)
-			.notBlank().notExceedingLengthOf(50);
+			.notBlank().notExceedingLengthOf(500);
 			
 			final String bankName = fromApiJsonHelper.extractStringNamed("bankName", element);
 			baseDataValidator.reset().parameter("bankName").value(bankName)
-			.notBlank().notExceedingLengthOf(100);
+			.notBlank().notExceedingLengthOf(200);
 			
 			final String accountType = fromApiJsonHelper.extractStringNamed("accountType", element);
 			baseDataValidator.reset().parameter("accountType").value(accountType)

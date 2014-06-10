@@ -1040,4 +1040,8 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("PROVISION");
 		}
 
+		public boolean isProcessRandomGenerator() {
+			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
+		}
+
 }

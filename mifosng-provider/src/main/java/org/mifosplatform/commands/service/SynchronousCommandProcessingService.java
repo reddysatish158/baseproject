@@ -847,9 +847,11 @@ public class SynchronousCommandProcessingService implements
 			               handler = applicationContext.getBean("createSupplierCommandHandler",NewCommandSourceHandler.class);
 			              }
 			}else if(wrapper.isRandomGeneratorResource()){
-			                 if(wrapper.isCreateRandomGenerator()) {
-			                     handler = applicationContext.getBean("createRandomGeneratorCommandHandler",NewCommandSourceHandler.class);
-			                 }
+						if(wrapper.isCreateRandomGenerator()) {
+							handler = applicationContext.getBean("createRandomGeneratorCommandHandler",NewCommandSourceHandler.class);
+						}else if(wrapper.isProcessRandomGenerator()){
+							handler = applicationContext.getBean("processRandomGeneratorCommandHandler",NewCommandSourceHandler.class);
+						}
 			}else if (wrapper.isSchedulerResource()) {
 			            if (wrapper.isUpdateOperation()) {
 			                handler = this.applicationContext.getBean("updateJobDetailCommandhandler", NewCommandSourceHandler.class);
