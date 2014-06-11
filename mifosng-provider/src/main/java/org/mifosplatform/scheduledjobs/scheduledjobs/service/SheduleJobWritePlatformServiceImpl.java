@@ -263,9 +263,9 @@ exception.printStackTrace();
 }
 }
 
-@Transactional
+/*@Transactional
 @Override
-@CronTarget(jobName = JobName.RESPONSOR)
+@CronTarget(jobName = JobName.RESPONSOR)*/
 public void processResponse() {
 
 try {
@@ -286,7 +286,7 @@ fw.append("Processing Response Details....... \r\n");
 for (ProcessingDetailsData detailsData : processingDetails) {
 fw.append("Process Response id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
 +detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
-this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
+//this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
 }
 fw.append("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
 fw.flush();

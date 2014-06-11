@@ -149,6 +149,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 					 requestType=requestData.getRequestType();
 					 
 					  PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
+					  
 					 if(requestData.getIshardwareReq().equalsIgnoreCase("Y") && detailsData == null){
 						 
 						    

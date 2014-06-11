@@ -68,7 +68,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 				selfCare.setPassword(unencodedPassword);
 				selfCareRepository.save(selfCare);
 				
-				platformEmailService.sendToUserAccount(new EmailDetail("Hugo Self Care Organisation ", "SelfCare",email, selfCare.getUserName()), unencodedPassword); 
+				platformEmailService.sendToUserAccount(new EmailDetail("OBS Self Care Organisation ", "SelfCare",email, selfCare.getUserName()), unencodedPassword); 
 				
 				transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Self Care user activation", new Date(), "USerName: "+selfCare.getUserName()+" ClientId"+selfCare.getClientId());
 			}else{

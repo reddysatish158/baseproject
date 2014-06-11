@@ -121,7 +121,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 		}
 
 		@Override
-		public void notifyProcessingDetails(ProcessingDetailsData detailsData) {
+		public void notifyProcessingDetails(ProcessRequest detailsData) {
 			try{
 				if(detailsData!=null &&!detailsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate)){
 					
@@ -159,15 +159,17 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 				 this.orderRepository.save(order);
 				 this.clientRepository.saveAndFlush(client);
 				 
-				 ProcessRequest processRequest=this.processRequestRepository.findOne(detailsData.getId());
-				 processRequest.setNotify();
+				// ProcessRequest processRequest=this.processRequestRepository.findOne(detailsData.getId());
+				 detailsData.setNotify();
 				 
-				 this.processRequestRepository.save(processRequest);
 				
-				}else if(detailsData !=null){
-					 ProcessRequest processRequest=this.processRequestRepository.findOne(detailsData.getId());
-					 processRequest.setNotify();
-				}
+				
+				}/*else if(detailsData !=null){
+					// ProcessRequest processRequest=this.processRequestRepository.findOne(detailsData.getId());
+					 detailsData.setNotify();
+				}*/
+				
+				 this.processRequestRepository.save(detailsData);
 				
 			}catch(Exception exception){
 				exception.printStackTrace();
