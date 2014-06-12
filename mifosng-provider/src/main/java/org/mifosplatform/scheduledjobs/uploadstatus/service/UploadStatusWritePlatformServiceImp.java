@@ -136,7 +136,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 	}
 	
 	//@Transactional
-	
+	@Transactional
 	@Override
 	public CommandProcessingResult updateUploadStatus(Long orderId,int countno, ApiRequestJsonSerializationSettings settings) {
 		//processRecords=(long)0;
@@ -358,7 +358,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		
 		writeToFile(fileLocation,errorData);
 		
-		}else if(uploadProcess.equalsIgnoreCase("Mrn")){/*
+		}/*else if(uploadProcess.equalsIgnoreCase("Mrn")){
 			Integer cellNumber = 2;
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			Workbook wb = null;
@@ -440,7 +440,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-		*/}else if(uploadProcess.equalsIgnoreCase("Move Itemsale") && new File(fileLocation).getName().contains(".csv")){
+		  }*/else if(uploadProcess.equalsIgnoreCase("Move Itemsale") && new File(fileLocation).getName().contains(".csv")){
 			
 		ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 		BufferedReader csvFileBufferedReader = null;
@@ -538,11 +538,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		
 		writeToFile(fileLocation,errorData);
 		
-		}
-		
-		
-		
-		else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
+		}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
 			
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			BufferedReader csvFileBufferedReader = null;
@@ -886,7 +882,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								
 				writeToFile(fileLocation,errorData);
 				
-			}else if(uploadProcess.equalsIgnoreCase("Epg")){/*
+			}/*else if(uploadProcess.equalsIgnoreCase("Epg")){
 			Integer cellNumber = 11;
 			UploadStatus uploadStatusForEpg = this.uploadStatusRepository.findOne(orderId);
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
@@ -963,7 +959,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-		*/}else if(uploadProcess.equalsIgnoreCase("MediaAssets")){
+			}*/else if(uploadProcess.equalsIgnoreCase("MediaAssets")){
 			Integer cellNumber = 15;
 			UploadStatus uploadStatusForMediaAsset = this.uploadStatusRepository.findOne(orderId);
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();

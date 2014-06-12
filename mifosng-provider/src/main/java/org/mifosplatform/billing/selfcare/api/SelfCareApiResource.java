@@ -82,6 +82,7 @@ public class SelfCareApiResource {
 	}
 	
 	
+	
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -89,9 +90,20 @@ public class SelfCareApiResource {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCare().withJson(jsonRequestBody).build();
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-		 
 	    return this.toApiJsonSerializerForItem.serialize(result);	
 	}
+	
+	@Path("password")
+	@POST
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String createSelfCareClientUDPassword(final String jsonRequestBody) {
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCareUDP().withJson(jsonRequestBody).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		 
+	    return this.toApiJsonSerializerForItem.serialize(result);	
+	}	
 	
 	@Path("/login")
 	@POST
