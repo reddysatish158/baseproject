@@ -22,6 +22,7 @@ import org.mifosplatform.portfolio.association.data.HardwareAssociationData;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationReadplatformService;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationWriteplatformService;
+import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -114,6 +115,13 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		    		   }
 		    }
 		}
+		/*GlobalConfigurationProperty balanceCheckconfigurationProperty=this.globalConfigurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+        ClientData clientData = this.clientReadPlatformService.retrieveOne(clientId);
+
+        String balanceCheck="N";
+        if(configurationProperty.isEnabled()){
+        	balanceCheck="Y";
+        }*/
 		return new CommandProcessingResultBuilder().withEntityId(ownedHardware.getId()).build();
 		
 	}catch(DataIntegrityViolationException dve){

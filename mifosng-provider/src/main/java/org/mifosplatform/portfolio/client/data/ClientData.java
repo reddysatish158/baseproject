@@ -72,16 +72,29 @@ final public class ClientData implements Comparable<ClientData> {
     private final List<String> hardwareDetails;
     private GlobalConfigurationProperty configurationProperty;
 	private  final String currency;
+<<<<<<< HEAD
 	 private final Collection<CodeValueData> closureReasons;
 	 private final boolean balanceCheck;
     public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions, Collection<ClientCategoryData> categoryDatas,
     		List<CodeValueData> closureReasons) {
+=======
+	private final Collection<CodeValueData> closureReasons;
+	private final Boolean balanceCheck;
+	
+    public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions,
+    		Collection<ClientCategoryData> categoryDatas,List<CodeValueData> closureReasons) {
+>>>>>>> upstream/obsplatform-1.01
         return new ClientData(null, null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
         		categoryDatas,null,null,null, null, null, null, null, null, null, null,null,null,null,null,closureReasons,null);
     }
 
+<<<<<<< HEAD
     public static ClientData templateOnTop(final ClientData clientData, final List<OfficeData> allowedOffices, 
     		Collection<ClientCategoryData> categoryDatas, List<String> allocationDetailsDatas, String balanceCheck) {
+=======
+    public static ClientData templateOnTop(final ClientData clientData, final List<OfficeData> allowedOffices, Collection<ClientCategoryData> categoryDatas, 
+    		List<String> allocationDetailsDatas,String balanceCheck) {
+>>>>>>> upstream/obsplatform-1.01
 
         return new ClientData(clientData.accountNo, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
@@ -92,6 +105,7 @@ final public class ClientData implements Comparable<ClientData> {
     }
 
     public static ClientData setParentGroups(final ClientData clientData, final Collection<GroupGeneralData> parentGroups) {
+    	
         return new ClientData(clientData.accountNo, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
                 clientData.externalId, clientData.activationDate, clientData.imageKey, clientData.officeOptions, parentGroups,
@@ -126,9 +140,15 @@ final public class ClientData implements Comparable<ClientData> {
     private ClientData(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName, final Long id,final String firstname,
     		final String middlename, final String lastname, final String fullname, final String displayName,final String externalId, final LocalDate activationDate, 
     		final String imageKey, final Collection<OfficeData> allowedOffices,final Collection<GroupGeneralData> groups, Collection<ClientCategoryData> clientCategoryDatas,
+<<<<<<< HEAD
     		final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,final String state,
     		final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,final String currency,
     		List<CodeValueData> closureReasons,String isbalancecheck) {
+=======
+    		final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,
+    		final String state,final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,
+    		final String currency, List<CodeValueData> closureReasons, String balanceCheck) {
+>>>>>>> upstream/obsplatform-1.01
         this.accountNo = accountNo;
         this.status = status;
         if (status != null) {
@@ -177,6 +197,7 @@ final public class ClientData implements Comparable<ClientData> {
         this.hardwareDetails=hardwareDetails;
         this.hwSerialNumber=hwSerialNumber;
         this.currency=currency;
+<<<<<<< HEAD
         if(isbalancecheck !=null && isbalancecheck.equalsIgnoreCase("Y")){
         	
         	this.balanceCheck=true;
@@ -184,6 +205,12 @@ final public class ClientData implements Comparable<ClientData> {
         	this.balanceCheck=false;
         }
        
+=======
+        if(balanceCheck !=null && balanceCheck.equalsIgnoreCase("Y"))
+     	   this.balanceCheck=true;
+        else
+     	   this.balanceCheck=false;
+>>>>>>> upstream/obsplatform-1.01
         
     }
 

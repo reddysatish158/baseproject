@@ -997,4 +997,16 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("PROVISIONINGDETAILS");
 		}
 
+		public boolean isPaypalEnquirey() {
+			return this.actionName.equalsIgnoreCase("CREATEENQUIREY") && this.entityName.equalsIgnoreCase("PAYMENT");
+		}
+
+		public boolean isClientCardDetailsResource() {
+			 return this.entityName.equals("CLIENTCARDDETAILS");
+		}
+
+		public boolean isProcessRandomGenerator() {
+			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
+		}
+
 }

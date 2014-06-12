@@ -31,8 +31,13 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class PlanServicesApiResource {
 	
+<<<<<<< HEAD
 	private final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("serviceid","clientId","channelName","image","url","channelDescription",
 			"category","subCategory"));
+=======
+	private final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("serviceid","clientId","channelName","image","url",
+			"channelDescription","subCategory","category"));
+>>>>>>> upstream/obsplatform-1.01
     private final String resourceNameForPermissions = "PLANSERVICE";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<PlanServiceData> toApiJsonSerializer;

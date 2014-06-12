@@ -1,20 +1,27 @@
 package org.mifosplatform.organisation.randomgenerator.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
+import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
+import org.mifosplatform.infrastructure.dataqueries.data.ResultsetColumnHeaderData;
+import org.mifosplatform.infrastructure.dataqueries.data.ResultsetRowData;
+import org.mifosplatform.infrastructure.dataqueries.service.GenericDataService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.organisation.address.domain.AddressEnum;
 import org.mifosplatform.organisation.randomgenerator.data.RandomGeneratorData;
 import org.mifosplatform.organisation.randomgenerator.domain.PinCategory;
 import org.mifosplatform.organisation.randomgenerator.domain.PinType;
-import org.mifosplatform.portfolio.order.data.AddressStatusEnumaration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,11 +33,14 @@ public class RandomGeneratorReadPlatformServiceImpl implements RandomGeneratorRe
 
 	private final JdbcTemplate jdbcTemplate;
 	private final PlatformSecurityContext context;
+	private final GenericDataService genericDataService;
 
 	@Autowired
-	public  RandomGeneratorReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
+	public  RandomGeneratorReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
+			final GenericDataService genericDataService) {
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.genericDataService=genericDataService;
 	}
 	
 	
@@ -106,8 +116,8 @@ private static final class retrieveMapper implements RowMapper<String> {
 			public String schema() {
 				return "m.id as id, m.batch_name as batchName,m.batch_description as batchDescription,m.length as length," +
 						"m.begin_with as beginWith,m.pin_category as pinCategory,m.quantity as quantity," +
-						"m.serial_no as serialNo,m.pin_type as pinType,m.pin_value as pinValue,m.expiry_date as expiryDate " +
-						"from b_pin_master m;";
+						"m.serial_no as serialNo,m.pin_type as pinType,m.pin_value as pinValue,m.expiry_date as expiryDate, " +
+						"m.is_processed as isProcessed from b_pin_master m;";
 			
 			}
 			
@@ -125,8 +135,9 @@ private static final class retrieveMapper implements RowMapper<String> {
 				 Date expiryDate=rs.getDate("expiryDate");
 				 String beginWith=rs.getString("beginWith");
 				 String pinValue=rs.getString("pinValue");
-				
-				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id);
+				 String isProcessed=rs.getString("isProcessed");	
+				 
+				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id,isProcessed);
 			}
 		}
 	
@@ -160,6 +171,77 @@ private static final class Mapper implements RowMapper<Long> {
 			return serialNo;
 		}
 	}
+
+@Override
+public StreamingOutput retrieveVocherDetailsCsv(final Long batchId) {
+	this.context.authenticatedUser();
+	  return new StreamingOutput() {
+		  
+		  @Override
+          public void write(final OutputStream out) {
+	try{
+	
+	final String sql="SELECT pm.id AS batchId, pd.serial_no AS serialNum, pd.pin_no AS hiddenNum FROM b_pin_master pm, b_pin_details pd" +
+			" WHERE pd.pin_id = pm.id AND pm.id ="+batchId+" order by serialNum desc ";
+	GenericResultsetData result = genericDataService.fillGenericResultSet(sql);
+	StringBuffer sb = generateCsvFileBuffer(result);
+	 InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
+	   byte[] outputByte = new byte[4096];
+       Integer readLen = in.read(outputByte, 0, 4096);
+       while (readLen != -1) {
+           out.write(outputByte, 0, readLen);
+           readLen = in.read(outputByte, 0, 4096);
+       }
+	}catch(Exception e){
+		
+		  throw new PlatformDataIntegrityException("error.msg.exception.error", e.getMessage());
+	}
+		  }
+};
+}
+private StringBuffer generateCsvFileBuffer(final GenericResultsetData result) {
+    StringBuffer writer = new StringBuffer();
+
+    List<ResultsetColumnHeaderData> columnHeaders = result.getColumnHeaders();
+  //  logger.info("NO. of Columns: " + columnHeaders.size());
+    Integer chSize = columnHeaders.size();
+    for (int i = 0; i < chSize; i++) {
+        writer.append('"' + columnHeaders.get(i).getColumnName() + '"');
+        if (i < (chSize - 1)) writer.append(",");
+    }
+    writer.append('\n');
+
+    List<ResultsetRowData> data = result.getData();
+    List<String> row;
+    Integer rSize;
+    // String currCol;
+    String currColType;
+    String currVal;
+    String doubleQuote = "\"";
+    String twoDoubleQuotes = doubleQuote + doubleQuote;
+    //logger.info("NO. of Rows: " + data.size());
+    for (int i = 0; i < data.size(); i++) {
+        row = data.get(i).getRow();
+        rSize = row.size();
+        for (int j = 0; j < rSize; j++) {
+            // currCol = columnHeaders.get(j).getColumnName();
+            currColType = columnHeaders.get(j).getColumnType();
+            currVal = row.get(j);
+            if (currVal != null) {
+                if (currColType.equals("DECIMAL") || currColType.equals("DOUBLE") || currColType.equals("BIGINT")
+                        || currColType.equals("SMALLINT") || currColType.equals("INT"))
+                    writer.append(currVal);
+                else
+                    writer.append('"' + genericDataService.replace(currVal, doubleQuote, twoDoubleQuotes) + '"');
+
+            }
+            if (j < (rSize - 1)) writer.append(",");
+        }
+        writer.append('\n');
+    }
+
+    return writer;
+}
 
 }
 

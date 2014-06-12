@@ -9,10 +9,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -27,10 +30,11 @@ import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSeria
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.randomgenerator.data.RandomGeneratorData;
 import org.mifosplatform.organisation.randomgenerator.service.RandomGeneratorReadPlatformService;
-import org.mifosplatform.organisation.randomgenerator.service.RandomGeneratorWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.JsonObject;
 
 @Path("/randomgenerators")
 @Component
@@ -42,25 +46,28 @@ public class RandomGeneratorApiReswource {
 		 */
 		private static final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "batchName", "batchDescription", "length",
 				"beginWith", "pinCategory", "pinType", "quantity","serialNo","expiryDate","dateFormat","pinValue","pinNO","locale","pinExtention"));
-		private final String resourceNameForPermissions = "GETPAYMENT";
+		
+		private final String resourceNameForPermissions = "RANDAMGENERATOR";
+		
+		private final String resourceNameFordownloadFilePermissions = "DOWNLOAD_FILE";
 
 		private final PlatformSecurityContext context;
 		private final RandomGeneratorReadPlatformService readPlatformService;
 		private final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer;
 		private final ApiRequestParameterHelper apiRequestParameterHelper;
-		private final RandomGeneratorWritePlatformService randomGeneratorWritePlatformService;
 		private final PortfolioCommandSourceWritePlatformService writePlatformService;
 	   
 		@Autowired
-		public RandomGeneratorApiReswource(final PlatformSecurityContext context,final RandomGeneratorReadPlatformService readPlatformService,
-				final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
-				final PortfolioCommandSourceWritePlatformService writePlatformService,
-				RandomGeneratorWritePlatformService randomGeneratorWritePlatformService) {
+		public RandomGeneratorApiReswource(final PlatformSecurityContext context,
+				final RandomGeneratorReadPlatformService readPlatformService,
+				final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer,
+				final ApiRequestParameterHelper apiRequestParameterHelper,
+				final PortfolioCommandSourceWritePlatformService writePlatformService) {
+			
 			this.context = context;
 			this.readPlatformService = readPlatformService;
 			this.toApiJsonSerializer = toApiJsonSerializer;
 			this.apiRequestParameterHelper = apiRequestParameterHelper;
-			this.randomGeneratorWritePlatformService=randomGeneratorWritePlatformService;
 			this.writePlatformService = writePlatformService;
 			   
 		}
@@ -98,5 +105,30 @@ public class RandomGeneratorApiReswource {
 			return this.toApiJsonSerializer.serialize(settings, randomGenerator,RESPONSE_DATA_PARAMETERS);
 
 		}
+		
+		@GET
+		@Path("{batchId}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON, "application/x-msdownload",
+				"application/vnd.ms-excel", "application/pdf", "text/html" })
+		public Response runReport(@PathParam("batchId") final Long batchId,@Context final UriInfo uriInfo) {
+			context.authenticatedUser().validateHasReadPermission(resourceNameFordownloadFilePermissions);
+			StreamingOutput result=this.readPlatformService.retrieveVocherDetailsCsv(batchId);
+			return Response.ok().entity(result).type("application/x-msdownload").
+					header("Content-Disposition","attachment;filename=" +"Vochers_"+batchId+ ".csv").build();			
+			}
+		
+		@POST
+		@Path("{batchId}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public String createVocherReport(@PathParam("batchId") final Long batchId,@Context final UriInfo uriInfo) {
+			JsonObject object= new JsonObject();
+			object.addProperty("batchId", batchId);
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().processRandomGeneraror(batchId).withJson(object.toString()).build();
+			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
+			return this.toApiJsonSerializer.serialize(result);			
+		}
+		
 	
 }

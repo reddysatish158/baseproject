@@ -3,6 +3,8 @@ package org.mifosplatform.cms.mediadevice.data;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+
 public class MediaDeviceData {
 	
 	
@@ -11,13 +13,18 @@ public class MediaDeviceData {
 	private  String clientType;
 	private Long clientTypeId;
 	private BigDecimal balanceAmount;
+<<<<<<< HEAD
 	 private boolean balanceCheck;
+=======
+	private boolean balanceCheck;
+>>>>>>> upstream/obsplatform-1.01
 	
 	private List<MediaDeviceData> data;
-
+	private GlobalConfigurationProperty paypalConfigData;
+    private String currency;
 	
 	
-	public MediaDeviceData(Long deviceId, Long clientId, String clientType, Long clientTypeId, BigDecimal balanceAmount) {
+	public MediaDeviceData(Long deviceId, Long clientId, String clientType, Long clientTypeId, BigDecimal balanceAmount, String currency) {
            this.deviceId=deviceId;
            this.clientId=clientId;
            this.clientType=clientType;
@@ -26,6 +33,7 @@ public class MediaDeviceData {
            this.balanceAmount=BigDecimal.ZERO;
            else
         	   this.balanceAmount=balanceAmount;
+           this.currency=currency;
 	}
 	public MediaDeviceData(List<MediaDeviceData> data){
 		this.data = data;
@@ -60,8 +68,12 @@ public class MediaDeviceData {
 		this.data = data;
 	}
 
-
-
+	public BigDecimal getBalanceAmount() {
+		return balanceAmount;
+	}
+	public boolean isBalanceCheck() {
+		return balanceCheck;
+	}
 	public void setClientTypeId(Long clientTypeId) {
 		this.clientTypeId = clientTypeId;
 	}
@@ -74,11 +86,20 @@ public class MediaDeviceData {
 	public void setClientType(String clientType) {
 		this.clientType = clientType;
 	}
+<<<<<<< HEAD
 	public void setBalanceCheck(boolean enabled) {
 		this.balanceCheck=enabled;
 		
 	}
 
+=======
+	public void setBalanceCheck(boolean isCheck) {
+		this.balanceCheck =isCheck;
+	}
+	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
+		this.paypalConfigData = paypalConfigData;
+	}
+>>>>>>> upstream/obsplatform-1.01
 	
 	
 }

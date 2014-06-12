@@ -134,10 +134,11 @@ public class MessageGmailBackedPlatformEmailService implements
 		MessagePlatformEmailService {
 	private final MessageDataRepository messageDataRepository;
 	private final GlobalConfigurationRepository repository;
-	 String mailId;
-    String encodedPassword;
-    String decodePassword;
-    String hostName;
+	private String mailId;
+	private String encodedPassword;
+	private String decodePassword;
+	private String hostName;
+	private int portNumber;
 	@Autowired
 	public MessageGmailBackedPlatformEmailService(
 			MessageDataRepository messageDataRepository,
@@ -171,6 +172,12 @@ public class MessageGmailBackedPlatformEmailService implements
 			encodedPassword=(String) object.get("password");
 			decodePassword=new String(Base64.decodeBase64(encodedPassword));
 			hostName=(String) object.get("hostName");
+			String port=object.getString("port");
+			if(port.isEmpty()){
+				portNumber=Integer.parseInt("25");
+			}else{
+				portNumber=Integer.parseInt(port);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -187,7 +194,7 @@ public class MessageGmailBackedPlatformEmailService implements
 			email.getMailSession().getProperties()
 					.put("mail.smtp.starttls.enable", "true");
 			email.setFrom(authuserName, authuser);
-			// email.setSmtpPort(587);
+			email.setSmtpPort(portNumber);
 			StringBuilder subjectBuilder = new StringBuilder().append(" ")
 					.append(emailDetail.getSubject()).append("  ");
 

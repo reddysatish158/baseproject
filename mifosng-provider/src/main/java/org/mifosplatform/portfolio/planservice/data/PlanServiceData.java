@@ -10,7 +10,10 @@ public class PlanServiceData {
 	private final String url;
 	private final String category;
 	private final String subCategory;
+<<<<<<< HEAD
 	
+=======
+>>>>>>> upstream/obsplatform-1.01
 
 	public PlanServiceData(Long serviceId, Long clientId, String serviceName,
 			String logo, String url, String channelName, String category, String subCategory) {
@@ -63,5 +66,10 @@ public class PlanServiceData {
 	public String getSubCategory() {
 		return subCategory;
 	}
+<<<<<<< HEAD
+=======
+	
+	
+>>>>>>> upstream/obsplatform-1.01
 
 }

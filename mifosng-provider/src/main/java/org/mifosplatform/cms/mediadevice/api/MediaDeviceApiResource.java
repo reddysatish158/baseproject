@@ -19,6 +19,10 @@ import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.cms.mediadevice.exception.NoPlanDataFoundException;
 import org.mifosplatform.cms.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/obsplatform-1.01
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -48,10 +52,14 @@ public class MediaDeviceApiResource {
 	    private final GlobalConfigurationRepository configurationRepository;
 		
 		 @Autowired
-	    public MediaDeviceApiResource(final PlatformSecurityContext context, 
+	    public MediaDeviceApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository, 
 	   final DefaultToApiJsonSerializer<MediaDeviceData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final MediaDeviceReadPlatformService mediaDeviceReadPlatformService,
+<<<<<<< HEAD
 	   final DefaultToApiJsonSerializer<PlanData> toApiJsonSerializerForPlanData,final GlobalConfigurationRepository configurationRepository){
+=======
+	   final DefaultToApiJsonSerializer<PlanData> toApiJsonSerializerForPlanData,final GlobalConfigurationRepository globalConfigurationRepository){
+>>>>>>> upstream/obsplatform-1.01
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
@@ -59,18 +67,31 @@ public class MediaDeviceApiResource {
 		        this.mediaDeviceReadPlatformService=mediaDeviceReadPlatformService;
 		        this.toApiJsonSerializerForPlanData = toApiJsonSerializerForPlanData;
 		        this.configurationRepository=configurationRepository;
+<<<<<<< HEAD
 		    }		
 		
 	
+=======
+		    }	
+
+		@SuppressWarnings("unused")
+>>>>>>> upstream/obsplatform-1.01
 		@GET
 		@Path("{deviceId}")
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String retrieveSingleDeviceDetails(@PathParam("deviceId") final String deviceId, @Context final UriInfo uriInfo) {
+			
 			MediaDeviceData datas = this.mediaDeviceReadPlatformService.retrieveDeviceDetails(deviceId);
+			
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}
+			
+			 GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+			 datas.setPaypalConfigData(paypalConfigData);
+			 GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+			 datas.setBalanceCheck(configurationProperty.isEnabled());
 			//MediaDeviceData data = new MediaDeviceData(datas);
 			 GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			 datas.setBalanceCheck(configurationProperty.isEnabled());
