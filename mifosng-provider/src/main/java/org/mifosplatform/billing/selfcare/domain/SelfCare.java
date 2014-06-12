@@ -47,6 +47,20 @@ public class SelfCare extends AbstractPersistable<Long>{
 		return selfCare;
 		
 	}
+	
+	public static SelfCare fromJsonODP(JsonCommand command) {
+		String userName = command.stringValueOfParameterNamed("userName");
+		String uniqueReference = command.stringValueOfParameterNamed("uniqueReference");
+		String password = command.stringValueOfParameterNamed("password");
+		SelfCare selfCare = new SelfCare();
+		selfCare.setUserName(userName);
+		selfCare.setUniqueReference(uniqueReference);
+		selfCare.setPassword(password);
+		selfCare.setIsDeleted(false);
+		return selfCare;
+		
+	}
+	
 	public Long getClientId() {
 		return clientId;
 	}
