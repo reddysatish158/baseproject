@@ -25,6 +25,9 @@ import org.mifosplatform.finance.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.finance.clientbalance.service.ClientBalanceReadPlatformService;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.finance.payments.data.PaymentData;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -64,21 +67,32 @@ public class SelfCareApiResource {
 	private final BillMasterReadPlatformService billMasterReadPlatformService;
 	private final PaymodeReadPlatformService paymentReadPlatformService;
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
+	private final GlobalConfigurationRepository configurationRepository;
 	
 	@Autowired
-	public SelfCareApiResource(final PlatformSecurityContext context, final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, final PaymodeReadPlatformService paymentReadPlatformService, final AddressReadPlatformService addressReadPlatformService, final ClientBalanceReadPlatformService balanceReadPlatformService, final ClientReadPlatformService clientReadPlatformService, final OrderReadPlatformService  orderReadPlatformService, final BillMasterReadPlatformService billMasterReadPlatformService, final TicketMasterReadPlatformService ticketMasterReadPlatformService) {
-		this.context = context;
-		this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
-		this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
-		this.apiRequestParameterHelper = apiRequestParameterHelper;
-		this.selfCareReadPlatformService = selfCareReadPlatformService;
-		this.paymentReadPlatformService = paymentReadPlatformService;
-		this.addressReadPlatformService = addressReadPlatformService;
-		this.clientBalanceReadPlatformService = balanceReadPlatformService;
-		this.clientReadPlatformService = clientReadPlatformService;
-		this.orderReadPlatformService = orderReadPlatformService;
-		this.billMasterReadPlatformService = billMasterReadPlatformService;
-		this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
+	public SelfCareApiResource(final PlatformSecurityContext context,
+			final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
+			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, 
+			final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, 
+			final PaymodeReadPlatformService paymentReadPlatformService, final AddressReadPlatformService addressReadPlatformService, 
+			final ClientBalanceReadPlatformService balanceReadPlatformService, final ClientReadPlatformService clientReadPlatformService, 
+			final OrderReadPlatformService  orderReadPlatformService, final BillMasterReadPlatformService billMasterReadPlatformService,
+			final TicketMasterReadPlatformService ticketMasterReadPlatformService, 
+			final GlobalConfigurationRepository configurationRepository) {
+		
+				this.context = context;
+				this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
+				this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
+				this.apiRequestParameterHelper = apiRequestParameterHelper;
+				this.selfCareReadPlatformService = selfCareReadPlatformService;
+				this.paymentReadPlatformService = paymentReadPlatformService;
+				this.addressReadPlatformService = addressReadPlatformService;
+				this.clientBalanceReadPlatformService = balanceReadPlatformService;
+				this.clientReadPlatformService = clientReadPlatformService;
+				this.orderReadPlatformService = orderReadPlatformService;
+				this.billMasterReadPlatformService = billMasterReadPlatformService;
+				this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
+				this.configurationRepository=configurationRepository;
 	}
 	
 	
@@ -130,6 +144,10 @@ public class SelfCareApiResource {
         final List<TicketMasterData> ticketMastersData = this.ticketMasterReadPlatformService.retrieveClientTicketDetails(clientId);
         
         careData.setDetails(clientsData,balanceData,addressData,clientOrdersData,statementsData,paymentsData,ticketMastersData);
+        
+        //adding Is_paypal Global Data by Ashok
+        GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+        careData.setPaypalConfigData(paypalConfigData);
         
         }catch(EmptyResultDataAccessException e){
         	throw new PlatformDataIntegrityException("result.set.is.null","result.set.is.null","result.set.is.null");
