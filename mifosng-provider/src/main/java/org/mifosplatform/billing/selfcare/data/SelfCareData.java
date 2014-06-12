@@ -6,6 +6,7 @@ import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
 import org.mifosplatform.finance.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.finance.payments.data.PaymentData;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.organisation.address.data.AddressData;
 import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.order.data.OrderData;
@@ -34,6 +35,8 @@ private Long clientId;
 	private List<PaymentData> paymentsData;
 
 	private List<TicketMasterData> ticketMastersData;
+	
+	private GlobalConfigurationProperty paypalConfigData;
 	
 	public SelfCareData(Long clientId, String email) {
 		this.clientId = clientId;
@@ -127,6 +130,18 @@ private Long clientId;
 		this.paymentsData = paymentsData;
 		this.ticketMastersData = ticketMastersData;
 		
+	}
+
+
+
+	public GlobalConfigurationProperty getPaypalConfigData() {
+		return paypalConfigData;
+	}
+
+
+
+	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
+		this.paypalConfigData = paypalConfigData;
 	}
 	
 	
