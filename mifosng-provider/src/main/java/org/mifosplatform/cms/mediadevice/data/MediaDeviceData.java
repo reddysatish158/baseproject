@@ -13,12 +13,7 @@ public class MediaDeviceData {
 	private  String clientType;
 	private Long clientTypeId;
 	private BigDecimal balanceAmount;
-<<<<<<< HEAD
-	 private boolean balanceCheck;
-=======
 	private boolean balanceCheck;
->>>>>>> upstream/obsplatform-1.01
-	
 	private List<MediaDeviceData> data;
 	private GlobalConfigurationProperty paypalConfigData;
     private String currency;
@@ -86,20 +81,11 @@ public class MediaDeviceData {
 	public void setClientType(String clientType) {
 		this.clientType = clientType;
 	}
-<<<<<<< HEAD
-	public void setBalanceCheck(boolean enabled) {
-		this.balanceCheck=enabled;
-		
-	}
-
-=======
 	public void setBalanceCheck(boolean isCheck) {
 		this.balanceCheck =isCheck;
 	}
 	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
 		this.paypalConfigData = paypalConfigData;
 	}
->>>>>>> upstream/obsplatform-1.01
-	
 	
 }

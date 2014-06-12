@@ -59,11 +59,7 @@ public class PlanServiceReadPlatformServiceImpl implements PlanServiceReadPlatfo
 		public String schema() {
 			return " s.id AS serviceId,o.client_id AS clientId,s.service_code AS channelName,s.service_description AS serviceName,sd.image AS logo," +
 					"sd.service_identification AS serviceIdentification,sd.category as category,sd.sub_category as subCategory FROM b_orders o," +
-<<<<<<< HEAD
 					"b_plan_detail p,b_service s,b_prov_service_details sd WHERE o.client_id = ? AND p.plan_id = o.plan_id AND s.service_code = p.service_code" +
-=======
-					"b_plan_detail p,b_service s,b_prov_service_details sd WHERE  o.client_id = ? AND p.plan_id = o.plan_id AND s.service_code = p.service_code" +
->>>>>>> upstream/obsplatform-1.01
 					" AND s.service_type = ? AND s.id = sd.service_id AND o.order_status = 1 GROUP BY s.id";
 		}
 	}

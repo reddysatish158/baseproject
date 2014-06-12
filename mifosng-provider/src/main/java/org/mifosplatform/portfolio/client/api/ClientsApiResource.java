@@ -140,28 +140,17 @@ public class ClientsApiResource {
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
         ClientData clientData = this.clientReadPlatformService.retrieveOne(clientId);
-<<<<<<< HEAD
-        GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
-=======
-
->>>>>>> upstream/obsplatform-1.01
         String balanceCheck="N";
         if(configurationProperty.isEnabled()){
         	balanceCheck="Y";
         }
-<<<<<<< HEAD
-=======
-      
->>>>>>> upstream/obsplatform-1.01
+
         if (settings.isTemplate()) {
             final List<OfficeData> allowedOffices = new ArrayList<OfficeData>(officeReadPlatformService.retrieveAllOfficesForDropdown());
             final Collection<ClientCategoryData> categoryDatas=this.clientReadPlatformService.retrieveClientCategories();
             List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-<<<<<<< HEAD
             clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,allocationDetailsDatas,null);
-=======
-            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,allocationDetailsDatas,balanceCheck);
->>>>>>> upstream/obsplatform-1.01
+
         }else{
         	 List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
              clientData = ClientData.templateOnTop(clientData, null,null,allocationDetailsDatas,balanceCheck);
