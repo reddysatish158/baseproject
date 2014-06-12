@@ -179,11 +179,10 @@ public class PriceReadPlatformServiceImpl implements PriceReadPlatformService{
 
 		  context.authenticatedUser();
 
-	        String sql = "select s.id as id,s.discount_code as discountcode,s.discount_description as discount_description from b_discount_master s";
-
+	        String sql = "select s.id as id,s.discount_code as discountcode,s.discount_description as discount_description from b_discount_master s" +
+	        		     " where s.is_delete='N'";
 
 	        RowMapper<DiscountMasterData> rm = new DiscountMapper();
-
 	        return this.jdbcTemplate.query(sql, rm, new Object[] {});
 	}
 

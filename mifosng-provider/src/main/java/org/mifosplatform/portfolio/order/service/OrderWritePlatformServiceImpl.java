@@ -575,12 +575,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			      
                        for(OrderPrice orderprice:orderPrices){
                 	  
-                    	   
                     	   orderprice.setBillStartDate(newStartdate);
                     	   orderprice.setBillEndDate(renewalEndDate);
                     	   orderprice.setNextBillableDay(null);
                     	   orderprice.setInvoiceTillDate(null);
-            			   this.OrderPriceRepository.save(orderprice);
+            			 //  this.OrderPriceRepository.save(orderprice);
             			   
                 	  this.OrderPriceRepository.save(orderprice);
                   }
