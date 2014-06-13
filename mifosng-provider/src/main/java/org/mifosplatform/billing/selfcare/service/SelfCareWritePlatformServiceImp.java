@@ -58,7 +58,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			clientId = selfCareReadPlatformService.getClientId(selfCare.getUniqueReference());
 			email = selfCareReadPlatformService.getEmail(clientId);
 			}catch(EmptyResultDataAccessException erdae){
-				throw new PlatformDataIntegrityException("invalid.account.details","invalid.account.details");
+				throw new PlatformDataIntegrityException("this user is not registered","this user is not registered","");
 			}
 			
 			if(clientId !=null && clientId > 0 ){
@@ -85,18 +85,54 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
 	}
 	
+	/**
+	 * UDPassword=User Defined Password
+	 * 
+	 */
+	@Override
+	public CommandProcessingResult createSelfCareUDPassword(JsonCommand command) {
+		SelfCare selfCare = null;
+		Long clientId = null;
+		try{
+			context.authenticatedUser();
+			selfCareCommandFromApiJsonDeserializer.validateForCreateUDPassword(command);
+			selfCare = SelfCare.fromJsonODP(command);
+			try{
+			clientId = selfCareReadPlatformService.getClientId(selfCare.getUniqueReference());
+			if(clientId == null || clientId <= 0 ){
+				throw new PlatformDataIntegrityException("client does not exist", "this user is not registered","clientId", "client is null ");
+			}
+			selfCare.setClientId(clientId);
+			selfCareRepository.save(selfCare);
+			transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Self Care user activation", new Date(), "USerName: "+selfCare.getUserName()+" ClientId"+selfCare.getClientId());
+			}
+			catch(EmptyResultDataAccessException dve){
+				throw new PlatformDataIntegrityException("invalid.account.details","invalid.account.details","this user is not registered");
+			}
+			
+			
+		}catch(DataIntegrityViolationException dve){
+			handleDataIntegrityIssues(command, dve);
+			throw new PlatformDataIntegrityException("duplicate.email", "duplicate.email","duplicate.email", "duplicate.email");
+		}catch(EmptyResultDataAccessException emp){
+			throw new PlatformDataIntegrityException("empty.result.set", "empty.result.set");
+		}
+		
+		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
+	}
+	
 	
 	
 	
 	
 	private void handleDataIntegrityIssues(JsonCommand command,DataIntegrityViolationException dve) {
 		 Throwable realCause = dve.getMostSpecificCause();
-	        if (realCause.getMessage().contains("username")){
+		 logger.error(dve.getMessage(), dve);
+	        if (realCause.getMessage().contains("username")){	
 	        	throw new PlatformDataIntegrityException("validation.error.msg.selfcare.duplicate.userName", "User Name: " + command.stringValueOfParameterNamed("userName")+ " already exists", "userName", command.stringValueOfParameterNamed("userName"));
+	        }else if (realCause.getMessage().contains("unique_reference")){
+	        	throw new PlatformDataIntegrityException("validation.error.msg.selfcare.duplicate.email", "email: " + command.stringValueOfParameterNamed("uniqueReference")+ " already exists", "email", command.stringValueOfParameterNamed("uniqueReference"));
 	        }
-
-
-	        logger.error(dve.getMessage(), dve);
 		
 	}
 	

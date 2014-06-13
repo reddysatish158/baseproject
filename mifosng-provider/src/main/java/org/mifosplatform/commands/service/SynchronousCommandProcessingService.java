@@ -800,6 +800,10 @@ public class SynchronousCommandProcessingService implements
 			    	   if(wrapper.isCreate()){
 			    		   handler = applicationContext.getBean("createSelfCareCommandHandler",NewCommandSourceHandler.class);
 			    	   }
+			}else if(wrapper.isSelfCareUDP()){
+		    	   if(wrapper.isCreateSelfCareUDP()){
+		    		   handler = applicationContext.getBean("createSelfCareUDPCommandHandler",NewCommandSourceHandler.class);
+		    	   }
 			}else if(wrapper.isDiscountResource()){
 		           		 if(wrapper.isCreateDiscount()) {
 				        		handler = applicationContext.getBean("createDiscountCommandHandler",NewCommandSourceHandler.class);
