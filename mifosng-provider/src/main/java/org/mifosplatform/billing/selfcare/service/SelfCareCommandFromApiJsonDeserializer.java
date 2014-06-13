@@ -62,6 +62,35 @@ private final Set<String> supportedParameters = new HashSet<String>(Arrays.asLis
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }
+    
+    public void validateForCreateUDPassword(final JsonCommand command){
+
+        if (StringUtils.isBlank(command.toString())) { throw new InvalidJsonException(); }
+
+        final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, command.json(),supportedParameters);
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("selfcare");
+
+
+        final JsonElement element = fromApiJsonHelper.parse(command.json());
+        
+     
+       	final String userName = fromApiJsonHelper.extractStringNamed("userName", element); 
+        baseDataValidator.reset().parameter("userName").value(userName).notNull().notExceedingLengthOf(100);
+        
+        final String password = fromApiJsonHelper.extractStringNamed("password", element); 
+        baseDataValidator.reset().parameter("password").value(password).notNull().notExceedingLengthOf(255);
+        
+        final String uniqueReference = fromApiJsonHelper.extractStringNamed("uniqueReference", element);
+        baseDataValidator.reset().parameter("uniqueReference").value(uniqueReference).notBlank();
+        
+		
+
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
+    
+    }
 
     
 
