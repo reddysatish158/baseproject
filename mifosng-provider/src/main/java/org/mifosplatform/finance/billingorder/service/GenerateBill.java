@@ -75,7 +75,7 @@ public class GenerateBill {
 		LocalDate nextbillDate = null;
 		startDate = new LocalDate(billingOrderData.getBillStartDate());
 		endDate = startDate.dayOfMonth().withMaximumValue();
-		if (endDate.toDate().before(billingOrderData.getBillEndDate())) {
+		if (endDate.toDate().before(billingOrderData.getBillEndDate()) || endDate.toDate().equals(billingOrderData.getBillEndDate())) {
 			int currentDay = startDate.getDayOfMonth();
 			int endOfMonth = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
 			int totalDays = endOfMonth - currentDay + 1;
