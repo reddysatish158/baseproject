@@ -272,7 +272,7 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 			}catch (PayPalRESTException e) {
 				
 				PaypalEnquirey paypalexceptionupdate=this.paypalEnquireyRepository.findOne(paypalEnquirey.getId());
-				paypalexceptionupdate.setDescription(e.getMessage());
+				paypalexceptionupdate.setDescription(e.getLocalizedMessage());
 				paypalexceptionupdate.setStatus("Fail");
 				this.paypalEnquireyRepository.save(paypalexceptionupdate);
 				changes.put("paymentId", new Long(-1));
