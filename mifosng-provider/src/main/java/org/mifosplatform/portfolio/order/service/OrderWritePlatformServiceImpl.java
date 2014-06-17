@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -19,8 +18,6 @@ import org.mifosplatform.cms.eventorder.service.PrepareRequestWriteplatformServi
 import org.mifosplatform.finance.billingorder.exceptions.NoPromotionFoundException;
 import org.mifosplatform.finance.billingorder.service.ReverseInvoice;
 import org.mifosplatform.finance.payments.api.PaymentsApiResource;
-import org.mifosplatform.infrastructure.codes.domain.Code;
-import org.mifosplatform.infrastructure.codes.domain.CodeRepository;
 import org.mifosplatform.infrastructure.codes.domain.CodeValue;
 import org.mifosplatform.infrastructure.codes.domain.CodeValueRepository;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
@@ -565,7 +562,14 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 	                	 // this.OrderPriceRepository.save(orderprice);
 	                  }
 				      
-	           		   requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY).getValue();
+	           	 requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_BEFORE_AUTOEXIPIRY).getValue();
+	           	
+                   //Prepare Provisioning Req
+	  				CodeValue codeValue=this.codeValueRepository.findOneByCodeValue(plan.getProvisionSystem());
+	           	 if(codeValue.position() == 1){
+	           	 this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,"RENEWAL_BE");	
+  				}
+	           	
 
 		    } else if(orderDetails.getStatus().equals(StatusTypeEnum.DISCONNECTED.getValue().longValue())){
 		    	
@@ -586,7 +590,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
                        requstStatus=UserActionStatusEnumaration.OrderStatusType(UserActionStatusTypeEnum.RENEWAL_AFTER_AUTOEXIPIRY).getValue();
                        if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
                     	   
-                    	   this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,UserActionStatusTypeEnum.ACTIVATION.toString());
+                    	//   this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,UserActionStatusTypeEnum.ACTIVATION.toString());
                  			orderDetails.setStatus(StatusTypeEnum.PENDING.getValue().longValue());
                        }else{
              				
@@ -594,6 +598,13 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
              			}
 
                        orderDetails.setNextBillableDay(null);
+                       
+
+                       //Prepare Provisioning Req
+    	  				CodeValue codeValue=this.codeValueRepository.findOneByCodeValue(plan.getProvisionSystem());
+    	           	 if(codeValue.position() == 1){
+    	           	 this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,"RENEWAL_AE");	
+      				}
 
 		    }
 		    
@@ -631,13 +642,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
   				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,requstStatus,userId,description);
   				this.orderHistoryRepository.save(orderHistory);
   				
-  				//For Provisioning Req
-  				CodeValue codeValue=this.codeValueRepository.findOneByCodeValue(plan.getProvisionSystem());
   				
-  				if(codeValue.position() == 1){
-  					CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,"RENEWAL");
-  					
-  				}
+  				
+  				
   		  	   return new CommandProcessingResult(Long.valueOf(orderDetails.getClientId()));
 		    
 		    
