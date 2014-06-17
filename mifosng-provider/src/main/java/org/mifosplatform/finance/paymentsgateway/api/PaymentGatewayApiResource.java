@@ -1,7 +1,12 @@
 
 package org.mifosplatform.finance.paymentsgateway.api;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,8 +21,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
@@ -27,6 +35,7 @@ import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformSer
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.finance.payments.exception.ReceiptNoDuplicateException;
 import org.mifosplatform.finance.paymentsgateway.data.PaymentGatewayData;
+import org.mifosplatform.finance.paymentsgateway.data.PaymentGatewayDownloadData;
 import org.mifosplatform.finance.paymentsgateway.service.PaymentGatewayReadPlatformService;
 import org.mifosplatform.infrastructure.codes.data.CodeData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
@@ -40,6 +49,8 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.Gson;
 
 @Path("/paymentgateways")
 @Component
@@ -202,6 +213,91 @@ public class PaymentGatewayApiResource {
 		return this.toApiJsonSerializer.serialize(paymentData);
 
 	}
+	
+	@Path("download")
+	@GET
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response retriveDataForDownload(@Context final UriInfo uriInfo, @QueryParam("source") final String source, @QueryParam("status") final String status,
+			@QueryParam("fromDate") final Long start, @QueryParam("toDate") final Long end) throws IOException {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		/**
+		 * have to convert from and to date to format like 2014-06-15
+		 * 
+		 */
+		
+		Date fDate = new Date(start);
+		Date tDate = new Date(end);
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		
+		String fromDate = df.format(fDate);
+		String toDate = df.format(tDate);
+		Gson gson = new Gson();
+		
+		List<PaymentGatewayDownloadData> paymentData = readPlatformService.retriveDataForDownload(source,fromDate,toDate,status);
+		
+		/**
+		 * 
+		 * receiptNo serialNumber paymentDate amountPaid PhoneMSISDN Remarks  status 
+		 */
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("Receipt No, Serial No, Payment Date, Amount Paid, Phone MSISDN, Remarks, Status \n");
+		for(PaymentGatewayDownloadData data: paymentData){
+			builder.append(data.getReceiptNo()+",");
+			builder.append(data.getSerialNo()+",");
+			builder.append(data.getPaymendDate()+",");
+			builder.append(data.getAmountPaid()+",");
+			builder.append(data.getPhoneMSISDN()+",");
+			builder.append(data.getRemarks()+",");
+			builder.append(data.getStatus());
+			builder.append("\n");
+		}
+
+		String fileLocation = System.getProperty("java.io.tmpdir")+File.separator + "billing"+File.separator+""+source+""+System.currentTimeMillis()+status+".csv";
+		
+		String dirLocation = System.getProperty("java.io.tmpdir")+File.separator + "billing";
+		File dir = new File(dirLocation);
+		if(!dir.exists()){
+			dir.mkdir();
+		}
+		
+		File file = new File(fileLocation);
+		if(!file.exists()){
+			file.createNewFile();
+		}
+		FileUtils.writeStringToFile(file, builder.toString());
+		
+        final ResponseBuilder response = Response.ok(file);
+        response.header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        response.header("Content-Type", "application/csv");
+
+        return response.build();
+		
+		/*String toJson = gson.toJson(paymentData);
+		JSONArray arry  = null;
+		try {
+			arry = new JSONArray(toJson);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		System.out.println(arry);
+		String json = this.toApiJsonSerializer.serialize(paymentData);
+		
+		File file=new File("/home/rakesh/Desktop/demo.csv");
+	    String csv = null;
+		try {
+			csv = CDL.toString(arry);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    FileUtils.writeStringToFile(file, csv);*/
+	     
+		//return this.toApiJsonSerializer.serialize(paymentData);
+
+	}	
 	
 	@GET
 	@Path("{id}")
