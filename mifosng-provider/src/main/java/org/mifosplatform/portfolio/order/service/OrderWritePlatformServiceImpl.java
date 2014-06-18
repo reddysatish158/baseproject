@@ -600,10 +600,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
                        orderDetails.setNextBillableDay(null);
                        
 
-                       //Prepare Provisioning Req
-    	  				CodeValue codeValue=this.codeValueRepository.findOneByCodeValue(plan.getProvisionSystem());
-    	           	 if(codeValue.position() == 1){
-    	           	 this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,"RENEWAL_AE");	
+                       
+    	           	  if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
+    	           		  
+    	           	      this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,"RENEWAL_AE");	
       				}
 
 		    }
