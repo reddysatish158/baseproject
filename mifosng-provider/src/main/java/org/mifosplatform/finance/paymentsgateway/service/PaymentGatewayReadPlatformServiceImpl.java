@@ -10,6 +10,7 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.finance.paymentsgateway.data.PaymentEnum;
 import org.mifosplatform.finance.paymentsgateway.data.PaymentGatewayData;
+import org.mifosplatform.finance.paymentsgateway.data.PaymentGatewayDownloadData;
 import org.mifosplatform.finance.paymentsgateway.domain.PaymentEnumClass;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
@@ -205,4 +206,69 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	}
 	
 	
+	@Override
+	public List<PaymentGatewayDownloadData> retriveDataForDownload(String source,String startDate, String endDate,String status){
+		
+		StringBuilder builder = new StringBuilder(200);
+		builder.append("select pg.id as id, pg.receipt_no as receiptNo, pg.party_id as serialNumber, pg.payment_date as paymentDate, pg.amount_paid as amountPaid," +
+					"pg.party_id as PhoneMSISDN, pg.Remarks as remarks, pg.status as status from b_paymentgateway pg ");
+		
+		if(!source.equalsIgnoreCase("All")){
+			builder.append("where source='"+source+"' and ");
+			
+			if(!status.equalsIgnoreCase("All")){
+				builder.append(" status='"+status+"' and ");
+			}
+		}else{
+			if(!status.equalsIgnoreCase("All")){
+				builder.append("where status='"+status+"' and ");
+			}else{
+				builder.append("where ");
+			}
+		}
+		
+		builder.append("payment_date between '"+startDate+"' and '"+endDate+"' order by id asc");
+		
+		
+		DownloadPaymentGatewayMapper mapper = new DownloadPaymentGatewayMapper();
+			
+		return jdbcTemplate.query(builder.toString(),mapper,new Object[]{});
+		
+
+			/*final String sql = "select pg.id as id, pg.receipt_no as receiptNo, pg.party_id as serialNumber, pg.payment_date as paymentDate, pg.amount_paid as amountPaid," +
+					"pg.party_id as PhoneMSISDN, pg.Remarks as remarks, pg.status as status from b_paymentgateway pg " +
+					"where source=? and payment_date between ? and ? order by id asc";
+			DownloadPaymentGatewayMapper mapper = new DownloadPaymentGatewayMapper();
+			
+			return jdbcTemplate.query(sql,mapper,source,startDate,endDate);*/
+		
+		
+		
+	}
+	
+	private static final class DownloadPaymentGatewayMapper implements RowMapper<PaymentGatewayDownloadData>{
+		/* (non-Javadoc)
+		 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
+		 */
+		@Override
+		public PaymentGatewayDownloadData mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			//final Long Id = rs.getLong("id");
+			final String SerialNumber = rs.getString("serialNumber");
+			final LocalDate PaymentDate = JdbcSupport.getLocalDate(rs, "paymentDate");
+			final BigDecimal AmountPaid = rs.getBigDecimal("amountPaid");
+			final String PhoneMSISDN = rs.getString("PhoneMSISDN");
+			final String Remarks = rs.getString("remarks");
+			final String Status = rs.getString("status");
+			final String ReceiptNo = rs.getString("receiptNo");
+			return new PaymentGatewayDownloadData(SerialNumber,PaymentDate,AmountPaid,PhoneMSISDN,Remarks,Status,ReceiptNo);
+		}
+	}
+	
 }
+	
+/**
+ * 
+ * 
+ */
+
