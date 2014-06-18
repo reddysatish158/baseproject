@@ -104,7 +104,7 @@ public List<MRNDetailsData> retriveItemsaleIds() {
 private final class ItemSaleDetailsMrnIDsMapper implements RowMapper<MRNDetailsData>{
 	@Override
 	public MRNDetailsData mapRow(ResultSet rs, int rowNum) throws SQLException {
-		final Long itemsaleId = rs.getLong("itemsaleId");
+		final String itemsaleId = rs.getString("itemsaleId");
 		final Long itemMasterId = rs.getLong("itemMasterId");
 		final String itemDescription = rs.getString("itemDescription");
 		return new MRNDetailsData(itemDescription,itemsaleId,itemMasterId);
