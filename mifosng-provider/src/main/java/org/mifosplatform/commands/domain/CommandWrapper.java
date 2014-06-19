@@ -1008,5 +1008,13 @@ public class CommandWrapper {
 		public boolean isProcessRandomGenerator() {
 			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
 		}
+		
+		public boolean isSelfCareUDP() {
+			return this.entityName.equalsIgnoreCase("SELFCAREUDP");
+		}	
+		 
+		public boolean isCreateSelfCareUDP() {
+		        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("CREATE");
+		}
 
 }

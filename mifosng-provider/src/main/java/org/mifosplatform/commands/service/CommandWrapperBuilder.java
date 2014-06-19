@@ -2137,5 +2137,13 @@ public CommandWrapperBuilder processRandomGeneraror(Long batchId) {
 	
 }
 
+public CommandWrapperBuilder createSelfCareUDP() {
+	this.actionName = "CREATE";
+	this.entityName = "SELFCAREUDP";
+	this.entityId = null;
+	this.href = "/selfcare";
+	return this;
+}
+
 
 }

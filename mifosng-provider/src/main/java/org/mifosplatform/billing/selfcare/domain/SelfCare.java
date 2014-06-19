@@ -9,7 +9,7 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
-@Table(name="b_clientuser",uniqueConstraints = @UniqueConstraint(name = "username", columnNames = { "username" }))
+@Table(name="b_clientuser",uniqueConstraints = @UniqueConstraint(name = "username", columnNames = { "username","unique_reference"}))
 public class SelfCare extends AbstractPersistable<Long>{
 
 	@Column(name="client_id")
@@ -47,6 +47,20 @@ public class SelfCare extends AbstractPersistable<Long>{
 		return selfCare;
 		
 	}
+	
+	public static SelfCare fromJsonODP(JsonCommand command) {
+		String userName = command.stringValueOfParameterNamed("userName");
+		String uniqueReference = command.stringValueOfParameterNamed("uniqueReference");
+		String password = command.stringValueOfParameterNamed("password");
+		SelfCare selfCare = new SelfCare();
+		selfCare.setUserName(userName);
+		selfCare.setUniqueReference(uniqueReference);
+		selfCare.setPassword(password);
+		selfCare.setIsDeleted(false);
+		return selfCare;
+		
+	}
+	
 	public Long getClientId() {
 		return clientId;
 	}
