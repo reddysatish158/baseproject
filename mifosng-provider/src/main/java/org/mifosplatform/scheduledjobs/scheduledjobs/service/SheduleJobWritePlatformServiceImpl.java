@@ -389,6 +389,7 @@ this.globalConfigurationRepository=globalConfigurationRepository;
     	 			}
 					 for(Long clientId:clientIds)
 					 {
+						 try {
 						    fw.append("processing clientId: "+clientId+ " \r\n");
 						    JSONObject jsonobject = new JSONObject();
 						
@@ -408,6 +409,10 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 							jsonobject.put("message", data.getPromotionalMessage());
 							fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");
 							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
+						
+						 }catch(Exception exception){
+	                               handleCodeDataIntegrityIssues(null, exception);	
+	}
 					 }
 
 				}
