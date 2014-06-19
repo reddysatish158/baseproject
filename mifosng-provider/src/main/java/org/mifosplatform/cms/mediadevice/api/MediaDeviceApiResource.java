@@ -122,6 +122,5 @@ public class MediaDeviceApiResource {
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializerForPlanData.serialize(settings,planData, RESPONSE_DATA_PARAMETERS_FOR_PLAN);
 		
-		
 		}
 }
