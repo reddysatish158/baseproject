@@ -161,7 +161,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 		}
 		
 		@Override
-		public List<ProcessRequestData> getProcessRequestData(Long orderId) {
+		public List<ProcessRequestData> getProcessRequestData(String orderNo) {
 		      
 			context.authenticatedUser();
 
@@ -169,7 +169,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 
 			String sql = "select " + mapper.schema();
 
-			return this.jdbcTemplate.query(sql, mapper, new Object[] {orderId});
+			return this.jdbcTemplate.query(sql, mapper, new Object[] {orderNo});
 		}
 		
 		 private static final class ProcessRequestMapper implements RowMapper<ProcessRequestData> {
@@ -178,7 +178,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 					return "  p.id AS id,p.client_id AS clientId,o.id as orderId,o.order_no AS orderNo,p.request_type AS requestType,p.is_processed AS isProcessed," +
 							"pr.hardware_id AS hardwareId,pr.receive_message AS receiveMessage,pr.sent_message AS sentMessage  FROM b_process_request p" +
 							" INNER JOIN b_process_request_detail pr ON pr.processrequest_id = p.id left join b_orders o on p.order_id=o.id  WHERE   " +
-							"  p.order_id =? AND pr.id = (SELECT max(id) FROM b_process_request_detail prd2 WHERE prd2.processrequest_id = pr.processrequest_id)";
+							"  o.order_no =? AND pr.id = (SELECT max(id) FROM b_process_request_detail prd2 WHERE prd2.processrequest_id = pr.processrequest_id)";
 				}
 			    public String schemaForId() {
 			    	

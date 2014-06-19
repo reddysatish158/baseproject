@@ -1,4 +1,4 @@
-package org.mifosplatform.finance.billmaster.serialize;
+package org.mifosplatform.finance.billingmaster.serialize;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

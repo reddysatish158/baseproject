@@ -20,7 +20,7 @@ import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
 import org.mifosplatform.crm.ticketmaster.service.TicketMasterReadPlatformService;
-import org.mifosplatform.finance.billmaster.service.BillMasterReadPlatformService;
+import org.mifosplatform.finance.billingmaster.service.BillMasterReadPlatformService;
 import org.mifosplatform.finance.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.finance.clientbalance.service.ClientBalanceReadPlatformService;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;

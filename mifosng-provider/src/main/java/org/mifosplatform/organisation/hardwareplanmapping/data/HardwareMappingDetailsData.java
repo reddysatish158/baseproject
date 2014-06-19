@@ -1,4 +1,4 @@
-package org.mifosplatform.organisation.hardwaremapping.data;
+package org.mifosplatform.organisation.hardwareplanmapping.data;
 
 public class HardwareMappingDetailsData {
 

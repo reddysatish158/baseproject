@@ -14,8 +14,6 @@ import org.mifosplatform.billing.discountmaster.exceptions.DiscountMasterNoRecor
 import org.mifosplatform.billing.pricing.data.PriceData;
 import org.mifosplatform.billing.promotioncodes.domain.Promotion;
 import org.mifosplatform.billing.promotioncodes.domain.PromotionRepository;
-import org.mifosplatform.cms.eventorder.domain.PrepareRequest;
-import org.mifosplatform.cms.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.cms.eventorder.service.PrepareRequestWriteplatformService;
 import org.mifosplatform.finance.billingorder.exceptions.NoPromotionFoundException;
 import org.mifosplatform.finance.billingorder.service.ReverseInvoice;
@@ -67,6 +65,8 @@ import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetails;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.provisioning.preparerequest.exception.PrepareRequestActivationException;
 import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
@@ -776,11 +776,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 						HardWareId = detailsData.getSerialNo();
 					}
 
-					ProvisionServiceDetails provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+					List<ProvisionServiceDetails> provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 					
-					if (provisionServiceDetails != null) {
+					if (!provisionServiceDetails.isEmpty()) {
 						if (message == null) {
-							message = provisionServiceDetails.getServiceIdentification();
+							message = provisionServiceDetails.get(0).getServiceIdentification();
 						}
 						ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(orderLine.getId(), orderLine.getServiceId(),message, "Recieved",
 								HardWareId,order.getStartDate(), order.getEndDate(), null,null, 'N',requstStatus);

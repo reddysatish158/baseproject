@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
-import org.mifosplatform.finance.billmaster.service.BillMasterReadPlatformService;
+import org.mifosplatform.finance.billingmaster.service.BillMasterReadPlatformService;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;

@@ -2,12 +2,8 @@ package org.mifosplatform.provisioning.preparerequest.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
-import org.mifosplatform.cms.eventorder.domain.PrepareRequest;
-import org.mifosplatform.cms.eventorder.domain.PrepareRequsetRepository;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.logistics.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.portfolio.allocation.service.AllocationReadPlatformService;
@@ -21,6 +17,8 @@ import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetails;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetailsRepository;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.provisioning.preparerequest.data.PrepareRequestData;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
+import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
@@ -178,21 +176,21 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 							  HardWareId=detailsData.getSerialNo();
 						  }
 						  
-						  ProvisionServiceDetails provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+						  List<ProvisionServiceDetails> provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 						
-						  if(provisionServiceDetails!=null){
+						  if(!provisionServiceDetails.isEmpty()){
 							 
                               if(requestData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DEVICE_SWAP.toString())){
                             	  
                             	   requestType=UserActionStatusTypeEnum.ACTIVATION.toString();
                             		 AllocationDetailsData allocationDetailsData=this.allocationReadPlatformService.getDisconnectedHardwareItemDetails(requestData.getOrderId(),requestData.getClientId(),configProp);
                             		 
-                            		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
+                            		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
                             				 allocationDetailsData.getSerialNo(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.DISCONNECTION.toString());
                             		 processRequest.add(processRequestDetails);
                               }
                            
-						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.getServiceIdentification(),"Recieved",
+						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
 								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
 						  processRequest.add(processRequestDetails);
 						  
@@ -250,5 +248,16 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 				
 			}
 				
-			
+			@Override
+			public int getLastPrepareId(Long orderId) {
+			try {
+
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+			String sql = "select max(id)from b_prepare_request where order_id=? and request_type='ACTIVATION'";
+
+			return jdbcTemplate.queryForInt(sql, new Object[] { orderId });
+			} catch (EmptyResultDataAccessException e) {
+			return 0;
+			}
+			}	
 }

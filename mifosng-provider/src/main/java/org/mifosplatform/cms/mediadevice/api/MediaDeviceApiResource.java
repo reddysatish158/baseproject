@@ -19,7 +19,6 @@ import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.cms.mediadevice.exception.NoPlanDataFoundException;
 import org.mifosplatform.cms.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
-
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -53,13 +52,15 @@ public class MediaDeviceApiResource {
 	   final DefaultToApiJsonSerializer<MediaDeviceData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final MediaDeviceReadPlatformService mediaDeviceReadPlatformService,
 	   final DefaultToApiJsonSerializer<PlanData> toApiJsonSerializerForPlanData,final GlobalConfigurationRepository globalConfigurationRepository){
-		        this.context = context;
+		        
+			 this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.mediaDeviceReadPlatformService=mediaDeviceReadPlatformService;
 		        this.toApiJsonSerializerForPlanData = toApiJsonSerializerForPlanData;
 		        this.configurationRepository=configurationRepository;
+
 		    }	
 
 		@SuppressWarnings("unused")
@@ -79,7 +80,6 @@ public class MediaDeviceApiResource {
 			 datas.setPaypalConfigData(paypalConfigData);
 			 GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			 datas.setBalanceCheck(configurationProperty.isEnabled());
-			//MediaDeviceData data = new MediaDeviceData(datas);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings,datas, RESPONSE_DATA_PARAMETERS);
 		}

@@ -5,6 +5,7 @@
  */
 package org.mifosplatform.infrastructure.core.service;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -13,13 +14,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
-import org.mifosplatform.infrastructure.configuration.serialization.GlobalConfigurationCommandFromApiJsonDeserializer;
-import org.mifosplatform.infrastructure.configuration.service.GlobalConfigurationDataValidator;
 import org.mifosplatform.infrastructure.core.domain.EmailDetail;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.commons.codec.binary.Base64;
 
 @Service
 public class GmailBackedPlatformEmailService implements PlatformEmailService {
@@ -37,10 +34,10 @@ public class GmailBackedPlatformEmailService implements PlatformEmailService {
         Email email = new SimpleEmail();
 /*<<<<<<< HEAD
 
-        String authuserName = "billing@clear-tv.com";//"Open Billing System Community";
+        String authuserName = "Open Billing System Community";
 
-        String authuser = "billing@clear-tv.com";//"info@openbillingsystem.com";
-        String authpwd ="BrownTablet123"; //"openbs@13";
+        String authuser = "kiran@hugotechnologies.com";//"info@openbillingsystem.com";
+        String authpwd ="kirankiran"; //"openbs@13";
 
 =======*/
         GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
@@ -56,7 +53,7 @@ public class GmailBackedPlatformEmailService implements PlatformEmailService {
 			e.printStackTrace();
 		}
         
-        String authuserName = "Open Billing System Community";
+        String authuserName =mailId;// "Open Billing System Community";
         
         String authuser = mailId;//"info@openbillingsystem.com";
         String authpwd =decodePassword; //"openbs@13";
