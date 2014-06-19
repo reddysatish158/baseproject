@@ -210,8 +210,8 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	public List<PaymentGatewayDownloadData> retriveDataForDownload(String source,String startDate, String endDate,String status){
 		
 		StringBuilder builder = new StringBuilder(200);
-		builder.append("select pg.id as id, pg.receipt_no as receiptNo, pg.party_id as serialNumber, pg.payment_date as paymentDate, pg.amount_paid as amountPaid," +
-					"pg.party_id as PhoneMSISDN, pg.Remarks as remarks, pg.status as status from b_paymentgateway pg ");
+		builder.append("select pg.id as id, pg.receipt_no as receiptNo, pg.key_id as serialNumber, pg.payment_date as paymentDate, pg.amount_paid as amountPaid," +
+					"pg.party_id as PhoneMSISDN, pg.Remarks as remarks, pg.obs_id as paymentId, pg.status as status from b_paymentgateway pg ");
 		
 		if(!source.equalsIgnoreCase("All")){
 			builder.append("where source='"+source+"' and ");
@@ -261,7 +261,8 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 			final String Remarks = rs.getString("remarks");
 			final String Status = rs.getString("status");
 			final String ReceiptNo = rs.getString("receiptNo");
-			return new PaymentGatewayDownloadData(SerialNumber,PaymentDate,AmountPaid,PhoneMSISDN,Remarks,Status,ReceiptNo);
+			final String paymentId = rs.getString("paymentId");
+			return new PaymentGatewayDownloadData(SerialNumber,PaymentDate,AmountPaid,PhoneMSISDN,Remarks,Status,ReceiptNo,paymentId);
 		}
 	}
 	
