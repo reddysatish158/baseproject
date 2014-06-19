@@ -827,7 +827,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 			this.orderRepository.save(order);
 			Plan oldPlan=this.planRepository.findOne(order.getPlanId());
-			if(oldPlan.getBillRule() !=400){ 
+			
+			if(oldPlan.getBillRule() !=400 && oldPlan.getBillRule() !=300){ 
 		          
 				this.reverseInvoice.reverseInvoiceServices(order.getId(), order.getClientId(),new LocalDate());
 	        }
