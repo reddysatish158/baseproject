@@ -1,4 +1,4 @@
-package org.mifosplatform.cms.eventorder.domain;
+package org.mifosplatform.provisioning.preparerequest.domain;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;

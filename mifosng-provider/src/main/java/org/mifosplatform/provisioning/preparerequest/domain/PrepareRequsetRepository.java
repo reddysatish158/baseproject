@@ -1,6 +1,5 @@
-package org.mifosplatform.cms.eventorder.domain;
+package org.mifosplatform.provisioning.preparerequest.domain;
 
-import org.mifosplatform.cms.eventorder.domain.PrepareRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

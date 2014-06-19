@@ -27,8 +27,8 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.logistics.itemdetails.mrn.data.InventoryTransactionHistoryData;
-import org.mifosplatform.logistics.itemdetails.mrn.data.MRNDetailsData;
+import org.mifosplatform.logistics.mrn.data.InventoryTransactionHistoryData;
+import org.mifosplatform.logistics.mrn.data.MRNDetailsData;
 import org.mifosplatform.logistics.mrn.service.MRNDetailsReadPlatformService;
 import org.mifosplatform.organisation.office.data.OfficeData;
 import org.mifosplatform.organisation.office.service.OfficeReadPlatformService;
