@@ -14,10 +14,12 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.ownedhardware.data.OwnedHardwareData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -110,6 +112,23 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 		OwnedHardwareMapper mapper = new OwnedHardwareMapper();
 		String sql = "select "+mapper.schemaForSingleRecord()+" where oh.id = ?";
 		return jdbcTemplate.query(sql, mapper, new Object[]{id});
+	}
+
+
+	
+	@Override
+	@Transactional
+	public int retrieveClientActiveDevices(Long clientId) {
+		try{
+			
+			this.context.authenticatedUser();
+			String sql="select count(*) from b_owned_hardware h where h.is_deleted='N' and  h.client_id=?";
+			return this.jdbcTemplate.queryForInt(sql, new Object[]{clientId});
+		
+		}catch(EmptyResultDataAccessException accessException){
+			return 0;	
+		}
+		
 	}
 	
 	
