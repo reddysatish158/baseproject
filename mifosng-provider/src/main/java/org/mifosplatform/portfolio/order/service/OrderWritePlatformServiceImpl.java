@@ -294,9 +294,11 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				final AccountNumberGenerator orderNoGenerator = this.accountIdentifierGeneratorFactory.determineClientAccountNoGenerator(order.getId());
 				order.updateOrderNum(orderNoGenerator.generate());
 				this.orderRepository.save(order);
-				
+
 				//Prepare a Requset For Order
+				
 			     CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+				
 			
 			   //For Transaction History
 			     transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "New Order", order.getStartDate(),"Price:"+priceforHistory,
