@@ -87,10 +87,13 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	try{	
 		this.context.authenticatedUser();
 		this.apiJsonDeserializer.validateForCreate(command.json());
+	
 		boolean isCheck=this.checkforClientActiveDevices(clientId);
+	
 		if(!isCheck){
 			throw new ActiveDeviceExceedException(clientId);
 		}
+		
 		ownedHardware = OwnedHardware.fromJson(command,clientId);
 		List<String> inventorySerialNumbers = inventoryItemDetailsReadPlatformService.retriveSerialNumbers();
 		List<String> ownedhardwareSerialNumbers = ownedHardwareReadPlatformService.retriveSerialNumbers();
@@ -235,10 +238,15 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
     	 ownedHardware.delete();
     	 
     	 this.ownedHardwareJpaRepository.save(ownedHardware);
-    	 HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(ownedHardware.getSerialNumber());
-    	 if(hardwareAssociation != null){
+    	 List<HardwareAssociation> hardwareAssociations=this.associationRepository.findOneByserialNo(ownedHardware.getSerialNumber());
+    	 
+    	 if(!hardwareAssociations.isEmpty()){
+    		 
+    		 for(HardwareAssociation hardwareAssociation:hardwareAssociations){
     		 hardwareAssociation.delete();
     		 this.associationRepository.save(hardwareAssociation);
+    		 
+    		 }
     	 }
     	 
     	 return new CommandProcessingResult(id);

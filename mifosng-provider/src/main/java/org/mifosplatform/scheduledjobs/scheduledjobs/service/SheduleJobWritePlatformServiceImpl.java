@@ -203,6 +203,9 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 		    	 					}
 
 		    	 				} catch (Exception dve) {
+		    	 					
+		    	 					fw.append("Error..... "+dve.getMessage());
+		    	 					System.out.println(dve.getMessage());
 		    	 					handleCodeDataIntegrityIssues(null, dve);
 		    	 				}
 		    	 			}
@@ -215,8 +218,10 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 	
 	}catch(DataIntegrityViolationException exception)
 	{
+		System.out.println(exception.getMessage());
 		exception.printStackTrace();
-	} catch (Exception exception) {		
+	} catch (Exception exception) {	
+		System.out.println(exception.getMessage());
 		exception.printStackTrace();
 	}
 	}
@@ -411,6 +416,8 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
 						
 						 }catch(Exception exception){
+							 fw.append("error"+exception.getMessage());
+							 System.out.println(exception.getMessage());
 	                               handleCodeDataIntegrityIssues(null, exception);	
 	}
 					 }

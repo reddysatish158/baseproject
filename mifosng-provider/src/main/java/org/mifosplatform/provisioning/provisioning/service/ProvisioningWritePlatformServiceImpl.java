@@ -236,10 +236,15 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	   }
 	   
 	  //Update in Association table if Exist
-	   HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(oldSerialnumber);
-	   if(hardwareAssociation != null){
-	   hardwareAssociation.updateserailNum(serialNumber);
-	   this.associationRepository.saveAndFlush(hardwareAssociation);
+	   List<HardwareAssociation> hardwareAssociations=this.associationRepository.findOneByserialNo(oldSerialnumber);
+	   
+	   if(!hardwareAssociations.isEmpty()){
+		   
+		   for(HardwareAssociation hardwareAssociation:hardwareAssociations){
+	       
+			   hardwareAssociation.updateserailNum(serialNumber);
+	           this.associationRepository.saveAndFlush(hardwareAssociation);
+		   }
 	   }
 	   
 	 //Update ProcessRequest
