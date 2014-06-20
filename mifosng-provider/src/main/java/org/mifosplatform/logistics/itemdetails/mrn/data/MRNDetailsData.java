@@ -9,7 +9,7 @@ import org.mifosplatform.organisation.office.data.OfficeData;
 
 public class MRNDetailsData {
 
-	private Long id;
+	private String id;
 	private LocalDate requestedDate;
 	private String fromOffice;
 	private String toOffice;
@@ -34,7 +34,7 @@ public class MRNDetailsData {
 	private Long toOfficeNum;
 	
 	
-	public MRNDetailsData(final Long id, final LocalDate requestedDate, final String fromOffice, final String toOffice, final Long orderdQuantity, final Long receivedQuantity, final String status, final String itemDescription){
+	public MRNDetailsData(final String id, final LocalDate requestedDate, final String fromOffice, final String toOffice, final Long orderdQuantity, final Long receivedQuantity, final String status, final String itemDescription){
 		this.id = id;
 		this.requestedDate = requestedDate;
 		this.fromOffice = fromOffice;
@@ -91,7 +91,7 @@ public class MRNDetailsData {
 		this.toOfficeNum = toOffice;
 	}
 
-	public MRNDetailsData(String itemDescription, Long itemsaleId,
+	public MRNDetailsData(String itemDescription, String itemsaleId,
 			Long itemMasterId) {
 		
 			this.id=itemsaleId;
@@ -152,11 +152,11 @@ public class MRNDetailsData {
 		this.status = status;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

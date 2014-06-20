@@ -66,7 +66,13 @@ public class SelfCareApiResource {
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
 	
 	@Autowired
-	public SelfCareApiResource(final PlatformSecurityContext context, final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, final PaymodeReadPlatformService paymentReadPlatformService, final AddressReadPlatformService addressReadPlatformService, final ClientBalanceReadPlatformService balanceReadPlatformService, final ClientReadPlatformService clientReadPlatformService, final OrderReadPlatformService  orderReadPlatformService, final BillMasterReadPlatformService billMasterReadPlatformService, final TicketMasterReadPlatformService ticketMasterReadPlatformService) {
+	public SelfCareApiResource(final PlatformSecurityContext context, final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
+			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, final ApiRequestParameterHelper apiRequestParameterHelper, 
+			final SelfCareReadPlatformService selfCareReadPlatformService, final PaymodeReadPlatformService paymentReadPlatformService,
+			final AddressReadPlatformService addressReadPlatformService, final ClientBalanceReadPlatformService balanceReadPlatformService, 
+			final ClientReadPlatformService clientReadPlatformService, final OrderReadPlatformService  orderReadPlatformService,
+			final BillMasterReadPlatformService billMasterReadPlatformService, final TicketMasterReadPlatformService ticketMasterReadPlatformService) {
+		
 		this.context = context;
 		this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
 		this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
