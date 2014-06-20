@@ -13,6 +13,6 @@ public interface ProcessRequestWriteplatformService {
 	
 	 CommandProcessingResult addProcessRequest(JsonCommand command);
 
-	void notifyProcessingDetails(ProcessRequest detailsData);
+	void notifyProcessingDetails(ProcessRequest detailsData, char status);
 
 }

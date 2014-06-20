@@ -121,9 +121,9 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 		}
 
 		@Override
-		public void notifyProcessingDetails(ProcessRequest detailsData) {
+		public void notifyProcessingDetails(ProcessRequest detailsData,char status) {
 			try{
-				if(detailsData!=null &&!detailsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate)){
+				if(detailsData!=null &&!detailsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate) && status !='F'){
 					
 				 Order order=this.orderRepository.findOne(detailsData.getOrderId());
 				 Client client=this.clientRepository.findOne(order.getClientId());
