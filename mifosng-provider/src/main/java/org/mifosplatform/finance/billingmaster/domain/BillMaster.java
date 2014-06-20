@@ -1,4 +1,4 @@
-package org.mifosplatform.finance.billmaster.domain;
+package org.mifosplatform.finance.billingmaster.domain;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

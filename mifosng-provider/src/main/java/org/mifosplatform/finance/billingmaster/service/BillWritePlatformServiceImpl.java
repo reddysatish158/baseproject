@@ -1,4 +1,4 @@
-package org.mifosplatform.finance.billmaster.service;
+package org.mifosplatform.finance.billingmaster.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +14,10 @@ import net.sf.jasperreports.engine.JasperPrint;
 
 import org.mifosplatform.finance.adjustment.domain.Adjustment;
 import org.mifosplatform.finance.adjustment.domain.AdjustmentRepository;
+import org.mifosplatform.finance.billingmaster.domain.BillDetail;
+import org.mifosplatform.finance.billingmaster.domain.BillDetailRepository;
+import org.mifosplatform.finance.billingmaster.domain.BillMaster;
+import org.mifosplatform.finance.billingmaster.domain.BillMasterRepository;
 import org.mifosplatform.finance.billingorder.data.BillDetailsData;
 import org.mifosplatform.finance.billingorder.domain.BillingOrder;
 import org.mifosplatform.finance.billingorder.domain.BillingOrderRepository;
@@ -21,10 +25,6 @@ import org.mifosplatform.finance.billingorder.domain.Invoice;
 import org.mifosplatform.finance.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.finance.billingorder.domain.InvoiceTax;
 import org.mifosplatform.finance.billingorder.domain.InvoiceTaxRepository;
-import org.mifosplatform.finance.billmaster.domain.BillDetail;
-import org.mifosplatform.finance.billmaster.domain.BillDetailRepository;
-import org.mifosplatform.finance.billmaster.domain.BillMaster;
-import org.mifosplatform.finance.billmaster.domain.BillMasterRepository;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.finance.payments.domain.Payment;
 import org.mifosplatform.finance.payments.domain.PaymentRepository;

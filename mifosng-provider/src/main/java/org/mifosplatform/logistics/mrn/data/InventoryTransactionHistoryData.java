@@ -1,4 +1,4 @@
-package org.mifosplatform.logistics.itemdetails.mrn.data;
+package org.mifosplatform.logistics.mrn.data;
 
 import org.joda.time.LocalDate;
 

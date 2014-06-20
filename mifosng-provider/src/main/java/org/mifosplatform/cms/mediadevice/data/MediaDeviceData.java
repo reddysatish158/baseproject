@@ -14,7 +14,6 @@ public class MediaDeviceData {
 	private Long clientTypeId;
 	private BigDecimal balanceAmount;
 	private boolean balanceCheck;
-	
 	private List<MediaDeviceData> data;
 	private GlobalConfigurationProperty paypalConfigData;
     private String currency;

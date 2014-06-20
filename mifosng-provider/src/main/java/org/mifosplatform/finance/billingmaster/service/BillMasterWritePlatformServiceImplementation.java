@@ -1,15 +1,15 @@
-package org.mifosplatform.finance.billmaster.service;
+package org.mifosplatform.finance.billingmaster.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.finance.billingmaster.domain.BillDetail;
+import org.mifosplatform.finance.billingmaster.domain.BillMaster;
+import org.mifosplatform.finance.billingmaster.domain.BillMasterRepository;
+import org.mifosplatform.finance.billingmaster.serialize.BillMasterCommandFromApiJsonDeserializer;
 import org.mifosplatform.finance.billingorder.exceptions.BillingOrderNoRecordsFoundException;
-import org.mifosplatform.finance.billmaster.domain.BillDetail;
-import org.mifosplatform.finance.billmaster.domain.BillMaster;
-import org.mifosplatform.finance.billmaster.domain.BillMasterRepository;
-import org.mifosplatform.finance.billmaster.serialize.BillMasterCommandFromApiJsonDeserializer;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;

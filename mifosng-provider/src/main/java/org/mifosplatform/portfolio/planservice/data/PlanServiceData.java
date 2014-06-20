@@ -62,7 +62,5 @@ public class PlanServiceData {
 	public String getSubCategory() {
 		return subCategory;
 	}
-	
-	
 
 }

@@ -104,7 +104,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 			public String schema() {
 				return " o.id AS id, o.plan_id AS planId,hm.item_code as itemCode  FROM b_orders o,b_hw_plan_mapping hm, b_plan_master p  WHERE NOT EXISTS  (SELECT *FROM b_association a" +
 						" WHERE  a.order_id=o.id  AND a.client_id = o.client_id  AND a.is_deleted = 'N') AND o.client_id =? AND hm.plan_code = p.plan_code" +
-						" AND o.plan_id = p.id and hm.item_code=?";
+						" AND o.plan_id = p.id and hm.item_code=? and o.id =(select max(id) from b_orders where client_id=o.client_id )";
 
 			}
 

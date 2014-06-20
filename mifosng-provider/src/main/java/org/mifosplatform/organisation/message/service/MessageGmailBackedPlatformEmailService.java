@@ -153,6 +153,12 @@ public class MessageGmailBackedPlatformEmailService implements
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 		
 		Email email = new SimpleEmail();
+/*
+		String authuserName ="info@hugotechnologies.com";
+
+		String authuser ="kiran@hugotechnologies.com";
+		String authpwd = "kirankiran";
+*/
 	/*	String authuserName ="billing@clear-tv.com";// "info@hugotechnologies.com";
 
 		String authuser ="billing@clear-tv.com";// "kiran@hugotechnologies.com";
@@ -176,6 +182,7 @@ public class MessageGmailBackedPlatformEmailService implements
 			e.printStackTrace();
 		}
 		String authuserName = mailId;
+
 
 		String authuser = mailId;
 		String authpwd = decodePassword;

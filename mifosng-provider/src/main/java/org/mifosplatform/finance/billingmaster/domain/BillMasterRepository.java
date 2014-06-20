@@ -1,4 +1,4 @@
-package org.mifosplatform.finance.billmaster.domain;
+package org.mifosplatform.finance.billingmaster.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
