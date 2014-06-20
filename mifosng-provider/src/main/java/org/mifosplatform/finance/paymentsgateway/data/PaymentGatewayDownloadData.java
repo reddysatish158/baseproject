@@ -21,10 +21,11 @@ public class PaymentGatewayDownloadData {
 	private String Remarks;
 	private String Status;
 	private String ReceiptNo;
+	private String paymentId;
 
 	public PaymentGatewayDownloadData(String SerialNumber, LocalDate PaymentDate,
 			BigDecimal AmountPaid, String PhoneMSISDN, String Remarks,
-			String Status, String ReceiptNo) {
+			String Status, String ReceiptNo,String paymentId) {
 		this.SerialNo = SerialNumber;
 		this.PaymendDate = PaymentDate;
 		this.AmountPaid = AmountPaid;
@@ -32,7 +33,9 @@ public class PaymentGatewayDownloadData {
 		this.Remarks = Remarks;
 		this.Status = Status;
 		this.ReceiptNo = ReceiptNo;
+		this.paymentId = paymentId;
 	}
+	
 
 	public String getSerialNo() {
 		return SerialNo;
@@ -88,6 +91,16 @@ public class PaymentGatewayDownloadData {
 
 	public void setReceiptNo(String receiptNo) {
 		ReceiptNo = receiptNo;
+	}
+
+
+	public String getPaymentId() {
+		return paymentId;
+	}
+
+
+	public void setPaymentId(String paymentId) {
+		this.paymentId = paymentId;
 	}
 	
 	

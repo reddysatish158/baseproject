@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 
 @Path("/paymentgateways")
@@ -242,19 +243,32 @@ public class PaymentGatewayApiResource {
 		 * receiptNo serialNumber paymentDate amountPaid PhoneMSISDN Remarks  status 
 		 */
 		
+		boolean statusSuccess = false;
+		if(status.equalsIgnoreCase("Success"))
+			statusSuccess = true;
+		
 		StringBuilder builder = new StringBuilder();
-		builder.append("Receipt No, Serial No, Payment Date, Amount Paid, Phone MSISDN, Remarks, Status \n");
+		if(statusSuccess){
+			builder.append("Receipt No, Serial No, Payment Date, Amount Paid, Payment Id, Phone MSISDN, Remarks, Status \n");
+		}else{
+			builder.append("Receipt No, Serial No, Payment Date, Amount Paid, Phone MSISDN, Remarks, Status \n");
+		}
+		
+		
 		for(PaymentGatewayDownloadData data: paymentData){
 			builder.append(data.getReceiptNo()+",");
 			builder.append(data.getSerialNo()+",");
 			builder.append(data.getPaymendDate()+",");
 			builder.append(data.getAmountPaid()+",");
+			if(statusSuccess){
+				builder.append(data.getPaymentId()+",");
+			}
 			builder.append(data.getPhoneMSISDN()+",");
 			builder.append(data.getRemarks()+",");
 			builder.append(data.getStatus());
 			builder.append("\n");
 		}
-
+		statusSuccess = false;
 		String fileLocation = System.getProperty("java.io.tmpdir")+File.separator + "billing"+File.separator+""+source+""+System.currentTimeMillis()+status+".csv";
 		
 		String dirLocation = System.getProperty("java.io.tmpdir")+File.separator + "billing";
@@ -272,7 +286,7 @@ public class PaymentGatewayApiResource {
         final ResponseBuilder response = Response.ok(file);
         response.header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
         response.header("Content-Type", "application/csv");
-
+        
         return response.build();
 		
 		/*String toJson = gson.toJson(paymentData);
