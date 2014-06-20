@@ -152,6 +152,30 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			return new PlanData(id, planCode, planDescription);
 		}
 	}
+	
+	private static final class MediaDeviceDetailsMapper implements RowMapper<Long> {
+		
+		@Override
+		public Long mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+			
+			final Long deviceId = rs.getLong("deviceIds");
+			return deviceId;
+		}
+		
+	}
+	
+
+	@Override
+	public Long retrieveDeviceDataDetails(Long clientId) {
+		
+		try {
+			final MediaDeviceDetailsMapper mapper = new MediaDeviceDetailsMapper();
+			final String sql ="select count(*) as deviceIds from b_owned_hardware  where client_id = ? and status = 'ACTIVE'";
+			return jdbcTemplate.queryForObject(sql, mapper,new Object[] {clientId});
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
 
 	
 }

@@ -2145,5 +2145,15 @@ public CommandWrapperBuilder createSelfCareUDP() {
 	return this;
 }
 
+public CommandWrapperBuilder updateMediaStatus(String deviceId, Long clientId) {
+	
+	this.actionName = "UPDATE";
+	this.entityName = "MEDIADEVICE";
+	this.entityId = clientId;
+	this.supportedEntityType = deviceId;
+	this.href = "/mediadevices/"+deviceId+"/"+clientId;
+	return this;
+}
+
 
 }

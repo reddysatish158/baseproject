@@ -89,5 +89,4 @@ public class MediaDeviceData {
 		this.paypalConfigData = paypalConfigData;
 	}
 	
-	
 }
