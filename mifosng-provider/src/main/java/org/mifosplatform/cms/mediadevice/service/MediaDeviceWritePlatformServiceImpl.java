@@ -45,9 +45,11 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 					Long deviceIds = this.mediaDeviceReadPlatformService.retrieveDeviceDataDetails(clientId);
 					
 						if(deviceIds == 0){
+							
 							ownedHardware.setStatus("ACTIVE");
 						}
 						else{
+							
 							throw new DeviceDetailsInActiveException("some Media details are active, please inactive those media details");
 						}
 				}
