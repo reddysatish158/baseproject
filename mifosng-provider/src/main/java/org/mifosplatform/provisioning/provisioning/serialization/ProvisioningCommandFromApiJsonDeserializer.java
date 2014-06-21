@@ -89,6 +89,8 @@ public void validateForAddProvisioning(String json) {
         fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, provisioningsupportedParameters);
 final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("provisioning");
 final JsonElement element = fromApiJsonHelper.parse(json);
+final String serviceName = fromApiJsonHelper.extractStringNamed("serviceName", element);
+baseDataValidator.reset().parameter("serviceName").value(serviceName).notBlank();
 final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("serviceParameters",element);
 //baseDataValidator.reset().parameter("mediaassetAttributes").value(mediaassetAttributesArray).
  String[] serviceParameters =null;
@@ -105,7 +107,7 @@ final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("
 		     final String paramName = fromApiJsonHelper.extractStringNamed("paramName", attributeElement);
 		     baseDataValidator.reset().parameter("paramName").value(paramName).notBlank();
 		     final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
-		     baseDataValidator.reset().parameter("paramValue").value(parmaValue).notBlank();
+		     baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
 	  }    
 
 throwExceptionIfValidationWarningsExist(dataValidationErrors);
