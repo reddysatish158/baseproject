@@ -245,7 +245,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 			    	return " p.id as id,p.client_id as clientId, p.order_id as orderId,p.order_id as orderNo,p.request_type as requestType,p.is_processed as isProcessed, " +
 							" pr.hardware_id as hardwareId, pr.receive_message as receiveMessage, pr.sent_message as sentMessage " +
 							" from b_process_request p inner join b_process_request_detail pr on pr.processrequest_id=p.id where" +
-							" p.id=? group by p.id ";
+							" p.order_id=? group by p.id ";
 			    }
 		        @Override
 		        public ProcessRequestData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
