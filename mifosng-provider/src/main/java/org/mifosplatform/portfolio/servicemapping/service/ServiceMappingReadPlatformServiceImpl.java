@@ -73,6 +73,13 @@ public class ServiceMappingReadPlatformServiceImpl implements ServiceMappingRead
 	
 	
 private class ServiceMappingDataByIdRowMapper implements RowMapper<ServiceMappingData>{
+	
+	public String schema() {
+		
+		return " bs.id as serviceId,bs.service_code as serviceCode, ps.service_identification as serviceIdentification, bs.status as status," +
+				"ps.image as image,ps.category as category,ps.sub_category as subCategory  from b_service bs, b_prov_service_details ps ";
+		
+	}
 		
 		@Override
 		public ServiceMappingData mapRow(ResultSet rs, int rowNum)throws SQLException{
@@ -90,9 +97,9 @@ private class ServiceMappingDataByIdRowMapper implements RowMapper<ServiceMappin
 	
 	
 	public ServiceMappingData getServiceMapping(Long serviceMappingId){
-		String sql = "select bs.id as serviceId,bs.service_code as serviceCode, ps.service_identification as serviceIdentification, bs.status as status,ps.image as image,ps.category as category,ps.sub_category as subCategory " +
-				" from b_service bs, b_prov_service_details ps  where ps.service_id=bs.id and ps.id=?";
+		
 		ServiceMappingDataByIdRowMapper rowMapper = new ServiceMappingDataByIdRowMapper();
+		String sql = "select"+rowMapper.schema()+" where ps.service_id=bs.id and ps.id=?";
 		return jdbcTemplate.queryForObject(sql, rowMapper,new Object[]{serviceMappingId});
 	}
 	
