@@ -1017,4 +1017,9 @@ public class CommandWrapper {
 		        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("CREATE");
 		}
 
+		public boolean isMediaDeviceDetails() {
+			
+			return this.entityName.equalsIgnoreCase("MEDIADEVICE") && this.actionName.equalsIgnoreCase("UPDATE");
+		}
+
 }

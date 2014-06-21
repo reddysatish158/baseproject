@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -18,11 +19,14 @@ import org.mifosplatform.cms.mediadetails.exception.NoMediaDeviceFoundException;
 import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
 import org.mifosplatform.cms.mediadevice.exception.NoPlanDataFoundException;
 import org.mifosplatform.cms.mediadevice.service.MediaDeviceReadPlatformService;
+import org.mifosplatform.commands.domain.CommandWrapper;
+import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
+import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
@@ -129,5 +133,16 @@ public class MediaDeviceApiResource {
 	        return this.toApiJsonSerializerForPlanData.serialize(settings,planData, RESPONSE_DATA_PARAMETERS_FOR_PLAN);
 		
 		
+		}
+	
+		@PUT
+		@Path("{deviceId}/{clientId}")
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String updateStatus(@PathParam("deviceId") final String deviceId,@PathParam("clientId") final Long clientId,final String apiRequestBodyAsJson){
+			 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateMediaStatus(deviceId,clientId).withJson(apiRequestBodyAsJson).build();
+			 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+			  return this.toApiJsonSerializer.serialize(result);
+
 		}
 }
