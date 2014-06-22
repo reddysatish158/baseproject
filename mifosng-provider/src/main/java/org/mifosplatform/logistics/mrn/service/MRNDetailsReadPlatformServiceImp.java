@@ -39,7 +39,7 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 		@Override
 		public MRNDetailsData mapRow(ResultSet rs, int rowNum)
 				throws SQLException {
-			final Long id = rs.getLong("mrnId");
+			final String id = rs.getString("id");
 			final LocalDate requestedDate =JdbcSupport.getLocalDate(rs,"requestedDate");
 			final String fromOffice = rs.getString("fromOffice");
 			final String toOffice = rs.getString("toOffice");
@@ -141,16 +141,13 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	
 	@Override
 	public Page<MRNDetailsData> retriveMRNDetails(SearchSqlQuery searchMRNDetails) {
-		final String sql = "SQL_CALC_FOUND_ROWS mrn.id as mrnId, mrn.requested_date as requestedDate, "
-				+ "(select item_description from b_item_master where id=mrn.item_master_id) as item,"
-				+ "(select name from m_office where id=mrn.from_office) as fromOffice, "
-				+ "(select name from m_office where id = mrn.to_office) as toOffice, "
-				+ "mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, "
-				+ "mrn.status as status from b_mrn mrn ";
-		MRNDetailsMapper rowMapper = new MRNDetailsMapper();
+		final String sql = "Select Concat("+"'MRN '"+",mrn.id) as id, mrn.requested_date as requestedDate," +
+				"(select item_description from b_item_master where id=mrn.item_master_id) as item," +
+				" (select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice," +
+				"mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn ";
 		
+		MRNDetailsMapper rowMapper = new MRNDetailsMapper();
 		StringBuilder sqlBuilder = new StringBuilder(200);
-        sqlBuilder.append("select ");
         sqlBuilder.append(sql);
         sqlBuilder.append(" where mrn.status = 'Completed' | 'New' | 'Pending' ");
         
@@ -164,6 +161,21 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	    				+ " mrn.status like '%"+sqlSearch+"%')" ;
 	    }
             sqlBuilder.append(extraCriteria);
+            
+            final String itemSql = "Union all Select Concat ("+"'Item Sale ' "+",its.id) as id,its.purchase_date as requestedDate," +
+            		"(select item_description from b_item_master where id=its.item_id) as item,(select name from m_office where id=1) as " +
+            		" fromOffice,(select name from m_office where id = its.agent_id) as toOffice, its.order_quantity as orderdQuantity," +
+            		"its.received_quantity as receivedQuantity, its.status as status  from b_itemsale its ";
+            sqlBuilder.append(itemSql);
+            sqlBuilder.append(" where its.status = 'Completed' | 'New' | 'Pending' ");
+            String extraCriteriaForItemsale = "";
+    	    if (sqlSearch != null) {
+    	    	sqlSearch=sqlSearch.trim();
+    	    	extraCriteriaForItemsale = "and ((select item_description from b_item_master where id=its.item_id ) like  '%"+sqlSearch+"%' OR" +
+    	    			"(select name from m_office where id=its.agent_id ) like '%head%' OR its.status like  '%"+sqlSearch+"%') ";
+    	    }
+                sqlBuilder.append(extraCriteriaForItemsale);
+                sqlBuilder.append("order by 2 desc");
         
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);

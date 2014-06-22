@@ -800,6 +800,10 @@ public class SynchronousCommandProcessingService implements
 			    	   if(wrapper.isCreate()){
 			    		   handler = applicationContext.getBean("createSelfCareCommandHandler",NewCommandSourceHandler.class);
 			    	   }
+			}else if(wrapper.isSelfCareUDP()){
+		    	   if(wrapper.isCreateSelfCareUDP()){
+		    		   handler = applicationContext.getBean("createSelfCareUDPCommandHandler",NewCommandSourceHandler.class);
+		    	   }
 			}else if(wrapper.isDiscountResource()){
 		           		 if(wrapper.isCreateDiscount()) {
 				        		handler = applicationContext.getBean("createDiscountCommandHandler",NewCommandSourceHandler.class);
@@ -905,8 +909,6 @@ public class SynchronousCommandProcessingService implements
 				         handler = applicationContext.getBean("provisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else if(wrapper.isUpdateProvisioning()) {
 				    	 handler = applicationContext.getBean("updatingProvisioningCommandHandler",NewCommandSourceHandler.class);
-				     }else if(wrapper.isUpdateProvisioning()) {
-				    	 handler = applicationContext.getBean("updatingProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else if(wrapper.isDeleteProvisioning()) {
 				    	 handler = applicationContext.getBean("deleteProvisioningCommandHandler",NewCommandSourceHandler.class);
 				     }else if(wrapper.isCreateProvisioning()) {
@@ -914,6 +916,12 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+			   }else if(wrapper.isProvisioningDetails()){
+				   if(wrapper.isUpdate()) {
+					   handler = applicationContext.getBean("updateProvisioningDetailsCommandHandler",NewCommandSourceHandler.class);
+					   }else {
+					   throw new UnsupportedCommandException(wrapper.commandName());
+					   }
 			   }else if(wrapper.isUserChatResource()){
 				   if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createUserChatCommandHandler",NewCommandSourceHandler.class);

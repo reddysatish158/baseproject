@@ -107,6 +107,10 @@ public class CommandWrapper {
         return this.actionName.equalsIgnoreCase("CREATE");
     }
     
+    public boolean isCreateSelfCareUDP() {
+        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("CREATE");
+    }
+    
     public boolean isOwnUpdate() {
         return this.actionName.equalsIgnoreCase("UPDATE");
     }
@@ -781,6 +785,10 @@ public class CommandWrapper {
 		public boolean isSelfCare() {
 			return this.entityName.equalsIgnoreCase("SELFCARE") && this.actionName.equalsIgnoreCase("CREATE");
 		}
+		
+		public boolean isSelfCareUDP() {
+			return this.entityName.equalsIgnoreCase("SELFCAREUDP");
+		}	
 
 		public boolean isDeleteRegion() {
 			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("REGION");

@@ -76,4 +76,14 @@ public class Code extends AbstractPersistable<Long> {
     public boolean remove(final CodeValue codeValueToDelete) {
         return this.values.remove(codeValueToDelete);
     }
+
+	public String getName() {
+		return name;
+	}
+
+	public Set<CodeValue> getValues() {
+		return values;
+	}
+    
+    
 }

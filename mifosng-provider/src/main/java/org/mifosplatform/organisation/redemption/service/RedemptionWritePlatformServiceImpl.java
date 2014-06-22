@@ -17,12 +17,12 @@ import org.mifosplatform.organisation.randomgenerator.domain.RandomGenerator;
 import org.mifosplatform.organisation.randomgenerator.domain.RandomGeneratorDetails;
 import org.mifosplatform.organisation.randomgenerator.domain.RandomGeneratorDetailsRepository;
 import org.mifosplatform.organisation.redemption.exception.PinNumberNotFoundException;
+import org.mifosplatform.organisation.redemption.serialization.RedemptionCommandFromApiJsonDeserializer;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.contract.data.SubscriptionData;
 import org.mifosplatform.portfolio.contract.service.ContractPeriodReadPlatformService;
-import org.mifosplatform.portfolio.order.data.OrderData;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderWritePlatformService;
@@ -48,22 +48,26 @@ public class RedemptionWritePlatformServiceImpl implements
 	private final OrderWritePlatformService orderWritePlatformService;
 	private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
 	private final RedemptionReadPlatformService redemptionReadPlatformService;
+	private final RedemptionCommandFromApiJsonDeserializer fromApiJsonDeserializer;
 	private final OrderRepository orderRepository;
 	
 	@Autowired
 	public RedemptionWritePlatformServiceImpl(final PlatformSecurityContext context,final RandomGeneratorDetailsRepository randomGeneratorDetailsRepository,
 		final ClientRepository clientRepository,final AdjustmentWritePlatformService adjustmentWritePlatformService,final FromJsonHelper fromJsonHelper,
 		final OrderWritePlatformService orderWritePlatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
-		final RedemptionReadPlatformService redemptionReadPlatformService,final OrderRepository orderRepository) {
+		final RedemptionReadPlatformService redemptionReadPlatformService,final OrderRepository orderRepository,final RedemptionCommandFromApiJsonDeserializer apiJsonDeserializer) {
+		
 		this.context = context;
-		this.randomGeneratorDetailsRepository = randomGeneratorDetailsRepository;
-		this.clientRepository = clientRepository;
-		this.adjustmentWritePlatformService = adjustmentWritePlatformService;
 		this.fromJsonHelper = fromJsonHelper;
-		this.orderWritePlatformService = orderWritePlatformService;
-		this.contractPeriodReadPlatformService = contractPeriodReadPlatformService;
-		this.redemptionReadPlatformService=redemptionReadPlatformService;
 		this.orderRepository=orderRepository;
+		this.clientRepository = clientRepository;
+		this.fromApiJsonDeserializer= apiJsonDeserializer;
+		this.orderWritePlatformService = orderWritePlatformService;
+		this.redemptionReadPlatformService=redemptionReadPlatformService;
+		this.adjustmentWritePlatformService = adjustmentWritePlatformService;
+		this.randomGeneratorDetailsRepository = randomGeneratorDetailsRepository;
+		this.contractPeriodReadPlatformService = contractPeriodReadPlatformService;
+		
 	}
 	
 	@Transactional
@@ -71,6 +75,7 @@ public class RedemptionWritePlatformServiceImpl implements
 	public CommandProcessingResult createRedemption(JsonCommand command) {
 		try {
 			context.authenticatedUser();
+			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			final Long clientId = command.longValueOfParameterNamed("clientId");
 			final String pinNum=command.stringValueOfParameterNamed("pinNumber");
 			this.clientObjectRetrieveById(clientId);

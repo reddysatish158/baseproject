@@ -160,10 +160,10 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 
 	      	        
 	        String sql = "SELECT p.id AS id,o.client_id AS clientId,p.order_id AS order_id,c.charge_description AS chargeDescription,"
-	        		+"s.service_description AS serviceDescription,p.charge_type AS charge_type,p.charge_duration AS chargeDuration, p.duration_type AS durationType,"
+	        		+"  if( p.service_id =0,'None',s.service_description) AS serviceDescription,p.charge_type AS charge_type,p.charge_duration AS chargeDuration, p.duration_type AS durationType,"
 	        		+"p.price AS price,p.bill_start_date as billStartDate,p.bill_end_date as billEndDate,p.next_billable_day as nextBillableDay,p.invoice_tilldate as invoiceTillDate,"
 	        		+"  o.billing_align as billingAlign, o.billing_frequency as billingFrequency FROM b_order_price p,b_charge_codes c,b_service s, b_orders o "
-	        		+"WHERE p.charge_code = c.charge_code AND p.service_id = s.id  AND o.id = p.order_id  AND p.order_id =?";
+	        		+" where p.charge_code = c.charge_code AND (p.service_id = s.id or p.service_id=0) AND o.id = p.order_id AND p.order_id = ? group by p.id";
 
 	        return this.jdbcTemplate.query(sql, rm, new Object[] { orderId });
 	}
