@@ -12,10 +12,11 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
+import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
+import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
-import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
@@ -46,10 +47,12 @@ public class ProvisioningServiceParamsWriteplatformServiceImpl implements Provis
     private final ProcessRequestRepository processRequestRepository;
     private final OrderRepository orderRepository;
     private final InventoryItemDetailsRepository inventoryItemDetailsRepository;
+    private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
 @Autowired	
 public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityContext securityContext,final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,
 		final FromJsonHelper fromJsonHelper,final ServiceParametersRepository parametersRepository,final PrepareRequsetRepository prepareRequsetRepository,
-		final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final InventoryItemDetailsRepository detailsRepository){
+		final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final InventoryItemDetailsRepository detailsRepository,
+		final IpPoolManagementJpaRepository ipPoolManagementJpaRepository){
 	
 	this.context=securityContext;
 	this.fromApiJsonDeserializer=fromApiJsonDeserializer;
@@ -59,6 +62,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	this.processRequestRepository=processRequestRepository;
 	this.orderRepository=orderRepository;
 	this.inventoryItemDetailsRepository=detailsRepository;
+	this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
 	
 }
 
@@ -76,25 +80,34 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 				JSONObject jsonObject=new JSONObject();
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(orderId);
 			
-
-	   /*     for(JsonElement j:serviceParameters){
-	        	
-	        	ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromApiJsonHelper,clientId,orderId,planName);
-				//this.serviceParametersRepository.saveAndFlush(serviceParameter);1
-				//jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
-	        }
-	        }*/
-			
 			for(ServiceParameters serviceParameter:parameters){
 				
 				String oldValue=serviceParameter.getParameterValue();
-				Map<String, Object>  changes=serviceParameter.updateServiceParam(serviceParameters,fromApiJsonHelper);
+				
+				Map<String, Object>  changes=serviceParameter.updateServiceParam(serviceParameters,fromApiJsonHelper,command);
 				
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
 				
                  if(!changes.isEmpty()){
-					
+                	 
+					if(changes.containsKey("IP_ADDRESS")){
+						
+						String ipAddresses=(String) changes.get("IP_ADDRESS");
+						String[] ipAddressArray = ipAddresses.split(",");
+					     for(String ipAddress:ipAddressArray){
+					      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(oldValue);
+					      ipPoolManagementDetail.setStatus('F');
+					      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+					      
+					     }
+						
+					}if(changes.containsKey(serviceParameter.getParameterName())){
+						
 					jsonObject.put("OLD_"+serviceParameter.getParameterName(), oldValue);
+					jsonObject.put("NEW_"+serviceParameter.getParameterName(), serviceParameter.getParameterValue());
+					
+					}
+				}else{
 					jsonObject.put(serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 				}
 				
