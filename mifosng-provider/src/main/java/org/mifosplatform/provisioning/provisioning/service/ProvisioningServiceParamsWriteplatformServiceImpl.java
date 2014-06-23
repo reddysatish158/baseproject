@@ -5,6 +5,8 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.json.JSONException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -88,24 +90,40 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 				
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
 				
+                    
+						
+					
+				
                  if(!changes.isEmpty()){
                 	 
 					if(changes.containsKey("IP_ADDRESS")){
 						
-						String ipAddresses=(String) changes.get("IP_ADDRESS");
-						String[] ipAddressArray = ipAddresses.split(",");
-					     for(String ipAddress:ipAddressArray){
-					      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(oldValue);
-					      ipPoolManagementDetail.setStatus('F');
-					      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-					      
-					     }
-						
-					}if(changes.containsKey(serviceParameter.getParameterName())){
+						  for(JsonElement j:serviceParameters){
+							  
+							  String ipAddresses=(String) changes.get("IP_ADDRESS");
+						      String[] ipAddressArray = fromApiJsonHelper.extractArrayNamed(ipAddresses, j);
+						      
+						      for(String ipAddress:ipAddressArray){
+						    	  
+							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+							      ipPoolManagementDetail.setStatus('A');
+							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+						      }
+						      
+                              String[] oldIpAddressArray = fromApiJsonHelper.extractArrayNamed(oldValue, j);
+						      
+						      for(String ipAddress:oldIpAddressArray){
+						    	  
+							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+							      ipPoolManagementDetail.setStatus('F');
+							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+						      }
+					 }if(changes.containsKey(serviceParameter.getParameterName())){
 						
 					jsonObject.put("OLD_"+serviceParameter.getParameterName(), oldValue);
 					jsonObject.put("NEW_"+serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 					
+					}
 					}
 				}else{
 					jsonObject.put(serviceParameter.getParameterName(), serviceParameter.getParameterValue());
@@ -134,12 +152,10 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			
 			return new CommandProcessingResult(Long.valueOf(orderId));
 			
-		}catch(DataIntegrityViolationException dataIntegrityViolationException){
+		} catch(DataIntegrityViolationException dataIntegrityViolationException){
 			handleCodeDataIntegrityIssues(command, dataIntegrityViolationException);
 			return new CommandProcessingResult(Long.valueOf(-1l));
 		}
-		
-		
 		
 	}
 	

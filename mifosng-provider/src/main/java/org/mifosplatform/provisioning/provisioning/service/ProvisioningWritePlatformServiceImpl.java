@@ -89,6 +89,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		this.processRequestReadplatformService=processRequestReadplatformService;
 		this.serviceMasterRepository=serviceMasterRepository;
 		this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
+
 	}
 
 	@Override
@@ -211,26 +212,20 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName);
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
 				//ip_pool_data status updation
-			    String paramName = fromJsonHelper.extractStringNamed("paramName", j);
-			    if(paramName.equalsIgnoreCase("IP_ADDRESS")){
-			    	JSONArray array=new JSONArray();
-			     String ipAddresses = fromJsonHelper.extractStringNamed("paramValue", j);
-			     String[] ipAddressArray = ipAddresses.split(",");
-			    
-			     for(String ipAddress:ipAddressArray){
-			      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
-			      ipPoolManagementDetail.setStatus('A');
-			      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-			      
-				    array.add(serviceParameter.getParameterValue());  
-			     }
-			     jsonObject.put(serviceParameter.getParameterName(),array); 
-			    }else{
-			    
+
+				String paramName = fromJsonHelper.extractStringNamed("paramName", j);
+				if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+					String[] ipAddressArray = fromJsonHelper.extractArrayNamed("paramValue", j);
+					for(String ipAddress:ipAddressArray){
+						IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+						ipPoolManagementDetail.setStatus('A');
+						this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+					}
+				}
 				jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
 				
 			    }
-	        }
+	        
 			
 	        jsonObject.put("clientId",clientId);
 	        jsonObject.put("orderId",orderId);
