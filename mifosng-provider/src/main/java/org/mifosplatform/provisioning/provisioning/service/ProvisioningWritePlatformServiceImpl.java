@@ -12,6 +12,8 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
+import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
+import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
 import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.portfolio.order.domain.Order;
@@ -60,13 +62,14 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	private final OrderReadPlatformService orderReadPlatformService;
 	private final ProcessRequestReadplatformService processRequestReadplatformService;
 	private final HardwareAssociationRepository associationRepository;
+	private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
     @Autowired
 	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final InventoryItemDetailsRepository inventoryItemDetailsRepository,
 			final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,final FromJsonHelper fromApiJsonHelper,final OrderReadPlatformService orderReadPlatformService,
 			final ProvisioningCommandRepository provisioningCommandRepository,final ServiceParametersRepository parametersRepository,
 			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final PrepareRequsetRepository prepareRequsetRepository,
 			final PrepareRequestReadplatformService prepareRequestReadplatformService,final FromJsonHelper fromJsonHelper,final HardwareAssociationRepository associationRepository,
-			final ProcessRequestReadplatformService processRequestReadplatformService) {
+			final ProcessRequestReadplatformService processRequestReadplatformService,final IpPoolManagementJpaRepository ipPoolManagementJpaRepository) {
 /*=======
 	//private final JdbcTemplate jdbcTemplate;
 	private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
@@ -106,6 +109,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		this.orderReadPlatformService=orderReadPlatformService;
 		this.associationRepository=associationRepository;
 		this.processRequestReadplatformService=processRequestReadplatformService;
+		this.ipPoolManagementJpaRepository = ipPoolManagementJpaRepository;
 /*=======
 		this.processRequestRepository=processRequestRepository;
 		this.provisioningReadPlatformService=provisioningReadPlatformService;
@@ -240,6 +244,16 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	        	
 				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName);
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
+				//ip_pool_data status updation
+				String paramName = fromJsonHelper.extractStringNamed("paramName", j);
+				if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+					String[] ipAddressArray = fromJsonHelper.extractArrayNamed("paramValue", j);
+					for(String ipAddress:ipAddressArray){
+						IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+						ipPoolManagementDetail.setStatus('A');
+						this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+					}
+				}
 				jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
 	        }
 			
