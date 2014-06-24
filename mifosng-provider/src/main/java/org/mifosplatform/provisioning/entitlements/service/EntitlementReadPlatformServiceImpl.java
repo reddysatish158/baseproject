@@ -155,4 +155,86 @@ public class EntitlementReadPlatformServiceImpl implements
 
 }
 
+	@Override
+	public List<EntitlementsData> getBeeniusProcessingData(Long id,String provisioningSystem) {
+		
+		String sql = "";
+		BeeniusServicesMapper mapper = new BeeniusServicesMapper();
+		sql = "select " + mapper.schema();
+		if (provisioningSystem != null) {
+			sql = sql + " and bpr.provisioing_system = '" + provisioningSystem + "' ";
+		}
+		if (id != null) {
+			sql = sql + " and bprd.id limit " + id;
+		}
+
+		return jdbcTemplate.query(sql, mapper, new Object[] {});
+		
+	}
+	
+	protected static final class BeeniusServicesMapper implements
+			RowMapper<EntitlementsData> {
+
+		@Override
+		public EntitlementsData mapRow(final ResultSet rs, final int rowNum)
+				throws SQLException {
+			
+			Long id = rs.getLong("id");
+			Long prdetailsId = rs.getLong("prdetailsId");
+			String provisioingSystem = rs.getString("provisioingSystem");
+			
+			Long serviceId = rs.getLong("serviceId");
+			String product = rs.getString("sentMessage");
+			String macId = rs.getString("macId");
+			String deviceId = rs.getString("deviceId");
+			
+			String requestType = rs.getString("requestType");
+			String itemCode = rs.getString("itemCode");
+			String itemDescription = rs.getString("itemDescription");
+			
+			Long clientId = rs.getLong("clientId");
+			String accountNo = rs.getString("accountNo");
+			String firstName = rs.getString("firstName");
+			String lastName = rs.getString("lastName");
+			
+			String officeUID = rs.getString("officeUID");
+			String branch = rs.getString("branch");
+			String regionCode = rs.getString("regionCode");
+			String regionName = rs.getString("regionName");
+			String ipAddress = rs.getString("ipAddress");
+			
+			
+			return new EntitlementsData(id,prdetailsId,provisioingSystem,serviceId,product,macId,requestType,itemCode
+					,itemDescription,clientId,accountNo,firstName,lastName,officeUID,branch,regionCode,regionName,deviceId,ipAddress);
+		}
+
+		public String schema() {
+
+			
+			return " bpr.id as id, c.id client_id, c.account_no,c.firstname,c.lastname, o.external_id as officeUID,o.name as branch," +
+					" bpr.provisioing_system AS provisioingSystem,bprd.service_id AS serviceId," +
+					" bprd.id AS prdetailsId,bprd.sent_message AS sentMessage," +
+					" ifnull(bid.provisioning_serialno ,oh.provisioning_serial_number) AS macId," +
+					" ifnull(bid.serial_no ,oh.serial_number) AS deviceId," +
+					" bprd.request_type AS requestType," +
+					" bipd.ip_address as ipAddress," +
+					" bim.item_code as itemCode,bim.item_description as itemDescription," +
+					" bprm.priceregion_code, bprm.priceregion_name" +
+					" from m_client c" +
+					" join m_office o on (o.id = c.office_id)" +
+					" join b_process_request bpr on (c.id = bpr.client_id )" +
+					" join b_process_request_detail bprd on (bpr.id = bprd.processrequest_id )" +
+					" join b_client_address bca on (c.id=bca.client_id and address_key='PRIMARY')" +
+					" left join b_state bs on (bca.state = bs.state_name )" +
+					" left join b_priceregion_detail bpd on (bpd.state_id=bs.id and bpd.is_deleted='N')" +
+					" left join b_priceregion_master bprm on (bpd.priceregion_id = bprm.id ) " +
+					" left join b_ippool_details bipd on (bpr.client_id = bipd.client_id)" +
+					" left join b_item_detail bid on (bprd.hardware_id = bid.provisioning_serialno) " +
+					" left join b_item_master bim on (bid.item_master_id = bim.id) " +
+					" left join b_owned_hardware oh on (bprd.hardware_id =oh.provisioning_serial_number AND oh.is_deleted = 'N')" +
+					" WHERE bpr.is_processed = 'N'";
+		}
+
+	}
+
 }
