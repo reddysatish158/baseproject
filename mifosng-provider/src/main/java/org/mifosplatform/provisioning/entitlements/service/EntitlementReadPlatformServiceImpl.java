@@ -156,4 +156,17 @@ public class EntitlementReadPlatformServiceImpl implements
 
 }
 
+	@Override
+	public List<EntitlementsData> getBeeniusData(Long id) {
+		
+		String sql = "";
+		ServicesMapper mapper = new ServicesMapper();		
+		sql = "select " + mapper.schema();			
+		if (id != null) {
+			sql = sql + " and pr.id limit " + id;
+		} 				
+		List<EntitlementsData> detailsDatas = jdbcTemplate.query(sql, mapper,new Object[] {});
+		return detailsDatas;
+	}
+
 }

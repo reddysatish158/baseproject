@@ -83,6 +83,18 @@ public class EntitlementsApiResource {
 	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 	}
 	
+	@GET
+	@Path("/beenius")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+   public String getBeeniusRequireddata(@QueryParam("no") final Long No,@Context final UriInfo uriInfo)
+	{
+	       context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	        List<EntitlementsData> data=this.entitlementReadPlatformService.getBeeniusData(No);
+	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+	}
+	
 	@POST
 	@Path("{msgId}")
 	@Consumes({ MediaType.APPLICATION_JSON })
