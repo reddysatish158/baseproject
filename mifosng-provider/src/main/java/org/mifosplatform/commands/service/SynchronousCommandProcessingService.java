@@ -948,6 +948,12 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+			   }else if(wrapper.isMediaDeviceDetails()){
+				   if(wrapper.isUpdateOperation()) {
+				         handler = applicationContext.getBean("updateMediaDeviceDetailsCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
 			   }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		       }
