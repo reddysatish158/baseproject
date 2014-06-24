@@ -66,7 +66,13 @@ public class SelfCareApiResource {
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
 	
 	@Autowired
-	public SelfCareApiResource(final PlatformSecurityContext context, final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, final PaymodeReadPlatformService paymentReadPlatformService, final AddressReadPlatformService addressReadPlatformService, final ClientBalanceReadPlatformService balanceReadPlatformService, final ClientReadPlatformService clientReadPlatformService, final OrderReadPlatformService  orderReadPlatformService, final BillMasterReadPlatformService billMasterReadPlatformService, final TicketMasterReadPlatformService ticketMasterReadPlatformService) {
+	public SelfCareApiResource(final PlatformSecurityContext context, final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
+			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, final ApiRequestParameterHelper apiRequestParameterHelper, 
+			final SelfCareReadPlatformService selfCareReadPlatformService, final PaymodeReadPlatformService paymentReadPlatformService,
+			final AddressReadPlatformService addressReadPlatformService, final ClientBalanceReadPlatformService balanceReadPlatformService, 
+			final ClientReadPlatformService clientReadPlatformService, final OrderReadPlatformService  orderReadPlatformService,
+			final BillMasterReadPlatformService billMasterReadPlatformService, final TicketMasterReadPlatformService ticketMasterReadPlatformService) {
+		
 		this.context = context;
 		this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
 		this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
@@ -82,6 +88,7 @@ public class SelfCareApiResource {
 	}
 	
 	
+	
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -89,9 +96,20 @@ public class SelfCareApiResource {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCare().withJson(jsonRequestBody).build();
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-		 
 	    return this.toApiJsonSerializerForItem.serialize(result);	
 	}
+	
+	@Path("password")
+	@POST
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String createSelfCareClientUDPassword(final String jsonRequestBody) {
+		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCareUDP().withJson(jsonRequestBody).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		 
+	    return this.toApiJsonSerializerForItem.serialize(result);	
+	}	
 	
 	@Path("/login")
 	@POST

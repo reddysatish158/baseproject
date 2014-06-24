@@ -86,7 +86,9 @@ public class BillMasterWritePlatformServiceImplementation implements
 		previousBalance, chargeAmount, adjustmentAmount, taxAmount,paidAmount, dueAmount, null,message);
 		
 		List<BillDetail> listOfBillingDetail = new ArrayList<BillDetail>();
+		
 		for (FinancialTransactionsData financialTransactionsData : financialTransactionsDatas) {
+			
 			BillDetail billDetail = new BillDetail(null,financialTransactionsData.getTransactionId(),
 					financialTransactionsData.getTransactionDate(),	financialTransactionsData.getTransactionType(),
 					financialTransactionsData.getDebitAmount());

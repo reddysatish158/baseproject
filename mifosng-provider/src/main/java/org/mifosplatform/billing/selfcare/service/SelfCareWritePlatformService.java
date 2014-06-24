@@ -6,4 +6,10 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 public interface SelfCareWritePlatformService {
 
 	public CommandProcessingResult createSelfCare(JsonCommand command);
+
+	/**
+	 * @param command
+	 * @return
+	 */
+	CommandProcessingResult createSelfCareUDPassword(JsonCommand command);
 }

@@ -36,4 +36,38 @@ public class IpPoolManagementDetail extends AbstractPersistable<Long>{
 		this.status='F';
 		this.ipPoolDescription=ipPoolDescription;
 	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public Long getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(Long clientId) {
+		this.clientId = clientId;
+	}
+
+	public char getStatus() {
+		return status;
+	}
+
+	public void setStatus(char status) {
+		this.status = status;
+	}
+
+	public String getIpPoolDescription() {
+		return ipPoolDescription;
+	}
+
+	public void setIpPoolDescription(String ipPoolDescription) {
+		this.ipPoolDescription = ipPoolDescription;
+	}
+	
+	
 }

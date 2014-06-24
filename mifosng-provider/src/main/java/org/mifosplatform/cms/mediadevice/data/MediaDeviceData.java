@@ -11,6 +11,7 @@ public class MediaDeviceData {
 	private  String clientType;
 	private Long clientTypeId;
 	private BigDecimal balanceAmount;
+	private boolean balanceCheck;
 	
 	private List<MediaDeviceData> data;
 
@@ -59,8 +60,12 @@ public class MediaDeviceData {
 		this.data = data;
 	}
 
-
-
+	public BigDecimal getBalanceAmount() {
+		return balanceAmount;
+	}
+	public boolean isBalanceCheck() {
+		return balanceCheck;
+	}
 	public void setClientTypeId(Long clientTypeId) {
 		this.clientTypeId = clientTypeId;
 	}
@@ -73,7 +78,9 @@ public class MediaDeviceData {
 	public void setClientType(String clientType) {
 		this.clientType = clientType;
 	}
-
+	public void setBalanceCheck(boolean isCheck) {
+		this.balanceCheck =isCheck;
+	}
 	
 	
 }

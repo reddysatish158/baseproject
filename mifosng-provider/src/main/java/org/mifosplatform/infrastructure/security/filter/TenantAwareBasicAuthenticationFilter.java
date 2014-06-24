@@ -73,7 +73,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
     private ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
     private final ConfigurationDomainService configurationDomainService;
     private final CacheWritePlatformService cacheWritePlatformService;
-    private String tenantRequestHeader = "X-Mifos-Platform-TenantId";
+    private String tenantRequestHeader = "X-Obs-Platform-TenantId";
     private boolean exceptionIfHeaderMissing = true;
 
     @Autowired
