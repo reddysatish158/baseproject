@@ -3,6 +3,7 @@ package org.mifosplatform.portfolio.service.data;
 import java.util.Collection;
 import java.util.List;
 
+import org.mifosplatform.billing.emun.data.EnumValuesData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
 
@@ -15,7 +16,8 @@ private String serviceType;
 private String serviceStatus;
 private String serviceUnitType;
 private String isOptional;
-private List<EnumOptionData> serviceTypes,serviceUnitTypes,status;
+private Collection<EnumValuesData> serviceTypes;
+private List<EnumOptionData> serviceUnitTypes,status;
 
 public ServiceMasterOptionsData(Collection<ServiceMasterData> serviceMasterOptions)
 {
@@ -35,7 +37,7 @@ public ServiceMasterOptionsData(Long id, String serviceCode,
 }
 
 
-public ServiceMasterOptionsData(List<EnumOptionData> serviceType,
+public ServiceMasterOptionsData(Collection<EnumValuesData> serviceType,
 		List<EnumOptionData> serviceUnitType, List<EnumOptionData> status) {
 	this.serviceTypes=serviceType;
 	this.serviceUnitTypes=serviceUnitType;
@@ -95,7 +97,7 @@ public void setIsOptional(String isOptional) {
 	this.isOptional = isOptional;
 }
 
-public void setServiceTypes(List<EnumOptionData> serviceTypes) {
+public void setServiceTypes(Collection<EnumValuesData> serviceTypes) {
 	this.serviceTypes = serviceTypes;
 }
 
@@ -123,7 +125,7 @@ public String getIsOptional() {
 	return isOptional;
 }
 
-public List<EnumOptionData> getServiceTypes() {
+public Collection<EnumValuesData> getServiceTypes() {
 	return serviceTypes;
 }
 

@@ -110,7 +110,7 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 		}
 
 		@Override
-		public void notifyProcessingDetails(ProcessingDetailsData detailsData) {
+		public void notifyProcessingDetails(ProcessRequest detailsData) {
 			try{
 				if(detailsData!=null && !(detailsData.getRequestType().equalsIgnoreCase(ProvisioningApiConstants.REQUEST_TERMINATE))){
 					

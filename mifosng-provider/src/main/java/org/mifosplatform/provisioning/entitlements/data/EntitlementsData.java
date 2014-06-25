@@ -16,11 +16,12 @@ public class EntitlementsData {
 	private String error;
 	private Long planId;
 	private String orderNo;
+	private String serviceType;
 	
 	
 
 	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product,
-			Long serviceId, Long clientId, Long planId, String orderNo) {
+			Long serviceId, Long clientId, Long planId, String orderNo, String servicetype) {
 		
           this.id=id;
           this.prdetailsId=prdetailsId;
@@ -32,6 +33,7 @@ public class EntitlementsData {
           this.clientId=clientId;
           this.planId=planId;
           this.orderNo=orderNo;
+          this.serviceType=servicetype;
 	}
 	
 	
