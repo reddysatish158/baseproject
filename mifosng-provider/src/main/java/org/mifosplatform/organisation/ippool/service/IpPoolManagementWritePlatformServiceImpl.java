@@ -3,6 +3,7 @@ package org.mifosplatform.organisation.ippool.service;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
@@ -58,9 +59,16 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 			return new CommandProcessingResultBuilder().build();
 			
 		}catch(DataIntegrityViolationException dve){
+			
+				 Throwable realCause = dve.getMostSpecificCause();
+			        if (realCause.getMessage().contains("unique_ip")) {
+			            final String name = command.stringValueOfParameterNamed("unique_ip");
+			            throw new PlatformDataIntegrityException("error.msg.code.duplicate.name", "A code with name '" + name + "' already exists");
+			        }else if (realCause.getMessage().contains("ip_address")) {
+			        	 final String name = command.stringValueOfParameterNamed("ip_address");
+				            throw new PlatformDataIntegrityException("error.msg.code.duplicate.name", "A code with name '" + name + "' already exists");
+			        }
 			return CommandProcessingResult.empty();
-		}catch (Exception e) {
-			return null;
 		}
 		
 	}

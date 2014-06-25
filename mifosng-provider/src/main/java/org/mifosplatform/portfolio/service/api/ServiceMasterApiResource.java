@@ -18,6 +18,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.emun.data.EnumValuesData;
+import org.mifosplatform.billing.emun.service.EnumReadplaformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -47,14 +49,17 @@ public class ServiceMasterApiResource {
 	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	    private final ServiceMasterReadPlatformService serviceMasterReadPlatformService;
 		private final PlanReadPlatformService planReadPlatformService;
+		private final EnumReadplaformService enumReadplaformService;
 		
 		 @Autowired
 	    public ServiceMasterApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<ServiceMasterOptionsData> toApiJsonSerializer, 
 	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-	    		final ServiceMasterReadPlatformService serviceMasterReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
+	    		final ServiceMasterReadPlatformService serviceMasterReadPlatformService,final PlanReadPlatformService planReadPlatformService,
+	    		final EnumReadplaformService enumReadplaformService) {
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
+		        this.enumReadplaformService=enumReadplaformService;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.serviceMasterReadPlatformService=serviceMasterReadPlatformService;
 		        this.planReadPlatformService=planReadPlatformService;
@@ -90,7 +95,8 @@ public class ServiceMasterApiResource {
 		}
 
 	 private ServiceMasterOptionsData handleTemplateData() {
-		 List<EnumOptionData> serviceType = this.serviceMasterReadPlatformService.retrieveServicesTypes();
+		// List<EnumOptionData> serviceType = this.serviceMasterReadPlatformService.retrieveServicesTypes();
+		 Collection<EnumValuesData> serviceType = this.enumReadplaformService.getEnumValues("service_type");
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 		 List<EnumOptionData> serviceUnitType = this.serviceMasterReadPlatformService.retrieveServiceUnitType();
 		 return new ServiceMasterOptionsData(serviceType,serviceUnitType,status);

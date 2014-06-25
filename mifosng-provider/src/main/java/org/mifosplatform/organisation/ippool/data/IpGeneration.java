@@ -176,13 +176,13 @@ public class IpGeneration {
                // addresses[j] = format(toArray(add));
             	String ipaddress=format(toArray(add));
             	Long id=ipPoolManagementReadPlatformService.checkIpAddress(ipaddress);
-            	if(id==null){
+            	/*if(id==null){
             		addresses[j]=ipaddress;
             	}else{
             		j=j-1; 
             		broadcast=broadcast+1;
             		skippedItems.append(ipaddress);          		
-            	}
+            	}*/
             }
             return addresses;
         }
