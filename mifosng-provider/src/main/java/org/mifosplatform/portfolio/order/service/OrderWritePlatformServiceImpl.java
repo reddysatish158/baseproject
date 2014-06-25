@@ -64,6 +64,8 @@ import org.mifosplatform.portfolio.plan.domain.StatusTypeEnum;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetails;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetailsRepository;
+import org.mifosplatform.portfolio.service.domain.ServiceMaster;
+import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
@@ -92,43 +94,44 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrderWritePlatformServiceImpl implements OrderWritePlatformService {
 	
+	private final PlanRepository planRepository;
+	private final ReverseInvoice reverseInvoice;
 	private final PlatformSecurityContext context;
 	private final OrderRepository orderRepository;
-	private final PlanRepository planRepository;
-	private final SubscriptionRepository subscriptionRepository;
+	private final ClientRepository clientRepository;
+	private final PaymentsApiResource paymentsApiResource;
+	private final PromotionRepository promotionRepository;
 	private final OrderPriceRepository OrderPriceRepository;
-	
+	private final EventActionRepository eventActionRepository;
+	private final OrderHistoryRepository orderHistoryRepository;
+	private final SubscriptionRepository subscriptionRepository;
+	private final OrderDiscountRepository orderDiscountRepository;
+	private final ServiceMasterRepository serviceMasterRepository;
+	private final DiscountMasterRepository discountMasterRepository;
+	private final OrderReadPlatformService orderReadPlatformService;
+	private final ProcessRequestRepository processRequestRepository;
+	private final PrepareRequsetRepository prepareRequsetRepository;
+	private final HardwareAssociationRepository associationRepository;
+	private final GlobalConfigurationRepository configurationRepository;
 	private final OrderCommandFromApiJsonDeserializer fromApiJsonDeserializer;
+	private final AllocationReadPlatformService allocationReadPlatformService;
+	private final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory;
+	private final ActionDetailsReadPlatformService actionDetailsReadPlatformService;
+	private final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices;
+	private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
+	private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
+	private final PrepareRequestReadplatformService prepareRequestReadplatformService;
 	private final PrepareRequestWriteplatformService prepareRequestWriteplatformService;
-    private final DiscountMasterRepository discountMasterRepository;
+	private final HardwareAssociationWriteplatformService associationWriteplatformService;
     private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
-    private final OrderHistoryRepository orderHistoryRepository;
-    private final OrderReadPlatformService orderReadPlatformService;
-    private final ReverseInvoice reverseInvoice;
-    private final GlobalConfigurationRepository configurationRepository;
-    private final AllocationReadPlatformService allocationReadPlatformService; 
-    private final HardwareAssociationWriteplatformService associationWriteplatformService;
-    private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
-    private final ProcessRequestRepository processRequestRepository;
     private final HardwareAssociationReadplatformService hardwareAssociationReadplatformService;
-    private final PaymentsApiResource paymentsApiResource;
-    private final PrepareRequestReadplatformService prepareRequestReadplatformService;
-    private final PrepareRequsetRepository prepareRequsetRepository;
-    private final PromotionRepository promotionRepository;
-    private final OrderDiscountRepository orderDiscountRepository;
-    private final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory;
-    private final ClientRepository clientRepository;
-    private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
-    private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
-    private final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices; 
-    private final EventActionRepository eventActionRepository;
-    private final HardwareAssociationRepository associationRepository;
-    public final static String CONFIG_PROPERTY="Implicit Association";
     public final static String CPE_TYPE="CPE_TYPE";
+    public final static String CONFIG_PROPERTY="Implicit Association";
+    
 
     @Autowired
 	public OrderWritePlatformServiceImpl(final PlatformSecurityContext context,final OrderRepository orderRepository,
-			final PlanRepository planRepository,final OrderPriceRepository OrderPriceRepository,
+			final PlanRepository planRepository,final OrderPriceRepository OrderPriceRepository,final ServiceMasterRepository serviceMasterRepository,
 			final SubscriptionRepository subscriptionRepository,final OrderCommandFromApiJsonDeserializer fromApiJsonDeserializer,final ReverseInvoice reverseInvoice,
 			final PrepareRequestWriteplatformService prepareRequestWriteplatformService,final DiscountMasterRepository discountMasterRepository,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderHistoryRepository orderHistoryRepository,
@@ -172,6 +175,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.orderDetailsReadPlatformServices=orderDetailsReadPlatformServices;
 		this.eventActionRepository=eventActionRepository;
 		this.associationRepository=associationRepository;
+		this.serviceMasterRepository=serviceMasterRepository;
 		
 
 	}
@@ -777,13 +781,14 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					}
 
 					List<ProvisionServiceDetails> provisionServiceDetails = this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+					ServiceMaster service = this.serviceMasterRepository.findOne(orderLine.getServiceId());
 					
 					if (!provisionServiceDetails.isEmpty()) {
 						if (message == null) {
 							message = provisionServiceDetails.get(0).getServiceIdentification();
 						}
 						ProcessRequestDetails processRequestDetails = new ProcessRequestDetails(orderLine.getId(), orderLine.getServiceId(),message, "Recieved",
-								HardWareId,order.getStartDate(), order.getEndDate(), null,null, 'N',requstStatus);
+								HardWareId,order.getStartDate(), order.getEndDate(), null,null, 'N',requstStatus,service.getServiceType());
 						processRequest.add(processRequestDetails);
 					}
 				}
@@ -827,7 +832,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		
 			this.orderRepository.save(order);
 			Plan oldPlan=this.planRepository.findOne(order.getPlanId());
-			if(oldPlan.getBillRule() !=400){ 
+			
+			if(oldPlan.getBillRule() !=400 && oldPlan.getBillRule() !=300){ 
 		          
 				this.reverseInvoice.reverseInvoiceServices(order.getId(), order.getClientId(),new LocalDate());
 	        }

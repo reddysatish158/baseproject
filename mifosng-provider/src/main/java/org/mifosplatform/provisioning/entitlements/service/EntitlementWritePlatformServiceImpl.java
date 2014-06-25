@@ -7,6 +7,7 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.scheduledjobs.scheduledjobs.service.ProcessRequestWriteplatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,14 @@ import org.springframework.stereotype.Service;
 public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlatformService{
 	
 	private final ProcessRequestRepository entitlementRepository;
+	private final ProcessRequestWriteplatformService processRequestWriteplatformService;
 	
 	@Autowired
-	public EntitlementWritePlatformServiceImpl(final ProcessRequestRepository entitlementRepository ) {		
+	public EntitlementWritePlatformServiceImpl(final ProcessRequestRepository entitlementRepository,
+			final ProcessRequestWriteplatformService processRequestWriteplatformService) {		
 
 		this.entitlementRepository=entitlementRepository;
+		this.processRequestWriteplatformService=processRequestWriteplatformService;
 	}
 	
 	
@@ -28,7 +32,7 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 	public CommandProcessingResult create(JsonCommand command) {
 		// TODO Auto-generated method stub
 		//context.authenticatedUser();
-		ProcessRequest request=this.entitlementRepository.findOne(command.entityId());
+		ProcessRequest processRequest=this.entitlementRepository.findOne(command.entityId());
 		String receiveMessage = command.stringValueOfParameterNamed("receiveMessage");
 		char status;
 		if(receiveMessage.contains("failure :")){
@@ -37,7 +41,7 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 			status='Y';
 		}
 		
-		List<ProcessRequestDetails> details=request.getProcessRequestDetails();
+		List<ProcessRequestDetails> details=processRequest.getProcessRequestDetails();
 		
 		for(ProcessRequestDetails processRequestDetails:details){			    			 			 	
 			 	Long id = command.longValueOfParameterNamed("prdetailsId");
@@ -46,13 +50,13 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 				}
 		}
 		
-		if(request.getRequestType().equalsIgnoreCase("DEVICE_SWAP") && !checkProcessDetailsUpdated(details)){
+		if(processRequest.getRequestType().equalsIgnoreCase("DEVICE_SWAP") && !checkProcessDetailsUpdated(details)){
 			status='F';
 		}
-		request.setProcessStatus(status);
-		
-		this.entitlementRepository.save(request);
-		return new CommandProcessingResult(request.getId());
+		processRequest.setProcessStatus(status);
+		this.processRequestWriteplatformService.notifyProcessingDetails(processRequest);
+	//	this.entitlementRepository.save(request);
+		return new CommandProcessingResult(processRequest.getId());
 		
 	}
 
