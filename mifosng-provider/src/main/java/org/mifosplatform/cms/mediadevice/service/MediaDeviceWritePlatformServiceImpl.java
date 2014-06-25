@@ -36,7 +36,7 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 	public CommandProcessingResult updateMediaDetailsStatus(JsonCommand command) {
 		  try{
 				this.context.authenticatedUser();
-				Long clientId = command.entityId();
+				Long clientId = command.longValueOfParameterNamed("clientId");
 				String deviceId  = command.getSupportedEntityType();
 				OwnedHardware ownedHardware = mediaDetailsRetrieveById(deviceId);
 				String status = ownedHardware.getStatus();
