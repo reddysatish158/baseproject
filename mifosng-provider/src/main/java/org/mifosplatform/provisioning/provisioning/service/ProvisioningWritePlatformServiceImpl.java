@@ -217,7 +217,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			JSONObject jsonObject=new JSONObject();
 	        for(JsonElement j:serviceParameters){
 	        	
-				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName,"ACTIVE",iprange);
+				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName,"ACTIVE",iprange,subnet);
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
 
 				//ip_pool_data status updation
@@ -229,7 +229,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 						  String ipAddress=fromJsonHelper.extractStringNamed("paramValue",j);
 						  String ipData=ipAddress+"/"+subnet;
 						  IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
-						  ipAddressArray=ipGeneration.getInfo().getAllAddresses();
+						  ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
 							
 							for(int i=0;i<ipAddressArray.length;i++){
 								

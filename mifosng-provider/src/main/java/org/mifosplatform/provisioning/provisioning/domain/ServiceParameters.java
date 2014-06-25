@@ -56,13 +56,15 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long>{
 	}
 
 
-	public static ServiceParameters fromJson(JsonElement j,FromJsonHelper fromJsonHelper, Long clientId, Long orderId, String planName, String status,String ipRange) {
+	public static ServiceParameters fromJson(JsonElement j,FromJsonHelper fromJsonHelper, Long clientId, Long orderId, String planName, String status,String ipRange, Long subnet) {
 
 		 final String paramName = fromJsonHelper.extractStringNamed("paramName",j);
 		 String service =null;
 		 if(paramName.equalsIgnoreCase("IP_ADDRESS")){
 			  if(ipRange.equalsIgnoreCase("subnet")){
 				  service= fromJsonHelper.extractStringNamed("paramValue",j);
+				  
+				  service=service+"/"+subnet;
 			  }else{
 			String[] ipaddresses = fromJsonHelper.extractArrayNamed("paramValue",j);
 			JSONArray array=new JSONArray();

@@ -94,7 +94,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	            final String macId=command.stringValueOfParameterNamed("macId");
 	            final String ipType=command.stringValueOfParameterNamed("ipType");
 	            final String ipRange=command.stringValueOfParameterNamed("ipRange");
-	            final String subnet=command.stringValueOfParameterNamed("subnet");
+	            final Long subnet=command.longValueOfParameterNamed("subnet");
 	            
 				
 				jsonObject.put("clientId", clientId);
@@ -119,7 +119,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 				           // Map<String, Object>  changes=serviceParameter.updateServiceParam(serviceParameters,fromApiJsonHelper,command);
 						 serviceParameter.setStatus("INACTIVE");
 				         this.serviceParametersRepository.saveAndFlush(serviceParameter);
-						 serviceParameter=ServiceParameters.fromJson(jsonElement,fromApiJsonHelper,clientId,orderId,planName,"ACTIVE",ipRange);
+						 serviceParameter=ServiceParameters.fromJson(jsonElement,fromApiJsonHelper,clientId,orderId,planName,"ACTIVE",ipRange,subnet);
 						 this.serviceParametersRepository.saveAndFlush(serviceParameter);
 				
                       if(serviceParameter.getParameterName().equalsIgnoreCase("IP_ADDRESS")){

@@ -176,9 +176,31 @@ public class IpGeneration {
                // addresses[j] = format(toArray(add));
             	String ipaddress=format(toArray(add));
             	Long id=ipPoolManagementReadPlatformService.checkIpAddress(ipaddress);
-            	/*if(id==null){
+            	if(id==null){
             		addresses[j]=ipaddress;
             	}else{
+            		j=j-1; 
+            		broadcast=broadcast+1;
+            		skippedItems.append(ipaddress);          		
+            	}
+            }
+            return addresses;
+        }
+
+        public String[] getsubnetAddresses() {
+            int ct = getAddressCount();
+            String[] addresses = new String[ct];
+            StringBuilder skippedItems=new StringBuilder();
+            if (ct == 0) {
+                return addresses;
+            }
+            for (int add = low(), j=0; add <= high(); ++add, ++j) {
+               // addresses[j] = format(toArray(add));
+            	String ipaddress=format(toArray(add));
+            	/*Long id=ipPoolManagementReadPlatformService.checkIpAddress(ipaddress);
+            	if(id==null){*/
+            		addresses[j]=ipaddress;
+            	/*}else{
             		j=j-1; 
             		broadcast=broadcast+1;
             		skippedItems.append(ipaddress);          		

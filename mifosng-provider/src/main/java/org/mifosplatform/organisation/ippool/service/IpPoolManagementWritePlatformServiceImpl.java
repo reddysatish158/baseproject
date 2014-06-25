@@ -56,7 +56,7 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 				this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 			}
 		
-			return new CommandProcessingResultBuilder().build();
+			return new CommandProcessingResult(new Long(1));
 			
 		}catch(DataIntegrityViolationException dve){
 			
@@ -68,7 +68,7 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 			        	 final String name = command.stringValueOfParameterNamed("ip_address");
 				            throw new PlatformDataIntegrityException("error.msg.code.duplicate.name", "A code with name '" + name + "' already exists");
 			        }
-			return CommandProcessingResult.empty();
+			    	return new CommandProcessingResult(new Long(1));
 		}
 		
 	}
