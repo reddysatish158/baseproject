@@ -285,7 +285,7 @@ public class GenerateBill {
 			// please consider the contract start date over here
 			startDate = new LocalDate(billingOrderData.getBillStartDate());
 			endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
-			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));;
+			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));
 		 } else if (billingOrderData.getInvoiceTillDate() != null) {
 
 			startDate = new LocalDate(billingOrderData.getNextBillableDate());

@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.json.JSONArray;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
@@ -36,26 +37,46 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long>{
 	@Column(name = "parameter_value")
 	private String parameterValue;
 	
+	@Column(name = "status")
+	private String status;
+	
 	public ServiceParameters(){
 		
 	}
 
 
-	public ServiceParameters(Long clientId, Long orderId, String planName,String paramName,String paramValue) {
+	public ServiceParameters(Long clientId, Long orderId, String planName,String paramName,String paramValue, String status) {
 	
 		       this.clientId=clientId;
 		       this.orderId=orderId;
 		       this.planName=planName;
 		       this.parameterName=paramName;
 		       this.parameterValue=paramValue;
+		       this.status=status;
 	}
 
 
-	public static ServiceParameters fromJson(JsonElement j,FromJsonHelper fromJsonHelper, Long clientId, Long orderId, String planName) {
+	public static ServiceParameters fromJson(JsonElement j,FromJsonHelper fromJsonHelper, Long clientId, Long orderId, String planName, String status,String ipRange) {
 
-		 final String group = fromJsonHelper.extractStringNamed("paramName",j);
-		 final String service = fromJsonHelper.extractStringNamed("paramValue",j);
-		 return new ServiceParameters(clientId,orderId,planName,group,service);
+		 final String paramName = fromJsonHelper.extractStringNamed("paramName",j);
+		 String service =null;
+		 if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+			  if(ipRange.equalsIgnoreCase("subnet")){
+				  service= fromJsonHelper.extractStringNamed("paramValue",j);
+			  }else{
+			String[] ipaddresses = fromJsonHelper.extractArrayNamed("paramValue",j);
+			JSONArray array=new JSONArray();
+			for(String ipAddress:ipaddresses){
+				array.put(ipAddress);
+			}
+			
+			service=array.toString();
+			  }
+		 }else{
+		  service= fromJsonHelper.extractStringNamed("paramValue",j);
+		 }
+		 
+		 return new ServiceParameters(clientId,orderId,planName,paramName,service,status);
 	
 	}
 
@@ -85,20 +106,66 @@ public class ServiceParameters extends AbstractAuditableCustom<AppUser,Long>{
 	}
 
 
+	public String getStatus() {
+		return status;
+	}
+
+
+	
+	public void setClientId(Long clientId) {
+		this.clientId = clientId;
+	}
+
+
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+
+
+	public void setPlanName(String planName) {
+		this.planName = planName;
+	}
+
+
+	public void setParameterName(String parameterName) {
+		this.parameterName = parameterName;
+	}
+
+
+	public void setParameterValue(String parameterValue) {
+		this.parameterValue = parameterValue;
+	}
+
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+
 	public Map<String, Object> updateServiceParam(JsonArray serviceParameters,FromJsonHelper fromApiJsonHelper, JsonCommand command) {
 		
 		
 		final Map<String, Object> actualChanges = new LinkedHashMap<String, Object>(1);
 		
 		for(JsonElement element:serviceParameters){
-			
-			if(this.parameterName.equalsIgnoreCase(fromApiJsonHelper.extractStringNamed("paramName",element))){
-				String newValue=fromApiJsonHelper.extractStringNamed("paramValue", element);
-			
-				 if (!newValue.equalsIgnoreCase(this.parameterValue)) {
+			String paramName=fromApiJsonHelper.extractStringNamed("paramName",element);
+			if(this.parameterName.equalsIgnoreCase(paramName)){
 				
-				this.parameterValue=newValue;
-				actualChanges.put(parameterName, newValue);
+				 String service =null;
+				 if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+						String[] ipaddresses = fromApiJsonHelper.extractArrayNamed("paramValue",element);
+						JSONArray array=new JSONArray();
+						for(String ipAddress:ipaddresses){
+							array.put(ipAddress);
+						}
+						service=array.toString();
+					 }else
+				  service=fromApiJsonHelper.extractStringNamed("paramValue", element);
+			
+				 if (!service.equalsIgnoreCase(this.parameterValue)) {
+				
+				this.parameterValue=service;
+				actualChanges.put(parameterName, service);
 				return actualChanges;
 				
 			}

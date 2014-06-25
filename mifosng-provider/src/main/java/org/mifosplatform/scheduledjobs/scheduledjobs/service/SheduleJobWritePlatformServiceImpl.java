@@ -327,6 +327,7 @@ fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detai
 ProcessRequest processRequest = this.processRequestRepository.findOne(detailsData.getId());
 processRequest.setProcessStatus('Y');
 this.processRequestRepository.save(processRequest);
+this.processRequestWriteplatformService.notifyProcessingDetails(processRequest,'Y');
 
 }
 fw.append("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");

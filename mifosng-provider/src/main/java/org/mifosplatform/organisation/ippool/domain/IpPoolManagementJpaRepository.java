@@ -10,6 +10,9 @@ public interface IpPoolManagementJpaRepository extends JpaRepository<IpPoolManag
 	
 	@Query("from IpPoolManagementDetail ipPoolManagementDetail where ipPoolManagementDetail.ipAddress =:ipAddress and ipPoolManagementDetail.status is 'F'")
 	 IpPoolManagementDetail findIpAddressData(@Param("ipAddress") String ipAddress);
+	
+	@Query("from IpPoolManagementDetail ipPoolManagementDetail where ipPoolManagementDetail.ipAddress =:ipAddress and ipPoolManagementDetail.status is 'A'")
+	 IpPoolManagementDetail findAllocatedIpAddressData(@Param("ipAddress") String ipAddress);
 
 	
 

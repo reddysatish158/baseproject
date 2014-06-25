@@ -3,7 +3,6 @@ package org.mifosplatform.provisioning.provisioning.service;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -13,8 +12,11 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
+import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
+import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
+import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
 import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.portfolio.order.domain.Order;
@@ -26,7 +28,6 @@ import org.mifosplatform.portfolio.service.domain.ServiceMaster;
 import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
-import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadplatformService;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
@@ -66,13 +67,15 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	private final HardwareAssociationRepository associationRepository;
 	private final ServiceMasterRepository serviceMasterRepository;
 	private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
+	private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
     @Autowired
 	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final InventoryItemDetailsRepository inventoryItemDetailsRepository,
 			final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,final FromJsonHelper fromApiJsonHelper,final OrderReadPlatformService orderReadPlatformService,
 			final ProvisioningCommandRepository provisioningCommandRepository,final ServiceParametersRepository parametersRepository,
 			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final PrepareRequsetRepository prepareRequsetRepository,
 			final FromJsonHelper fromJsonHelper,final HardwareAssociationRepository associationRepository,final ServiceMasterRepository serviceMasterRepository,
-			final ProcessRequestReadplatformService processRequestReadplatformService,final IpPoolManagementJpaRepository ipPoolManagementJpaRepository) {
+			final ProcessRequestReadplatformService processRequestReadplatformService,final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,
+			final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService) {
 
     	this.context = context;		
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
@@ -89,6 +92,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		this.processRequestReadplatformService=processRequestReadplatformService;
 		this.serviceMasterRepository=serviceMasterRepository;
 		this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
+		this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
 
 	}
 
@@ -199,27 +203,54 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
             final String planName=command.stringValueOfParameterNamed("planName");
             final String macId=command.stringValueOfParameterNamed("macId");
             final String ipType=command.stringValueOfParameterNamed("ipType");
-			
+            final String iprange=command.stringValueOfParameterNamed("ipRange");
+            final Long subnet=command.longValueOfParameterNamed("subnet");
+            String[] ipAddressArray =null;
             PrepareRequest prepareRequest=this.prepareRequsetRepository.getLatestRequestByOrderId(orderId);
 			InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(macId);
 			
 			 final JsonElement element = fromJsonHelper.parse(command.json());
 			 JsonArray serviceParameters = fromJsonHelper.extractJsonArrayNamed("serviceParameters", element);
+			 
+			
 			
 			JSONObject jsonObject=new JSONObject();
 	        for(JsonElement j:serviceParameters){
 	        	
-				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName);
+				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName,"ACTIVE",iprange);
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
-				//ip_pool_data status updation
 
+				//ip_pool_data status updation
 				String paramName = fromJsonHelper.extractStringNamed("paramName", j);
-				if(paramName.equalsIgnoreCase("IP_ADDRESS")){
-					String[] ipAddressArray = fromJsonHelper.extractArrayNamed("paramValue", j);
-					for(String ipAddress:ipAddressArray){
+				 if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+					 
+					  if(iprange.equalsIgnoreCase("subnet")){
+					      
+						  String ipAddress=fromJsonHelper.extractStringNamed("paramValue",j);
+						  String ipData=ipAddress+"/"+subnet;
+						  IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
+						  ipAddressArray=ipGeneration.getInfo().getAllAddresses();
+							
+							for(int i=0;i<ipAddressArray.length;i++){
+								
+								IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddressArray[i]);
+								if(ipPoolManagementDetail == null){
+									throw new IpAddresAllocatedException(ipAddressArray[i]);
+								}
+							}
+							
+							jsonObject.put("subnet",subnet);
+					 }else{
+					 ipAddressArray = fromJsonHelper.extractArrayNamed("paramValue", j);
+					 }
+
+					  for(String ipAddress:ipAddressArray){
 						IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+						if(ipPoolManagementDetail!=null){
 						ipPoolManagementDetail.setStatus('A');
+						ipPoolManagementDetail.setClientId(clientId);
 						this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+						}
 					}
 				}
 				jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
@@ -243,26 +274,18 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 				
 				ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
 				jsonObject.put("Service_type",service.getServiceType());
-				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),jsonObject.toString(),"Recieved",
-						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
+				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
+						jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
+						order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
 				  processRequest.add(processRequestDetails);
 				
 			}
 			
 			this.processRequestRepository.saveAndFlush(processRequest);
-
 			//Update Prepare Request table
-			
-				
-			//PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(prepareId.longValue());
 			prepareRequest.updateProvisioning('Y');
 			this.prepareRequsetRepository.save(prepareRequest);
-			
-			//}
 			return new CommandProcessingResult(Long.valueOf(processRequest.getId()));
-			
-			
-			
 			
 		}catch(DataIntegrityViolationException dve){
 			handleCodeDataIntegrityIssues(command, dve);

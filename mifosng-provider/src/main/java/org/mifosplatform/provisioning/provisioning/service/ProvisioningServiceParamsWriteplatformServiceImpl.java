@@ -1,12 +1,10 @@
 package org.mifosplatform.provisioning.provisioning.service;
 
 import java.util.List;
-import java.util.Map;
 
 import net.sf.json.JSONObject;
 
 import org.codehaus.jettison.json.JSONArray;
-import org.json.JSONException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -14,11 +12,16 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
+import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
+import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
+import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
+import org.mifosplatform.portfolio.service.domain.ServiceMaster;
+import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
@@ -50,11 +53,14 @@ public class ProvisioningServiceParamsWriteplatformServiceImpl implements Provis
     private final OrderRepository orderRepository;
     private final InventoryItemDetailsRepository inventoryItemDetailsRepository;
     private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
+    private final ServiceMasterRepository serviceMasterRepository;
+    private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
 @Autowired	
 public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityContext securityContext,final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,
 		final FromJsonHelper fromJsonHelper,final ServiceParametersRepository parametersRepository,final PrepareRequsetRepository prepareRequsetRepository,
 		final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final InventoryItemDetailsRepository detailsRepository,
-		final IpPoolManagementJpaRepository ipPoolManagementJpaRepository){
+		final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,final ServiceMasterRepository masterRepository,
+		final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService){
 	
 	this.context=securityContext;
 	this.fromApiJsonDeserializer=fromApiJsonDeserializer;
@@ -65,7 +71,8 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	this.orderRepository=orderRepository;
 	this.inventoryItemDetailsRepository=detailsRepository;
 	this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
-	
+	this.serviceMasterRepository=masterRepository;
+	this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
 }
 
 	@Transactional
@@ -78,57 +85,100 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
 			 final JsonElement element = fromApiJsonHelper.parse(command.json());
 				JsonArray serviceParameters = fromApiJsonHelper.extractJsonArrayNamed("serviceParameters", element);
-				
+				String[] ipAddressArray=null;
 				JSONObject jsonObject=new JSONObject();
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(orderId);
-			
+			//
+	            final Long clientId=command.longValueOfParameterNamed("clientId");
+	            final String planName=command.stringValueOfParameterNamed("planName");
+	            final String macId=command.stringValueOfParameterNamed("macId");
+	            final String ipType=command.stringValueOfParameterNamed("ipType");
+	            final String ipRange=command.stringValueOfParameterNamed("ipRange");
+	            final String subnet=command.stringValueOfParameterNamed("subnet");
+	            
+				
+				jsonObject.put("clientId", clientId);
+				jsonObject.put("orderId", orderId);
+				jsonObject.put("macId", macId);
+				jsonObject.put("planName",planName);
+				
+				
 			for(ServiceParameters serviceParameter:parameters){
 				
 				String oldValue=serviceParameter.getParameterValue();
+				for(JsonElement jsonElement:serviceParameters){
 				
-				Map<String, Object>  changes=serviceParameter.updateServiceParam(serviceParameters,fromApiJsonHelper,command);
-				
-				this.serviceParametersRepository.saveAndFlush(serviceParameter);
-				
-                    
+				String paramName=fromApiJsonHelper.extractStringNamed("paramName",jsonElement);
+				String service=fromApiJsonHelper.extractStringNamed("paramValue", jsonElement);
+					   
+					if(serviceParameter.getParameterName().equalsIgnoreCase(paramName)){
 						
+						if(!oldValue.equalsIgnoreCase(service)){
 					
+					   
+				           // Map<String, Object>  changes=serviceParameter.updateServiceParam(serviceParameters,fromApiJsonHelper,command);
+						 serviceParameter.setStatus("INACTIVE");
+				         this.serviceParametersRepository.saveAndFlush(serviceParameter);
+						 serviceParameter=ServiceParameters.fromJson(jsonElement,fromApiJsonHelper,clientId,orderId,planName,"ACTIVE",ipRange);
+						 this.serviceParametersRepository.saveAndFlush(serviceParameter);
 				
-                 if(!changes.isEmpty()){
-                	 
-					if(changes.containsKey("IP_ADDRESS")){
-						
-						  for(JsonElement j:serviceParameters){
-							  
-							  String ipAddresses=(String) changes.get("IP_ADDRESS");
-						      String[] ipAddressArray = fromApiJsonHelper.extractArrayNamed(ipAddresses, j);
+                      if(serviceParameter.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
+                    	  
+                    		 if(ipRange.equalsIgnoreCase("subnet")){
+                    			 
+                    	      String ipAddress=fromApiJsonHelper.extractStringNamed("paramValue",jsonElement);
+ 						     String ipData=ipAddress+"/"+subnet;
+ 					      	 IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
+ 					      	ipAddressArray=ipGeneration.getInfo().getAllAddresses();
+ 						   for(int i=0;i<ipAddressArray.length;i++){
+								
+								IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddressArray[i]);
+								if(ipPoolManagementDetail == null){
+									throw new IpAddresAllocatedException(ipAddressArray[i]);
+								}
+								/*IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription);
+								this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);*/
+							}
+                    		 }else{
+                    			 ipAddressArray=fromApiJsonHelper.extractArrayNamed("paramValue", jsonElement);//new  JSONArray(ipAddressArray);
+                    		 }
 						      
-						      for(String ipAddress:ipAddressArray){
+							for(String ipaddress:ipAddressArray){
 						    	  
-							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipaddress);
 							      ipPoolManagementDetail.setStatus('A');
+							      ipPoolManagementDetail.setClientId(clientId);
 							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 						      }
+							jsonObject.put("new_ip_type", ipType);  
+						  	JSONArray oldIpAddressArray=new  JSONArray(oldValue);
+						  	if(oldIpAddressArray.length() >1){
+						  		jsonObject.put("old_ip_type","multiple");
+						  	}else{
+						  		jsonObject.put("old_ip_type","single");
+						  	}
 						      
-                              String[] oldIpAddressArray = fromApiJsonHelper.extractArrayNamed(oldValue, j);
-						      
-						      for(String ipAddress:oldIpAddressArray){
+						  	 for(int i=0;i<oldIpAddressArray.length();i++){
 						    	  
-							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
+							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findAllocatedIpAddressData(oldIpAddressArray.getString(i));
 							      ipPoolManagementDetail.setStatus('F');
+							      ipPoolManagementDetail.setClientId(null);
 							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 						      }
-					 }if(changes.containsKey(serviceParameter.getParameterName())){
+						      
+					
 						
 					jsonObject.put("OLD_"+serviceParameter.getParameterName(), oldValue);
 					jsonObject.put("NEW_"+serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 					
-					}
+					
 					}
 				}else{
 					jsonObject.put(serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 				}
 				
+			}
+			}
 			}
 			Order order=this.orderRepository.findOne(orderId);
 			  PrepareRequest prepareRequest=this.prepareRequsetRepository.getLatestRequestByOrderId(orderId);
@@ -136,12 +186,13 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			
 			ProcessRequest processRequest=new ProcessRequest(order.getClientId(),orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
 					null,"CHANGE_PROVISIONING", prepareRequest.getId());
-			
+			 
 			
 			List<OrderLine> orderLines=order.getServices();
 			
 			for(OrderLine orderLine:orderLines){
-				 
+				 ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
+				 jsonObject.put("service_type",service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),jsonObject.toString(),"Recieved",
 						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',"CHANGE_PROVISIONING");
 				  processRequest.add(processRequestDetails);
@@ -152,10 +203,16 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			
 			return new CommandProcessingResult(Long.valueOf(orderId));
 			
-		} catch(DataIntegrityViolationException dataIntegrityViolationException){
+		
+			
+			}catch(DataIntegrityViolationException dataIntegrityViolationException){
 			handleCodeDataIntegrityIssues(command, dataIntegrityViolationException);
 			return new CommandProcessingResult(Long.valueOf(-1l));
+		} catch (org.codehaus.jettison.json.JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return null;
 		
 	}
 	

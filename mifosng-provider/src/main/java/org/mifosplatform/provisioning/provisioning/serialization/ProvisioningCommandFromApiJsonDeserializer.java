@@ -32,7 +32,7 @@ public final class ProvisioningCommandFromApiJsonDeserializer {
      */
     private final Set<String> provisioningsupportedParameters = new HashSet<String>(Arrays.asList("id","provisioningSystem","commandName","status",
     		"commandParameters","commandParam","paramType","paramDefault","groupName","ipAddress","serviceName","vLan","planName","orderId","clientId",
-    		"macId","serviceParameters","paramName","paramValue","orderId","deviceId","clientName"));
+    		"macId","serviceParameters","paramName","paramValue","orderId","deviceId","clientName","ipType","ipRange","subnet"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -90,6 +90,7 @@ public void validateForAddProvisioning(String json) {
 final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("provisioning");
 final JsonElement element = fromApiJsonHelper.parse(json);
 final String serviceName = fromApiJsonHelper.extractStringNamed("serviceName", element);
+final String ipRange = fromApiJsonHelper.extractStringNamed("ipRange", element);
 baseDataValidator.reset().parameter("serviceName").value(serviceName).notBlank();
 final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("serviceParameters",element);
 //baseDataValidator.reset().parameter("mediaassetAttributes").value(mediaassetAttributesArray).
@@ -106,8 +107,16 @@ final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("
 		     final JsonElement attributeElement = fromApiJsonHelper.parse(serviceParameter);
 		     final String paramName = fromApiJsonHelper.extractStringNamed("paramName", attributeElement);
 		     baseDataValidator.reset().parameter("paramName").value(paramName).notBlank();
+		     
+		     if(paramName.equalsIgnoreCase("IP_ADDRESS") && !ipRange.equalsIgnoreCase("subnet")){
+		    	 
+		    	 final String[] parmaValue = fromApiJsonHelper.extractArrayNamed("paramValue", attributeElement);
+			     baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
+		     }else{
+		     
 		     final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
 		     baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
+		     }
 	  }    
 
 throwExceptionIfValidationWarningsExist(dataValidationErrors);
