@@ -31,6 +31,8 @@ public interface BillingOrderReadPlatformService {
 
 	List<BillingOrderData> getReconnectionBillingOrderData(Long clientId,Long orderId);
 
+	TaxMappingRateData retriveExemptionTaxDetails(Long clientId);
+
 
 
 

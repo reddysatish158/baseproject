@@ -2201,4 +2201,12 @@ public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
 		this.href = "/provision/"+prepareRequestId;
 		return this;
 	}
+
+	public CommandWrapperBuilder updateClientTaxExemption(Long clientId) {
+		this.actionName = "UPDATE";
+		this.entityName = "CLIENTTAXEXEMPTION";
+		this.entityId = clientId;
+		this.href = "/taxexemption/" +clientId;
+		return this;
+	}
 }

@@ -38,4 +38,6 @@ public interface ClientReadPlatformService {
     Collection<GroupData> retrieveGroupData();
 
 	ClientData retrieveAllClosureReasons(String clientClosureReason);
+
+	
 }

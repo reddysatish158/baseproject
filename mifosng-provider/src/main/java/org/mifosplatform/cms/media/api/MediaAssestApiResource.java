@@ -225,6 +225,7 @@ public class MediaAssestApiResource {
          List<MediaEnumoptionData> mediaTypeData =this.mediaAssetReadPlatformService.retrieveMediaTypeData();
          List<McodeData> mediaCategeorydata=this.mediaAssetReadPlatformService.retrieveMedaiCategory();
          List<McodeData> languageCategeory=this.mediaAssetReadPlatformService.retrieveLanguageCategeories();
+        // List<McodeData> contentProviderData=this.mediaAssetReadPlatformService.retrieveContentProviders();
          return new MediaAssetData(null,null,null,status,data,mediaFormat,mediaTypeData,mediaCategeorydata,languageCategeory);
 	}
 
@@ -264,6 +265,7 @@ public class MediaAssestApiResource {
          List<MediaEnumoptionData> mediaTypeData =this.mediaAssetReadPlatformService.retrieveMediaTypeData();
          List<McodeData> mediaCategeorydata=this.mediaAssetReadPlatformService.retrieveMedaiCategory();
          List<McodeData> mediaLanguageData=this.mediaAssetReadPlatformService.retrieveLanguageCategeories();
+         //List<McodeData> contentProviderData=this.mediaAssetReadPlatformService.retrieveContentProviders();
          MediaAssetData assetData=new MediaAssetData(mediaAssetData,mediaassetAttributes,mediaLocationData,status,data,mediaFormat,mediaTypeData,mediaCategeorydata,mediaLanguageData);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.toApiJsonSerializer.serialize(settings, assetData, RESPONSE_DATA_PARAMETERS);
