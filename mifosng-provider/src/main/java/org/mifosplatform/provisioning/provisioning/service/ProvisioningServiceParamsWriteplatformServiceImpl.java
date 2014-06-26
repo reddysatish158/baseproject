@@ -81,13 +81,13 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	
 		try{
 			
-			this.context.authenticatedUser();
-			this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
-			 final JsonElement element = fromApiJsonHelper.parse(command.json());
-				JsonArray serviceParameters = fromApiJsonHelper.extractJsonArrayNamed("serviceParameters", element);
-				String[] ipAddressArray=null;
-				JSONObject jsonObject=new JSONObject();
-					JSONArray oldIpAddressArray=null;
+			     this.context.authenticatedUser();
+			     this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
+			     final JsonElement element = fromApiJsonHelper.parse(command.json());
+				 JsonArray serviceParameters = fromApiJsonHelper.extractJsonArrayNamed("serviceParameters", element);
+				 String[] ipAddressArray=null;
+				 JSONObject jsonObject=new JSONObject();
+				 JSONArray oldIpAddressArray=null;
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(orderId);
 			//
 	            final Long clientId=command.longValueOfParameterNamed("clientId");
@@ -96,92 +96,94 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	            final String ipType=command.stringValueOfParameterNamed("ipType");
 	            final String ipRange=command.stringValueOfParameterNamed("ipRange");
 	            final Long subnet=command.longValueOfParameterNamed("subnet");
-	            
-				
 				jsonObject.put("clientId", clientId);
 				jsonObject.put("orderId", orderId);
 				jsonObject.put("macId", macId);
 				jsonObject.put("planName",planName);
-				
-				
-			for(ServiceParameters serviceParameter:parameters){
+
+				for(ServiceParameters serviceParameter:parameters){
 				
 				String oldValue=serviceParameter.getParameterValue();
 				for(JsonElement jsonElement:serviceParameters){
-				
+					
 				String paramName=fromApiJsonHelper.extractStringNamed("paramName",jsonElement);
 				String service=fromApiJsonHelper.extractStringNamed("paramValue", jsonElement);
 					   
 					if(serviceParameter.getParameterName().equalsIgnoreCase(paramName)){
 						
 						if(!oldValue.equalsIgnoreCase(service)){
-					
-					   
-				           // Map<String, Object>  changes=serviceParameter.updateServiceParam(serviceParameters,fromApiJsonHelper,command);
-						 serviceParameter.setStatus("INACTIVE");
-				         this.serviceParametersRepository.saveAndFlush(serviceParameter);
-						 serviceParameter=ServiceParameters.fromJson(jsonElement,fromApiJsonHelper,clientId,orderId,planName,"ACTIVE",ipRange,subnet);
-						 this.serviceParametersRepository.saveAndFlush(serviceParameter);
-				
-                      if(serviceParameter.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
-                    	  
-                    		 if(ipRange.equalsIgnoreCase("subnet")){
-                    			
-                    	      String ipAddress=fromApiJsonHelper.extractStringNamed("paramValue",jsonElement);
- 						     String ipData=ipAddress+"/"+subnet;
- 					      	 IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
- 					      	ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
- 						   for(int i=0;i<ipAddressArray.length;i++){
-								
-								IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddressArray[i]);
-								if(ipPoolManagementDetail == null){
-									throw new IpAddresAllocatedException(ipAddressArray[i]);
-								}
-								/*IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription);
-								this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);*/
-							}
- 							jsonObject.put("subnet",subnet);
-                    		 }else{
+
+							serviceParameter.setStatus("INACTIVE");
+				            this.serviceParametersRepository.saveAndFlush(serviceParameter);
+						    serviceParameter=ServiceParameters.fromJson(jsonElement,fromApiJsonHelper,clientId,orderId,planName,"ACTIVE",ipRange,subnet);
+						    this.serviceParametersRepository.saveAndFlush(serviceParameter);
+                            
+						    if(serviceParameter.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
+                     		  
+						    	if(ipRange.equalsIgnoreCase("subnet")){
+                    	           
+						    		String ipAddress=fromApiJsonHelper.extractStringNamed("paramValue",jsonElement);
+ 						            String ipData=ipAddress+"/"+subnet;
+ 					      	        IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
+ 					      	        ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
+ 						            
+ 					      	         for(int i=0;i<ipAddressArray.length;i++){
+								         IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddressArray[i]);
+  								         
+								         if(ipPoolManagementDetail == null){
+									     throw new IpAddresAllocatedException(ipAddressArray[i]);
+								         }
+ 							         }
+ 							            jsonObject.put("subnet",subnet);
+                    		   }else{
                     			 ipAddressArray=fromApiJsonHelper.extractArrayNamed("paramValue", jsonElement);//new  JSONArray(ipAddressArray);
-                    		 }
+                    		    }
 						      
-							for(String ipaddress:ipAddressArray){
-						    	  
+							     for(String ipaddress:ipAddressArray){
 							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipaddress);
 							      ipPoolManagementDetail.setStatus('A');
 							      ipPoolManagementDetail.setClientId(clientId);
 							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 						      }
-							jsonObject.put("new_ip_type", ipType);
-							if(oldValue.contains("/")){
-								 IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
-		 					      	ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
-		 					     
-		 					       oldIpAddressArray=new  JSONArray(ipAddressArray.toString());
+							     jsonObject.put("new_ip_type", ipType);
+							    
+							     if(oldValue.contains("/")){
+								    IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
+		 					        ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
+		 					          
+		 					        for(int i=0;i<ipAddressArray.length;i++){
+  		 					    	    IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findAllocatedIpAddressData(ipAddressArray[i]);
+									  
+		 					    	  if(ipPoolManagementDetail != null){
+									         ipPoolManagementDetail.setStatus('F');
+									         ipPoolManagementDetail.setClientId(null);
+									         this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+									     }
+								    }
+		 					          jsonObject.put("old_ip_type","Subnet");
+		 					      
 								}else{
-							
+									
                   	            oldIpAddressArray=new  JSONArray(oldValue);
-								}
-						  	if(oldIpAddressArray.length() >1){
-						  		jsonObject.put("old_ip_type","multiple");
-						  	}else{
-						  		jsonObject.put("old_ip_type","single");
-						  	}
-						      
-						  	 for(int i=0;i<oldIpAddressArray.length();i++){
-						    	  
+                  	            for(int i=0;i<oldIpAddressArray.length();i++){
 							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findAllocatedIpAddressData(oldIpAddressArray.getString(i));
-							     if(ipPoolManagementDetail != null){
-							      ipPoolManagementDetail.setStatus('F');
-							      ipPoolManagementDetail.setClientId(null);
-							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-							     }
-						      }
-						      
-					
+							     
+							      if(ipPoolManagementDetail != null){
+							        ipPoolManagementDetail.setStatus('F');
+							        ipPoolManagementDetail.setClientId(null);
+							        this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+							      }
+						       }
+                  	      	       if(oldIpAddressArray.length() >1){
+						  		   jsonObject.put("old_ip_type","multiple");
+						  	        
+                  	      	       }else{
+						  		   jsonObject.put("old_ip_type","single");
+						  	         }
+								}
 						
-					jsonObject.put("OLD_"+serviceParameter.getParameterName(), oldValue);
-					jsonObject.put("NEW_"+serviceParameter.getParameterName(), serviceParameter.getParameterValue());
+					   jsonObject.put("OLD_"+serviceParameter.getParameterName(), oldValue);
+					   jsonObject.put("NEW_"+serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 					
 					
 					}
@@ -190,42 +192,37 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 				}
 				
 			}
-			}
-			}
-			Order order=this.orderRepository.findOne(orderId);
+	      }
+	    }
+			  Order order=this.orderRepository.findOne(orderId);
 			  PrepareRequest prepareRequest=this.prepareRequsetRepository.getLatestRequestByOrderId(orderId);
-				InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(command.stringValueOfParameterNamed("macId"));
-			
-			ProcessRequest processRequest=new ProcessRequest(order.getClientId(),orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
+			  InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(command.stringValueOfParameterNamed("macId"));
+  			  ProcessRequest processRequest=new ProcessRequest(order.getClientId(),orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
 					null,"CHANGE_PROVISIONING", prepareRequest.getId());
-			 
-			
-			List<OrderLine> orderLines=order.getServices();
-			
-			for(OrderLine orderLine:orderLines){
+			  
+  			  List<OrderLine> orderLines=order.getServices();
+			  
+  			  for(OrderLine orderLine:orderLines){
 				 ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
 				 jsonObject.put("service_type",service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),jsonObject.toString(),"Recieved",
 						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',"CHANGE_PROVISIONING");
 				  processRequest.add(processRequestDetails);
-				
 			}
 			
 			this.processRequestRepository.saveAndFlush(processRequest);
-			
 			return new CommandProcessingResult(Long.valueOf(orderId));
 			
+		}catch(DataIntegrityViolationException dataIntegrityViolationException){
 		
-			
-			}catch(DataIntegrityViolationException dataIntegrityViolationException){
 			handleCodeDataIntegrityIssues(command, dataIntegrityViolationException);
 			return new CommandProcessingResult(Long.valueOf(-1l));
+		
 		} catch (org.codehaus.jettison.json.JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return new CommandProcessingResult(Long.valueOf(-1l));
 		}
-		return null;
-		
 	}
 	
 	

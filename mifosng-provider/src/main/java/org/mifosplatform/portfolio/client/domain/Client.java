@@ -150,7 +150,7 @@ public final class Client extends AbstractPersistable<Long> {
 	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
 
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
-	    final String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+	     String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -158,7 +158,10 @@ public final class Client extends AbstractPersistable<Long> {
 	    if(login.isEmpty()){
 	    	login=null;
 	    }
-        ClientStatus status =  ClientStatus.NEW;
+	    if(groupName.isEmpty()){
+	    	groupName=null;
+	    }
+	    ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
 

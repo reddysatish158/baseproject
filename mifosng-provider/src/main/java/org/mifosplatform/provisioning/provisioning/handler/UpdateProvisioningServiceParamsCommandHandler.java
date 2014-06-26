@@ -1,7 +1,6 @@
 package org.mifosplatform.provisioning.provisioning.handler;
 
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
-import org.mifosplatform.crm.userchat.service.UserChatWriteplatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.provisioning.provisioning.service.ProvisioningServiceParamsWriteplatformService;
