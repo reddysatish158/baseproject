@@ -2,13 +2,12 @@ package org.mifosplatform.organisation.ippool.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 
+@SuppressWarnings("serial")
 @Entity
 @Table(name = "b_ippool_details")
 public class IpPoolManagementDetail extends AbstractPersistable<Long>{
@@ -25,6 +24,11 @@ public class IpPoolManagementDetail extends AbstractPersistable<Long>{
 	@Column(name="pool_name", nullable = false)
 	private String ipPoolDescription;
 	
+	@Column(name="notes", nullable = true)
+	private String notes;
+	
+	
+	
 	
 	public IpPoolManagementDetail(){
 		
@@ -33,7 +37,7 @@ public class IpPoolManagementDetail extends AbstractPersistable<Long>{
 	public IpPoolManagementDetail(String ipAddress, String ipPoolDescription) {
 		// TODO Auto-generated constructor stub
 		this.ipAddress=ipAddress;
-		this.status='F';
+		this.status='I';
 		this.ipPoolDescription=ipPoolDescription;
 	}
 
@@ -68,6 +72,16 @@ public class IpPoolManagementDetail extends AbstractPersistable<Long>{
 	public void setIpPoolDescription(String ipPoolDescription) {
 		this.ipPoolDescription = ipPoolDescription;
 	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+	
+	
 	
 	
 }
