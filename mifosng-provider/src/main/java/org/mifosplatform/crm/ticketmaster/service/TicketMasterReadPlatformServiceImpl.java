@@ -149,7 +149,7 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 	}
 	
 	@Override
-	public Page<ClientTicketData> retrieveAssignedTicketsForNewClient(SearchSqlQuery searchTicketMaster) {
+	public Page<ClientTicketData> retrieveAssignedTicketsForNewClient(SearchSqlQuery searchTicketMaster,String statusType) {
 		AppUser user = this.context.authenticatedUser();
 		
 		final UserTicketsMapperForNewClient mapper = new UserTicketsMapperForNewClient();
@@ -169,6 +169,9 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 	    			+ " (select mcv.code_value from m_code_value mcv where mcv.id = tckt.problem_code) like '%"+sqlSearch+"%' OR"
 	    			+ " tckt.status like '%"+sqlSearch+"%' OR"
 	    			+ " (select user.username from m_appuser user where tckt.assigned_to = user.id) like '%"+sqlSearch+"%')";
+	    }
+	    if(statusType != null){
+	    	extraCriteria=" and tckt.status='"+statusType+"'";
 	    }
 	    sqlBuilder.append(extraCriteria);
 	    
