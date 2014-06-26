@@ -389,4 +389,27 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private void logAsErrorUnexpectedDataIntegrityException(final DataIntegrityViolationException dve) {
         logger.error(dve.getMessage(), dve);
     }
+
+	@Override
+	public CommandProcessingResult updateClientTaxExemption(Long clientId,JsonCommand command) {
+		
+		Client clientTaxStatus=null;
+		
+		try{
+			 clientTaxStatus = this.clientRepository.findOneWithNotFoundDetection(clientId);
+			 char taxValue=clientTaxStatus.getTaxExemption();
+			 final boolean taxStatus=command.booleanPrimitiveValueOfParameterNamed("taxExemption");
+			 if(taxStatus){
+				  taxValue='Y';
+				  clientTaxStatus.setTaxExemption(taxValue);
+			 }else{
+				 taxValue='N';
+				 clientTaxStatus.setTaxExemption(taxValue);
+			 }
+		}catch(DataIntegrityViolationException dve){
+			 handleDataIntegrityIssues(command, dve);
+	            return CommandProcessingResult.empty();
+		}
+		return new CommandProcessingResultBuilder().withEntityId(clientTaxStatus.getId()).build();
+	}
 }

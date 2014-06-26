@@ -5,6 +5,7 @@
  */
 package org.mifosplatform.portfolio.client.service;
 
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -252,7 +253,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             sqlBuilder.append("c.office_id as officeId, o.name as officeName, ");
             sqlBuilder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
             sqlBuilder.append("c.fullname as fullname, c.display_name as displayName,c.category_type as categoryType, ");
-            sqlBuilder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey ");
+            sqlBuilder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey,c.exempt_tax as taxExemption ");
             sqlBuilder.append("from m_client c ");
             sqlBuilder.append("join m_office o on o.id = c.office_id ");
             sqlBuilder.append("join m_group_client pgc on pgc.client_id = c.id");
@@ -287,8 +288,9 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String phone = rs.getString("phone");
             final String homePhoneNumber = rs.getString("homePhoneNumber");
             final String currency = rs.getString("currency");
+            final String taxExemption = rs.getString("taxExemption");
             return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency);
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency,taxExemption);
         }
     }
 
@@ -305,7 +307,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("c.office_id as officeId, o.name as officeName, ");
             builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
             builder.append("c.fullname as fullname, c.display_name as displayName,mc.code_value as categoryType, ");
-            builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey, ");
+            builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey,c.exempt_tax as taxExemption, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
             builder.append(" a.zip as zipcode,b.balance_amount as balanceAmount,bc.currency as currency,");
             
@@ -363,11 +365,12 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String hwSerial = rs.getString("HW_Serial");
             final BigDecimal clientBalance = rs.getBigDecimal("balanceAmount");
             final String currency=rs.getString("currency");
+            final String taxExemption=rs.getString("taxExemption");
            
 
             return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
                     externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode,
-                    clientBalance,hwSerial,currency);
+                    clientBalance,hwSerial,currency,taxExemption);
         }
     }
 
