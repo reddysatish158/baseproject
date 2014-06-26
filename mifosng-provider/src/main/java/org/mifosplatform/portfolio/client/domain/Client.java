@@ -126,6 +126,10 @@ public final class Client extends AbstractPersistable<Long> {
     @Column(name = "closedon_date", nullable = true)
     @Temporal(TemporalType.DATE)
     private Date closureDate;
+    
+    
+    @Column(name = "exempt_tax",nullable = false)
+	private char taxExemption='N';
 
 
     public static Client createNew(final Office clientOffice, final Group clientParentGroup, final JsonCommand command) {
@@ -577,7 +581,16 @@ public final class Client extends AbstractPersistable<Long> {
 		this.status=status;
 		
 	}
-	   public void close(final AppUser currentUser, final CodeValue closureReason, final Date closureDate) {
+	
+   public char getTaxExemption() {
+		return taxExemption;
+	}
+
+	public void setTaxExemption(char taxExemption) {
+		this.taxExemption = taxExemption;
+	}
+
+	public void close(final AppUser currentUser, final CodeValue closureReason, final Date closureDate) {
 	        this.closureReason = closureReason;
 	        this.closureDate = closureDate;
 	        this.closeddBy = currentUser;
