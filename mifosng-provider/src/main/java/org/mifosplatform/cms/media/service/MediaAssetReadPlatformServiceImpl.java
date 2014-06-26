@@ -289,7 +289,7 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 
 		return " m.id as id,m.title as title,m.type as type,m.category_id as catageoryId,m.genre as genre,m.release_date as releaseDate,"
 			  +"m.overview as overview,m.subject as subject,m.image as image,m.content_provider as contentProvider,m.rated as rated, "
-			 +"m.rating as rating,m.rating_count as ratingCount,m.status as status,m.duration as duration FROM b_media_asset m where m.is_deleted='N' and ";
+			 +"m.rating as rating,m.rating_count as ratingCount,m.status as status,m.duration as duration,m.cp_share as cpShareValue FROM b_media_asset m where m.is_deleted='N' and ";
 
 
 	}
@@ -427,4 +427,12 @@ private static final class MediaLocationDataMapper implements RowMapper<MediaLoc
 			
 		}
 
+ /*  @Override
+      public List<McodeData> retrieveContentProviders() {
+	         context.authenticatedUser();
+	           SystemDataMapper mapper = new SystemDataMapper();
+	           String sql = "select " + mapper.schema();
+	           return this.jdbcTemplate.query(sql, mapper, new Object[] { "Content Provider" });
+}
+*/
 }

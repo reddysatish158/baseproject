@@ -169,7 +169,7 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 	}
 	@Override
 	public Invoice generateInvoice(List<BillingOrderCommand> billingOrderCommands) {
-		BigDecimal totalChargeAmountForServices = BigDecimal.ZERO;
+		//BigDecimal totalChargeAmountForServices = BigDecimal.ZERO;
 		//BigDecimal totalTaxAmountForServices = BigDecimal.ZERO;
 		
 		BigDecimal invoiceAmount = BigDecimal.ZERO;
@@ -179,8 +179,10 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 		//LocalDate invoiceDate = new LocalDate();
 	//	List<BillingOrder> charges = new ArrayList<BillingOrder>();
 		
+		TaxMappingRateData tax=this.billingOrderReadPlatformService.retriveExemptionTaxDetails(billingOrderCommands.get(0).getClientId());
+		
 	   Invoice invoice = new Invoice(billingOrderCommands.get(0).getClientId(),new LocalDate().toDate(), invoiceAmount, 
-			   invoiceAmount, netTaxAmount,"active");
+			                              invoiceAmount, netTaxAmount,"active");
 		for (BillingOrderCommand billingOrderCommand : billingOrderCommands) {
 			BigDecimal netChargeTaxAmount = BigDecimal.ZERO;
 			BigDecimal discountAmount = billingOrderCommand.getDiscountMasterData().getDiscountAmount();
@@ -197,6 +199,9 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 			BillingOrder charge = new BillingOrder(billingOrderCommand.getClientId(), billingOrderCommand.getClientOrderId(), billingOrderCommand.getOrderPriceId(),
 					billingOrderCommand.getChargeCode(),billingOrderCommand.getChargeType(),discountMaster.getDiscountCode(), billingOrderCommand.getPrice(), discountAmount,
 					netChargeAmount, billingOrderCommand.getStartDate(), billingOrderCommand.getEndDate());
+			
+			//client TaxExemption 
+			if(tax.getTaxExemption().equalsIgnoreCase("Y")){
 			
 			for(InvoiceTaxCommand invoiceTaxCommand : invoiceTaxCommands){
 				
@@ -217,6 +222,7 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 				charge.setChargeAmount(netChargeAmount);
 			}
 			  }
+			}
 			netTaxAmount = netTaxAmount.add(netChargeTaxAmount);
 			totalChargeAmount = totalChargeAmount.add(netChargeAmount);
 			
@@ -228,12 +234,17 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 			//	netTaxForService = invoiceTax.getTaxAmount().add(netTaxForService);
 			//}
 			//totalTaxAmountForServices = totalTaxAmountForServices.add(netTaxForService);
+		 }
+		 // invoiceAmount = totalChargeAmountForServices;
+        //				.add(totalTaxAmountForServices);
+		
+		if(billingOrderCommands.get(0).getTaxInclusive()!=null){
+		if(isTaxInclusive(billingOrderCommands.get(0).getTaxInclusive())){
+		invoiceAmount = totalChargeAmount;
+		} 
+		}else{
+			invoiceAmount = totalChargeAmount.add(netTaxAmount);
 		}
-		// invoiceAmount = totalChargeAmountForServices;
-//				.add(totalTaxAmountForServices);
-		
-		
-		invoiceAmount = totalChargeAmount.add(netTaxAmount);
 		invoice.setNetChargeAmount(totalChargeAmount);
 		invoice.setTaxAmount(netTaxAmount);
 		
