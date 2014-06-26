@@ -46,13 +46,15 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 			this.apiJsonDeserializer.validateForCreate(command.json());
 			String ipAddress=command.stringValueOfParameterNamed("ipAddress");
 			String subnet=command.stringValueOfParameterNamed("subnet");
+			String notes=command.stringValueOfParameterNamed("notes");
+			Long type=command.longValueOfParameterNamed("tpye");
 			String ipPoolDescription=command.stringValueOfParameterNamed("ipPoolDescription");
 			String ipData=ipAddress+"/"+subnet;
 			IpGeneration util=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
 			String[] data=util.getInfo().getAllAddresses();
 			
 			for(int i=0;i<data.length;i++){
-				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription);
+				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription,'I',type,notes);
 				this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 			}
 		

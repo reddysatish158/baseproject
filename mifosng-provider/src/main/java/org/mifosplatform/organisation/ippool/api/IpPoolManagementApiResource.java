@@ -1,6 +1,7 @@
 package org.mifosplatform.organisation.ippool.api;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,13 +20,15 @@ import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
-import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.ippool.data.IpPoolManagementData;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
+import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
+import org.mifosplatform.organisation.mcodevalues.service.MCodeReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -38,13 +41,15 @@ import org.springframework.stereotype.Component;
 public class IpPoolManagementApiResource {
 
 	private static final Set<String> IPPOOL_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "ipPoolDescription",
-			"ipAddress","subnet"));
+			"ipAddress","subnet","clientId","clientName","status","codeValueDatas"));
 	
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	private final PlatformSecurityContext context;
-	private final ApiRequestParameterHelper apiRequestParameterHelper;
+	
 	private final DefaultToApiJsonSerializer<IpPoolManagementData> toApiJsonSerializer;
 	private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
+	private final MCodeReadPlatformService codeReadPlatformService;
+	
 	
 	private final String resourceNameForPermissions="READ_IPPOOLMANAGEMENT";
 	
@@ -52,15 +57,14 @@ public class IpPoolManagementApiResource {
 	
 	@Autowired
 	public IpPoolManagementApiResource(final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-			final PlatformSecurityContext context, final ApiRequestParameterHelper apiRequestParameterHelper,
-			final DefaultToApiJsonSerializer<IpPoolManagementData> toApiJsonSerializer,
-			final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService)
+			final PlatformSecurityContext context,final DefaultToApiJsonSerializer<IpPoolManagementData> toApiJsonSerializer,
+			final MCodeReadPlatformService codeReadPlatformService,final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService)
 	{
 		this.commandsSourceWritePlatformService=commandsSourceWritePlatformService;
 		this.context=context;
-		this.apiRequestParameterHelper=apiRequestParameterHelper;
 		this.toApiJsonSerializer=toApiJsonSerializer;
 		this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
+		this.codeReadPlatformService=codeReadPlatformService;
 		
 	}
 	
@@ -86,6 +90,19 @@ public class IpPoolManagementApiResource {
 		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		Page<IpPoolManagementData> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolData(searchItemDetails,type);
 		return this.toApiJsonSerializer.serialize(paymentData);
+
+	}
+	
+	@GET
+	@Path("template")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveTemplateDataforIppool(@Context final UriInfo uriInfo) {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		Collection<MCodeData> codeValueDatas=this.codeReadPlatformService.getCodeValue("IP Type");
+		IpPoolData ipPoolData=new IpPoolData(codeValueDatas);
+		return this.toApiJsonSerializer.serialize(ipPoolData);
 
 	}
 	

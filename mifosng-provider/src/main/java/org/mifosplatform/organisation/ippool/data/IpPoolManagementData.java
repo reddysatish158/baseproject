@@ -10,15 +10,19 @@ public class IpPoolManagementData {
 	private String status;
 	private Long clientId;
 	List<String> ipAddressData;
+	private String clientName;
+	private String notes;
 	
 	public IpPoolManagementData(Long id, String ipAddress, String poolName,
-			String status, Long clientId) {
+			String status, Long clientId, String clientName, String notes) {
 		
 		this.id=id;
 		this.ipAddress=ipAddress;
 		this.ipPoolDescription=poolName;
 		this.status=status;
 		this.clientId=clientId;
+		this.clientName=clientName;
+		this.notes=notes;
 	}
 
 	public IpPoolManagementData(List<String> ipAddressData) {

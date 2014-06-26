@@ -130,7 +130,8 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 
 		public String schema() {
 
-			return "p.id ,p.pool_name as poolName, p.ip_address as ipAddress ,p.status, p.client_id as ClientId from b_ippool_details p";
+			return " p.id as id,p.pool_name AS poolName,p.client_id AS ClientId,c.display_name AS ClientName,p.ip_address AS ipAddress,p.status as status,p.notes as notes" +
+					" FROM b_ippool_details p LEFT JOIN m_client c ON p.client_id = c.id";
 		}
 
 		@Override
@@ -142,8 +143,10 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 			String poolName=rs.getString("poolName");
 			String status=rs.getString("status");
 			Long ClientId=rs.getLong("ClientId");
+			String clientName=rs.getString("ClientName");
+			String notes=rs.getString("notes");
 			
-			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId);
+			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId,clientName,notes);
 		}
 	}
 
@@ -164,7 +167,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
         if (tabType!=null ) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where p.status like '"+tabType+"' order by p.id ");
+		        	sqlBuilder.append(" and p.status like '"+tabType+"' order by p.id ");
 		  
 		    	    if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();
@@ -174,7 +177,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		            
 	    }else if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " where (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
+    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
     	}else {
     		extraCriteria = " order by p.id ";
     	}
