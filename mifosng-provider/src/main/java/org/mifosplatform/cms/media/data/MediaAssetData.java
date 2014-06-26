@@ -42,6 +42,8 @@ public class MediaAssetData {
 	private BigDecimal rating;
 	private String duration;
 	private Long ratingCount;
+	//private List<McodeData> contentProviderData;
+	//private BigDecimal cpShareValue;
 	
 public MediaAssetData(final Long mediaId,final String mediaTitle,final String image,final BigDecimal rating, Long eventId, String assetTag){
 	this.mediaId=mediaId;
@@ -78,6 +80,7 @@ public MediaAssetData(MediaAssetData mediaAssetData, List<MediaassetAttributeDat
 	this.mediaLanguageData=mediaLangauagedata;
 	this.mediaLocationData=mediaLocationData;
 	this.mediaassetAttributes=mediaassetAttributes;
+	
 	
 }
 public MediaAssetData(Long mediaId, String mediaTitle, String status,
