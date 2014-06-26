@@ -228,7 +228,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 			    
 			    public String provisionedschema() {
 					return "  s.id AS id,s.parameter_name AS paramName,s.parameter_value AS paramValue  FROM b_service_parameters s " +
-							"  WHERE s.order_id = ?";
+							"  WHERE s.order_id = ? and status='ACTIVE'";
 				}
 			    
 		        @Override

@@ -87,6 +87,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 				JsonArray serviceParameters = fromApiJsonHelper.extractJsonArrayNamed("serviceParameters", element);
 				String[] ipAddressArray=null;
 				JSONObject jsonObject=new JSONObject();
+					JSONArray oldIpAddressArray=null;
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(orderId);
 			//
 	            final Long clientId=command.longValueOfParameterNamed("clientId");
@@ -125,11 +126,11 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
                       if(serviceParameter.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
                     	  
                     		 if(ipRange.equalsIgnoreCase("subnet")){
-                    			 
+                    			
                     	      String ipAddress=fromApiJsonHelper.extractStringNamed("paramValue",jsonElement);
  						     String ipData=ipAddress+"/"+subnet;
  					      	 IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
- 					      	ipAddressArray=ipGeneration.getInfo().getAllAddresses();
+ 					      	ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
  						   for(int i=0;i<ipAddressArray.length;i++){
 								
 								IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddressArray[i]);
@@ -139,6 +140,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 								/*IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription);
 								this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);*/
 							}
+ 							jsonObject.put("subnet",subnet);
                     		 }else{
                     			 ipAddressArray=fromApiJsonHelper.extractArrayNamed("paramValue", jsonElement);//new  JSONArray(ipAddressArray);
                     		 }
@@ -150,8 +152,16 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 							      ipPoolManagementDetail.setClientId(clientId);
 							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 						      }
-							jsonObject.put("new_ip_type", ipType);  
-						  	JSONArray oldIpAddressArray=new  JSONArray(oldValue);
+							jsonObject.put("new_ip_type", ipType);
+							if(oldValue.contains("/")){
+								 IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
+		 					      	ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
+		 					     
+		 					       oldIpAddressArray=new  JSONArray(ipAddressArray.toString());
+								}else{
+							
+                  	            oldIpAddressArray=new  JSONArray(oldValue);
+								}
 						  	if(oldIpAddressArray.length() >1){
 						  		jsonObject.put("old_ip_type","multiple");
 						  	}else{
@@ -161,9 +171,11 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 						  	 for(int i=0;i<oldIpAddressArray.length();i++){
 						    	  
 							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findAllocatedIpAddressData(oldIpAddressArray.getString(i));
+							     if(ipPoolManagementDetail != null){
 							      ipPoolManagementDetail.setStatus('F');
 							      ipPoolManagementDetail.setClientId(null);
 							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+							     }
 						      }
 						      
 					
