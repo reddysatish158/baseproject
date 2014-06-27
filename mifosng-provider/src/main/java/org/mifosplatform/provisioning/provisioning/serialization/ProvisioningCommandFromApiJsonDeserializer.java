@@ -107,7 +107,7 @@ final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("
 		     final JsonElement attributeElement = fromApiJsonHelper.parse(serviceParameter);
 		     final String paramName = fromApiJsonHelper.extractStringNamed("paramName", attributeElement);
 		     baseDataValidator.reset().parameter("paramName").value(paramName).notBlank();
-		     
+
 		     if(paramName.equalsIgnoreCase("IP_ADDRESS") && !ipRange.equalsIgnoreCase("subnet")){
 		    	 
 		    	 final String[] parmaValue = fromApiJsonHelper.extractArrayNamed("paramValue", attributeElement);
@@ -116,6 +116,7 @@ final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("
 		     
 		     final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
 		     baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
+
 		     }
 	  }    
 
