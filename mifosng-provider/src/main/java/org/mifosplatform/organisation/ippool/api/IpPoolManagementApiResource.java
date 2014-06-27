@@ -83,12 +83,12 @@ public class IpPoolManagementApiResource {
 	@GET
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String retrieveAllDetailsForPayments(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,
-			@QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset,@QueryParam("tabType") final String type) {
+	public String retrieveAllIpPoolData(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,
+			@QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset,@QueryParam("status") final String status) {
 		
 		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
-		Page<IpPoolManagementData> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolData(searchItemDetails,type);
+		Page<IpPoolManagementData> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolData(searchItemDetails,status);
 		return this.toApiJsonSerializer.serialize(paymentData);
 
 	}

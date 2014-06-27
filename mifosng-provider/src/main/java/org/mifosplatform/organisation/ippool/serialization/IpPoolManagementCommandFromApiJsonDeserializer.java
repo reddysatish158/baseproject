@@ -1,17 +1,14 @@
 package org.mifosplatform.organisation.ippool.serialization;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
 import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
@@ -29,7 +26,7 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 
 
 	private FromJsonHelper fromJsonHelper;
-	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet"));
+	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet","type"));
 	
 	@Autowired
 	public IpPoolManagementCommandFromApiJsonDeserializer(final FromJsonHelper fromJsonHelper) {

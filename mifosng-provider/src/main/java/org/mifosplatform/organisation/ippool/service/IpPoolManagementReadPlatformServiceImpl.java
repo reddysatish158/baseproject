@@ -130,8 +130,9 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 
 		public String schema() {
 
-			return " p.id as id,p.pool_name AS poolName,p.client_id AS ClientId,c.display_name AS ClientName,p.ip_address AS ipAddress,p.status as status,p.notes as notes" +
-					" FROM b_ippool_details p LEFT JOIN m_client c ON p.client_id = c.id";
+			return "  p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName,p.ip_address as ipAddress ,CASE p.status " +
+					" WHEN 'I' THEN 'Intermediate' WHEN 'F' THEN 'Free' WHEN 'A' THEN 'Assigned' WHEN 'B' THEN 'Blocked' ELSE 'Unknown Error' end  as status ," +
+					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id ";
 		}
 
 		@Override
@@ -167,22 +168,21 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
         if (tabType!=null ) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" and p.status like '"+tabType+"' order by p.id ");
+		        	sqlBuilder.append(" where  p.status like '"+tabType+"'");
 		  
-		    	    if (sqlSearch != null) {
+		    	   /* if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
+		    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
 		    	    }
-		            sqlBuilder.append(extraCriteria);
-		            
-	    }else if (sqlSearch != null) {
+		            sqlBuilder.append(extraCriteria);*/
+		        	   sqlBuilder.append(extraCriteria);   
+	    }if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
-    	}else {
-    		extraCriteria = " order by p.id ";
+    	    	//extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
+    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
+    	    	   sqlBuilder.append(extraCriteria);
     	}
-                sqlBuilder.append(extraCriteria);
-        
+	    sqlBuilder.append("   group by p.id order by p.id ");
         
         if (searchIpPoolDetails.isLimited()) {
             sqlBuilder.append(" limit ").append(searchIpPoolDetails.getLimit());
