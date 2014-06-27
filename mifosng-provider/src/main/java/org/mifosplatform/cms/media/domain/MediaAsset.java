@@ -72,6 +72,10 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 	private BigDecimal rating;
 
 	
+/*	@Column(name = "cp_share",  nullable = false)
+	private BigDecimal cpShareValue;
+*/
+	
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "mediaAsset", orphanRemoval = true)
 	private List<MediaassetAttributes> mediaassetAttributes = new ArrayList<MediaassetAttributes>();
@@ -106,7 +110,8 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 		this.rating=rating;
 		this.status=status;
 		this.subject=subject;
-	}
+
+	 }
 
 	public Long getCategoryId() {
 		return categoryId;
@@ -189,6 +194,7 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 		 final String rated=command.stringValueOfParameterNamed("rated");
 		 final BigDecimal rating=command.bigDecimalValueOfParameterNamed("mediaRating");
 		 final String status=command.stringValueOfParameterNamed("status");
+		// final BigDecimal cpShareValue=command.bigDecimalValueOfParameterNamed("cpShareValue");
 		 return new MediaAsset(mediaTitle,mediaType,mediaCategoryId,releaseDate.toDate(),genre,ratingCount,overview,subject,
 					image,duration,contentProvider,rated,rating,status);
 	}
@@ -302,6 +308,12 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 			actualChanges.put(mediaCategoryId, newValue);
 			this.categoryId=newValue;
 		}
+		/*final String cpShareValue="cpShareValue";
+		if(command.isChangeInBigDecimalParameterNamed(cpShareValue, this.cpShareValue)){
+			final BigDecimal newValue=command.bigDecimalValueOfParameterNamed("cpShareValue");
+			actualChanges.put(cpShareValue, newValue);
+			this.cpShareValue=newValue;
+		}*/
 		return actualChanges;
 	}
 

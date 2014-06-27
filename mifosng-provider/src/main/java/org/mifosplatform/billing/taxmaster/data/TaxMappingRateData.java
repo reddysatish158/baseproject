@@ -11,6 +11,7 @@ public class TaxMappingRateData {
 	private Date startDate;
 	private BigDecimal rate;
 	private String taxType;
+	private String  taxExemption;
 
 	public TaxMappingRateData(final Long id,final String chargeCode,final String taxCode,
 			final Date startDate,final BigDecimal rate, String taxType) {
@@ -23,6 +24,10 @@ public class TaxMappingRateData {
 		this.taxType=taxType;
 
 	}
+
+	public TaxMappingRateData(String taxExemption) {
+		this.taxExemption=taxExemption;
+			}
 
 	public Long getId() {
 		return id;
@@ -67,6 +72,14 @@ public class TaxMappingRateData {
 
 	public String getTaxType() {
 		return taxType;
+	}
+
+	public String getTaxExemption() {
+		return taxExemption;
+	}
+
+	public void setTaxExemption(String taxExemption) {
+		this.taxExemption = taxExemption;
 	}
 
 }

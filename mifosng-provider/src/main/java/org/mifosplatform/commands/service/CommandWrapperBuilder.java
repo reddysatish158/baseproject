@@ -2194,27 +2194,37 @@ public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
 	this.href = "/clients/" + clientId + "/carddetails/"+id;
 	return this;	
 }
-	public CommandWrapperBuilder createprovisioningDetails(Long prepareRequestId) {
-		this.actionName = "CREATE";
-		this.entityName = "PROVISION";
-		this.entityId = prepareRequestId;
-		this.href = "/provision/"+prepareRequestId;
-		return this;
-	}
 
-	public CommandWrapperBuilder processRandomGeneraror(Long batchId) {
-		this.actionName = "PROCESS";
-		this.entityName = "RANDAMGENERATOR";
-		this.entityId = batchId;
-		this.href = "/randomgenerators/" + batchId;
-		return this;
-	}
+public CommandWrapperBuilder createprovisioningDetails(Long prepareRequestId) {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISION";
+	this.entityId = prepareRequestId;
+	this.href = "/provision/"+prepareRequestId;
+	return this;
+}
 
-	public CommandWrapperBuilder updateIpPoolManagement(Long id) {
-		this.actionName = "UPDATE";
-	    this.entityName = "IPPOOLMANAGEMENT";
-	    this.entityId = id;
-	    this.href = "/ippooling/"+id;
-		return this;
-	}
+public CommandWrapperBuilder updateClientTaxExemption(Long clientId) {
+	this.actionName = "UPDATE";
+	this.entityName = "CLIENTTAXEXEMPTION";
+	this.entityId = clientId;
+	this.href = "/taxexemption/" +clientId;
+	return this;
+}
+
+public CommandWrapperBuilder processRandomGeneraror(Long batchId) {
+	this.actionName = "PROCESS";
+	this.entityName = "RANDAMGENERATOR";
+	this.entityId = batchId;
+	this.href = "/randomgenerators/" + batchId;
+	return this;
+}
+
+public CommandWrapperBuilder updateIpPoolManagement(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "IPPOOLMANAGEMENT";
+	this.entityId = id;
+	this.href = "/ippooling/"+id;
+	return this;
+}
+	
 }

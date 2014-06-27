@@ -1047,6 +1047,11 @@ public class CommandWrapper {
 			
 			return this.entityName.equalsIgnoreCase("PROVISION");
 		}
+		
+		public boolean isTaxExemptionResource() {
+			
+			return this.entityName.equalsIgnoreCase("CLIENTTAXEXEMPTION");
+		}
 
 		public boolean isProcessRandomGenerator() {
 			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
