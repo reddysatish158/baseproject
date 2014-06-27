@@ -57,8 +57,8 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 		final String ipAddress = fromJsonHelper.extractStringNamed("ipAddress", element);
 		baseValidatorBuilder.reset().parameter("ipAddress").value(ipAddress).notBlank().notExceedingLengthOf(100);
 		
-		final int subnet = fromJsonHelper.extractIntegerNamed("subnet", element, Locale.US);	
-		baseValidatorBuilder.reset().parameter("subnet").value(subnet).notBlank().notExceedingLengthOf(100);
+	/*	final int subnet = fromJsonHelper.extractIntegerNamed("subnet", element, Locale.US);	
+		baseValidatorBuilder.reset().parameter("subnet").value(subnet).notBlank().notExceedingLengthOf(100);*/
 		
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}

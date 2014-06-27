@@ -1010,7 +1010,7 @@ public class CommandWrapper {
 		}
 
 		public boolean isCreateIpPoolManagement() {
-			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
+			return this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
 
 		}
 

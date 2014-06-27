@@ -1,5 +1,8 @@
 package org.mifosplatform.organisation.ippool.service;
 
+import java.util.Map;
+
+import org.apache.commons.collections.map.HashedMap;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -44,18 +47,32 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 			context.authenticatedUser();
 			this.apiJsonDeserializer.validateForCreate(command.json());
 			String ipAddress=command.stringValueOfParameterNamed("ipAddress");
-			String subnet=command.stringValueOfParameterNamed("subnet");
 			String ipPoolDescription=command.stringValueOfParameterNamed("ipPoolDescription");
-			String ipData=ipAddress+"/"+subnet;
-			IpGeneration util=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
-			String[] data=util.getInfo().getAllAddresses();
 			
-			for(int i=0;i<data.length;i++){
-				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription);
+			Map<String,Object> generatedIPPoolID=new HashedMap();
+			
+			if(command.hasParameter("subnet")){
+				
+				String subnet=command.stringValueOfParameterNamed("subnet");
+				String ipData=ipAddress+"/"+subnet;
+				IpGeneration util=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
+				String[] data=util.getInfo().getAllAddresses();
+				
+				for(int i=0;i<data.length;i++){
+					int j=i+1;
+					IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription);
+					this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+					generatedIPPoolID.put(""+j, ipPoolManagementDetail.getId());
+				}
+				
+			}else{
+				String i="1";
+				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(ipAddress,ipPoolDescription);
 				this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+				generatedIPPoolID.put(i, ipPoolManagementDetail.getId());
 			}
-		
-			return new CommandProcessingResultBuilder().build();
+			
+			return new CommandProcessingResultBuilder().with(generatedIPPoolID).build();
 			
 		}catch(DataIntegrityViolationException dve){
 			return CommandProcessingResult.empty();
@@ -82,7 +99,7 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 			
 			this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 			
-			return new CommandProcessingResultBuilder().build();
+			return new CommandProcessingResult(command.entityId());
 
 		} catch (DataIntegrityViolationException dve) {
 			return CommandProcessingResult.empty();
