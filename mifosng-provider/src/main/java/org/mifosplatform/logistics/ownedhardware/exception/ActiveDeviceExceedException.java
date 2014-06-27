@@ -5,12 +5,12 @@
  */
 package org.mifosplatform.logistics.ownedhardware.exception;
 
-import org.mifosplatform.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.mifosplatform.infrastructure.core.exception.AbstractPlatformDomainRuleException;
 
 /**
  * A {@link RuntimeException} thrown when a code is not found.
  */
-public class ActiveDeviceExceedException extends AbstractPlatformResourceNotFoundException {
+public class ActiveDeviceExceedException extends AbstractPlatformDomainRuleException {
 
     public ActiveDeviceExceedException(final Long clientId) {
         super("error.msg.no.of.devices.are.exceeded.for.this.client", "Number of devices are exceeded for this client",clientId);

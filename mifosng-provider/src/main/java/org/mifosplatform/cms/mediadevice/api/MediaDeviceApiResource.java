@@ -136,7 +136,7 @@ public class MediaDeviceApiResource {
 		}
 	
 		@PUT
-		@Path("{deviceId}/{clientId}")
+		@Path("{deviceId}")
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String updateStatus(@PathParam("deviceId") final String deviceId,final String apiRequestBodyAsJson){
