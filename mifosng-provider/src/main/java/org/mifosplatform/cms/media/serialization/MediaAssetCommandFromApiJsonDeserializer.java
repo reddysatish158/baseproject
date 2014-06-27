@@ -80,6 +80,8 @@ public final class MediaAssetCommandFromApiJsonDeserializer {
         baseDataValidator.reset().parameter("rated").value(rated).notBlank();
         final BigDecimal rating=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("mediaRating", element);
         baseDataValidator.reset().parameter("mediaRating").value(rating).notNull();
+ /*       final BigDecimal cpShareValue=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("cpShareValue", element);
+        baseDataValidator.reset().parameter("cpShareValue").value(cpShareValue).notNull().inMinAndMaxAmountRange(BigDecimal.ZERO,BigDecimal.valueOf(100));*/
        // final Long ratingCount=fromApiJsonHelper.extractLongNamed("ratingCount", element);
        // baseDataValidator.reset().parameter("ratingCount").value(ratingCount).notNull();
         final String status=fromApiJsonHelper.extractStringNamed("status", element);

@@ -396,4 +396,28 @@ public String discountOrderSchema() {
 	  }
 
 	 }
+	 
+	 @Override
+		public TaxMappingRateData retriveExemptionTaxDetails(Long clientId) {
+		 try{
+			taxMapper mapper=new taxMapper();
+			final String sql= "select exempt_tax as taxExemption from m_client where id=?";
+			return this.jdbcTemplate.queryForObject(sql, mapper,new Object[]{clientId});
+		   }catch(EmptyResultDataAccessException e){
+			 return null;
+		   }
+		 }
+		private final static class taxMapper implements RowMapper<TaxMappingRateData>
+		{
+
+			@Override
+			public TaxMappingRateData mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				final String taxExemption=rs.getString("taxExemption");
+				return new TaxMappingRateData(taxExemption);
+			}
+			
+		}
+
+	 
 }

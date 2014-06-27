@@ -1047,5 +1047,10 @@ public class CommandWrapper {
 			
 			return this.entityName.equalsIgnoreCase("PROVISION");
 		}
+		
+		public boolean isTaxExemptionResource() {
+			
+			return this.entityName.equalsIgnoreCase("CLIENTTAXEXEMPTION");
+		}
 
 }

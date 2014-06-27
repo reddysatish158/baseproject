@@ -988,6 +988,12 @@ public class SynchronousCommandProcessingService implements
 		        	}else {
 		                    throw new UnsupportedCommandException(wrapper.commandName());
 		                }
+				}else if(wrapper.isTaxExemptionResource()){
+				     if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateClientTaxExemptionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
 				}else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }

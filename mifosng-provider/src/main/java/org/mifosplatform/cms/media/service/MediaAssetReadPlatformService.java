@@ -31,5 +31,6 @@ public interface MediaAssetReadPlatformService {
 	List<McodeData> retrieveLanguageCategeories();
 	List<MediaassetAttributeData> retrieveMediaassetAttributesData(Long mediaId);
 	List<MediaLocationData> retrievemediaAssetLocationdata(Long mediaId);
+	//List<McodeData> retrieveContentProviders();
 
 }
