@@ -136,11 +136,10 @@ public class MediaDeviceApiResource {
 		}
 	
 		@PUT
-		@Path("{deviceId}/{clientId}")
+		@Path("{deviceId}")
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String updateStatus(@PathParam("deviceId") final String deviceId,final String apiRequestBodyAsJson){
-			
 			 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateMediaStatus(deviceId).withJson(apiRequestBodyAsJson).build();
 			 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			  return this.toApiJsonSerializer.serialize(result);

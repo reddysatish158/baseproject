@@ -5,14 +5,14 @@
  */
 package org.mifosplatform.portfolio.client.exception;
 
-import org.mifosplatform.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.mifosplatform.infrastructure.core.exception.AbstractPlatformDomainRuleException;
 
 /**
  * A {@link RuntimeException} thrown when client resources are not found.
  */
-public class ClientNotFoundException extends AbstractPlatformResourceNotFoundException {
+public class ClientNotFoundException extends AbstractPlatformDomainRuleException {
 
-    public ClientNotFoundException(final Long id) {
-        super("error.msg.client.id.invalid", "Client with identifier " + id + " does not exist", id);
+    public ClientNotFoundException(final Long clientId) {
+        super("error.msg.client.id.invalid", "Client with identifier " + clientId + " does not exist", clientId);
     }
 }

@@ -2150,7 +2150,14 @@ public CommandWrapperBuilder updateMediaStatus(String deviceId) {
 	this.actionName = "UPDATE";
 	this.entityName = "MEDIADEVICE";
 	this.supportedEntityType = deviceId;
-	this.href = "/mediadevices/"+deviceId+"/"+clientId;
+	this.href = "/mediadevices/"+deviceId;
+	return this;
+}
+
+public CommandWrapperBuilder createRedemption() {
+	this.actionName = "CREATE";
+	this.entityName = "REDEMPTION";
+	this.href = "/redemption/";
 	return this;
 }
 

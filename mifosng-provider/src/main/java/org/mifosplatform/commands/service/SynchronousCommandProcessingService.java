@@ -954,7 +954,13 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
-			   }else {
+			   }else if (wrapper.isRedemptionResource()) {
+		        	if (wrapper.isCreate()) {
+		                handler = applicationContext.getBean("createRedemptionCommandHandler", NewCommandSourceHandler.class);
+		        	}else {
+		                    throw new UnsupportedCommandException(wrapper.commandName());
+		                }
+				} else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		       }
 			       
