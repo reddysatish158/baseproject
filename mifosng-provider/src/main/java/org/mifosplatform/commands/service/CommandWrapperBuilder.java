@@ -2105,7 +2105,7 @@ public CommandWrapperBuilder createIpPoolManagement() {
 	
 	this.actionName = "CREATE";
     this.entityName = "IPPOOLMANAGEMENT";
-    this.href = "/ippool";
+    this.href = "/ippooling";
 	return this;
 
 }
@@ -2207,6 +2207,14 @@ public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
 		this.entityName = "RANDAMGENERATOR";
 		this.entityId = batchId;
 		this.href = "/randomgenerators/" + batchId;
+		return this;
+	}
+
+	public CommandWrapperBuilder updateIpPoolManagement(Long id) {
+		this.actionName = "UPDATE";
+	    this.entityName = "IPPOOLMANAGEMENT";
+	    this.entityId = id;
+	    this.href = "/ippooling/"+id;
 		return this;
 	}
 }

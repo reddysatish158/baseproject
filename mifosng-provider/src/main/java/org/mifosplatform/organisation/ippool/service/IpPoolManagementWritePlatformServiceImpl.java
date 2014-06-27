@@ -65,4 +65,31 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 		
 	}
 
+	@Transactional
+	@Override
+	public CommandProcessingResult editIpPoolManagement(JsonCommand command) {
+		
+		try {
+			context.authenticatedUser();
+			this.apiJsonDeserializer.validateForUpdate(command.json());
+			
+			String statusType = command.stringValueOfParameterNamed("statusType");
+			String notes = command.stringValueOfParameterNamed("notes");
+			
+			IpPoolManagementDetail ipPoolManagementDetail = this.ipPoolManagementJpaRepository.findOne(command.entityId());
+			ipPoolManagementDetail.setStatus(statusType.trim().charAt(0));
+			ipPoolManagementDetail.setNotes(notes);
+			
+			this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+			
+			return new CommandProcessingResultBuilder().build();
+
+		} catch (DataIntegrityViolationException dve) {
+			return CommandProcessingResult.empty();
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
 }

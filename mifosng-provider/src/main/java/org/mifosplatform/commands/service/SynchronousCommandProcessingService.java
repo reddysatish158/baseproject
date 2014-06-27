@@ -948,6 +948,9 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isCreateIpPoolManagement()){
 				     if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createIpPoolManagementCommandHandler",NewCommandSourceHandler.class);
+				     }else if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateIpPoolManagementCommandHandler",NewCommandSourceHandler.class);
+				   
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
