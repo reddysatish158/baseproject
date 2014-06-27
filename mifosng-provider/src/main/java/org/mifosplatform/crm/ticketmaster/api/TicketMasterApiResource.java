@@ -2,6 +2,7 @@ package org.mifosplatform.crm.ticketmaster.api;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,8 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
+import org.mifosplatform.organisation.mcodevalues.service.MCodeReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -59,12 +62,13 @@ public class TicketMasterApiResource {
 		private TicketDetailsRepository detailsRepository;
 		private PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 		private PlatformSecurityContext context;
-		
+		final private MCodeReadPlatformService codeReadPlatformService;
 		@Autowired
 		public TicketMasterApiResource(final TicketMasterWritePlatformService ticketMasterWritePlatformService,final TicketMasterReadPlatformService ticketMasterReadPlatformService,
 										final DefaultToApiJsonSerializer<TicketMasterData> toApiJsonSerializer, final DefaultToApiJsonSerializer<ClientTicketData> clientToApiJsonSerializer,
 										final ApiRequestParameterHelper apiRequestParameterHelper, final TicketDetailsRepository detailsRepository,
-										final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService, final PlatformSecurityContext context)	{
+										final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService, final PlatformSecurityContext context,
+										final MCodeReadPlatformService codeReadPlatformService)	{
 			this.ticketMasterWritePlatformService = ticketMasterWritePlatformService;
 			this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
 		    this.toApiJsonSerializer = toApiJsonSerializer;
@@ -73,6 +77,7 @@ public class TicketMasterApiResource {
 			this.detailsRepository = detailsRepository;
 			this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 			this.context = context;
+			this.codeReadPlatformService=codeReadPlatformService;
 		}
 		private final Set<String> RESPONSE_PARAMETERS = new HashSet<String>(Arrays.asList("id","priorityType","problemsDatas","usersData","status","assignedTo","userName","ticketDate","lastComment","masterData"));   
 
@@ -128,13 +133,13 @@ public class TicketMasterApiResource {
 			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 
 			Set<String> typicalResponseParameters = new HashSet<String>(Arrays.asList("statusType"));
-
+			Collection<MCodeData> sourceData = codeReadPlatformService.getCodeValue("Ticket Source");
 			Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 			if (responseParameters.isEmpty()) {
 				responseParameters.addAll(typicalResponseParameters);
 			}
 			responseParameters.addAll(RESPONSE_PARAMETERS);
-			TicketMasterData templateData = handleTemplateRelatedData(responseParameters,null);
+			TicketMasterData templateData = handleTemplateRelatedData(responseParameters,null,sourceData);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.toApiJsonSerializer.serialize(settings, templateData, responseParameters);
 		}
@@ -174,7 +179,7 @@ public class TicketMasterApiResource {
 	    	
 	    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 	    	TicketMasterData data = this.ticketMasterReadPlatformService.retrieveSingleTicketDetails(clientId,ticketId);
-	         data = handleTemplateRelatedData(RESPONSE_PARAMETERS,data);
+	         data = handleTemplateRelatedData(RESPONSE_PARAMETERS,data,null);
 	         List<TicketMasterData> Statusdata = this.ticketMasterReadPlatformService.retrieveTicketStatusData();
 	         data.setStatusData(Statusdata);
 	         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -267,12 +272,12 @@ public class TicketMasterApiResource {
 		 * @param singleTicketData
 		 * @return
 		 */
-		private TicketMasterData handleTemplateRelatedData(final Set<String> responseParameters,TicketMasterData singleTicketData) {
+		private TicketMasterData handleTemplateRelatedData(final Set<String> responseParameters,TicketMasterData singleTicketData,Collection<MCodeData> sourceData) {
 			List<EnumOptionData> priorityData = this.ticketMasterReadPlatformService.retrievePriorityData();
 			List<TicketMasterData> closedStatusdata = this.ticketMasterReadPlatformService.retrieveTicketCloseStatusData();
 			List<ProblemsData> datas=this.ticketMasterReadPlatformService.retrieveProblemData();
 			List<UsersData>  userData=this.ticketMasterReadPlatformService.retrieveUsers();
-			singleTicketData= new TicketMasterData(closedStatusdata,datas,userData,singleTicketData,priorityData);
+			singleTicketData= new TicketMasterData(closedStatusdata,datas,userData,singleTicketData,priorityData,sourceData);
 			
 			return  singleTicketData;
 		}
