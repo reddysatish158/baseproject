@@ -2,7 +2,7 @@ package org.mifosplatform.organisation.randomgenerator.service;
 
 import java.text.ParseException;
 
-import org.mifosplatform.finance.payments.exception.ReceiptNoDuplicateException;
+import org.apache.commons.lang.RandomStringUtils;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -33,9 +33,6 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 	private final RandomGeneratorDetailsRepository randomGeneratorDetailsRepository;
 	private final RandomGeneratorCommandFromApiJsonDeserializer fromApiJsonDeserializer;
 	private final RandomGeneratorReadPlatformService randomGeneratorReadPlatformService;
-	private static final String alphaNumerics = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	private static final String numerics = "0123456789";
-	private static final String alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
 	@Autowired
 	public RandomGeneratorWritePlatformServiceImpl(
@@ -75,57 +72,80 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 	
 	@Transactional
 	@Override
-	public Long GenerateVoucherPinKeys(Long batchId) {
-		
-		RandomGenerator randomGenerator=this.randomGeneratorRepository.findOne(batchId);
-		
-		if(randomGenerator.getIsProcessed()=='N'){
+	public CommandProcessingResult GenerateVoucherPinKeys(Long batchId) {
+		try{
 			
-			return generateRandomNumbers(randomGenerator);
+			RandomGenerator randomGenerator=this.randomGeneratorRepository.findOne(batchId);
 			
-		}else{
+			if(randomGenerator.getIsProcessed()=='N'){
+				
+				long id= generateRandomNumbers(randomGenerator);
+				
+				return new CommandProcessingResult(id);
+			}else{
+				
+				throw new AlreadyProcessedException("VoucherPin Already Generated with this "+randomGenerator.getBatchName());
+				
+			}
 			
-			throw new AlreadyProcessedException("VoucherPin Already Generated with this "+randomGenerator.getBatchName());
+		} catch (RuntimeException e) {
 			
+			return new CommandProcessingResult(new Long(-1));
+			
+		} catch (Exception e) {
+			
+			return new CommandProcessingResult(new Long(-1));
 		}
+		
 		
 	}
 
-	public Long generateRandomNumbers(RandomGenerator randomGenerator) {
+	public Long generateRandomNumbers(RandomGenerator randomGenerator) throws RuntimeException,Exception {
+		try{
 		
-		String minSerialSeries = "";
-		String maxSerialSeries = "";
-		int length = Integer.valueOf(randomGenerator.getLength().toString());
-		Long SerialNo =randomGenerator.getSerialNo();
-	
-		for (x = 0; x < SerialNo; x++) {
-			if (x == 0) {
-				minSerialSeries += "1";
-				maxSerialSeries += "9";
-			} else {
-				minSerialSeries += "0";
-				maxSerialSeries += "9";
+			String minSerialSeries = "";
+			String maxSerialSeries = "";
+			int length = Integer.valueOf(randomGenerator.getLength().toString());
+			Long SerialNo =randomGenerator.getSerialNo();
+		
+			for (x = 0; x < SerialNo; x++) {
+				if (x == 0) {
+					minSerialSeries += "1";
+					maxSerialSeries += "9";
+				} else {
+					minSerialSeries += "0";
+					maxSerialSeries += "9";
+				}
 			}
+					
+			Long minNo = Long.parseLong(minSerialSeries);
+			Long maxNo = Long.parseLong(maxSerialSeries);
+			
+			long no = this.randomGeneratorReadPlatformService.retrieveMaxNo(minNo,maxNo);
+			
+			if(no==0){
+				no=minNo;
+			}
+			
+			Long quantity = randomGenerator.getQuantity();
+			beginKeyLength = randomGenerator.getBeginWith().length();
+			RemainingKeyLength = length - beginKeyLength;
+			
+			return RandomValueGeneration(quantity,randomGenerator,no);
+			
+		}catch(RuntimeException e){
+			
+			throw new RuntimeException(e.getMessage());
+			
+		}catch(Exception e){
+			
+			throw new Exception(e.getMessage());
 		}
-				
-		Long minNo = Long.parseLong(minSerialSeries);
-		Long maxNo = Long.parseLong(maxSerialSeries);
 		
-		long no = this.randomGeneratorReadPlatformService.retrieveMaxNo(minNo,maxNo);
-		
-		if(no==0){
-			no=minNo;
-		}
-		
-		Long quantity = randomGenerator.getQuantity();
-		beginKeyLength = randomGenerator.getBeginWith().length();
-		RemainingKeyLength = length - beginKeyLength;
-		
-		return RandomValueGeneration(quantity,randomGenerator,no);
 	
 	}
 	
-	private Long RandomValueGeneration(Long quantity,RandomGenerator randomGenerator, long no) {
+	private Long RandomValueGeneration(Long quantity,RandomGenerator randomGenerator, long no) throws RuntimeException,Exception {
 		
 		try{
 			
@@ -134,58 +154,73 @@ public class RandomGeneratorWritePlatformServiceImpl implements
 				name += randomGenerator.getBeginWith();
 				String Type = randomGenerator.getPinCategory();	
 				name = name + GenerateRandomSingleCode(Type);	
-				for (;;) {
-						String value = this.randomGeneratorReadPlatformService.retrieveIndividualPin(name);
-						if (value == null) {
-							no += 1;
-							RandomGeneratorDetails randomGeneratordetails = new RandomGeneratorDetails(name, no,randomGenerator);
-							this.randomGeneratorDetailsRepository.save(randomGeneratordetails);
-							break;
-						} else {
-							i--;
-							break;
-						}				
-				}
+				
+				String value = this.randomGeneratorReadPlatformService.retrieveIndividualPin(name);
+					if (value == null) {
+						no += 1;
+						RandomGeneratorDetails randomGeneratordetails = new RandomGeneratorDetails(name, no,randomGenerator);
+						this.randomGeneratorDetailsRepository.save(randomGeneratordetails);		
+						
+					} else {					
+						i--;						
+					}				
+				
 			}
 			randomGenerator.setIsProcessed('Y');
 			this.randomGeneratorRepository.save(randomGenerator);
 			
 			return randomGenerator.getId();
 			
+		}catch(RuntimeException e){
+			randomGenerator.setIsProcessed('F');
+			this.randomGeneratorRepository.save(randomGenerator);
+			
+			throw new RuntimeException(e.getMessage());
+			
 		}catch(Exception e){
 			
 			randomGenerator.setIsProcessed('F');
 			this.randomGeneratorRepository.save(randomGenerator);
 			
-			return new Long(-1);
+			throw new Exception(e.getMessage());
+			
 		}
 		
 	}
 	
-	private String GenerateRandomSingleCode(String Type) {
+	private String GenerateRandomSingleCode(String Type) throws RuntimeException,Exception {
 		
-		String generatedKey="";
-		if (Type.equalsIgnoreCase(Alpha)) {
-			
-			for (j = 0; j < RemainingKeyLength; j++) {
-				generatedKey += alphabets.charAt((int) (Math.random() * alphabets.length()));
+		try{			
+			String generatedKey;
+			if (Type.equalsIgnoreCase(Alpha)) {	
+				generatedKey = RandomStringUtils.randomAlphabetic(RemainingKeyLength);
+				return generatedKey;
+				
+			} else if (Type.equalsIgnoreCase(Numeric)) {
+				
+				generatedKey = RandomStringUtils.randomNumeric(RemainingKeyLength);
+				return generatedKey;
+				
+			} else if (Type.equalsIgnoreCase(AlphaNumeric)) {	
+				
+				generatedKey = RandomStringUtils.randomAlphanumeric(RemainingKeyLength);
+				return generatedKey;
+				
+			} else{
+				return null;
 			}
-		    
-		} else if (Type.equalsIgnoreCase(Numeric)) {
-			for (j = 0; j < RemainingKeyLength; j++) {
-				generatedKey += numerics.charAt((int) (Math.random() * numerics.length()));
-			}
 			
-		} else if (Type.equalsIgnoreCase(AlphaNumeric)) {		
-			for (j = 0; j < RemainingKeyLength; j++) {
-				generatedKey += alphaNumerics.charAt((int) (Math.random() * alphaNumerics.length()));
-			}
+		}catch(RuntimeException e){
 			
-		} else{
-			return null;
+			throw new RuntimeException(e.getMessage());
+			
+		}catch(Exception e){
+			
+			throw new Exception(e.getMessage());
 		}
 		
-		return generatedKey.trim();
+		
+		
 	}
 
 	private void handleCodeDataIntegrityIssues(final JsonCommand command,

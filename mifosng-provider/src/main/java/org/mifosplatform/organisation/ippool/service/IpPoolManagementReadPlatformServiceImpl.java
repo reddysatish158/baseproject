@@ -93,9 +93,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		}
 
 		@Override
-		public IpPoolData mapRow(final ResultSet rs,
-				@SuppressWarnings("unused") final int rowNum)
-				throws SQLException {
+		public IpPoolData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 
 			Long id = rs.getLong("id");
 			String poolName = rs.getString("poolName");
@@ -118,13 +116,6 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		} 
 	}
 
-	@Override
-	public List<IpPoolManagementData> retrieveAllData() {
-		IpPoolMapper mapper = new IpPoolMapper();
-		String sql = "select " + mapper.schema();
-		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
-	}
-
 	private static final class IpPoolMapper implements
 			RowMapper<IpPoolManagementData> {
 
@@ -133,6 +124,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 			return "  p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName,p.ip_address as ipAddress ,CASE p.status " +
 					" WHEN 'I' THEN 'Intermediate' WHEN 'F' THEN 'Free' WHEN 'A' THEN 'Assigned' WHEN 'B' THEN 'Blocked' ELSE 'Unknown Error' end  as status ," +
 					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id ";
+
 		}
 
 		@Override
@@ -140,14 +132,15 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 				throws SQLException {
 			
 			Long id=rs.getLong("id");
-			String ipAddress=rs.getString("ipAddress");
 			String poolName=rs.getString("poolName");
-			String status=rs.getString("status");
 			Long ClientId=rs.getLong("ClientId");
 			String clientName=rs.getString("ClientName");
+			String ipAddress=rs.getString("ipAddress");	
+			String status=rs.getString("status");
 			String notes=rs.getString("notes");
 			
-			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId,clientName,notes);
+			
+			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId, clientName, notes);
 		}
 	}
 
@@ -169,20 +162,15 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
         	
 		        	tabType=tabType.trim();
 		        	sqlBuilder.append(" where  p.status like '"+tabType+"'");
-		  
-		    	   /* if (sqlSearch != null) {
-		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
-		    	    }
-		            sqlBuilder.append(extraCriteria);*/
-		        	   sqlBuilder.append(extraCriteria);   
-	    }if (sqlSearch != null) {
+		        	sqlBuilder.append(extraCriteria);   
+	    
+        }if (sqlSearch != null) {
+        	
     	    	sqlSearch=sqlSearch.trim();
-    	    	//extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
     	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
-    	    	   sqlBuilder.append(extraCriteria);
+    	    	sqlBuilder.append(extraCriteria);
     	}
-	    sqlBuilder.append("   group by p.id order by p.id ");
+	         sqlBuilder.append("   group by p.id order by p.id ");
         
         if (searchIpPoolDetails.isLimited()) {
             sqlBuilder.append(" limit ").append(searchIpPoolDetails.getLimit());

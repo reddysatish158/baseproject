@@ -9,9 +9,10 @@ public class IpPoolManagementData {
 	private String ipPoolDescription;
 	private String status;
 	private Long clientId;
-	List<String> ipAddressData;
 	private String clientName;
 	private String notes;
+	List<String> ipAddressData;
+
 	
 	public IpPoolManagementData(Long id, String ipAddress, String poolName,
 			String status, Long clientId, String clientName, String notes) {
@@ -26,11 +27,39 @@ public class IpPoolManagementData {
 	}
 
 	public IpPoolManagementData(List<String> ipAddressData) {
-		// TODO Auto-generated constructor stub
 		this.ipAddressData=ipAddressData;
 	}
-	
-	
-	
 
+	public Long getId() {
+		return id;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public String getIpPoolDescription() {
+		return ipPoolDescription;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public Long getClientId() {
+		return clientId;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public List<String> getIpAddressData() {
+		return ipAddressData;
+	}
+	
 }
