@@ -123,7 +123,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 
 			return "  p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName,p.ip_address as ipAddress ,CASE p.status " +
 					" WHEN 'I' THEN 'Intermediate' WHEN 'F' THEN 'Free' WHEN 'A' THEN 'Assigned' WHEN 'B' THEN 'Blocked' ELSE 'Unknown Error' end  as status ," +
-					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id ";
+					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id where p.status is not null ";
 
 		}
 
@@ -158,20 +158,29 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
         sqlBuilder.append(mapper.schema());
        
           
-        if (tabType!=null ) {
+        if (tabType!=null && !tabType.isEmpty()) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where  p.status like '"+tabType+"'");
+		        	sqlBuilder.append(" and  p.status like '"+tabType+"'");
 		        	sqlBuilder.append(extraCriteria);   
 	    
-        }if (sqlSearch != null) {
+        }if (sqlSearch != null && !sqlSearch.isEmpty()) {
+        	sqlSearch=sqlSearch.trim();
+        	if(sqlSearch.contains("/")){
+        		String[] strings=sqlSearch.split("/");
+        		String ipAddress=strings[0].substring(0, strings[0].lastIndexOf("."));
+        		String subnet=strings[1];
+        		extraCriteria = " and (p.ip_address like '%"+ipAddress+"%' and p.subnet="+subnet+")";
+        		sqlBuilder.append(extraCriteria);
+        		
+        	}else{
         	
-    	    	sqlSearch=sqlSearch.trim();
+    	    	
     	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
     	    	sqlBuilder.append(extraCriteria);
     	}
-	         sqlBuilder.append("   group by p.id order by p.id ");
-        
+	         sqlBuilder.append(" group by p.id order by p.id ");
+        }
         if (searchIpPoolDetails.isLimited()) {
             sqlBuilder.append(" limit ").append(searchIpPoolDetails.getLimit());
         }
