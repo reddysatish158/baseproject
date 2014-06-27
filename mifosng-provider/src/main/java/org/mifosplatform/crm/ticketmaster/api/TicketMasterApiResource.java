@@ -102,11 +102,12 @@ public class TicketMasterApiResource {
 		@Path("alltickets")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public String assignedTicketsForUserNewClient(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset){
+		public String assignedTicketsForUserNewClient(@Context final UriInfo uriInfo, @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit,
+				@QueryParam("offset") final Integer offset,@QueryParam("statusType") final String statusType){
 			
 			context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 			final SearchSqlQuery searchTicketMaster =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
-		    final Page<ClientTicketData> data = this.ticketMasterReadPlatformService.retrieveAssignedTicketsForNewClient(searchTicketMaster);
+		    final Page<ClientTicketData> data = this.ticketMasterReadPlatformService.retrieveAssignedTicketsForNewClient(searchTicketMaster,statusType);
 		
 		//final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.clientToApiJsonSerializer.serialize(data);
