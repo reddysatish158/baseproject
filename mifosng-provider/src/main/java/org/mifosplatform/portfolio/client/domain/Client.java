@@ -388,7 +388,11 @@ public final class Client extends AbstractPersistable<Long> {
             actualChanges.put(ClientApiConstants.passwordParamName, newValue);
             this.password = StringUtils.defaultIfEmpty(newValue,null);
         }
-
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.groupParamName, this.groupName)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+            actualChanges.put(ClientApiConstants.groupParamName, newValue);
+            this.groupName = StringUtils.defaultIfEmpty(newValue,null);
+        }
         validateNameParts();
 
         final String dateFormatAsInput = command.dateFormat();

@@ -61,7 +61,7 @@ final public class ClientData implements Comparable<ClientData> {
     private final BigDecimal balanceAmount;
     private final String hwSerialNumber;
     private final String taxExemption;
-  
+    private final String groupName;
     // associations
     private final Collection<GroupGeneralData> groups;
 
@@ -80,20 +80,20 @@ final public class ClientData implements Comparable<ClientData> {
 
     public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions,
     		Collection<ClientCategoryData> categoryDatas,Collection<GroupData> groupDatas,List<CodeValueData> closureReasons) {
-        return new ClientData(null, null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
+        return new ClientData(null, null,null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
         		categoryDatas,null,null,null, null, null, null, null, null, null, null,null,null,null,null,groupDatas,closureReasons,null,null);
         }
 	
     public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions, Collection<ClientCategoryData> categoryDatas,
     		List<CodeValueData> closureReasons) {
-        return new ClientData(null, null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
+        return new ClientData(null, null,null, officeId, null, null, null, null, null, null, null, null, joinedDate, null, officeOptions, null,
         		categoryDatas,null,null,null, null, null, null, null, null, null, null,null,null,null,null,null,closureReasons,null,null);
     }
 
     public static ClientData templateOnTop(final ClientData clientData, final List<OfficeData> allowedOffices, Collection<ClientCategoryData> categoryDatas,
     		Collection<GroupData> groupDatas, List<String> allocationDetailsDatas, String balanceCheck) {
 
-        return new ClientData(clientData.accountNo, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
+        return new ClientData(clientData.accountNo,clientData.groupName, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
                 clientData.externalId, clientData.activationDate, clientData.imageKey, allowedOffices, clientData.groups,
                 categoryDatas,clientData.categoryType,clientData.email,clientData.phone,clientData.homePhoneNumber,clientData.addressNo,clientData.street,
@@ -102,7 +102,7 @@ final public class ClientData implements Comparable<ClientData> {
     }
 
     public static ClientData setParentGroups(final ClientData clientData, final Collection<GroupGeneralData> parentGroups) {
-        return new ClientData(clientData.accountNo, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
+        return new ClientData(clientData.accountNo,clientData.groupName, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
                 clientData.externalId, clientData.activationDate, clientData.imageKey, clientData.officeOptions, parentGroups,
                 clientData.clientCategoryDatas,clientData.categoryType,clientData.email,clientData.phone,clientData.homePhoneNumber,
@@ -114,32 +114,33 @@ final public class ClientData implements Comparable<ClientData> {
             final String middlename, final String lastname, final String fullname, final String displayName, final Long officeId,
             final String officeName) {
 
-        return new ClientData(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName, null,
+        return new ClientData(accountNo,null, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName, null,
                 null, null, null, null,null,null,null,null, null,null, null,null, null, null,null,null,null,null,null, null,null,null,null);
     }
 
     public static ClientData lookup(final Long id, final String displayName, final Long officeId, final String officeName) {
-        return new ClientData(null, null, officeId, officeName, id, null, null, null, null, displayName, null, null, null, null, null,null,null,null,null,
+        return new ClientData(null,null, null, officeId, officeName, id, null, null, null, null, displayName, null, null, null, null, null,null,null,null,null,
         		null,null,null, null,null,null,null,null,null,null,null, null,null,null,null);
     }
 
-    public static ClientData instance(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName,final Long id, 
+    public static ClientData instance(final String accountNo, final String groupName, final EnumOptionData status, final Long officeId, final String officeName,final Long id, 
     		final String firstname, final String middlename, final String lastname, final String fullname,final String displayName, final String externalId,
     		final LocalDate activationDate, final String imageKey,final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,
     		final String city,final String state,final String country,final String zip,final BigDecimal balanceAmount,final String hwSerialNumber,final String currency,final String taxExemption) {
     	
-        return new ClientData(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
+        return new ClientData(accountNo,groupName, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
                 externalId, activationDate, imageKey, null, null,null,categoryType,email,phone,homePhoneNumber,addrNo,street,city,state,country,zip,
                 balanceAmount,null,hwSerialNumber,currency, null,null,null,taxExemption);
     }
 
-    private ClientData(final String accountNo, final EnumOptionData status, final Long officeId, final String officeName, final Long id,final String firstname,
+    private ClientData(final String accountNo,final String groupName, final EnumOptionData status, final Long officeId, final String officeName, final Long id,final String firstname,
     		final String middlename, final String lastname, final String fullname, final String displayName,final String externalId, final LocalDate activationDate, 
     		final String imageKey, final Collection<OfficeData> allowedOffices,final Collection<GroupGeneralData> groups, Collection<ClientCategoryData> clientCategoryDatas,
     		final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,final String state,
     		final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,final String currency, Collection<GroupData> groupNameDatas, 
     		List<CodeValueData> closureReasons, String balanceCheck,final String taxExemption) {
         this.accountNo = accountNo;
+        this.groupName=groupName;
         this.status = status;
         if (status != null) {
             active = status.getId().equals(300L);
