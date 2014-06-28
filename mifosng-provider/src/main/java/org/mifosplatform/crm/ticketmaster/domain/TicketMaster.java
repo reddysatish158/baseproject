@@ -62,7 +62,11 @@ public class TicketMaster {
 	@Column(name = "createdby_id") 
 	private Long createdbyId;
 
+	@Column(name="source_of_ticket", length=50 )
+	private String sourceOfTicket;
 	
+	@Column(name="due_date")
+	private Date dueDate;
 
 	
 	public TicketMaster() {
@@ -85,8 +89,19 @@ public static TicketMaster fromJson(final JsonCommand command) throws ParseExcep
 	
 	String statusCode = command.stringValueOfParameterNamed("problemDescription");
 	Long clientId = command.getClientId();
+	String sourceOfTicket = command.stringValueOfParameterNamed("sourceOfTicket");
+	String dueDate = command.stringValueOfParameterNamed("dueTime");
+	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	Date dueTime;
+	if(dueDate.equalsIgnoreCase("")){
+		dueTime=null;
+		
+	}else{
+		dueTime = dateFormat.parse(dueDate);
+	}
+	
 	/*Integer createdbyId = command.getI*/
-	return new TicketMaster(clientId, priority,ticketDate, problemCode,description,statusCode, null, assignedTo,null,null,null);
+	return new TicketMaster(clientId, priority,ticketDate, problemCode,description,statusCode, null, assignedTo,null,null,null,sourceOfTicket,dueTime);
 }
 
 	public TicketMaster(Integer statusCode, Integer assignedTo) {
@@ -108,7 +123,8 @@ public static TicketMaster fromJson(final JsonCommand command) throws ParseExcep
 
 	public TicketMaster(Long clientId, String priority,
 			Date ticketDate, Integer problemCode, String description,
-			String status, String resolutionDescription, Integer assignedTo, Integer statusCode, Date createdDate, Integer createdbyId) {
+			String status, String resolutionDescription, Integer assignedTo, Integer statusCode,
+			Date createdDate, Integer createdbyId,String sourceOfTicket,Date dueTime) {
 		
 		this.clientId=clientId;
 		this.priority=priority;
@@ -122,6 +138,8 @@ public static TicketMaster fromJson(final JsonCommand command) throws ParseExcep
 		this.assignedTo=assignedTo;	
 		this.createdDate = new Date();
 		this.createdbyId = null;
+		this.sourceOfTicket=sourceOfTicket;
+		this.dueDate=dueTime;
 	}
 
 
