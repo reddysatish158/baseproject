@@ -24,18 +24,19 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 	private final IpPoolManagementCommandFromApiJsonDeserializer apiJsonDeserializer;
 	private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
 	private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
+
 	
 	
 	@Autowired
 	public IpPoolManagementWritePlatformServiceImpl(final PlatformSecurityContext context,
-			final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,
-			final IpPoolManagementCommandFromApiJsonDeserializer apiJsonDeserializer,
+			final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,final IpPoolManagementCommandFromApiJsonDeserializer apiJsonDeserializer,
 			final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService) {	
 		
 		this.context = context;
 		this.apiJsonDeserializer=apiJsonDeserializer;
 		this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
 		this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
+
 		
 	}
 
@@ -61,6 +62,7 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 				String ipData=ipAddress+"/"+subnet;
 				IpGeneration util=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
 				String[] data=util.getInfo().getAllAddresses();
+				//String[] data=this.ipGeneration.getInfo().getAllAddresses(ipData);
 				
 				for(int i=0;i<data.length;i++){
 					int j=i+1;

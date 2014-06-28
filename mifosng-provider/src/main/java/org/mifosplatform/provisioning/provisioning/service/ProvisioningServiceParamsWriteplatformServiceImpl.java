@@ -55,6 +55,7 @@ public class ProvisioningServiceParamsWriteplatformServiceImpl implements Provis
     private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
     private final ServiceMasterRepository serviceMasterRepository;
     private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
+  
 @Autowired	
 public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityContext securityContext,final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,
 		final FromJsonHelper fromJsonHelper,final ServiceParametersRepository parametersRepository,final PrepareRequsetRepository prepareRequsetRepository,
@@ -124,8 +125,9 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
                     	           
 						    		String ipAddress=fromApiJsonHelper.extractStringNamed("paramValue",jsonElement);
  						            String ipData=ipAddress+"/"+subnet;
- 					      	        IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
- 					      	        ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
+ 					      	      IpGeneration ipGeneration=new IpGeneration(ipData,this.ipPoolManagementReadPlatformService);
+ 					      	     //   ipAddressArray=this.ipGeneration.getInfo().getAllAddresses(ipData);//
+ 					      	   ipAddressArray= ipGeneration.getInfo().getsubnetAddresses();
  						            
  					      	         for(int i=0;i<ipAddressArray.length;i++){
 								         IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddressArray[i]);
@@ -149,7 +151,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 							    
 							     if(oldValue.contains("/")){
 								    IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
-		 					        ipAddressArray=ipGeneration.getInfo().getsubnetAddresses();
+		 					        //ipAddressArray=this.ipGeneration.getInfo().getsubnetAddresses(oldValue);
 		 					          
 		 					        for(int i=0;i<ipAddressArray.length;i++){
   		 					    	    IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findAllocatedIpAddressData(ipAddressArray[i]);

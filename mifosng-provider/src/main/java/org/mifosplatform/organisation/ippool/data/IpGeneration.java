@@ -188,6 +188,7 @@ public class IpGeneration {
         }
 
         public String[] getsubnetAddresses() {
+        	
             int ct = getAddressCount();
             String[] addresses = new String[ct];
             StringBuilder skippedItems=new StringBuilder();

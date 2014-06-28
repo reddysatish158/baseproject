@@ -1,5 +1,6 @@
 package org.mifosplatform.organisation.ippool.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,8 +27,10 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.ippool.data.IpPoolManagementData;
+import org.mifosplatform.organisation.ippool.exception.IpAddresNotAvailableException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.organisation.mcodevalues.service.MCodeReadPlatformService;
@@ -52,7 +55,6 @@ public class IpPoolManagementApiResource {
 	private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
 	private final MCodeReadPlatformService codeReadPlatformService;
 	
-	
 	private final String resourceNameForPermissions="READ_IPPOOLMANAGEMENT";
 	
 	
@@ -60,7 +62,8 @@ public class IpPoolManagementApiResource {
 	@Autowired
 	public IpPoolManagementApiResource(final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 			final PlatformSecurityContext context,final DefaultToApiJsonSerializer<IpPoolManagementData> toApiJsonSerializer,
-			final MCodeReadPlatformService codeReadPlatformService,final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService)
+			final MCodeReadPlatformService codeReadPlatformService,final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService
+			)
 	{
 		this.commandsSourceWritePlatformService=commandsSourceWritePlatformService;
 		this.context=context;
@@ -76,9 +79,7 @@ public class IpPoolManagementApiResource {
     public String createCode(final String apiRequestBodyAsJson) {
 		
         final CommandWrapper commandRequest = new CommandWrapperBuilder().createIpPoolManagement().withJson(apiRequestBodyAsJson).build();
-
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-
         return this.toApiJsonSerializer.serialize(result);
     } 
 	
@@ -89,8 +90,16 @@ public class IpPoolManagementApiResource {
 			@QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset,@QueryParam("status") final String status) {
 		
 		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		
 		final SearchSqlQuery searchItemDetails =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
-		Page<IpPoolManagementData> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolData(searchItemDetails,status);
+		  String[] data=null;
+		if(sqlSearch !=null && sqlSearch.contains("/")){
+  		  sqlSearch.trim();
+  		IpGeneration ipGeneration=new IpGeneration(sqlSearch,this.ipPoolManagementReadPlatformService);
+             data=ipGeneration.getInfo().getsubnetAddresses();
+			
+			}
+		Page<IpPoolManagementData> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolData(searchItemDetails,status,data);
 		return this.toApiJsonSerializer.serialize(paymentData);
 
 	}
@@ -128,9 +137,7 @@ public class IpPoolManagementApiResource {
     public String editIpPool(@PathParam("id") final Long id,final String apiRequestBodyAsJson) {
 		
         final CommandWrapper commandRequest = new CommandWrapperBuilder().updateIpPoolManagement(id).withJson(apiRequestBodyAsJson).build();
-
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-
         return this.toApiJsonSerializer.serialize(result);
     } 
 	

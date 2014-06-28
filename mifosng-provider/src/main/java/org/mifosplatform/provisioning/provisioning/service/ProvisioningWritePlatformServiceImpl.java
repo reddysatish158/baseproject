@@ -68,6 +68,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	private final ServiceMasterRepository serviceMasterRepository;
 	private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
 	private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
+	
     @Autowired
 	public ProvisioningWritePlatformServiceImpl(final PlatformSecurityContext context,final InventoryItemDetailsRepository inventoryItemDetailsRepository,
 			final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer,final FromJsonHelper fromApiJsonHelper,final OrderReadPlatformService orderReadPlatformService,
@@ -77,7 +78,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			final ProcessRequestReadplatformService processRequestReadplatformService,final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,
 			final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService) {
 
-    	this.context = context;		
+    	this.context = context;	
 		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
 		this.fromApiJsonHelper=fromApiJsonHelper;
 		this.provisioningCommandRepository=provisioningCommandRepository;

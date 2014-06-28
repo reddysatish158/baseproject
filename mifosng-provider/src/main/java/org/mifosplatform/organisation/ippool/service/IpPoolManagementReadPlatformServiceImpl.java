@@ -3,7 +3,6 @@ package org.mifosplatform.organisation.ippool.service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +13,12 @@ import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
-import org.mifosplatform.infrastructure.dataqueries.data.ResultsetColumnHeaderData;
 import org.mifosplatform.infrastructure.dataqueries.data.ResultsetRowData;
 import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.ippool.data.IpPoolManagementData;
-import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
+import org.mifosplatform.organisation.ippool.exception.IpAddresNotAvailableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -36,6 +34,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	private final PlatformSecurityContext context;
 	private final ReadReportingService readReportingService;
 	private final PaginationHelper<IpPoolManagementData> paginationHelper = new PaginationHelper<IpPoolManagementData>(); 
+	
 
 	@Autowired
 	public IpPoolManagementReadPlatformServiceImpl(final PlatformSecurityContext context,final PriceReadPlatformService priceReadPlatformService,
@@ -145,7 +144,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	}
 
 	@Override
-	public Page<IpPoolManagementData> retrieveIpPoolData(SearchSqlQuery searchIpPoolDetails, String tabType) {
+	public Page<IpPoolManagementData> retrieveIpPoolData(SearchSqlQuery searchIpPoolDetails, String tabType,String[] data) {
 		
 		// TODO Auto-generated method stub
 		context.authenticatedUser();
@@ -166,14 +165,30 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	    
         }if (sqlSearch != null && !sqlSearch.isEmpty()) {
         	sqlSearch=sqlSearch.trim();
+        	
         	if(sqlSearch.contains("/")){
+        		  List<IpPoolManagementData> ipPoolManagementDatas=new ArrayList<IpPoolManagementData>();
+                //  String[] data=this.ipGeneration.getInfo().getAllAddresses(sqlSearch);
+				int rowcount=0;
+				for(int i=0;i<data.length;i++){
+					IpPoolManagementData ipPoolManagementData=this.retrieveIpaddressData(data[i]);
+					
+					if(ipPoolManagementData == null){
+						throw new IpAddresNotAvailableException(data[i]);
+					}
+					ipPoolManagementDatas.add(ipPoolManagementData);
+					rowcount++;
+				}
+				
+        		return new Page<IpPoolManagementData>(ipPoolManagementDatas, rowcount);//ipPoolManagementDatas;
+        		/*
         		String[] strings=sqlSearch.split("/");
         		String ipAddress=strings[0].substring(0, strings[0].lastIndexOf("."));
         		String subnet=strings[1];
         		extraCriteria = " and (p.ip_address like '%"+ipAddress+"%' and p.subnet="+subnet+")";
         		sqlBuilder.append(extraCriteria);
         		
-        	}else{
+        	*/}else{
         	
     	    	
     	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
@@ -194,6 +209,19 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	
 	}
 	
+	@Override
+	public IpPoolManagementData retrieveIpaddressData(String ip) {
+		try{
+			
+			IpPoolMapper mapper=new IpPoolMapper();
+			String sql="select "+mapper.schema()+"and  p.ip_address =?";
+			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {ip});
+			
+		}catch(EmptyResultDataAccessException accessException){
+		return null;
+		}
+	}
+
 	@Override
 	public List<String> retrieveIpPoolIDArray(String query) {
 		IpAddressPoolingArrayMapper mapper = new IpAddressPoolingArrayMapper();
