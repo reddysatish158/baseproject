@@ -1,9 +1,13 @@
 package org.mifosplatform.crm.ticketmaster.data;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 
 
 public class TicketMasterData {
@@ -12,6 +16,7 @@ public class TicketMasterData {
 	private  List<EnumOptionData> priorityType;
     private  List<ProblemsData> problemsDatas;
     private  List<UsersData> usersData;
+    private  Collection<MCodeData> sourceData;
     private  Long id;
     private String priority;
     private String status;
@@ -25,6 +30,8 @@ public class TicketMasterData {
     private String statusDescription;
 	private LocalDate createdDate;
 	private String attachedFile;
+	private String sourceOfTicket;
+	private Date dueDate;
   	public TicketMasterData(List<EnumOptionData> statusType,
 			List<EnumOptionData> priorityType) {
 		this.priorityType=priorityType;
@@ -34,12 +41,14 @@ public class TicketMasterData {
 		
 	}
 
-	public TicketMasterData(List<TicketMasterData> data, List<ProblemsData> datas, List<UsersData> userData,TicketMasterData masterData, List<EnumOptionData> priorityData) {
+	public TicketMasterData(List<TicketMasterData> data, List<ProblemsData> datas, List<UsersData> userData,TicketMasterData masterData,
+						List<EnumOptionData> priorityData,Collection<MCodeData> sourceData) {
 		this.statusType=data;
 		this.problemsDatas=datas;
 		this.usersData=userData;
 		this.ticketDate=new LocalDate();
 		this.priorityType=priorityData;
+		this.sourceData=sourceData;
 		if(masterData!=null){
 		this.assignedTo=masterData.getAssignedTo();
 		this.status=masterData.getStatus();
@@ -49,7 +58,8 @@ public class TicketMasterData {
 	}
 
 	public TicketMasterData(Long id, String priority, String status,
-			Integer assignedTo, LocalDate ticketDate,String lastComment,String problemDescription,String userName) {
+			Integer assignedTo, LocalDate ticketDate,String lastComment,String problemDescription,
+			String userName,String sourceOfTicket,Date dueDate) {
 		
 		this.id=id;
 		this.priority=priority;
@@ -59,6 +69,8 @@ public class TicketMasterData {
 		this.lastComment=lastComment;
 		this.problemDescription=problemDescription;
 		this.userName=userName;
+		this.sourceOfTicket=sourceOfTicket;
+		this.dueDate=dueDate;
 		
 	}
 
