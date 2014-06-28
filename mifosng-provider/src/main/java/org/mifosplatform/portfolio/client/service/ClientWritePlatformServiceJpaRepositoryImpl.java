@@ -266,7 +266,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             context.authenticatedUser();
 
             this.fromApiJsonDeserializer.validateForUpdate(command.json());
-
+            
             final Client clientForUpdate = this.clientRepository.findOneWithNotFoundDetection(clientId);
             final Long officeId = command.longValueOfParameterNamed(ClientApiConstants.officeIdParamName);
             final Office clientOffice = this.officeRepository.findOne(officeId);
