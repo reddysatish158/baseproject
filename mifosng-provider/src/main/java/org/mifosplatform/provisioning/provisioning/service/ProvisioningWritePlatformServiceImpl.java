@@ -18,6 +18,8 @@ import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepositor
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
@@ -52,21 +54,23 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 
 	
 
-	private final PlatformSecurityContext context;
-	private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
-    private final FromJsonHelper fromApiJsonHelper;
-    private final ProvisioningCommandRepository provisioningCommandRepository;
-    private final ServiceParametersRepository serviceParametersRepository;
-    private final ProcessRequestRepository processRequestRepository;
-    private final OrderRepository orderRepository;
-    private final PrepareRequsetRepository prepareRequsetRepository;
+	
 	private final FromJsonHelper fromJsonHelper;
+	private final PlatformSecurityContext context;
+    private final OrderRepository orderRepository;
+    private final FromJsonHelper fromApiJsonHelper;
+    private final ClientRepository clientRepository;
+    private final ServiceMasterRepository serviceMasterRepository;
+    private final ProcessRequestRepository processRequestRepository;
+    private final PrepareRequsetRepository prepareRequsetRepository;
+    private final OrderReadPlatformService orderReadPlatformService;
+    private final HardwareAssociationRepository associationRepository;
+    private final ServiceParametersRepository serviceParametersRepository;
+    private final ProvisioningCommandRepository provisioningCommandRepository;
+    private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
 	private final InventoryItemDetailsRepository inventoryItemDetailsRepository;
-	private final OrderReadPlatformService orderReadPlatformService;
+    private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
 	private final ProcessRequestReadplatformService processRequestReadplatformService;
-	private final HardwareAssociationRepository associationRepository;
-	private final ServiceMasterRepository serviceMasterRepository;
-	private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
 	private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
 	
     @Autowired
@@ -76,23 +80,24 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final PrepareRequsetRepository prepareRequsetRepository,
 			final FromJsonHelper fromJsonHelper,final HardwareAssociationRepository associationRepository,final ServiceMasterRepository serviceMasterRepository,
 			final ProcessRequestReadplatformService processRequestReadplatformService,final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,
-			final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService) {
+			final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService,final ClientRepository clientRepository) {
 
-    	this.context = context;	
-		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
+    	this.context = context;
+    	this.fromJsonHelper=fromJsonHelper;
+		this.orderRepository=orderRepository;
+		this.clientRepository=clientRepository;
 		this.fromApiJsonHelper=fromApiJsonHelper;
-		this.provisioningCommandRepository=provisioningCommandRepository;
+		this.associationRepository=associationRepository;
+		this.fromApiJsonDeserializer=fromApiJsonDeserializer;
+		this.serviceMasterRepository=serviceMasterRepository;
 		this.serviceParametersRepository=parametersRepository;
 		this.processRequestRepository=processRequestRepository;
-		this.orderRepository=orderRepository;
 		this.prepareRequsetRepository=prepareRequsetRepository;
-		this.fromJsonHelper=fromJsonHelper;
-		this.inventoryItemDetailsRepository=inventoryItemDetailsRepository;
 		this.orderReadPlatformService=orderReadPlatformService;
-		this.associationRepository=associationRepository;
-		this.processRequestReadplatformService=processRequestReadplatformService;
-		this.serviceMasterRepository=serviceMasterRepository;
+		this.provisioningCommandRepository=provisioningCommandRepository;
 		this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
+		this.inventoryItemDetailsRepository=inventoryItemDetailsRepository;
+		this.processRequestReadplatformService=processRequestReadplatformService;
 		this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
 
 	}
@@ -258,8 +263,8 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 				
 			    }
 	        
-			
-	        jsonObject.put("clientId",clientId);
+			Client client=this.clientRepository.findOne(clientId);
+	        jsonObject.put("clientId",client.getAccountNo());
 	        jsonObject.put("orderId",orderId);
 	        jsonObject.put("planName",planName);
 	        jsonObject.put("macId",macId);

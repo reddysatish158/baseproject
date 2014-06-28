@@ -17,6 +17,8 @@ import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
@@ -45,15 +47,16 @@ public class ProvisioningServiceParamsWriteplatformServiceImpl implements Provis
 	
 	
 	private final PlatformSecurityContext context;
-	private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
-    private final FromJsonHelper fromApiJsonHelper;
-    private final ServiceParametersRepository serviceParametersRepository;
-    private final PrepareRequsetRepository prepareRequsetRepository;
-    private final ProcessRequestRepository processRequestRepository;
-    private final OrderRepository orderRepository;
-    private final InventoryItemDetailsRepository inventoryItemDetailsRepository;
-    private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
+	private final FromJsonHelper fromApiJsonHelper;
+	private final OrderRepository orderRepository;
+	private final ClientRepository clientRepository;
     private final ServiceMasterRepository serviceMasterRepository;
+	private final PrepareRequsetRepository prepareRequsetRepository;
+    private final ProcessRequestRepository processRequestRepository;
+	private final ServiceParametersRepository serviceParametersRepository;
+	private final IpPoolManagementJpaRepository ipPoolManagementJpaRepository;
+	private final InventoryItemDetailsRepository inventoryItemDetailsRepository;
+	private final ProvisioningCommandFromApiJsonDeserializer fromApiJsonDeserializer;
     private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
   
 @Autowired	
@@ -61,18 +64,19 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 		final FromJsonHelper fromJsonHelper,final ServiceParametersRepository parametersRepository,final PrepareRequsetRepository prepareRequsetRepository,
 		final ProcessRequestRepository processRequestRepository,final OrderRepository orderRepository,final InventoryItemDetailsRepository detailsRepository,
 		final IpPoolManagementJpaRepository ipPoolManagementJpaRepository,final ServiceMasterRepository masterRepository,
-		final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService){
+		final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService,final ClientRepository clientRepository){
 	
 	this.context=securityContext;
-	this.fromApiJsonDeserializer=fromApiJsonDeserializer;
+	this.orderRepository=orderRepository;
 	this.fromApiJsonHelper=fromJsonHelper;
+	this.clientRepository=clientRepository;
+	this.serviceMasterRepository=masterRepository;
+	this.fromApiJsonDeserializer=fromApiJsonDeserializer;
+	this.inventoryItemDetailsRepository=detailsRepository;
 	this.serviceParametersRepository=parametersRepository;
 	this.prepareRequsetRepository=prepareRequsetRepository;
 	this.processRequestRepository=processRequestRepository;
-	this.orderRepository=orderRepository;
-	this.inventoryItemDetailsRepository=detailsRepository;
 	this.ipPoolManagementJpaRepository=ipPoolManagementJpaRepository;
-	this.serviceMasterRepository=masterRepository;
 	this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
 }
 
@@ -97,7 +101,8 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	            final String ipType=command.stringValueOfParameterNamed("ipType");
 	            final String ipRange=command.stringValueOfParameterNamed("ipRange");
 	            final Long subnet=command.longValueOfParameterNamed("subnet");
-				jsonObject.put("clientId", clientId);
+	            Client client=this.clientRepository.findOne(clientId);
+				jsonObject.put("clientId", client.getAccountNo());
 				jsonObject.put("orderId", orderId);
 				jsonObject.put("macId", macId);
 				jsonObject.put("planName",planName);
