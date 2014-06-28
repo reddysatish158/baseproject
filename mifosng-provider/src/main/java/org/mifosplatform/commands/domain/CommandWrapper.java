@@ -1010,7 +1010,7 @@ public class CommandWrapper {
 		}
 
 		public boolean isCreateIpPoolManagement() {
-			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
+			return this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
 
 		}
 
@@ -1051,6 +1051,10 @@ public class CommandWrapper {
 		public boolean isTaxExemptionResource() {
 			
 			return this.entityName.equalsIgnoreCase("CLIENTTAXEXEMPTION");
+		}
+
+		public boolean isProcessRandomGenerator() {
+			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
 		}
 
 }

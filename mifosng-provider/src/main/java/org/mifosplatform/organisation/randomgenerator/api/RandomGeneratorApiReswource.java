@@ -30,10 +30,11 @@ import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSeria
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.randomgenerator.data.RandomGeneratorData;
 import org.mifosplatform.organisation.randomgenerator.service.RandomGeneratorReadPlatformService;
-import org.mifosplatform.organisation.randomgenerator.service.RandomGeneratorWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.JsonObject;
 
 @Path("/randomgenerators")
 @Component
@@ -48,8 +49,6 @@ public class RandomGeneratorApiReswource {
 		
 		private final String resourceNameForPermissions = "RANDAMGENERATOR";
 		
-		private final String resourceNameForVoucherPinGenerationPermissions = "VOUCHERPINGENERATION";
-		
 		private final String resourceNameFordownloadFilePermissions = "DOWNLOAD_FILE";
 
 		private final PlatformSecurityContext context;
@@ -57,22 +56,19 @@ public class RandomGeneratorApiReswource {
 		private final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer;
 		private final ApiRequestParameterHelper apiRequestParameterHelper;
 		private final PortfolioCommandSourceWritePlatformService writePlatformService;
-		private final RandomGeneratorWritePlatformService randomGeneratorWritePlatformService;
 	   
 		@Autowired
 		public RandomGeneratorApiReswource(final PlatformSecurityContext context,
 				final RandomGeneratorReadPlatformService readPlatformService,
 				final DefaultToApiJsonSerializer<RandomGeneratorData> toApiJsonSerializer,
 				final ApiRequestParameterHelper apiRequestParameterHelper,
-				final PortfolioCommandSourceWritePlatformService writePlatformService,
-				final RandomGeneratorWritePlatformService randomGeneratorWritePlatformService) {
+				final PortfolioCommandSourceWritePlatformService writePlatformService) {
 			
 			this.context = context;
 			this.readPlatformService = readPlatformService;
 			this.toApiJsonSerializer = toApiJsonSerializer;
 			this.apiRequestParameterHelper = apiRequestParameterHelper;
 			this.writePlatformService = writePlatformService;
-			this.randomGeneratorWritePlatformService=randomGeneratorWritePlatformService;
 			   
 		}
 
@@ -122,14 +118,16 @@ public class RandomGeneratorApiReswource {
 					header("Content-Disposition","attachment;filename=" +"Vochers_"+batchId+ ".csv").build();			
 			}
 		
-		@GET
-		@Path("createVoucherpin/{batchId}")
+		@POST
+		@Path("{batchId}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public Long createVocherReport(@PathParam("batchId") final Long batchId,@Context final UriInfo uriInfo) {
-			context.authenticatedUser().validateHasReadPermission(resourceNameForVoucherPinGenerationPermissions);
-			Long result=this.randomGeneratorWritePlatformService.GenerateVoucherPinKeys(batchId);
-			return result; 					
+		public String createVocherReport(@PathParam("batchId") final Long batchId,@Context final UriInfo uriInfo) {
+			JsonObject object= new JsonObject();
+			object.addProperty("batchId", batchId);
+			final CommandWrapper commandRequest = new CommandWrapperBuilder().processRandomGeneraror(batchId).withJson(object.toString()).build();
+			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
+			return this.toApiJsonSerializer.serialize(result);			
 		}
 		
 	

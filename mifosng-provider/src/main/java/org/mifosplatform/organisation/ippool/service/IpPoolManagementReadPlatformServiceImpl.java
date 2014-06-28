@@ -56,9 +56,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		}
 
 		@Override
-		public IpPoolData mapRow(final ResultSet rs,
-				@SuppressWarnings("unused") final int rowNum)
-				throws SQLException {
+		public IpPoolData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 
 			Long id = rs.getLong("id");
 			String poolName = rs.getString("poolName");
@@ -81,19 +79,21 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		} 
 	}
 
-	@Override
+	/*@Override
 	public List<IpPoolManagementData> retrieveAllData() {
 		IpPoolMapper mapper = new IpPoolMapper();
 		String sql = "select " + mapper.schema();
 		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
-	}
+	}*/
 
 	private static final class IpPoolMapper implements
 			RowMapper<IpPoolManagementData> {
 
 		public String schema() {
 
-			return "p.id ,p.pool_name as poolName, p.ip_address as ipAddress ,p.status, p.client_id as ClientId from b_ippool_details p";
+			//return "p.id ,p.pool_name as poolName, p.ip_address as ipAddress ,p.status, p.client_id as ClientId from b_ippool_details p";
+			return " p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName, " +
+					" p.ip_address as ipAddress ,p.status,p.notes from b_ippool_details p left join m_client c on p.client_id = c.id";
 		}
 
 		@Override
@@ -101,12 +101,15 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 				throws SQLException {
 			
 			Long id=rs.getLong("id");
-			String ipAddress=rs.getString("ipAddress");
 			String poolName=rs.getString("poolName");
-			String status=rs.getString("status");
 			Long ClientId=rs.getLong("ClientId");
+			String clientName=rs.getString("ClientName");
+			String ipAddress=rs.getString("ipAddress");	
+			String status=rs.getString("status");
+			String notes=rs.getString("notes");
 			
-			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId);
+			
+			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId, clientName, notes);
 		}
 	}
 
