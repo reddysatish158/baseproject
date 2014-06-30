@@ -77,6 +77,7 @@ import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadp
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.provisioning.provisioning.service.ProvisioningWritePlatformService;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.domain.EventAction;
@@ -129,7 +130,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     private final EventActionRepository eventActionRepository;
     private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
     private final HardwareAssociationRepository associationRepository;
+    private final ProvisioningWritePlatformService provisioningWritePlatformService;
     public final static String CONFIG_PROPERTY="Implicit Association";
+    
     public final static String CPE_TYPE="CPE_TYPE";
 
     @Autowired
@@ -147,7 +150,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		    final ClientRepository clientRepository,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
 		    final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final OrderDetailsReadPlatformServices orderDetailsReadPlatformServices,
 		    final EventActionRepository eventActionRepository,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
-		   final HardwareAssociationRepository associationRepository) {
+		   final HardwareAssociationRepository associationRepository,final ProvisioningWritePlatformService provisioningWritePlatformService) {
 		
 		this.context = context;
 		this.reverseInvoice=reverseInvoice;
@@ -173,6 +176,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.associationWriteplatformService=associationWriteplatformService;
 		this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
 		this.orderDetailsReadPlatformServices=orderDetailsReadPlatformServices;
+		this.provisioningWritePlatformService=provisioningWritePlatformService;
 		this.prepareRequestReadplatformService=prepareRequestReadplatformService;
 		this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
 		this.accountIdentifierGeneratorFactory=accountIdentifierGeneratorFactory;
@@ -181,6 +185,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		this.prepareRequestWriteplatformService=prepareRequestWriteplatformService;
 		this.hardwareAssociationReadplatformService=hardwareAssociationReadplatformService;
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
+		
 		
 		
 
@@ -481,6 +486,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			}else{
 			
 				orderStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId();
+				
 			}if(plan.getBillRule() !=400 && plan.getBillRule() !=300){ 
 	          
 				this.reverseInvoice.reverseInvoiceServices(orderId, order.getClientId(),disconnectionDate);
@@ -504,6 +510,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			//for Prepare Request
 			String requstStatus =UserActionStatusTypeEnum.DISCONNECTION.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+			
+			if(plan.getProvisionSystem().equalsIgnoreCase("Packetspan")){
+				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),StatusTypeEnum.DISCONNECTED.toString(),processingResult.resourceId());
+			}
 			
 			//For Order History
 			//String requstStatus = OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.).getValue();
@@ -696,7 +706,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 					this.clientRepository.save(client);
 				 
 		      }else{
-					 
+		    	
 					 //Check For HardwareAssociation
 					  AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(orderId);
 					  if(associationData ==null){
@@ -713,6 +723,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			//for Prepare Request
 			String requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString().toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
+			
+			if(plan.getProvisionSystem().equalsIgnoreCase("Packetspan")){
+				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),StatusTypeEnum.ACTIVE.toString(),processingResult.resourceId());
+			}
 			
 			//For Order History
 			Long userId=null;

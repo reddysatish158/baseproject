@@ -5,6 +5,8 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
@@ -25,6 +27,7 @@ import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
+import org.mifosplatform.portfolio.plan.domain.Plan;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.service.domain.ServiceMaster;
 import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
@@ -387,6 +390,66 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		   
 	   }
 	   
+		
+	}
+
+	@Transactional
+    @Override
+	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId) {
+		try{
+			
+			this.context.authenticatedUser();
+			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(order.getId());
+			
+			if(!parameters.isEmpty()){
+			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),"PackeSpan", requestType);
+			    List<OrderLine> orderLines=order.getServices();
+			    HardwareAssociation hardwareAssociation=this.associationRepository.findOneByOrderId(order.getId());
+			    InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(hardwareAssociation.getSerialNo());
+			    
+			    
+			    JSONObject jsonObject=new JSONObject();
+			    jsonObject.put("clientId",order.getClientId());
+		        jsonObject.put("orderId",order.getId());
+		        jsonObject.put("planName",planName);
+		        jsonObject.put("macId",inventoryItemDetails.getSerialNumber());
+		        
+		        for(ServiceParameters serviceParameters:parameters){
+		        	if(serviceParameters.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
+		        		if(serviceParameters.getParameterValue().contains("/")){
+		        			jsonObject.put("ip_type","Subnet");
+		        		}else if(serviceParameters.getParameterValue().contains("[")){
+		        			JSONArray jsonArray=new JSONArray(serviceParameters.getParameterValue());
+		        			if(jsonArray.length() > 1)
+		        			jsonObject.put("ip_type","Multiple");
+		        		}else{
+		        			jsonObject.put("ip_type","Single");
+		        		}
+		        	}
+		        	
+		        	jsonObject.put(serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	
+		        }
+			    for(OrderLine orderLine:orderLines){
+			    	
+			    	 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
+								jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
+								order.getEndDate(),null,null,'N',requestType);
+						  processRequest.add(processRequestDetails);
+				
+			     }
+
+			this.processRequestRepository.save(processRequest);
+			}
+			
+		}catch(DataIntegrityViolationException dve){
+			
+			handleCodeDataIntegrityIssues(null, dve);
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
