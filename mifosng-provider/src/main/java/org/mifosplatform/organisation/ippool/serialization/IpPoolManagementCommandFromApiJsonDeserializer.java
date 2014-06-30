@@ -29,6 +29,7 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 
 
 	private FromJsonHelper fromJsonHelper;
+	private final Set<String> editsupportedParams =  new HashSet<String>(Arrays.asList("id","statusType","notes"));
 	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet"));
 	
 	@Autowired
@@ -56,8 +57,8 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 		final String ipAddress = fromJsonHelper.extractStringNamed("ipAddress", element);
 		baseValidatorBuilder.reset().parameter("ipAddress").value(ipAddress).notBlank().notExceedingLengthOf(100);
 		
-		final int subnet = fromJsonHelper.extractIntegerNamed("subnet", element, Locale.US);	
-		baseValidatorBuilder.reset().parameter("subnet").value(subnet).notBlank().notExceedingLengthOf(100);
+	/*	final int subnet = fromJsonHelper.extractIntegerNamed("subnet", element, Locale.US);	
+		baseValidatorBuilder.reset().parameter("subnet").value(subnet).notBlank().notExceedingLengthOf(100);*/
 		
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
@@ -66,6 +67,31 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
         if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException("validation.msg.validation.errors.exist",
                 "Validation errors exist.", dataValidationErrors); }
     }
+
+
+	@SuppressWarnings("serial")
+	public void validateForUpdate(String json) {
+		
+		if(StringUtils.isBlank(json)){
+			throw new InvalidJsonException();
+		}
+		
+		final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType(); 
+		fromJsonHelper.checkForUnsupportedParameters(typeOfMap, json, editsupportedParams);
+		
+		final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+		final DataValidatorBuilder baseValidatorBuilder = new DataValidatorBuilder(dataValidationErrors);
+		
+		final JsonElement element = fromJsonHelper.parse(json);
+		
+		final String statusType = fromJsonHelper.extractStringNamed("statusType", element);		
+		baseValidatorBuilder.reset().parameter("statusType").value(statusType).notBlank().notExceedingLengthOf(2);
+		
+		final String notes = fromJsonHelper.extractStringNamed("notes", element);
+		baseValidatorBuilder.reset().parameter("notes").value(notes).notBlank().notExceedingLengthOf(60);
+		
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
+	}
 	
 
 }

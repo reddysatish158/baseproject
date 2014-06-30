@@ -9,20 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CreateIpPoolManagementCommandHandler implements NewCommandSourceHandler {
+public class UpdateIpPoolManagementCommandHandler implements NewCommandSourceHandler {
+
 	
-    
-	private final IpPoolManagementWritePlatformService ipPoolManagementWritePlatformService;
+private final IpPoolManagementWritePlatformService ipPoolManagementWritePlatformService;
 	
 	@Autowired
-	public CreateIpPoolManagementCommandHandler(final IpPoolManagementWritePlatformService ipPoolManagementWritePlatformService) {
+	public UpdateIpPoolManagementCommandHandler(final IpPoolManagementWritePlatformService ipPoolManagementWritePlatformService) {
 		this.ipPoolManagementWritePlatformService = ipPoolManagementWritePlatformService;
 	}
-
+	
 	@Transactional
 	@Override
 	public CommandProcessingResult processCommand(JsonCommand command) {
-		return this.ipPoolManagementWritePlatformService.createIpPoolManagement(command);
+		return this.ipPoolManagementWritePlatformService.editIpPoolManagement(command);
 	}
 
 }

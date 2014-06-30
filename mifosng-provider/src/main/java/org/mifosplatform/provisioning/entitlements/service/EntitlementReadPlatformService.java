@@ -15,6 +15,9 @@ public interface EntitlementReadPlatformService {
 	ClientEntitlementData getClientData(Long clientId);
 
 	StakerData getData(String mac);
+
+	List<EntitlementsData> getBeeniusProcessingData(Long no, String provisioningSystem);
+	
 	
 	
 	
