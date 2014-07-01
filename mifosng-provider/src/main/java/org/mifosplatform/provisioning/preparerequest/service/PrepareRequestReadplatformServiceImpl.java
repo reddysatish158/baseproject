@@ -203,6 +203,8 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 	                       this.processRequestRepository.save(processRequest);				
 	                       //PrepareRequest prepareRequest=this.prepareRequsetRepository.findOne(requestData.getRequestId());
                            prepareRequest.setIsProvisioning('Y');
+                           String status=OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.ACTIVE).getValue().toString();
+      	                  prepareRequest.setStatus(status);
                            this.prepareRequsetRepository.save(prepareRequest);
                          
                            
