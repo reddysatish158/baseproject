@@ -120,7 +120,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (searchParameters.isOrderByRequested()) {
             sqlBuilder.append(" order by ").append(searchParameters.getOrderBy()).append(' ').append(searchParameters.getSortOrder());
         }
-
+        
         if (searchParameters.isLimited()) {
             sqlBuilder.append(" limit ").append(searchParameters.getLimit());
         }
@@ -128,7 +128,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (searchParameters.isOffset()) {
             sqlBuilder.append(" offset ").append(searchParameters.getOffset());
         }
-
+         
         final String sqlCountRows = "SELECT FOUND_ROWS()";
         return this.paginationHelper.fetchPage(this.jdbcTemplate, sqlCountRows, sqlBuilder.toString(),
                 new Object[] { hierarchySearchString }, clientMapper);
@@ -143,6 +143,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         final String firstname = searchParameters.getFirstname();
         final String lastname = searchParameters.getLastname();
         final String hierarchy = searchParameters.getHierarchy();
+        final String groupName = searchParameters.getGroupName();
 
         String extraCriteria = "";
         if (sqlSearch != null) {
@@ -181,7 +182,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (hierarchy != null) {
             extraCriteria += " and o.hierarchy like " + ApiParameterHelper.sqlEncodeString(hierarchy + "%");
         }
-
+        
+        if (groupName != null) {
+            extraCriteria += " and c.group_name = " + ApiParameterHelper.sqlEncodeString(groupName);
+        }
+        
         if (StringUtils.isNotBlank(extraCriteria)) {
             extraCriteria = extraCriteria.substring(4);
         }
