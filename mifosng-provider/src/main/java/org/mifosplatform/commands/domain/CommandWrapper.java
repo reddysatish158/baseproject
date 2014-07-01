@@ -1057,4 +1057,9 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
 		}
 
+		public boolean isIpStatus() {
+			
+			return  this.entityName.equalsIgnoreCase("IPSTATUS");
+		}
+
 }

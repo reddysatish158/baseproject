@@ -2226,5 +2226,13 @@ public CommandWrapperBuilder updateIpPoolManagement(Long id) {
 	this.href = "/ippooling/"+id;
 	return this;
 }
+
+public CommandWrapperBuilder updateIpStatus(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "IPSTATUS";
+	this.entityId=id;
+	this.href = "/ippooling/status";
+	return this;
+}
 	
 }

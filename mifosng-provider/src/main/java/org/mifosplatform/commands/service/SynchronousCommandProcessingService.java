@@ -999,6 +999,13 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+				}else if(wrapper.isIpStatus()){
+				     
+					if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateIpStatusCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
 				}else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }

@@ -407,9 +407,9 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    HardwareAssociation hardwareAssociation=this.associationRepository.findOneByOrderId(order.getId());
 			    InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(hardwareAssociation.getSerialNo());
 			    
-			    
+			    Client client=this.clientRepository.findOne(order.getClientId());
 			    JSONObject jsonObject=new JSONObject();
-			    jsonObject.put("clientId",order.getClientId());
+			    jsonObject.put("clientId",client.getAccountNo());
 		        jsonObject.put("orderId",order.getId());
 		        jsonObject.put("planName",planName);
 		        jsonObject.put("macId",inventoryItemDetails.getSerialNumber());
