@@ -13,17 +13,18 @@ public final class SearchParameters {
     private final String lastname;
     private final Integer offset;
     private final Integer limit;
-    private final String orderBy;
+	private final String orderBy;
     private final String sortOrder;
+    private final String groupName;
 
     public static SearchParameters from(final String sqlSearch, final Long officeId, final String externalId, final String name,
             final String hierarchy) {
-        return new SearchParameters(sqlSearch, officeId, externalId, name, hierarchy, null, null, null, null, null, null);
+        return new SearchParameters(sqlSearch, officeId, externalId, name, hierarchy, null, null, null, null, null, null,null);
     }
 
     public static SearchParameters forClients(final String sqlSearch, final Long officeId, final String externalId,
             final String displayName, final String firstname, final String lastname, final String hierarchy, final Integer offset,
-            final Integer limit, final String orderBy, final String sortOrder) {
+            final Integer limit, final String orderBy, final String sortOrder,final String groupName) {
 
         Integer maxLimitAllowed = 200;
         if (limit != null && limit < maxLimitAllowed && limit > 0) {
@@ -31,12 +32,12 @@ public final class SearchParameters {
         }
 
         return new SearchParameters(sqlSearch, officeId, externalId, displayName, hierarchy, firstname, lastname, offset, maxLimitAllowed,
-                orderBy, sortOrder);
+                orderBy, sortOrder,groupName);
     }
 
     private SearchParameters(final String sqlSearch, final Long officeId, final String externalId, final String name,
             final String hierarchy, final String firstname, final String lastname, final Integer offset, final Integer limit,
-            final String orderBy, final String sortOrder) {
+            final String orderBy, final String sortOrder,final String groupName) {
         this.sqlSearch = sqlSearch;
         this.officeId = officeId;
         this.externalId = externalId;
@@ -48,8 +49,12 @@ public final class SearchParameters {
         this.limit = limit;
         this.orderBy = orderBy;
         this.sortOrder = sortOrder;
+        this.groupName=groupName;
     }
 
+    public String getGroupName() {
+		return groupName;
+	}
     public boolean isOrderByRequested() {
         return StringUtils.isNotBlank(this.orderBy) && StringUtils.isNotBlank(this.sortOrder);
     }
@@ -111,7 +116,7 @@ public final class SearchParameters {
 
         Integer maxLimitAllowed = getCheckedLimit(limit);
 
-        return new SearchParameters(null, null, null, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder);
+        return new SearchParameters(null, null, null, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder,null);
     }
 
 	public static Integer getCheckedLimit(final Integer limit) {
@@ -133,4 +138,7 @@ public final class SearchParameters {
 	 public boolean isSortOrderProvided() {
         return StringUtils.isNotBlank(this.sortOrder);
     }
+	public boolean isGroupNameProvided(){
+		return StringUtils.isNotBlank(this.groupName);
+	}
 }
