@@ -67,9 +67,9 @@ public class ProvisioningApiResource {
 	  
 	 
 	  
-	  @Autowired
-	    public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
-	    final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
+	   @Autowired
+	   public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
+	   final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService,
 	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService,
 	   final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService,  final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest) {
@@ -176,7 +176,7 @@ public class ProvisioningApiResource {
 		 
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		List<ServiceParameterData> parameterDatas=this.provisioningReadPlatformService.getSerivceParameters(orderId);
-		Collection<MCodeData> vlanDatas=this.codeReadPlatformService.getCodeValue("VLANS");
+		Collection<MCodeData> vlanDatas=this.provisioningReadPlatformService.retrieveVlanDetails("VLANS");
 		List<IpPoolData> ipPoolDatas=this.ipPoolManagementReadPlatformService.getUnallocatedIpAddressDetailds();
 		List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
 		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,parameterDatas);

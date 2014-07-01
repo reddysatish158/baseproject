@@ -12,6 +12,7 @@ public class IpPoolManagementData {
 	private String clientName;
 	private String notes;
 	List<String> ipAddressData;
+
 	
 	public IpPoolManagementData(Long id, String ipAddress, String poolName,
 			String status, Long clientId, String clientName, String notes) {
@@ -23,7 +24,6 @@ public class IpPoolManagementData {
 		this.clientId=clientId;
 		this.clientName=clientName;
 		this.notes=notes;
-		
 	}
 
 	public IpPoolManagementData(List<String> ipAddressData) {

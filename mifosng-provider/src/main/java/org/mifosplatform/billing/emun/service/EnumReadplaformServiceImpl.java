@@ -1,4 +1,4 @@
-package org.mifosplatform.billing.emun.service;
+ package org.mifosplatform.billing.emun.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,11 +41,12 @@ public class EnumReadplaformServiceImpl implements EnumReadplaformService{
 		public EnumValuesData mapRow(ResultSet rs, int rowNum) throws SQLException {
 			final Long id = rs.getLong("id");
 			final String value = rs.getString("value");
-			return new EnumValuesData(id,value);
+			final String type = rs.getString("type");
+			return new EnumValuesData(id,value,type);
 		}
 		
 		public String codeScheme(){
-			return " r.enum_id as id,r.enum_value as value FROM r_enum_value r WHERE r.enum_name = ?";
+			return " r.enum_id as id,r.enum_message_property AS type,r.enum_value as value FROM r_enum_value r WHERE r.enum_name = ?";
 		}
 	}
 	
