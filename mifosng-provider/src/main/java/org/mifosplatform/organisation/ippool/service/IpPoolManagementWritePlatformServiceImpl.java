@@ -68,7 +68,7 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 					int j=i+1;
 					IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription,'I',type,notes,subnet);
 					this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-					generatedIPPoolID.put(""+j, ipPoolManagementDetail.getId());
+					generatedIPPoolID.put(String.valueOf(j), ipPoolManagementDetail.getId());
 				}
 				
 			}else{
