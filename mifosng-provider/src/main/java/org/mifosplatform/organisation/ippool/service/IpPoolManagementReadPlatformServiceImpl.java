@@ -250,5 +250,22 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		}
 }
 
+
+
+	@Override
+	public List<IpPoolManagementData> retrieveClientIpPoolDetails(Long clientId) {
+		
+		try{
+			IpPoolMapper mapper=new IpPoolMapper();
+			String sql="select "+mapper.schema()+" and p.client_id=?";
+			
+			return this.jdbcTemplate.query(sql,mapper,new Object[]{clientId});
+			
+			
+		}catch(EmptyResultDataAccessException exception){
+		return null;
+		}
+	}
+
 }
 

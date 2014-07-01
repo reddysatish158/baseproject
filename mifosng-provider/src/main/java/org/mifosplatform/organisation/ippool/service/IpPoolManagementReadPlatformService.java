@@ -20,4 +20,6 @@ public interface IpPoolManagementReadPlatformService {
 
 	IpPoolManagementData retrieveIpaddressData(String ipAddress);
 
+	List<IpPoolManagementData> retrieveClientIpPoolDetails(Long clientId);
+
 }

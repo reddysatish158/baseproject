@@ -124,8 +124,8 @@ public class IpPoolManagementApiResource {
 	public String retrieveIpPoolIDs(@Context final UriInfo uriInfo,@QueryParam("query") final String query) {
 		
 		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		List<String> paymentData = ipPoolManagementReadPlatformService.retrieveIpPoolIDArray(query);
-		IpPoolManagementData data=new IpPoolManagementData(paymentData);
+		List<String> ippoolDatas = ipPoolManagementReadPlatformService.retrieveIpPoolIDArray(query);
+		IpPoolManagementData data=new IpPoolManagementData(ippoolDatas);
 		return this.toApiJsonSerializer.serialize(data);
 
 	}
@@ -140,6 +140,20 @@ public class IpPoolManagementApiResource {
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
         return this.toApiJsonSerializer.serialize(result);
     } 
+	
+	
+	@GET
+	@Path("{clientId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveClientIpPoolDetails(@Context final UriInfo uriInfo,@PathParam("clientId") final Long clientId) {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		List<IpPoolManagementData> ipPoolManagementDatas = ipPoolManagementReadPlatformService.retrieveClientIpPoolDetails(clientId);
+		
+		return this.toApiJsonSerializer.serialize(ipPoolManagementDatas);
+
+	}
 	
 }
 
