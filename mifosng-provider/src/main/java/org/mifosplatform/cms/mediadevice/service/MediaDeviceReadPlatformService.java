@@ -9,10 +9,14 @@ import org.mifosplatform.portfolio.plan.data.PlanData;
 public interface MediaDeviceReadPlatformService {
 
 	List<MediaDeviceData> retrieveDeviceDataDetails(String deviceId);
+	
 	MediaDeviceData retrieveDeviceDetails(String deviceId);
+	
 	List<PlanData> retrievePlanDetails(Long clientId);
+	
 	List<PlanData> retrievePlanPostpaidDetails(Long clientId);
-	Long retrieveDeviceDataDetails(Long clientId);
+	
+	Long retrieveDeviceDataDetails(Long clientId, String string);
 	
 
 }

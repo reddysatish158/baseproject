@@ -41,9 +41,9 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 				OwnedHardware ownedHardware = mediaDetailsRetrieveById(deviceId);
 				String status = command.stringValueOfParameterNamed("status");
 				
-				if(status.equals("ACTIVE")){
+				if(status.equalsIgnoreCase("ACTIVE")){
 					
-					Long deviceIds = this.mediaDeviceReadPlatformService.retrieveDeviceDataDetails(clientId);
+					Long deviceIds = this.mediaDeviceReadPlatformService.retrieveDeviceDataDetails(clientId,ownedHardware.getProvisioningSerialNumber());
 					
 						if(deviceIds == 0){
 							ownedHardware.setStatus("ACTIVE");
@@ -53,7 +53,9 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 						}
 				}
 				else{
-					ownedHardware.setStatus("INACTIVE");
+
+					ownedHardware.setStatus(status);
+
 				}
 				return new CommandProcessingResult(deviceId);
 		  }catch (DataIntegrityViolationException dve) {

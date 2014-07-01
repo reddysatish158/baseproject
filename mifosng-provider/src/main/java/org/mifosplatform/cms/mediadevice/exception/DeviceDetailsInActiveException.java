@@ -10,6 +10,6 @@ public class DeviceDetailsInActiveException extends AbstractPlatformDomainRuleEx
 	private static final long serialVersionUID = 1L;
 
 	public DeviceDetailsInActiveException(final String msg){
-		super("error.msg.mediadevice.deviceDetails.active", "some Media details are active, please inactive those media details",msg);
+		super("error.msg.mediadevice.devices.active", "some Media device are active, please inactive those media devices",msg);
 	}
 }
