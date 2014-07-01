@@ -145,7 +145,7 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 	public String getHardwareAllocated() {
 		return hardwareAllocated;
 	}
-
+	
 	public void setHardwareAllocated(String hardwareAllocated) {
 		this.hardwareAllocated = hardwareAllocated;
 	}
