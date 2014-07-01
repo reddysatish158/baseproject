@@ -1021,5 +1021,9 @@ public class CommandWrapper {
 			
 			return this.entityName.equalsIgnoreCase("MEDIADEVICE") && this.actionName.equalsIgnoreCase("UPDATE");
 		}
+		
+		public boolean isRedemptionResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
+		}
 
 }

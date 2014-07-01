@@ -53,7 +53,9 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 						}
 				}
 				else{
+
 					ownedHardware.setStatus(status);
+
 				}
 				return new CommandProcessingResult(deviceId);
 		  }catch (DataIntegrityViolationException dve) {
