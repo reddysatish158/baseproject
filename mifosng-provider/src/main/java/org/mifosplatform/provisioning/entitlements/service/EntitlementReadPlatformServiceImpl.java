@@ -211,7 +211,8 @@ public class EntitlementReadPlatformServiceImpl implements
 		public String schema() {
 
 			
-			return " bpr.id as id, c.id client_id, c.account_no,c.firstname,c.lastname, o.external_id as officeUID,o.name as branch," +
+			return " bpr.id as id, c.id as clientId, c.account_no as accountNo,c.firstname as firstName,c.lastname as lastName, " +
+					" o.external_id as officeUID,o.name as branch," +
 					" bpr.provisioing_system AS provisioingSystem,bprd.service_id AS serviceId," +
 					" bprd.id AS prdetailsId,bprd.sent_message AS sentMessage," +
 					" ifnull(bid.provisioning_serialno ,oh.provisioning_serial_number) AS macId," +
@@ -219,7 +220,7 @@ public class EntitlementReadPlatformServiceImpl implements
 					" bprd.request_type AS requestType," +
 					" bipd.ip_address as ipAddress," +
 					" bim.item_code as itemCode,bim.item_description as itemDescription," +
-					" bprm.priceregion_code, bprm.priceregion_name" +
+					" bprm.priceregion_code as regionCode, bprm.priceregion_name as regionName" +
 					" from m_client c" +
 					" join m_office o on (o.id = c.office_id)" +
 					" join b_process_request bpr on (c.id = bpr.client_id )" +

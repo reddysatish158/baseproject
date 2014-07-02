@@ -1,5 +1,7 @@
 package org.mifosplatform.provisioning.entitlements.data;
 
+import org.joda.time.LocalDate;
+
 public class EntitlementsData {
 
 	private Long id;
@@ -31,9 +33,31 @@ public class EntitlementsData {
 	private String orderNo;
 	private String deviceId;
 	private String ipAddress;
+	
+	private Long orderId;
+	private LocalDate startDate;
+	private LocalDate endDate;
 
 	public EntitlementsData() {
 
+	}
+	
+	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product,
+			Long serviceId, Long clientId, Long planId, String orderNo, Long orderId, LocalDate startDate, LocalDate endDate) {
+		
+          this.id=id;
+          this.prdetailsId=prdetailsId;
+          this.product=product;
+          this.requestType=requestType;
+          this.hardwareId=hardwareId;
+          this.provisioingSystem=provisioingSystem;
+          this.serviceId=serviceId;
+          this.clientId=clientId;
+          this.planId=planId;
+          this.orderNo=orderNo;
+          this.orderId=orderId;
+          this.startDate=startDate;
+          this.endDate=endDate;
 	}
 
 	public EntitlementsData(Long id, Long prdetailsId, String requestType,
