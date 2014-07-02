@@ -18,6 +18,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.emun.data.EnumValuesData;
+import org.mifosplatform.billing.emun.service.EnumReadplaformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -43,23 +45,30 @@ import org.springframework.stereotype.Component;
 public class ServiceMasterApiResource {
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","serviceType","serviceCode","serviceDescription","serviceTypes",
 			"serviceUnitTypes","serviceUnitTypes","isOptional","status","serviceStatus"));
-    private final String resourceNameForPermissions = "SERVICE";
-	  private final PlatformSecurityContext context;
+        private final String resourceNameForPermissions = "SERVICE";
+	    private final PlatformSecurityContext context;
 	    private final DefaultToApiJsonSerializer<ServiceMasterOptionsData> toApiJsonSerializer;
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	    private final ServiceMasterReadPlatformService serviceMasterReadPlatformService;
 		private final PlanReadPlatformService planReadPlatformService;
+		private final EnumReadplaformService enumReadplaformService;
+		
 		 @Autowired
 	    public ServiceMasterApiResource(final PlatformSecurityContext context,final DefaultToApiJsonSerializer<ServiceMasterOptionsData> toApiJsonSerializer, 
 	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-	    		final ServiceMasterReadPlatformService serviceMasterReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
-		        this.context = context;
+	    		final ServiceMasterReadPlatformService serviceMasterReadPlatformService,final PlanReadPlatformService planReadPlatformService,
+	    		final EnumReadplaformService enumReadplaformService) {
+		        
+			    this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
-		        this.apiRequestParameterHelper = apiRequestParameterHelper;
-		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
-		        this.serviceMasterReadPlatformService=serviceMasterReadPlatformService;
+		        this.enumReadplaformService=enumReadplaformService;
 		        this.planReadPlatformService=planReadPlatformService;
+		        this.apiRequestParameterHelper = apiRequestParameterHelper;
+		        this.serviceMasterReadPlatformService=serviceMasterReadPlatformService;
+		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+		        
+		        
 		    }		
 		
 	@POST
@@ -80,7 +89,8 @@ public class ServiceMasterApiResource {
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.toApiJsonSerializer.serialize(settings, masterOptionsDatas, RESPONSE_DATA_PARAMETERS);
 		}
-	 @GET
+
+	    @GET
 	    @Path("template")
 	    @Consumes({MediaType.APPLICATION_JSON})
 	    @Produces({MediaType.APPLICATION_JSON})
@@ -92,7 +102,7 @@ public class ServiceMasterApiResource {
 		}
 
 	 private ServiceMasterOptionsData handleTemplateData() {
-		 List<EnumOptionData> serviceType = this.serviceMasterReadPlatformService.retrieveServicesTypes();
+		 Collection<EnumValuesData> serviceType = this.enumReadplaformService.getEnumValues("service_type");
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 		 List<EnumOptionData> serviceUnitType = this.serviceMasterReadPlatformService.retrieveServiceUnitType();
 		 return new ServiceMasterOptionsData(serviceType,serviceUnitType,status);

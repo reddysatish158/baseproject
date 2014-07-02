@@ -203,6 +203,9 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 		    	 					}
 
 		    	 				} catch (Exception dve) {
+		    	 					
+		    	 					fw.append("Error..... "+dve.getMessage());
+		    	 					System.out.println(dve.getMessage());
 		    	 					handleCodeDataIntegrityIssues(null, dve);
 		    	 				}
 		    	 			}
@@ -215,8 +218,10 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 	
 	}catch(DataIntegrityViolationException exception)
 	{
+		System.out.println(exception.getMessage());
 		exception.printStackTrace();
-	} catch (Exception exception) {		
+	} catch (Exception exception) {	
+		System.out.println(exception.getMessage());
 		exception.printStackTrace();
 	}
 	}
@@ -290,7 +295,7 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 				for (ProcessingDetailsData detailsData : processingDetails) {
 	                fw.append("Process Response id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
 	                		+detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
-					this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
+				//	this.processRequestWriteplatformService.notifyProcessingDetails(detailsData);
 				}
 				fw.append("Responsor Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
 				fw.flush();
@@ -389,6 +394,7 @@ this.globalConfigurationRepository=globalConfigurationRepository;
     	 			}
 					 for(Long clientId:clientIds)
 					 {
+						 try {
 						    fw.append("processing clientId: "+clientId+ " \r\n");
 						    JSONObject jsonobject = new JSONObject();
 						
@@ -408,6 +414,12 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 							jsonobject.put("message", data.getPromotionalMessage());
 							fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");
 							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
+						
+						 }catch(Exception exception){
+							 fw.append("error"+exception.getMessage());
+							 System.out.println(exception.getMessage());
+	                               handleCodeDataIntegrityIssues(null, exception);	
+	}
 					 }
 
 				}
@@ -693,7 +705,7 @@ handleCodeDataIntegrityIssues(null, dve);
 					byte[] encoded = Base64.encodeBase64(credentials.getBytes());
 					HttpClient httpClient = new DefaultHttpClient();
 		
-					List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem());
+					List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem(),null);
 		            if(!entitlementDataForProcessings.isEmpty()){
 		            	String path=FileUtils.generateLogFileDirectory()+ JobName.Middleware.toString() + File.separator +"middleware_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 		            

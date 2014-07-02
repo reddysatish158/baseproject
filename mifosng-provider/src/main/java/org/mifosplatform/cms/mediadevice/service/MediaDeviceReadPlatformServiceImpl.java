@@ -166,12 +166,13 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 	
 
 	@Override
-	public Long retrieveDeviceDataDetails(Long clientId) {
+	public Long retrieveDeviceDataDetails(Long clientId,String deviceId) {
 		
 		try {
 			final MediaDeviceDetailsMapper mapper = new MediaDeviceDetailsMapper();
-			final String sql ="select count(*) as deviceIds from b_owned_hardware  where client_id = ? and status = 'ACTIVE'";
-			return jdbcTemplate.queryForObject(sql, mapper,new Object[] {clientId});
+			final String sql ="select count(*) as deviceIds from b_owned_hardware  where client_id = ? and status = 'ACTIVE' " +
+					" and provisioning_serial_number != ?  and is_deleted='N'";
+			return jdbcTemplate.queryForObject(sql, mapper,new Object[] {clientId,deviceId});
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}

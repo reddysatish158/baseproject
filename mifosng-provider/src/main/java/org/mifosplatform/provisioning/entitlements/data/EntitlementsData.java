@@ -31,8 +31,11 @@ public class EntitlementsData {
 	private String error;
 	private Long planId;
 	private String orderNo;
+
 	private String deviceId;
 	private String ipAddress;
+
+	private String serviceType;
 	
 	private Long orderId;
 	private LocalDate startDate;
@@ -43,7 +46,8 @@ public class EntitlementsData {
 	}
 	
 	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product,
-			Long serviceId, Long clientId, Long planId, String orderNo, Long orderId, LocalDate startDate, LocalDate endDate) {
+			Long serviceId, Long clientId, Long planId, String orderNo, Long orderId, LocalDate startDate, LocalDate endDate, String servicetype) {
+
 		
           this.id=id;
           this.prdetailsId=prdetailsId;
@@ -58,11 +62,13 @@ public class EntitlementsData {
           this.orderId=orderId;
           this.startDate=startDate;
           this.endDate=endDate;
+          this.serviceType=servicetype;
+
 	}
 
 	public EntitlementsData(Long id, Long prdetailsId, String requestType,
 			String hardwareId, String provisioingSystem, String product,
-			Long serviceId, Long clientId, Long planId, String orderNo) {
+			Long serviceId, Long clientId, Long planId, String orderNo, String servicetype) {
 
 		this.id = id;
 		this.prdetailsId = prdetailsId;
@@ -74,6 +80,7 @@ public class EntitlementsData {
 		this.clientId = clientId;
 		this.planId = planId;
 		this.orderNo = orderNo;
+		this.serviceType = servicetype;
 	}
 
 	public EntitlementsData(Long id, Long prdetailsId,String provisioingSystem, Long serviceId, String product,String hardwareId, 

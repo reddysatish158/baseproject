@@ -36,23 +36,26 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 	public CommandProcessingResult updateMediaDetailsStatus(JsonCommand command) {
 		  try{
 				this.context.authenticatedUser();
-				Long clientId = command.entityId();
+				Long clientId = command.longValueOfParameterNamed("clientId");
 				String deviceId  = command.getSupportedEntityType();
 				OwnedHardware ownedHardware = mediaDetailsRetrieveById(deviceId);
-				String status = ownedHardware.getStatus();
-				if(status.equals("ACTIVE")){
+				String status = command.stringValueOfParameterNamed("status");
+				
+				if(status.equalsIgnoreCase("ACTIVE")){
 					
-					Long deviceIds = this.mediaDeviceReadPlatformService.retrieveDeviceDataDetails(clientId);
+					Long deviceIds = this.mediaDeviceReadPlatformService.retrieveDeviceDataDetails(clientId,ownedHardware.getProvisioningSerialNumber());
 					
 						if(deviceIds == 0){
 							ownedHardware.setStatus("ACTIVE");
 						}
 						else{
-							throw new DeviceDetailsInActiveException("some Media details are active, please inactive those media details");
+							throw new DeviceDetailsInActiveException(deviceId);
 						}
 				}
 				else{
-					ownedHardware.setStatus("ACTIVE");
+
+					ownedHardware.setStatus(status);
+
 				}
 				return new CommandProcessingResult(deviceId);
 		  }catch (DataIntegrityViolationException dve) {

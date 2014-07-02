@@ -32,14 +32,18 @@ public class EntitlementReadPlatformServiceImpl implements
 	
 	@Override
 
-	public List<EntitlementsData> getProcessingData(Long id,String provisioningSys) {
+	public List<EntitlementsData> getProcessingData(Long id,String provisioningSys,String serviceType) {
 		// TODO Auto-generated method stub
 		String sql = "";
 		ServicesMapper mapper = new ServicesMapper();		
 		sql = "select " + mapper.schema();		
 		if(provisioningSys != null){
 			sql = sql + " and p.provisioing_system = '" + provisioningSys + "' ";
-		}		
+		
+		}if(serviceType != null){
+			sql = sql + " and pr.service_type = '" + serviceType + "' ";
+		}
+		
 		if (id != null) {
 			sql = sql + " and pr.id limit " + id;
 		} 				
@@ -59,19 +63,20 @@ public class EntitlementReadPlatformServiceImpl implements
 			String product = rs.getString("sentMessage");
 			Long prdetailsId = rs.getLong("prdetailsId");
 			String requestType = rs.getString("requestType");
+			String servicetype = rs.getString("servicetype");
 			String hardwareId = rs.getString("hardwareId");
 			String provisioingSystem = rs.getString("provisioingSystem");
 			Long clientId = rs.getLong("clientId");
 			Long planId= rs.getLong("planId");
 			String orderNo= rs.getString("orderNo");
 
-			return new EntitlementsData(id, prdetailsId, requestType,hardwareId, provisioingSystem, product, serviceId, clientId,planId,orderNo);
+			return new EntitlementsData(id, prdetailsId, requestType,hardwareId, provisioingSystem, product, serviceId, clientId,planId,orderNo,servicetype);
 
 		}
 
 		public String schema() {
-			return " p.id AS id,p.client_id AS clientId,p.provisioing_system AS provisioingSystem,pr.service_id AS serviceId,pr.id AS " +
-					"prdetailsId,pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId,o.order_no as orderNo " +
+			return " p.id AS id,p.client_id AS clientId,p.provisioing_system AS provisioingSystem,pr.service_id AS serviceId,pr.id AS prdetailsId,pr.service_type as servicetype," +
+					"pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId,o.order_no as orderNo " +
 					"FROM b_process_request_detail pr,b_process_request p left join b_orders o on o.id=p.order_id where p.id = pr.processrequest_id" +
 					" AND p.is_processed = 'N'";
 		}
