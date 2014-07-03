@@ -62,6 +62,22 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 					"left join b_client_address ca on (c.id=ca.client_id and address_key='PRIMARY') " +
 					"left join b_country_currency cc on (cc.country=ca.country ) " +
 					"WHERE ifnull(a.serial_no, oh.serial_number) = ?";
+					
+		}
+		
+		public String MediaDeviceBasedOnCientIdSchema() {
+			
+			return "SELECT ifnull(a.id, oh.id) AS deviceId," +
+					"ifnull(a.client_id,oh.client_id) AS clientId,cv.code_value AS clientType,cv.id AS clientTypeId," +
+					"cb.balance_amount as balanceAmount ,cc.currency " +
+					"from m_client c " +
+					"left join m_code_value cv on (c.category_type=cv.id ) " +
+					"left join b_allocation a on (c.id =a.client_id AND a.is_deleted = 'N' ) " +
+					"left join b_client_balance cb on (c.id =cb.client_id ) " +
+					"left join b_owned_hardware oh on (c.id =oh.client_id AND oh.is_deleted = 'N') " +
+					"left join b_client_address ca on (c.id=ca.client_id and address_key='PRIMARY') " +
+					"left join b_country_currency cc on (cc.country=ca.country ) " +
+					"WHERE a.client_id = ?";
   
 		}
 		
@@ -177,7 +193,19 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			return null;
 		}
 	}
-
+	
+	@Override
+	public MediaDeviceData retrieveClientDetails(String clientId) {
+		try {
+			
+			this.context.authenticatedUser();
+			final MediaDeviceMapper eventMasterMapper = new MediaDeviceMapper();
+			final String sql = eventMasterMapper.MediaDeviceBasedOnCientIdSchema();
+			return jdbcTemplate.queryForObject(sql, eventMasterMapper,new Object[] {clientId});
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
 	
 }
 

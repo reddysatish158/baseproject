@@ -145,4 +145,23 @@ public class MediaDeviceApiResource {
 			  return this.toApiJsonSerializer.serialize(result);
 
 		}
+		
+		@GET
+		@Path("client/{clientId}")
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String retrieveSingleDeviceDetailsBasedOnClientId(@PathParam("clientId") final String clientId, @Context final UriInfo uriInfo) {
+			
+			MediaDeviceData datas = this.mediaDeviceReadPlatformService.retrieveClientDetails(clientId);
+			
+			if(datas == null){
+				throw new NoMediaDeviceFoundException();
+			}
+			GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+			datas.setPaypalConfigData(paypalConfigData);
+			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+			datas.setBalanceCheck(configurationProperty.isEnabled());
+	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	        return this.toApiJsonSerializer.serialize(settings,datas, RESPONSE_DATA_PARAMETERS);
+		}
 }
