@@ -5,6 +5,7 @@ import java.util.List;
 import net.sf.json.JSONObject;
 
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -103,6 +104,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	            final Long subnet=command.longValueOfParameterNamed("subnet");
 	            Client client=this.clientRepository.findOne(clientId);
 				jsonObject.put("clientId", client.getAccountNo());
+				jsonObject.put("clientName",client.getFirstname());
 				jsonObject.put("orderId", orderId);
 				jsonObject.put("macId", macId);
 				jsonObject.put("planName",planName);
@@ -148,9 +150,12 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 						      
 							     for(String ipaddress:ipAddressArray){
 							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipaddress);
-							      ipPoolManagementDetail.setStatus('A');
-							      ipPoolManagementDetail.setClientId(clientId);
-							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+							      
+							      if(ipPoolManagementDetail != null){
+							        ipPoolManagementDetail.setStatus('A');
+							        ipPoolManagementDetail.setClientId(clientId);
+							        this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+							      }
 						      }
 							     jsonObject.put("new_ip_type", ipType);
 							    
@@ -225,7 +230,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			handleCodeDataIntegrityIssues(command, dataIntegrityViolationException);
 			return new CommandProcessingResult(Long.valueOf(-1l));
 		
-		} catch (org.codehaus.jettison.json.JSONException e) {
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return new CommandProcessingResult(Long.valueOf(-1l));

@@ -120,9 +120,7 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 
 		} catch (DataIntegrityViolationException dve) {
 			return CommandProcessingResult.empty();
-		} catch (Exception e) {
-			return null;
-		}
+		} 
 
 	}
 

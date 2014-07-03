@@ -268,6 +268,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	        
 			Client client=this.clientRepository.findOne(clientId);
 	        jsonObject.put("clientId",client.getAccountNo());
+	        jsonObject.put("clientName",client.getFirstname());
 	        jsonObject.put("orderId",orderId);
 	        jsonObject.put("planName",planName);
 	        jsonObject.put("macId",macId);
@@ -410,6 +411,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    Client client=this.clientRepository.findOne(order.getClientId());
 			    JSONObject jsonObject=new JSONObject();
 			    jsonObject.put("clientId",client.getAccountNo());
+			    jsonObject.put("clientName",client.getFirstname());
 		        jsonObject.put("orderId",order.getId());
 		        jsonObject.put("planName",planName);
 		        jsonObject.put("macId",inventoryItemDetails.getSerialNumber());
