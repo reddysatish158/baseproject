@@ -17,6 +17,8 @@ public interface MediaDeviceReadPlatformService {
 	List<PlanData> retrievePlanPostpaidDetails(Long clientId);
 	
 	Long retrieveDeviceDataDetails(Long clientId, String string);
+
+	MediaDeviceData retrieveClientDetails(String clientId);
 	
 
 }
