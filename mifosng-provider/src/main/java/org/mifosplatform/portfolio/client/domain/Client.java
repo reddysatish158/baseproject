@@ -144,10 +144,9 @@ public final class Client extends AbstractPersistable<Long> {
         final Long categoryType=command.longValueOfParameterNamed(ClientApiConstants.clientCategoryParamName);
         final String phone = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
         final String homePhoneNumber = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
-        
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
-
 	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+	    String entryType = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
 
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
 	     String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
@@ -172,7 +171,7 @@ public final class Client extends AbstractPersistable<Long> {
         }
 
         return new Client(status, clientOffice, clientParentGroup, accountNo, firstname, middlename, lastname, fullname, activationDate,
-                externalId,categoryType,email,phone,homePhoneNumber,login,password,groupName);
+                externalId,categoryType,email,phone,homePhoneNumber,login,password,groupName,entryType);
     }
 
     protected Client() {
@@ -181,8 +180,9 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,String groupName) {
-        if (StringUtils.isBlank(accountNo)) {
+            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,String groupName,String entryType) {
+        
+    	if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
             this.accountNumberRequiresAutoGeneration = true;
         } else {
@@ -234,7 +234,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.groups.add(clientParentGroup);
         }
 
-        deriveDisplayName();
+        deriveDisplayName(entryType);
         validateNameParts();
     }
 
@@ -408,8 +408,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.activationDate = newValue.toDate();
         }
 
-        deriveDisplayName();
-
+        deriveDisplayName(command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName));
         return actualChanges;
     }
 
@@ -452,25 +451,30 @@ public final class Client extends AbstractPersistable<Long> {
         if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException(dataValidationErrors); }
     }
 
-    private void deriveDisplayName() {
+    private void deriveDisplayName(String entryType) {
+    	 
+    	StringBuilder nameBuilder = new StringBuilder();
+    	
+    	if(entryType.equalsIgnoreCase("Individual")){
+    	    
+    		if (StringUtils.isNotBlank(this.firstname)) {
+    	       nameBuilder.append(this.firstname).append(' ');
+    	    }
+    	    if (StringUtils.isNotBlank(this.lastname)) {
+    	            nameBuilder.append(this.lastname);
+    	    }
+    	    if (StringUtils.isNotBlank(this.middlename)) {
+    	            nameBuilder.append(this.middlename).append(' ');
+    	    }
+    	}else{
 
-        StringBuilder nameBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(this.firstname)) {
-            nameBuilder.append(this.firstname).append(' ');
-        }
-
-        if (StringUtils.isNotBlank(this.middlename)) {
-            nameBuilder.append(this.middlename).append(' ');
-        }
-
-        if (StringUtils.isNotBlank(this.lastname)) {
-            nameBuilder.append(this.lastname);
-        }
-
+    		if (StringUtils.isNotBlank(this.firstname)) {
+     	       nameBuilder.append(this.firstname).append(' ');
+     	    }
+    	}
         if (StringUtils.isNotBlank(this.fullname)) {
             nameBuilder = new StringBuilder(this.fullname);
         }
-
         this.displayName = nameBuilder.toString();
     }
 

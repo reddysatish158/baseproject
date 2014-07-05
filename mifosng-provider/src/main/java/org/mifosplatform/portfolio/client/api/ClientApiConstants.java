@@ -42,6 +42,7 @@ public class ClientApiConstants {
     public static final String passwordParamName="password";
     public static final String flagParamName="flag";
     public static final String groupParamName = "groupName";
+    public static final String entryTypeParamName = "entryType";
     // response parameters
     public static final String statusParamName = "status";
     public static final String hierarchyParamName = "hierarchy";
@@ -65,18 +66,16 @@ public class ClientApiConstants {
             dateFormatParamName, groupIdParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,
             lastnameParamName, fullnameParamName, officeIdParamName, activeParamName, activationDateParamName,clientCategoryParamName,
             addressNoParamName,cityParamName,countryParamName,emailParamName,phoneParamName,homePhoneNumberParamName,stateParamName,streetParamName,
-            zipCodeParamName,loginParamName,passwordParamName,flagParamName,groupParamName));
+            zipCodeParamName,loginParamName,passwordParamName,flagParamName,groupParamName,entryTypeParamName));
 
 
     public static final Set<String> CLIENT_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, accountNoParamName, externalIdParamName, firstnameParamName, middlenameParamName,clientCategoryParamName,
             lastnameParamName, fullnameParamName, activeParamName, activationDateParamName,clientCategoryParamName,phoneParamName,homePhoneNumberParamName,
-            emailParamName,officeIdParamName,groupParamName));
+            emailParamName,officeIdParamName,groupParamName,entryTypeParamName));
     
     public static final Set<String> CLIENT_CLOSE_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, closureDateParamName, closureReasonIdParamName));
-
-
 
     /**
      * These parameters will match the class level parameters of
