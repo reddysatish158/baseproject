@@ -130,6 +130,9 @@ public final class Client extends AbstractPersistable<Long> {
     
     @Column(name = "exempt_tax",nullable = false)
 	private char taxExemption='N';
+    
+    @Column(name = "is_indororp",nullable = false)
+ 	private String entryType;
 
 
     public static Client createNew(final Office clientOffice, final Group clientParentGroup, final JsonCommand command) {
@@ -197,6 +200,7 @@ public final class Client extends AbstractPersistable<Long> {
         this.login=login;
         this.password=password;
         this.groupName = groupName;
+        this.entryType=entryType;
         if (StringUtils.isNotBlank(externalId)) {
             this.externalId = externalId.trim();
         } else {
@@ -393,6 +397,12 @@ public final class Client extends AbstractPersistable<Long> {
             actualChanges.put(ClientApiConstants.groupParamName, newValue);
             this.groupName = StringUtils.defaultIfEmpty(newValue,null);
         }
+        
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.entryTypeParamName, this.entryType)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
+            actualChanges.put(ClientApiConstants.entryTypeParamName, newValue);
+            this.entryType = StringUtils.defaultIfEmpty(newValue,null);
+        }
         validateNameParts();
 
         final String dateFormatAsInput = command.dateFormat();
@@ -408,7 +418,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.activationDate = newValue.toDate();
         }
 
-        deriveDisplayName(command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName));
+        deriveDisplayName(this.entryType);
         return actualChanges;
     }
 
@@ -455,7 +465,7 @@ public final class Client extends AbstractPersistable<Long> {
     	 
     	StringBuilder nameBuilder = new StringBuilder();
     	
-    	if(entryType.equalsIgnoreCase("Individual")){
+    	if(entryType.equalsIgnoreCase("IND")){
     	    
     		if (StringUtils.isNotBlank(this.firstname)) {
     	       nameBuilder.append(this.firstname).append(' ');

@@ -85,7 +85,8 @@ public class ClientApiConstants {
     public static final Set<String> CLIENT_RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(idParamName, accountNoParamName,
             externalIdParamName, statusParamName, activeParamName, activationDateParamName, firstnameParamName, middlenameParamName,
             lastnameParamName, fullnameParamName, displayNameParamName, officeIdParamName, officeNameParamName, hierarchyParamName,currencyParamName,
-            imageKeyParamName, imagePresentParamName, groupsParamName, officeOptionsParamName,clientCategoryDatas,addressTemplateParamName,balanceParamName));
+            imageKeyParamName, imagePresentParamName, groupsParamName, officeOptionsParamName,clientCategoryDatas,addressTemplateParamName,balanceParamName,
+            entryTypeParamName));
 
     public static final Set<String> ACTIVATION_REQUEST_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(localeParamName,
             dateFormatParamName, activationDateParamName));
