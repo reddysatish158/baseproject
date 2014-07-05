@@ -201,7 +201,7 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 					netChargeAmount, billingOrderCommand.getStartDate(), billingOrderCommand.getEndDate());
 			
 			//client TaxExemption 
-			if(tax.getTaxExemption().equalsIgnoreCase("Y")){
+			if(tax.getTaxExemption().equalsIgnoreCase("N")){
 			
 			for(InvoiceTaxCommand invoiceTaxCommand : invoiceTaxCommands){
 				

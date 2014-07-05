@@ -5,7 +5,6 @@
  */
 package org.mifosplatform.portfolio.client.service;
 
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -149,7 +148,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (sqlSearch != null) {
           //  extraCriteria = " and (" + sqlSearch + ")";
             
-        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%'"
+        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%' OR c.group_name like '%"+sqlSearch+"%' "
         			+ " OR IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id),'No Hardware') LIKE '%"+sqlSearch+"%' )";
             
 /*        	display_name like '%undefined%' OR c.account_no LIKE '%undefined%' 

@@ -15,6 +15,10 @@ import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetailsRepository;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.service.service.ServiceMasterWritePlatformServiceImpl;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.slf4j.Logger;
@@ -33,21 +37,28 @@ public class BillMasterWritePlatformServiceImplementation implements
 		private final BillMasterReadPlatformService billMasterReadPlatformService;
 		private final BillWritePlatformService billWritePlatformService;
 		private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
-	  private final TenantDetailsService tenantDetailsService;
-	   private final BillMasterCommandFromApiJsonDeserializer  apiJsonDeserializer;
+	    private final TenantDetailsService tenantDetailsService;
+	    private final BillMasterCommandFromApiJsonDeserializer  apiJsonDeserializer;
+	    private final ClientRepository clientRepository;
+	    private final GroupsDetailsRepository groupsDetailsRepository;
+	    
+	   
 	@Autowired
 	 public BillMasterWritePlatformServiceImplementation(final PlatformSecurityContext context,final BillMasterRepository billMasterRepository,
 				final BillMasterReadPlatformService billMasterReadPlatformService,final BillWritePlatformService billWritePlatformService,
 				final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final TenantDetailsService tenantDetailsService,
-				final BillMasterCommandFromApiJsonDeserializer apiJsonDeserializer) {
+				final BillMasterCommandFromApiJsonDeserializer apiJsonDeserializer,final ClientRepository clientRepository,
+				final GroupsDetailsRepository groupsDetailsRepository) {
 
-		this.context = context;
+		    this.context = context;
 			this.billMasterRepository = billMasterRepository;
+			this.clientRepository=clientRepository;
 			this.billMasterReadPlatformService=billMasterReadPlatformService;
 			this.billWritePlatformService=billWritePlatformService;
 			this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 			this.tenantDetailsService=tenantDetailsService;
 			this.apiJsonDeserializer=apiJsonDeserializer;
+			this.groupsDetailsRepository=groupsDetailsRepository;
 			
 	}
 	
@@ -60,6 +71,12 @@ public class BillMasterWritePlatformServiceImplementation implements
 			this.apiJsonDeserializer.validateForCreate(command.json());
 			//final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default"); 
 	        //ThreadLocalContextUtil.setTenant(tenant);
+			Long groupId=new Long(0);
+			Client client=this.clientRepository.findOne(clientId);
+			if(client.getGroupName() != null){
+			GroupsDetails groupsDetails=this.groupsDetailsRepository.findOneByGroupName(client.getGroupName());
+			groupId=groupsDetails.getId();
+			}
 		List<FinancialTransactionsData> financialTransactionsDatas = billMasterReadPlatformService.retrieveFinancialData(clientId);
 		if (financialTransactionsDatas.size() == 0) {
 			String msg = "no Bills to Generate";
@@ -83,7 +100,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 		final LocalDate dueDate = command.localDateValueOfParameterNamed("dueDate");
 		final String message = command.stringValueOfParameterNamed("message");
 		BillMaster  billMaster = new BillMaster(clientId, clientId,billDate.toDate(), null, null, dueDate.toDate(),
-		previousBalance, chargeAmount, adjustmentAmount, taxAmount,paidAmount, dueAmount, null,message);
+		previousBalance, chargeAmount, adjustmentAmount, taxAmount,paidAmount, dueAmount, null,message,groupId);
 		
 		List<BillDetail> listOfBillingDetail = new ArrayList<BillDetail>();
 		
