@@ -1026,4 +1026,9 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
 		}
 
+		public boolean isClientStatus() {
+			
+			   return this.actionName.equalsIgnoreCase("UPDATESTATUS") && this.entityName.equalsIgnoreCase("CLIENT");
+		}
+
 }

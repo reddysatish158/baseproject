@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class SelfCareReadPlatformServiceImp implements SelfCareReadPlatformServi
 	
 	@Override
 	public Long login(String userName, String password) {
-		
+		try{
 		String sql = "";
 		if(userName.contains("@")){
 			sql = "select client_id as clientId from b_clientuser where unique_reference=? and password=?";
@@ -57,6 +58,9 @@ public class SelfCareReadPlatformServiceImp implements SelfCareReadPlatformServi
 		}	
 		PasswordMapper mapper1 = new PasswordMapper();
 		return jdbcTemplate.queryForObject(sql,mapper1,new Object[]{userName,password});
+		}catch(EmptyResultDataAccessException ex){
+			return null;
+		}
 	}
 	
 	private class ClientEmailMapper implements RowMapper<String>{

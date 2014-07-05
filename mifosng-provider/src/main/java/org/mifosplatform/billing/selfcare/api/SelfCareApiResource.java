@@ -36,12 +36,16 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.organisation.address.data.AddressData;
 import org.mifosplatform.organisation.address.service.AddressReadPlatformService;
 import org.mifosplatform.portfolio.client.data.ClientData;
+import org.mifosplatform.portfolio.client.exception.ClientStatusException;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;
 import org.mifosplatform.portfolio.order.data.OrderData;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 
 @Path("selfcare")
@@ -132,10 +136,19 @@ public class SelfCareApiResource {
         SelfCareData careData = new SelfCareData();
         try{
         final Long clientId = this.selfCareReadPlatformService.login(username, password);
+        if(clientId == null){
+        	  MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+        	   throw new BadCredentialsException(messages.getMessage(
+                       "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        }
+        
         careData.setClientId(clientId);
         
         
         ClientData clientsData = this.clientReadPlatformService.retrieveOne(clientId);
+        if(clientsData.isActive()){
+        	throw new ClientStatusException(clientId);
+        }
         ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
         List<AddressData> addressData = this.addressReadPlatformService.retrieveAddressDetails(clientId);
         final List<OrderData> clientOrdersData = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);

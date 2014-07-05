@@ -40,6 +40,7 @@ import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepositoryWrapper;
 import org.mifosplatform.portfolio.client.domain.ClientStatus;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
+import org.mifosplatform.portfolio.client.exception.ClientStatusException;
 import org.mifosplatform.portfolio.client.exception.InvalidClientStateTransitionException;
 import org.mifosplatform.portfolio.group.domain.Group;
 import org.mifosplatform.portfolio.group.domain.GroupRepository;
@@ -389,4 +390,37 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private void logAsErrorUnexpectedDataIntegrityException(final DataIntegrityViolationException dve) {
         logger.error(dve.getMessage(), dve);
     }
+
+	@Override
+	public CommandProcessingResult updateClientStatus(JsonCommand command,Long entityId) {
+            try{
+            	
+            	this.context.authenticatedUser();
+            	String status=command.stringValueOfParameterNamed("status");
+            	Client client=this.clientRepository.findOneWithNotFoundDetection(entityId);
+            	
+            	int statusId=0;
+            	System.out.println(ClientStatus.ACTIVE.getCode());
+            	if(status.equalsIgnoreCase("ACTIVE")){
+            	
+            		if(client.getStatus().equals(ClientStatus.ACTIVE.getValue())){
+            			throw new ClientStatusException(entityId);
+            		}
+            		
+            		statusId=ClientStatus.ACTIVE.getValue();
+            	}else{
+            		statusId=ClientStatus.DEACTIVE.getValue();
+            	}
+            	
+            	client.setStatus(statusId);
+            	this.clientRepository.save(client);
+            	return new CommandProcessingResult(Long.valueOf(entityId));
+            	
+            }catch(DataIntegrityViolationException dve){
+            	handleDataIntegrityIssues(command, dve);
+            	return new CommandProcessingResult(Long.valueOf(-1));
+            }
+
+		
+	}
 }
