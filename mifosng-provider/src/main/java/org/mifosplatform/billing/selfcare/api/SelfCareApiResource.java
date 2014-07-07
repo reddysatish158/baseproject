@@ -7,14 +7,18 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.selfcare.data.SelfCareData;
+import org.mifosplatform.billing.selfcare.domain.SelfCare;
 import org.mifosplatform.billing.selfcare.service.SelfCareReadPlatformService;
+import org.mifosplatform.billing.selfcare.service.SelfCareRepository;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -72,9 +76,10 @@ public class SelfCareApiResource {
 	private final PaymodeReadPlatformService paymentReadPlatformService;
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
 	private final GlobalConfigurationRepository configurationRepository;
+	private final SelfCareRepository selfCareRepository;
 	
 	@Autowired
-	public SelfCareApiResource(final PlatformSecurityContext context,
+	public SelfCareApiResource(final PlatformSecurityContext context,final SelfCareRepository selfCareRepository,
 			final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
 			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, 
 			final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, 
@@ -97,6 +102,7 @@ public class SelfCareApiResource {
 				this.billMasterReadPlatformService = billMasterReadPlatformService;
 				this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
 				this.configurationRepository=configurationRepository;
+				this.selfCareRepository=selfCareRepository;
 	}
 	
 	
@@ -142,13 +148,13 @@ public class SelfCareApiResource {
                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
         
-        careData.setClientId(clientId);
-        
-        
-        ClientData clientsData = this.clientReadPlatformService.retrieveOne(clientId);
-        if(clientsData.isActive()){
+        SelfCare selfCare=this.selfCareRepository.findOneByClientId(clientId);
+        if(selfCare.getStatus().equalsIgnoreCase("ACTIVE")){
         	throw new ClientStatusException(clientId);
         }
+        
+        careData.setClientId(clientId);
+        ClientData clientsData = this.clientReadPlatformService.retrieveOne(clientId);
         ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
         List<AddressData> addressData = this.addressReadPlatformService.retrieveAddressDetails(clientId);
         final List<OrderData> clientOrdersData = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
@@ -168,5 +174,25 @@ public class SelfCareApiResource {
         return this.toApiJsonSerializerForItem.serialize(careData);
         
 	}
+	
+	  
+    @PUT
+    @Path("status/{clientId}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public String updateClientStatus(@PathParam("clientId")Long clientId,final String apiRequestBodyAsJson) {
+
+        final CommandWrapper commandRequest = new CommandWrapperBuilder() //
+                .updateClientStatus(clientId) //
+                .withJson(apiRequestBodyAsJson) //
+                .build(); //
+
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+        return this.toApiJsonSerializerForItem.serialize(result);
+    }
+
+
+
 	
 }

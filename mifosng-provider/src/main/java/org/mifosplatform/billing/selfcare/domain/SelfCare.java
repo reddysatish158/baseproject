@@ -24,6 +24,9 @@ public class SelfCare extends AbstractPersistable<Long>{
 	@Column(name="unique_reference")
 	private String uniqueReference;
 	
+	@Column(name="status")
+	private String status;
+	
 	@Column(name="is_deleted")
 	private Boolean isDeleted=false;
 	
@@ -36,6 +39,7 @@ public class SelfCare extends AbstractPersistable<Long>{
 		this.password = password;
 		this.uniqueReference = uniqueReference;
 		this.isDeleted = isDeleted;
+		this.status="INACTIVE";
 	}
 	public static SelfCare fromJson(JsonCommand command) {
 		final String userName = command.stringValueOfParameterNamed("userName");
@@ -44,6 +48,7 @@ public class SelfCare extends AbstractPersistable<Long>{
 		selfCare.setUserName(userName);
 		selfCare.setUniqueReference(uniqueReference);
 		selfCare.setIsDeleted(false);
+		selfCare.setStatus("INACTIVE");
 		return selfCare;
 		
 	}
@@ -57,6 +62,7 @@ public class SelfCare extends AbstractPersistable<Long>{
 		selfCare.setUniqueReference(uniqueReference);
 		selfCare.setPassword(password);
 		selfCare.setIsDeleted(false);
+		selfCare.setStatus("INACTIVE");
 		return selfCare;
 		
 	}
@@ -91,4 +97,12 @@ public class SelfCare extends AbstractPersistable<Long>{
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	
 }
