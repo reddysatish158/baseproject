@@ -151,6 +151,9 @@ public class SelfCareApiResource {
         SelfCare selfCare=this.selfCareRepository.findOneByClientId(clientId);
         if(selfCare.getStatus().equalsIgnoreCase("ACTIVE")){
         	throw new ClientStatusException(clientId);
+        }else{
+        	selfCare.setStatus("ACTIVE");
+        	this.selfCareRepository.saveAndFlush(selfCare);
         }
         
         careData.setClientId(clientId);

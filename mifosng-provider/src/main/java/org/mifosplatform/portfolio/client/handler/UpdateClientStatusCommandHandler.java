@@ -5,6 +5,7 @@
  */
 package org.mifosplatform.portfolio.client.handler;
 
+import org.mifosplatform.billing.selfcare.service.SelfCareWritePlatformService;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -16,17 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UpdateClientStatusCommandHandler implements NewCommandSourceHandler {
 
-    private final ClientWritePlatformService clientWritePlatformService;
+    private final SelfCareWritePlatformService writePlatformService;
 
     @Autowired
-    public UpdateClientStatusCommandHandler(final ClientWritePlatformService clientWritePlatformService) {
-        this.clientWritePlatformService = clientWritePlatformService;
+    public UpdateClientStatusCommandHandler(final SelfCareWritePlatformService writePlatformService) {
+        this.writePlatformService = writePlatformService;
     }
 
     @Transactional
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        return this.clientWritePlatformService.updateClientStatus(command,command.entityId());
+        return this.writePlatformService.updateClientStatus(command,command.entityId());
     }
 }
