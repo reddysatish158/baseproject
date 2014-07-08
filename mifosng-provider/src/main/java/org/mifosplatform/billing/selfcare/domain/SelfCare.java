@@ -62,7 +62,7 @@ public class SelfCare extends AbstractPersistable<Long>{
 		selfCare.setUniqueReference(uniqueReference);
 		selfCare.setPassword(password);
 		selfCare.setIsDeleted(false);
-		selfCare.setStatus("INACTIVE");
+		selfCare.setStatus("ACTIVE");
 		return selfCare;
 		
 	}
