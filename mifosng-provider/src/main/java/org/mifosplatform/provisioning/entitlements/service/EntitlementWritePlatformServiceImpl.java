@@ -19,11 +19,11 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 	private final ProcessRequestWriteplatformService processRequestWriteplatformService;
 	
 	@Autowired
-	public EntitlementWritePlatformServiceImpl(final ProcessRequestWriteplatformService processRequestWriteplatformService,
-			                            final ProcessRequestRepository entitlementRepository ) {		
+	public EntitlementWritePlatformServiceImpl(final ProcessRequestRepository entitlementRepository,
+			final ProcessRequestWriteplatformService processRequestWriteplatformService) {		
 
-		this.processRequestWriteplatformService=processRequestWriteplatformService;
 		this.entitlementRepository=entitlementRepository;
+		this.processRequestWriteplatformService=processRequestWriteplatformService;
 	}
 	
 	
@@ -54,9 +54,8 @@ public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlat
 			status='F';
 		}
 		processRequest.setProcessStatus(status);
-		
-		//this.entitlementRepository.save(processRequest);
 		this.processRequestWriteplatformService.notifyProcessingDetails(processRequest,status);
+	//	this.entitlementRepository.save(request);
 		return new CommandProcessingResult(processRequest.getId());
 		
 	}
