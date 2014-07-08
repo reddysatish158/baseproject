@@ -102,8 +102,8 @@ private class ServiceMappingDataByIdRowMapper implements RowMapper<ServiceMappin
 	 private static final class ServiceParameterMapper implements RowMapper<ServiceParameterData> {
 
 		    public String schema() {
-				return " sd.id AS id,sd.service_identification AS paramName,sd.image AS paramValue,sr.parameter_displayType as type" +
-						"FROM b_orders o,b_plan_master p,b_service s,b_plan_detail pd,b_prov_service_details sd,stretchy_parameter sr" +
+				return " sd.id AS id,sd.service_identification AS paramName,sd.image AS paramValue,sr.parameter_displayType as type " +
+						" FROM b_orders o,b_plan_master p,b_service s,b_plan_detail pd,b_prov_service_details sd,stretchy_parameter sr" +
 						" WHERE  p.id = o.plan_id AND pd.plan_id = p.id AND pd.service_code = s.service_code AND sd.service_id = s.id " +
 						" and sd.service_identification = sr.parameter_name ";
 			}

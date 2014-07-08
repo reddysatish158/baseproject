@@ -304,38 +304,34 @@ exception.printStackTrace();
 public void processSimulator() {
 
 try {
-System.out.println("Processing Simulator Details.......");
-List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveUnProcessingDetails();
-if(!processingDetails.isEmpty()){
-
-MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
-final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
-LocalTime date=new LocalTime(zone);
-String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
-String path=FileUtils.generateLogFileDirectory()+JobName.SIMULATOR.toString()+ File.separator +"Simulator_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-
-File fileHandler = new File(path.trim());
-fileHandler.createNewFile();
-FileWriter fw = new FileWriter(fileHandler);
-FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-
-fw.append("Processing Simulator Details....... \r\n");
-for (ProcessingDetailsData detailsData : processingDetails) {
-
-fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
-+detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
-ProcessRequest processRequest = this.processRequestRepository.findOne(detailsData.getId());
-processRequest.setProcessStatus('Y');
-this.processRequestRepository.save(processRequest);
-this.processRequestWriteplatformService.notifyProcessingDetails(processRequest,'Y');
-
-}
-fw.append("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
-fw.flush();
-fw.close();
-
-}
-System.out.println("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+  System.out.println("Processing Simulator Details.......");
+  List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveUnProcessingDetails();
+  if(!processingDetails.isEmpty()){
+       MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
+       final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+       LocalTime date=new LocalTime(zone);
+       String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
+       String path=FileUtils.generateLogFileDirectory()+JobName.SIMULATOR.toString()+ File.separator +"Simulator_"+new LocalDate().toString().
+    		    replace("-","")+"_"+dateTime+".log";
+       File fileHandler = new File(path.trim());
+       fileHandler.createNewFile();
+       FileWriter fw = new FileWriter(fileHandler);
+       FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+       fw.append("Processing Simulator Details....... \r\n");
+        for (ProcessingDetailsData detailsData : processingDetails) {
+        	
+          fw.append("simulator Process Request id="+detailsData.getId()+" ,orderId="+detailsData.getOrderId()+" ,Provisiong System="
+          +detailsData.getProvisionigSystem()+" ,RequestType="+detailsData.getRequestType()+"\r\n");
+          ProcessRequest processRequest = this.processRequestRepository.findOne(detailsData.getId());
+          processRequest.setProcessStatus('Y');
+          this.processRequestRepository.save(processRequest);
+          this.processRequestWriteplatformService.notifyProcessingDetails(processRequest,'Y');
+        }
+      fw.append("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" \r\n");
+      fw.flush();
+      fw.close();
+  }
+     System.out.println("Simulator Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 } catch (DataIntegrityViolationException exception) {
 
 } catch (Exception exception) {

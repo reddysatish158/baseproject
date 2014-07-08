@@ -20,6 +20,7 @@ import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepositor
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
+import org.mifosplatform.portfolio.association.exception.PairingNotExistException;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
@@ -27,7 +28,6 @@ import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
-import org.mifosplatform.portfolio.plan.domain.Plan;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.service.domain.ServiceMaster;
 import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
@@ -403,9 +403,12 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(order.getId());
 			
 			if(!parameters.isEmpty()){
-			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),"PackeSpan", requestType);
+			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),"Packetspan", requestType);
 			    List<OrderLine> orderLines=order.getServices();
 			    HardwareAssociation hardwareAssociation=this.associationRepository.findOneByOrderId(order.getId());
+			    if(hardwareAssociation == null){
+			    	throw new PairingNotExistException(order.getId());
+			    }
 			    InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(hardwareAssociation.getSerialNo());
 			    
 			    Client client=this.clientRepository.findOne(order.getClientId());
