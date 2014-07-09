@@ -2,6 +2,7 @@ package org.mifosplatform.provisioning.provisioning.service;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
+import org.mifosplatform.portfolio.order.domain.Order;
 
 public interface ProvisioningWritePlatformService {
 
@@ -16,6 +17,8 @@ public interface ProvisioningWritePlatformService {
 	CommandProcessingResult updateProvisioningDetails(Long entityId);
 
 	void updateHardwareDetails(Long clientId, String serialNumber,String oldSerialnumber, String provSerilaNum, String oldHardware);
+
+	void postOrderDetailsForProvisioning(Order order, String string, String planName, Long prepareId);
 
 
 }

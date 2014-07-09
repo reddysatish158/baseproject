@@ -153,7 +153,7 @@ public final class Client extends AbstractPersistable<Long> {
 	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
 
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
-	    final String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+	     String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -161,7 +161,10 @@ public final class Client extends AbstractPersistable<Long> {
 	    if(login.isEmpty()){
 	    	login=null;
 	    }
-        ClientStatus status =  ClientStatus.NEW;
+	    if(groupName.isEmpty()){
+	    	groupName=null;
+	    }
+	    ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
 
@@ -388,7 +391,11 @@ public final class Client extends AbstractPersistable<Long> {
             actualChanges.put(ClientApiConstants.passwordParamName, newValue);
             this.password = StringUtils.defaultIfEmpty(newValue,null);
         }
-
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.groupParamName, this.groupName)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+            actualChanges.put(ClientApiConstants.groupParamName, newValue);
+            this.groupName = StringUtils.defaultIfEmpty(newValue,null);
+        }
         validateNameParts();
 
         final String dateFormatAsInput = command.dateFormat();

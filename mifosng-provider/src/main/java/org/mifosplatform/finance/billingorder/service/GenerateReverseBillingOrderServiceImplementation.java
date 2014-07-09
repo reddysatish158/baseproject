@@ -156,7 +156,8 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 		if(billingOrderCommands.get(0).getTaxInclusive()!=null){
 			if(isTaxInclusive(billingOrderCommands.get(0).getTaxInclusive())){
 			invoiceAmount = totalChargeAmount;
-			} else{
+			}else{
+
 				invoiceAmount = totalChargeAmount.add(netTaxAmount);
 			}
 			}else{
