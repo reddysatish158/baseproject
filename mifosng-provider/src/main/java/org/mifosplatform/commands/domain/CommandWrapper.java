@@ -1057,4 +1057,9 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
 		}
 
+		public boolean isBillModeResource() {
+			
+			return this.entityName.equalsIgnoreCase("CLIENTBILLMODE");
+		}
+
 }

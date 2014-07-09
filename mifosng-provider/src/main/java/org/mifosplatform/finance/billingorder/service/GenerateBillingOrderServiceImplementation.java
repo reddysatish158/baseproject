@@ -201,7 +201,7 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 					netChargeAmount, billingOrderCommand.getStartDate(), billingOrderCommand.getEndDate());
 			
 			//client TaxExemption 
-			if(tax.getTaxExemption().equalsIgnoreCase("Y")){
+			if(tax.getTaxExemption().equalsIgnoreCase("N")){
 			
 			for(InvoiceTaxCommand invoiceTaxCommand : invoiceTaxCommands){
 				
@@ -241,13 +241,15 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 		if(billingOrderCommands.get(0).getTaxInclusive()!=null){
 		if(isTaxInclusive(billingOrderCommands.get(0).getTaxInclusive())){
 		invoiceAmount = totalChargeAmount;
-		} 
+		} else{
+			invoiceAmount = totalChargeAmount.add(netTaxAmount);
+		}
 		}else{
 			invoiceAmount = totalChargeAmount.add(netTaxAmount);
 		}
+		
 		invoice.setNetChargeAmount(totalChargeAmount);
 		invoice.setTaxAmount(netTaxAmount);
-		
 		invoice.setInvoiceAmount(invoiceAmount);
 		return this.invoiceRepository.save(invoice);
 	}

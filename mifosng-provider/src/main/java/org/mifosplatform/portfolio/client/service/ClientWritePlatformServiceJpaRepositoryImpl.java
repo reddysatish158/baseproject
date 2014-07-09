@@ -412,4 +412,27 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
 		}
 		return new CommandProcessingResultBuilder().withEntityId(clientTaxStatus.getId()).build();
 	}
+
+	@Override
+	public CommandProcessingResult updateClientBillMode(Long clientId,JsonCommand command) {
+		
+		Client clientBillMode=null;
+	
+		try{
+			 this.fromApiJsonDeserializer.ValidateBillMode(command);
+			 clientBillMode=this.clientRepository.findOneWithNotFoundDetection(clientId);
+			 final String billMode=command.stringValueOfParameterNamed("billMode");
+			 if(billMode.equals(clientBillMode.getBillMode())==false){
+				 clientBillMode.setBillMode(billMode);
+			 }else{
+				 
+			 }
+		}catch(DataIntegrityViolationException dve){
+			 handleDataIntegrityIssues(command, dve);
+	            return CommandProcessingResult.empty();
+		}
+		
+		return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(clientBillMode.getId()).build();
+	}
+
 }

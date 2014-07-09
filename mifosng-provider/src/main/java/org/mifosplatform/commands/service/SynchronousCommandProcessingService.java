@@ -999,7 +999,13 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
-				}else {
+				}else if(wrapper.isBillModeResource()){
+					 if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateClientBillModeCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+				}else{				
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
 			       

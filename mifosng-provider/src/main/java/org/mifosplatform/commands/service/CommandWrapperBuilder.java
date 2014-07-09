@@ -2226,5 +2226,21 @@ public CommandWrapperBuilder updateIpPoolManagement(Long id) {
 	this.href = "/ippooling/"+id;
 	return this;
 }
+
+/*public CommandWrapperBuilder createBillMode(Long clientId) {
+	this.actionName = "CREATE";
+	this.entityName = "CLIENTBILLMODE";
+	this.entityId = clientId;
+	this.href = "/billmode/" +clientId;
+	return this;
+}*/
+
+public CommandWrapperBuilder updateBillMode(Long clientId) {
+	this.actionName = "UPDATE";
+	this.entityName = "CLIENTBILLMODE";
+	this.entityId = clientId;
+	this.href = "/billmode/" +clientId;
+	return this;
+}
 	
 }
