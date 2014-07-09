@@ -77,6 +77,7 @@ import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadp
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.provisioning.provisioning.api.ProvisioningApiConstants;
 import org.mifosplatform.provisioning.provisioning.service.ProvisioningWritePlatformService;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
@@ -511,8 +512,9 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			String requstStatus =UserActionStatusTypeEnum.DISCONNECTION.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
 			
-			if(plan.getProvisionSystem().equalsIgnoreCase("Packetspan")){
-				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),StatusTypeEnum.DISCONNECTED.toString(),processingResult.resourceId());
+			if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
+				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.DISCONNECTION.toString(),
+						processingResult.resourceId(),null);
 			}
 			
 			//For Order History
@@ -724,8 +726,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			String requstStatus = UserActionStatusTypeEnum.RECONNECTION.toString().toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
 			
-			if(plan.getProvisionSystem().equalsIgnoreCase("Packetspan")){
-				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.ACTIVATION.toString(),processingResult.resourceId());
+			if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
+				
+				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.ACTIVATION.toString(),
+						processingResult.resourceId(),null);
 			}
 			
 			//For Order History

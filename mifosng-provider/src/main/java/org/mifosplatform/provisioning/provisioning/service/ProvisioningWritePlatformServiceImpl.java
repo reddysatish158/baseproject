@@ -14,10 +14,12 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
 import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
+import org.mifosplatform.organisation.ippool.exception.IpNotAvailableException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
 import org.mifosplatform.portfolio.association.exception.PairingNotExistException;
@@ -218,10 +220,12 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
             PrepareRequest prepareRequest=this.prepareRequsetRepository.getLatestRequestByOrderId(orderId);
 			InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(macId);
 			
+			if(inventoryItemDetails == null){
+				throw new PairingNotExistException(orderId);
+			}
+			
 			 final JsonElement element = fromJsonHelper.parse(command.json());
 			 JsonArray serviceParameters = fromJsonHelper.extractJsonArrayNamed("serviceParameters", element);
-			 
-			
 			
 			JSONObject jsonObject=new JSONObject();
 	        for(JsonElement j:serviceParameters){
@@ -255,11 +259,14 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 
 					  for(String ipAddress:ipAddressArray){
 						IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
-						if(ipPoolManagementDetail!=null){
+
+						if(ipPoolManagementDetail == null){
+								throw new IpNotAvailableException(ipAddress);
+						}
 						ipPoolManagementDetail.setStatus('A');
 						ipPoolManagementDetail.setClientId(clientId);
 						this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-						}
+						
 					}
 				}
 				jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
@@ -396,20 +403,24 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 
 	@Transactional
     @Override
-	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId) {
+	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId,String groupname) {
 		try{
 			
 			this.context.authenticatedUser();
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(order.getId());
 			
 			if(!parameters.isEmpty()){
-			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),"Packetspan", requestType);
+			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),ProvisioningApiConstants.PROV_PACKETSPAN, requestType);
 			    List<OrderLine> orderLines=order.getServices();
 			    HardwareAssociation hardwareAssociation=this.associationRepository.findOneByOrderId(order.getId());
 			    if(hardwareAssociation == null){
 			    	throw new PairingNotExistException(order.getId());
 			    }
 			    InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(hardwareAssociation.getSerialNo());
+			    
+			    if(inventoryItemDetails == null){
+			    	throw new PairingNotExistException(order.getId());
+			    }
 			    
 			    Client client=this.clientRepository.findOne(order.getClientId());
 			    JSONObject jsonObject=new JSONObject();
@@ -418,7 +429,9 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		        jsonObject.put("orderId",order.getId());
 		        jsonObject.put("planName",planName);
 		        jsonObject.put("macId",inventoryItemDetails.getSerialNumber());
-		        
+		        if(groupname != null){
+		        	jsonObject.put("OLD_GROUP_NAME",groupname);
+		        }
 		        for(ServiceParameters serviceParameters:parameters){
 		        	if(serviceParameters.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
 		        		if(serviceParameters.getParameterValue().contains("/")){
@@ -431,11 +444,18 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		        			jsonObject.put("ip_type","Single");
 		        		}
 		        	}
-		        	
-		        	jsonObject.put(serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	if(serviceParameters.getParameterName().equalsIgnoreCase("GROUP_NAME") && groupname != null){
+		        		jsonObject.put("NEW_"+serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	}else{
+		        	   jsonObject.put(serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	}
 		        	
 		        }
 			    for(OrderLine orderLine:orderLines){
+			    	
+			    	
+					ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
+					jsonObject.put("Service_type",service.getServiceType());
 			    	
 			    	 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 								jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),

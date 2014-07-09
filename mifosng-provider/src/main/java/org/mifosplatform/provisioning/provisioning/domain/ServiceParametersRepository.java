@@ -12,5 +12,10 @@ public interface ServiceParametersRepository  extends JpaRepository<ServiceParam
 	
 	@Query("from ServiceParameters serviceParameter where serviceParameter.orderId =:orderId and serviceParameter.status ='ACTIVE'")
 	List<ServiceParameters> findDataByOrderId(@Param("orderId") Long orderId);
+	
+	
+	@Query("from ServiceParameters serviceParameter where serviceParameter.clientId =:clientId and serviceParameter.status ='ACTIVE' " +
+			" and serviceParameter.parameterName ='GROUP_NAME'")
+	List<ServiceParameters> findGroupNameByclientId(@Param("clientId") Long clientId);
 
 }

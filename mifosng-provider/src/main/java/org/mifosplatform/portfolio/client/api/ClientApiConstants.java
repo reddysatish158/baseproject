@@ -41,7 +41,7 @@ public class ClientApiConstants {
     public static final String loginParamName="login";
     public static final String passwordParamName="password";
     public static final String flagParamName="flag";
-    public static final String groupParamName = "groupName";
+    public static final String groupParamName = "groupId";
     public static final String entryTypeParamName = "entryType";
     // response parameters
     public static final String statusParamName = "status";

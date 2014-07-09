@@ -68,14 +68,14 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 				
 				for(int i=0;i<data.length;i++){
 					int j=i+1;
-					IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription,'I',type,notes,subnet);
+					IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription,'I',type,notes);
 					this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 					generatedIPPoolID.put(String.valueOf(j), ipPoolManagementDetail.getId());
 				}
 				
 			}else{
 				String i="1";
-				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(ipAddress,ipPoolDescription,'I',type,notes,subnet);
+				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(ipAddress,ipPoolDescription,'I',type,notes);
 
 				this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 				generatedIPPoolID.put(i, ipPoolManagementDetail.getId());

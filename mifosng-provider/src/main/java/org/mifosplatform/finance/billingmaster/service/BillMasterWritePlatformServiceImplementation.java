@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BillMasterWritePlatformServiceImplementation implements
@@ -63,6 +64,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 	}
 	
 	
+	@Transactional
 	@Override
 	public CommandProcessingResult createBillMaster(JsonCommand command,Long clientId) {
 		try
@@ -74,7 +76,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 			Long groupId=new Long(0);
 			Client client=this.clientRepository.findOne(clientId);
 			if(client.getGroupName() != null){
-			GroupsDetails groupsDetails=this.groupsDetailsRepository.findOneByGroupName(client.getGroupName());
+			GroupsDetails groupsDetails=this.groupsDetailsRepository.findOne(client.getGroupName());//findOneByGroupName(client.getGroupName());
 			groupId=groupsDetails.getId();
 			}
 		List<FinancialTransactionsData> financialTransactionsDatas = billMasterReadPlatformService.retrieveFinancialData(clientId);
@@ -115,7 +117,8 @@ public class BillMasterWritePlatformServiceImplementation implements
 		
 		}
 	
-		billMaster = this.billMasterRepository.save(billMaster);
+		billMaster = this.billMasterRepository.saveAndFlush(billMaster);
+		this.billWritePlatformService.ireportPdf(billMaster.getId());
 		
 		
 		//List<BillDetail> billDetail = billWritePlatformService.createBillDetail(financialTransactionsDatas, billMaster);
@@ -132,8 +135,6 @@ public class BillMasterWritePlatformServiceImplementation implements
 		 handleCodeDataIntegrityIssues(command, dve);
 		return  CommandProcessingResult.empty();
 	}
-
-	
 }
 
 	private void handleCodeDataIntegrityIssues(JsonCommand command,

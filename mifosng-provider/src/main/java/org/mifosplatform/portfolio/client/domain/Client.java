@@ -104,8 +104,8 @@ public final class Client extends AbstractPersistable<Long> {
     private String login;
     @Column(name = "password", length = 100)
     private String password;
-    @Column(name = "group_name", length = 100)
-    private String groupName;
+    @Column(name = "group_Id", length = 100)
+    private Long groupId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "closure_reason_cv_id", nullable = true)
@@ -152,7 +152,7 @@ public final class Client extends AbstractPersistable<Long> {
 	    String entryType = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
 
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
-	     String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+	     Long groupName=command.longValueOfParameterNamed(ClientApiConstants.groupParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -160,9 +160,9 @@ public final class Client extends AbstractPersistable<Long> {
 	    if(login.isEmpty()){
 	    	login=null;
 	    }
-	    if(groupName.isEmpty()){
+	   /* if(groupName.isEmpty()){
 	    	groupName=null;
-	    }
+	    }*/
 	    ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
@@ -183,7 +183,7 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,String groupName,String entryType) {
+            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,Long groupName,String entryType) {
         
     	if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
@@ -199,7 +199,7 @@ public final class Client extends AbstractPersistable<Long> {
         this.homePhoneNumber=homePhoneNumber;
         this.login=login;
         this.password=password;
-        this.groupName = groupName;
+        this.groupId = groupName;
         this.entryType=entryType;
         if (StringUtils.isNotBlank(externalId)) {
             this.externalId = externalId.trim();
@@ -392,10 +392,10 @@ public final class Client extends AbstractPersistable<Long> {
             actualChanges.put(ClientApiConstants.passwordParamName, newValue);
             this.password = StringUtils.defaultIfEmpty(newValue,null);
         }
-        if (command.isChangeInStringParameterNamed(ClientApiConstants.groupParamName, this.groupName)) {
-            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+        if (command.isChangeInLongParameterNamed(ClientApiConstants.groupParamName, this.groupId)) {
+            final Long newValue = command.longValueOfParameterNamed(ClientApiConstants.groupParamName);
             actualChanges.put(ClientApiConstants.groupParamName, newValue);
-            this.groupName = StringUtils.defaultIfEmpty(newValue,null);
+            this.groupId = newValue;
         }
         
         if (command.isChangeInStringParameterNamed(ClientApiConstants.entryTypeParamName, this.entryType)) {
@@ -587,8 +587,8 @@ public final class Client extends AbstractPersistable<Long> {
 	public String getPassword() {
 		return password;
 	}
-	public String getGroupName(){
-		return groupName;
+	public Long getGroupName(){
+		return groupId;
 	}
 	
 	public Set<Group> getGroups() {

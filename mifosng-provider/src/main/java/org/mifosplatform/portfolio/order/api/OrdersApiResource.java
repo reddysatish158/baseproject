@@ -63,36 +63,34 @@ public class OrdersApiResource {
 	
 	  private final String resourceNameForPermissions = "ORDER";
 	  private final PlatformSecurityContext context;
-	  private final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer;
-	  private final ApiRequestParameterHelper apiRequestParameterHelper;
-	  private final OrderReadPlatformService orderReadPlatformService;
-	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	  private final PlanReadPlatformService planReadPlatformService;
+	  private final OrderReadPlatformService orderReadPlatformService;
+	  private final MCodeReadPlatformService mCodeReadPlatformService;
+	  private final ApiRequestParameterHelper apiRequestParameterHelper;
 	  private final PaymodeReadPlatformService paymodeReadPlatformService;
 	  private final GlobalConfigurationRepository configurationRepository;
-	  private final ActionDetailsReadPlatformService actionDetailsReadPlatformService; 
-	  private final ActiondetailsWritePlatformService actiondetailsWritePlatformService;
-	  private final MCodeReadPlatformService mCodeReadPlatformService;
+	  private final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer;
+	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
+	  
 
 	  @Autowired
 	   public OrdersApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final DefaultToApiJsonSerializer<OrderData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
 	   final PlanReadPlatformService planReadPlatformService,final PaymodeReadPlatformService paymodeReadPlatformService,
-	   final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,
 	   final MCodeReadPlatformService mCodeReadPlatformService) {
 
 		        this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
-		        this.apiRequestParameterHelper = apiRequestParameterHelper;
-		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.planReadPlatformService=planReadPlatformService;
+		        this.configurationRepository=configurationRepository;
+		        this.mCodeReadPlatformService=mCodeReadPlatformService;
 		        this.orderReadPlatformService=orderReadPlatformService;
 		        this.paymodeReadPlatformService=paymodeReadPlatformService;
-		        this.configurationRepository=configurationRepository;
-		        this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
-				this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
-		        this.mCodeReadPlatformService=mCodeReadPlatformService;
+		        this.apiRequestParameterHelper = apiRequestParameterHelper;
+		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
+		        
+		        
 		    }	
 	  
 	@POST

@@ -17,6 +17,7 @@ import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
+import org.mifosplatform.organisation.ippool.exception.IpNotAvailableException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -150,17 +151,19 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 						      
 							     for(String ipaddress:ipAddressArray){
 							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipaddress);
-							      
-							      if(ipPoolManagementDetail != null){
+							  
+							      if(ipPoolManagementDetail == null){
+									throw new IpNotAvailableException(ipaddress);
+							       }
 							        ipPoolManagementDetail.setStatus('A');
 							        ipPoolManagementDetail.setClientId(clientId);
 							        this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-							      }
+							     
 						      }
 							     jsonObject.put("new_ip_type", ipType);
 							    
 							     if(oldValue.contains("/")){
-								    IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
+								//    IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
 		 					        //ipAddressArray=this.ipGeneration.getInfo().getsubnetAddresses(oldValue);
 		 					          
 		 					        for(int i=0;i<ipAddressArray.length;i++){
