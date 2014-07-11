@@ -250,15 +250,15 @@ public class InventoryItemDetailsApiResource {
 	}*/
 	
 	@GET
-	@Path("{oneTimeSaleId}")
+	@Path("{oneTimeSaleId}/{officeId}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retriveItemSerialNumbers(@PathParam("oneTimeSaleId") final Long oneTimeSaleId,@QueryParam("query") final String query, @Context final UriInfo uriInfo){
+	public String retriveItemSerialNumbers(@PathParam("oneTimeSaleId") final Long oneTimeSaleId,@PathParam("officeId") final Long officeId,@QueryParam("query") final String query, @Context final UriInfo uriInfo){
 		
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissionsAllocation);
 		
 		if(query != null && query.length()>0){
-			List<String> itemSerialNumbers = this.itemDetailsReadPlatformService.retriveSerialNumbersOnKeyStroke(oneTimeSaleId,query);
+			List<String> itemSerialNumbers = this.itemDetailsReadPlatformService.retriveSerialNumbersOnKeyStroke(oneTimeSaleId,query,officeId);
 			InventoryItemSerialNumberData allocationData = this.itemDetailsReadPlatformService.retriveAllocationData(itemSerialNumbers);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.toApiJsonSerializerForAllocationHardware.serialize(settings, allocationData, RESPONSE_DATA_SERIAL_NUMBER_PARAMETERS);
