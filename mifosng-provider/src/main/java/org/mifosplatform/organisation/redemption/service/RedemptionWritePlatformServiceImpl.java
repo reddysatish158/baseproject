@@ -87,7 +87,7 @@ public class RedemptionWritePlatformServiceImpl implements
 				 
 				 BigDecimal pinValue = new BigDecimal(randomGenerator.getPinValue());
 				 JsonObject json = new JsonObject();
-				 json.addProperty("adjustment_type", "DEBIT");json.addProperty("adjustment_code", 123);
+				 json.addProperty("adjustment_type", "CREDIT");json.addProperty("adjustment_code", 123);
 				 json.addProperty("amount_paid",pinValue);json.addProperty("Remarks", "Adjustment Post By Redemption");
 				 json.addProperty("locale", "en");json.addProperty("dateFormat","dd MMMM yyyy");
 				 json.addProperty("adjustment_date", new SimpleDateFormat("dd MMMM yyyy").format(new Date()));

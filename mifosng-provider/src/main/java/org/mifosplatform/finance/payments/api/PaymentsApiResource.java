@@ -149,5 +149,51 @@ public class PaymentsApiResource {
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().cancelPayment(paymentId).withJson(apiRequestBodyAsJson).build();
 			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
 			return this.toApiJsonSerializer.serialize(result);
-		}	 
+		}	
+	 
+
+	 @POST
+	 @Path("dalpay")
+	 @Consumes({ MediaType.APPLICATION_JSON })
+	 @Produces({ MediaType.APPLICATION_JSON })
+	 public String dalpayCheckout(final String apiRequestBodyAsJson){
+	   try {
+		   Long orderNumber = (long) 0;
+		   Long totalAmount = (long)0;
+		   Long clientId = (long)0;
+		   String[] nameValue = apiRequestBodyAsJson.split("&");
+		   for(String nameVal : nameValue){
+			   String[] name = nameVal.split("=");
+			   if(name[0].equalsIgnoreCase("order_num")){
+				    orderNumber = Long.parseLong(name[1]);
+			   }
+			   if(name[0].equalsIgnoreCase("user1")){
+				   clientId = Long.parseLong(name[1]);
+			   }
+			   if(name[0].equalsIgnoreCase("total_amount")){
+				   totalAmount = Long.parseLong(name[1]);
+			   }
+		   }
+			  SimpleDateFormat daformat=new SimpleDateFormat("dd MMMM yyyy");
+			  String date=daformat.format("11 July 2014");
+			  JsonObject object=new JsonObject();
+			  
+			  object.addProperty("txn_id", orderNumber);
+			  object.addProperty("dateFormat","dd MMMM yyyy");
+			  object.addProperty("locale","en");
+			  object.addProperty("paymentDate",date);
+			  object.addProperty("amountPaid",totalAmount);
+			  object.addProperty("isChequeSelected","no");
+			  object.addProperty("receiptNo",orderNumber);
+			  object.addProperty("remarks","withDalpay");
+			  object.addProperty("paymentCode",28);
+		   	 
+		    final CommandWrapper commandRequest = new CommandWrapperBuilder().createPayment(clientId).withJson(object.toString()).build();
+			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
+			return this.toApiJsonSerializer.serialize(result);
+	  } 
+	   catch(Exception e){
+	    return e.getMessage();
+	   }
+	 }
 }
