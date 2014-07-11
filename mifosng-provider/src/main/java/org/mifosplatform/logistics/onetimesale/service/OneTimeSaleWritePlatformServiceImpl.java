@@ -83,9 +83,13 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			this.oneTimeSaleRepository.saveAndFlush(oneTimeSale);
 			List<OneTimeSaleData> oneTimeSaleDatas = oneTimeSaleReadPlatformService.retrieveOnetimeSaleDate(clientId);
 			  JsonObject jsonObject =new JsonObject();
-			for (OneTimeSaleData oneTimeSaleData : oneTimeSaleDatas) {
-			this.invoiceOneTimeSale.invoiceOneTimeSale(clientId,oneTimeSaleData);
-			updateOneTimeSale(oneTimeSaleData);
+			final String saleType = command.stringValueOfParameterNamed("saleType");
+			if(saleType.equalsIgnoreCase("FirstSale")){
+				
+				for (OneTimeSaleData oneTimeSaleData : oneTimeSaleDatas) {
+					this.invoiceOneTimeSale.invoiceOneTimeSale(clientId,oneTimeSaleData);
+					updateOneTimeSale(oneTimeSaleData);
+				}
 			}
 			
 			transactionHistoryWritePlatformService.saveTransactionHistory(oneTimeSale.getClientId(),"Item Sale", oneTimeSale.getSaleDate(),
