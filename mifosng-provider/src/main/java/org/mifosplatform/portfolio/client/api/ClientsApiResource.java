@@ -121,11 +121,11 @@ public class ClientsApiResource {
             @QueryParam("firstName") final String firstname, @QueryParam("lastName") final String lastname,
             @QueryParam("underHierarchy") final String hierarchy, @QueryParam("offset") final Integer offset,
             @QueryParam("limit") final Integer limit, @QueryParam("orderBy") final String orderBy,
-            @QueryParam("sortOrder") final String sortOrder) {
+            @QueryParam("sortOrder") final String sortOrder,@QueryParam("groupName") final String groupName) {
 
         context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
         final SearchParameters searchParameters = SearchParameters.forClients(sqlSearch, officeId, externalId, displayName, firstname,
-                lastname, hierarchy, offset, limit, orderBy, sortOrder);
+                lastname, hierarchy, offset, limit, orderBy, sortOrder,groupName);
         final Page<ClientData> clientData = this.clientReadPlatformService.retrieveAll(searchParameters);
         return this.toApiJsonSerializer.serialize(clientData);
     }

@@ -2,16 +2,23 @@ package org.mifosplatform.organisation.ippool.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
+import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
+import org.mifosplatform.infrastructure.dataqueries.data.ResultsetRowData;
+import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.ippool.data.IpPoolManagementData;
+import org.mifosplatform.organisation.ippool.exception.IpAddresNotAvailableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,19 +32,48 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 
 	private final JdbcTemplate jdbcTemplate;
 	private final PlatformSecurityContext context;
+	private final ReadReportingService readReportingService;
 	private final PaginationHelper<IpPoolManagementData> paginationHelper = new PaginationHelper<IpPoolManagementData>(); 
-	
 	
 
 	@Autowired
 	public IpPoolManagementReadPlatformServiceImpl(final PlatformSecurityContext context,final PriceReadPlatformService priceReadPlatformService,
-			final TenantAwareRoutingDataSource dataSource) {
+			final TenantAwareRoutingDataSource dataSource,final ReadReportingService readReportingService) {
+		
 		this.context = context;
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.readReportingService=readReportingService;
 	}
 
 	@Override
 	public List<IpPoolData> getUnallocatedIpAddressDetailds() {
+		
+		Map<String, String> queryParams=new HashMap<String, String>();
+		   List<IpPoolData> ipPoolDatas=new ArrayList<IpPoolData>();
+		  
+		   
+		final GenericResultsetData resultsetData=this.readReportingService.retrieveGenericResultset("IP_ADDRESS", "parameter", queryParams);
+		   List<ResultsetRowData> datas = resultsetData.getData();
+		   List<String> row;
+		    Integer rSize;
+		   for (int i = 0; i < datas.size(); i++) {
+               row = datas.get(i).getRow();
+               rSize = row.size();
+               for (int j = 0; j < rSize-1; j++) {
+
+            	   String  id=datas.get(i).getRow().get(j);
+            	   j++;
+            	   String poolName=datas.get(i).getRow().get(j);
+            	   j++;
+            	   String ipAddress=datas.get(i).getRow().get(j);
+            	   j=j++;
+				   ipPoolDatas.add(new IpPoolData(new Long(id), poolName, ipAddress));
+               }
+           }
+		   
+		   
+		   return ipPoolDatas;
+	/*
 
 		context.authenticatedUser();
 		ProvisioningMapper mapper = new ProvisioningMapper();
@@ -46,7 +82,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 
 		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
 
-	}
+	*/}
 
 	private static final class ProvisioningMapper implements RowMapper<IpPoolData> {
 
@@ -79,21 +115,15 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		} 
 	}
 
-	/*@Override
-	public List<IpPoolManagementData> retrieveAllData() {
-		IpPoolMapper mapper = new IpPoolMapper();
-		String sql = "select " + mapper.schema();
-		return this.jdbcTemplate.query(sql, mapper, new Object[] {});
-	}*/
-
 	private static final class IpPoolMapper implements
 			RowMapper<IpPoolManagementData> {
 
 		public String schema() {
 
-			//return "p.id ,p.pool_name as poolName, p.ip_address as ipAddress ,p.status, p.client_id as ClientId from b_ippool_details p";
-			return " p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName, " +
-					" p.ip_address as ipAddress ,p.status,p.notes from b_ippool_details p left join m_client c on p.client_id = c.id";
+			return "  p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName,p.ip_address as ipAddress ,CASE p.status " +
+					" WHEN 'I' THEN 'Intermediate' WHEN 'F' THEN 'Free' WHEN 'A' THEN 'Assigned' WHEN 'B' THEN 'Blocked' ELSE 'Unknown Error' end  as status ," +
+					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id where p.status is not null ";
+
 		}
 
 		@Override
@@ -114,7 +144,7 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	}
 
 	@Override
-	public Page<IpPoolManagementData> retrieveIpPoolData(SearchSqlQuery searchIpPoolDetails, String tabType) {
+	public Page<IpPoolManagementData> retrieveIpPoolData(SearchSqlQuery searchIpPoolDetails, String tabType,String[] data) {
 		
 		// TODO Auto-generated method stub
 		context.authenticatedUser();
@@ -127,26 +157,45 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
         sqlBuilder.append(mapper.schema());
        
           
-        if (tabType!=null ) {
+        if (tabType!=null && !tabType.isEmpty()) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where p.status like '"+tabType+"' order by p.id ");
-		  
-		    	    if (sqlSearch != null) {
-		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
-		    	    }
-		            sqlBuilder.append(extraCriteria);
-		            
-	    }else if (sqlSearch != null) {
-    	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " where (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%') order by p.id";
-    	}else {
-    		extraCriteria = " order by p.id ";
+		        	sqlBuilder.append(" and  p.status like '"+tabType+"'");
+		        	sqlBuilder.append(extraCriteria);   
+	    
+        }if (sqlSearch != null && !sqlSearch.isEmpty()) {
+        	sqlSearch=sqlSearch.trim();
+        	
+        	if(sqlSearch.contains("/")){
+        		  List<IpPoolManagementData> ipPoolManagementDatas=new ArrayList<IpPoolManagementData>();
+                //  String[] data=this.ipGeneration.getInfo().getAllAddresses(sqlSearch);
+				int rowcount=0;
+				for(int i=0;i<data.length;i++){
+					IpPoolManagementData ipPoolManagementData=this.retrieveIpaddressData(data[i]);
+					
+					if(ipPoolManagementData == null){
+						throw new IpAddresNotAvailableException(data[i]);
+					}
+					ipPoolManagementDatas.add(ipPoolManagementData);
+					rowcount++;
+				}
+				
+        		return new Page<IpPoolManagementData>(ipPoolManagementDatas, rowcount);//ipPoolManagementDatas;
+        		/*
+        		String[] strings=sqlSearch.split("/");
+        		String ipAddress=strings[0].substring(0, strings[0].lastIndexOf("."));
+        		String subnet=strings[1];
+        		extraCriteria = " and (p.ip_address like '%"+ipAddress+"%' and p.subnet="+subnet+")";
+        		sqlBuilder.append(extraCriteria);
+        		
+        	*/}else{
+        	
+    	    	
+    	    	extraCriteria = " and (p.ip_address like '%"+sqlSearch+"%' OR p.pool_name like '%"+sqlSearch+"%' OR c.display_name LIKE '%"+sqlSearch+"%')";
+    	    	sqlBuilder.append(extraCriteria);
     	}
-                sqlBuilder.append(extraCriteria);
-        
-        
+	         sqlBuilder.append(" group by p.id order by p.id ");
+        }
         if (searchIpPoolDetails.isLimited()) {
             sqlBuilder.append(" limit ").append(searchIpPoolDetails.getLimit());
         }
@@ -160,6 +209,19 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 	
 	}
 	
+	@Override
+	public IpPoolManagementData retrieveIpaddressData(String ip) {
+		try{
+			
+			IpPoolMapper mapper=new IpPoolMapper();
+			String sql="select "+mapper.schema()+"and  p.ip_address =?";
+			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {ip});
+			
+		}catch(EmptyResultDataAccessException accessException){
+		return null;
+		}
+	}
+
 	@Override
 	public List<String> retrieveIpPoolIDArray(String query) {
 		IpAddressPoolingArrayMapper mapper = new IpAddressPoolingArrayMapper();
@@ -187,6 +249,23 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 			return ipAddress;
 		}
 }
+
+
+
+	@Override
+	public List<IpPoolManagementData> retrieveClientIpPoolDetails(Long clientId) {
+		
+		try{
+			IpPoolMapper mapper=new IpPoolMapper();
+			String sql="select "+mapper.schema()+" and p.client_id=?";
+			
+			return this.jdbcTemplate.query(sql,mapper,new Object[]{clientId});
+			
+			
+		}catch(EmptyResultDataAccessException exception){
+		return null;
+		}
+	}
 
 }
 

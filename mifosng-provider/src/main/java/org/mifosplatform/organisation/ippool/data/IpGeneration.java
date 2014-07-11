@@ -187,6 +187,24 @@ public class IpGeneration {
             return addresses;
         }
 
+        public String[] getsubnetAddresses() {
+        	
+            int ct = getAddressCount();
+            String[] addresses = new String[ct];
+            StringBuilder skippedItems=new StringBuilder();
+            if (ct == 0) {
+                return addresses;
+            }
+            for (int add = low(), j=0; add <= high(); ++add, ++j) {
+               // addresses[j] = format(toArray(add));
+            	String ipaddress=format(toArray(add));
+            	
+            		addresses[j]=ipaddress;
+            	
+            }
+            return addresses;
+        }
+
 
       /*  //addresses[j] = format(toArray(add));
     	System.out.println(add);

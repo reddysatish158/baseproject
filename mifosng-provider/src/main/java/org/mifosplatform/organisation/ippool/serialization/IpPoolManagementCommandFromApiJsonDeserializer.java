@@ -1,17 +1,14 @@
 package org.mifosplatform.organisation.ippool.serialization;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
 import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
@@ -29,8 +26,10 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 
 
 	private FromJsonHelper fromJsonHelper;
-	private final Set<String> editsupportedParams =  new HashSet<String>(Arrays.asList("id","statusType","notes"));
-	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet"));
+
+	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet","statusType","type","notes","clientId"));
+
+
 	
 	@Autowired
 	public IpPoolManagementCommandFromApiJsonDeserializer(final FromJsonHelper fromJsonHelper) {
@@ -57,9 +56,6 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 		final String ipAddress = fromJsonHelper.extractStringNamed("ipAddress", element);
 		baseValidatorBuilder.reset().parameter("ipAddress").value(ipAddress).notBlank().notExceedingLengthOf(100);
 		
-	/*	final int subnet = fromJsonHelper.extractIntegerNamed("subnet", element, Locale.US);	
-		baseValidatorBuilder.reset().parameter("subnet").value(subnet).notBlank().notExceedingLengthOf(100);*/
-		
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
 	
@@ -77,7 +73,7 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 		}
 		
 		final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType(); 
-		fromJsonHelper.checkForUnsupportedParameters(typeOfMap, json, editsupportedParams);
+		fromJsonHelper.checkForUnsupportedParameters(typeOfMap, json, supportedParams);
 		
 		final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
 		final DataValidatorBuilder baseValidatorBuilder = new DataValidatorBuilder(dataValidationErrors);

@@ -241,7 +241,9 @@ public class GenerateBillingOrderServiceImplementation implements	GenerateBillin
 		if(billingOrderCommands.get(0).getTaxInclusive()!=null){
 		if(isTaxInclusive(billingOrderCommands.get(0).getTaxInclusive())){
 		invoiceAmount = totalChargeAmount;
-		} 
+		}else{
+			invoiceAmount = totalChargeAmount.add(netTaxAmount);
+		}
 		}else{
 			invoiceAmount = totalChargeAmount.add(netTaxAmount);
 		}
