@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,6 +20,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.payterms.data.PaytermData;
@@ -44,8 +46,6 @@ import org.mifosplatform.portfolio.order.data.OrderPriceData;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 import org.mifosplatform.portfolio.plan.service.PlanReadPlatformService;
-import org.mifosplatform.workflow.eventaction.service.ActionDetailsReadPlatformService;
-import org.mifosplatform.workflow.eventaction.service.ActiondetailsWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -327,11 +327,11 @@ public class OrdersApiResource {
         return this.toApiJsonSerializer.serialize(result);
 	}
 	
-	@PUT
+	  @PUT
 	  @Path("extension/{orderId}")
 	  @Consumes({ MediaType.APPLICATION_JSON })
 	  @Produces({ MediaType.APPLICATION_JSON })
-	  public String ExtenseOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
+	  public String extendOrder(@PathParam("orderId") final Long orderId,final String apiRequestBodyAsJson) {
 	  final CommandWrapper commandRequest = new CommandWrapperBuilder().extensionOrder(orderId).withJson(apiRequestBodyAsJson).build();
 	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 	  return this.toApiJsonSerializer.serialize(result);
@@ -350,6 +350,16 @@ public class OrdersApiResource {
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, extensionData, RESPONSE_DATA_PARAMETERS);
     }
+	
+	  @PUT
+	  @Path("terminate/{orderId}")
+	  @Consumes({ MediaType.APPLICATION_JSON })
+	  @Produces({ MediaType.APPLICATION_JSON })
+	  public String terminateOrder(@PathParam("orderId") final Long orderId) {
+	  final CommandWrapper commandRequest = new CommandWrapperBuilder().terminateOrder(orderId).build();
+	  final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+	  return this.toApiJsonSerializer.serialize(result);
+	}	   
 
 
 }

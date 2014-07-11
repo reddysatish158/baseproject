@@ -536,6 +536,8 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("retrackOsdMessageOrderCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isOrderExtension()) {
 				handler = applicationContext.getBean("orderExtensionCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isOrderTerminate()) {
+				handler = applicationContext.getBean("orderTerminationCommandHandler",NewCommandSourceHandler.class);
 			}
 		} else if (wrapper.isOrderScheduling()) {
 			if (wrapper.isCreate()) {

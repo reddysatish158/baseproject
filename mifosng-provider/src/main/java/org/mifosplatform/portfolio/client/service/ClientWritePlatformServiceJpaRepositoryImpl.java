@@ -27,6 +27,7 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.documentmanagement.exception.DocumentManagementException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.item.domain.StatusTypeEnum;
 import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
 import org.mifosplatform.organisation.address.domain.Address;
 import org.mifosplatform.organisation.address.domain.AddressRepository;
@@ -46,8 +47,10 @@ import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.client.exception.InvalidClientStateTransitionException;
 import org.mifosplatform.portfolio.group.domain.Group;
 import org.mifosplatform.portfolio.order.data.OrderData;
+import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
+import org.mifosplatform.portfolio.order.exceptions.OrderInactiveException;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.mifosplatform.portfolio.plan.domain.Plan;
 import org.mifosplatform.portfolio.plan.domain.PlanRepository;
@@ -308,6 +311,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             		   for(ServiceParameters serviceParameter:serviceParameters){
             		   
             		   Order  order=this.orderRepository.findOne(serviceParameters.get(0).getOrderId());
+            		   
             		   Plan plan=this.planRepository.findOne(order.getPlanId());
             		   String oldGroup=serviceParameter.getParameterValue();
             		   if(newGroup == null){
@@ -315,9 +319,12 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             		   }
             		   serviceParameter.setParameterValue(newGroup);
             		   this.serviceParametersRepository.saveAndFlush(serviceParameter);
-            		   CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order, plan, UserActionStatusTypeEnum.CHANGE_GROUP.toString());
-               	    this.ProvisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getCode(),UserActionStatusTypeEnum.CHANGE_GROUP.toString(),
+            		   
+                      if(order.getStatus().equals(StatusTypeEnum.ACTIVE.getValue().longValue())){
+            		    CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order, plan, UserActionStatusTypeEnum.CHANGE_GROUP.toString());
+               	        this.ProvisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getCode(),UserActionStatusTypeEnum.CHANGE_GROUP.toString(),
                			processingResult.resourceId(),oldGroup);
+                      }
             	   }
             		
             	}

@@ -999,6 +999,9 @@ public class CommandWrapper {
 		public boolean isOrderExtension() {
 			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
 		}
+		public boolean isOrderTerminate() {
+			return this.actionName.equalsIgnoreCase("TERMINATE") && this.entityName.equalsIgnoreCase("ORDER");
+		}
 		public boolean isGroupDetailsResource(){
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("GROUPS");
 			

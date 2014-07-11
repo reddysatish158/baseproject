@@ -22,6 +22,7 @@ import org.mifosplatform.finance.billingmaster.domain.BillMaster;
 import org.mifosplatform.finance.billingmaster.domain.BillMasterRepository;
 import org.mifosplatform.finance.billingmaster.service.BillMasterReadPlatformService;
 import org.mifosplatform.finance.billingmaster.service.BillMasterWritePlatformService;
+import org.mifosplatform.finance.billingmaster.service.BillWritePlatformService;
 import org.mifosplatform.finance.billingorder.data.BillDetailsData;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
@@ -51,12 +52,13 @@ public class BillingMasterApiResourse {
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	    private final BillMasterReadPlatformService billMasterReadPlatformService;
 		private final BillMasterRepository billMasterRepository;
+		private final BillWritePlatformService billWritePlatformService;
 	    private final FromJsonHelper fromApiJsonHelper;
 	    private final BillMasterWritePlatformService billMasterWritePlatformService;
 		
 		
 		 @Autowired
-	    public BillingMasterApiResourse(final PlatformSecurityContext context, final FromJsonHelper fromJsonHelper,
+	    public BillingMasterApiResourse(final PlatformSecurityContext context, final FromJsonHelper fromJsonHelper,final BillWritePlatformService billWritePlatformService,
 	    final DefaultToApiJsonSerializer<FinancialTransactionsData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
 	    final BillMasterReadPlatformService billMasterReadPlatformService,final BillMasterRepository billMasterRepository,
 	    final BillMasterWritePlatformService billMasterWritePlatformService,final DefaultToApiJsonSerializer<BillDetailsData> ApiJsonSerializer) {
@@ -68,6 +70,7 @@ public class BillingMasterApiResourse {
 		     this.billMasterRepository=billMasterRepository;
 		     this.fromApiJsonHelper=fromJsonHelper;
 		     this.billMasterWritePlatformService=billMasterWritePlatformService;
+		     this.billWritePlatformService=billWritePlatformService;
 		     this.ApiJsonSerializer=ApiJsonSerializer;
 		     
 		    }		
@@ -83,7 +86,7 @@ public class BillingMasterApiResourse {
          final JsonCommand command = JsonCommand.from(apiRequestBodyAsJson.toString(),parsedCommand,this.fromApiJsonHelper,
         		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null);
 		final CommandProcessingResult result=this.billMasterWritePlatformService.createBillMaster(command,command.entityId());
-	  //this.billWritePlatformService.ireportPdf(result.resourceId());
+	    this.billWritePlatformService.ireportPdf(result.resourceId());
 	    return this.toApiJsonSerializer.serialize(result);
 	}
 	@GET

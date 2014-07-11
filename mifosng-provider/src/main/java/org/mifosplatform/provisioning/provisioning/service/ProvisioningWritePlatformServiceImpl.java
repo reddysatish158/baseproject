@@ -235,9 +235,9 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 
 				//ip_pool_data status updation
 				String paramName = fromJsonHelper.extractStringNamed("paramName", j);
-				 if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+				 if(paramName.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS)){
 					 
-					  if(iprange.equalsIgnoreCase("subnet")){
+					  if(iprange.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_SUBNET)){
 					      
 						  String ipAddress=fromJsonHelper.extractStringNamed("paramValue",j);
 						  String ipData=ipAddress+"/"+subnet;
@@ -252,7 +252,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 								}
 							}
 							
-							jsonObject.put("subnet",subnet);
+							jsonObject.put(ProvisioningApiConstants.PROV_DATA_SUBNET,subnet);
 					 }else{
 					 ipAddressArray = fromJsonHelper.extractArrayNamed("paramValue", j);
 					 }
@@ -274,12 +274,12 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    }
 	        
 			Client client=this.clientRepository.findOne(clientId);
-	        jsonObject.put("clientId",client.getAccountNo());
-	        jsonObject.put("clientName",client.getFirstname());
-	        jsonObject.put("orderId",orderId);
-	        jsonObject.put("planName",planName);
-	        jsonObject.put("macId",macId);
-	        jsonObject.put("ip_type",ipType);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTID,client.getAccountNo());
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTNAME,client.getFirstname());
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_ORDERID,orderId);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_PLANNAME,planName);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_MACID,macId);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,ipType);
 	        
 			ProcessRequest processRequest=new ProcessRequest(clientId,orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
 					null,UserActionStatusTypeEnum.ACTIVATION.toString(), prepareRequest.getId());
@@ -290,7 +290,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			for(OrderLine orderLine:orderLines){
 				
 				ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
-				jsonObject.put("Service_type",service.getServiceType());
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 						jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
 						order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
@@ -392,15 +392,9 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		   for(ProcessRequestDetails details:processRequestDetails){
 			   details.update(provSerilaNum);
 		   }
-		   
-		 
 		   this.processRequestRepository.saveAndFlush(processRequest);
-		   
 	   }
-	   
-		
 	}
-
 	@Transactional
     @Override
 	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId,String groupname) {
@@ -424,27 +418,28 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    
 			    Client client=this.clientRepository.findOne(order.getClientId());
 			    JSONObject jsonObject=new JSONObject();
-			    jsonObject.put("clientId",client.getAccountNo());
-			    jsonObject.put("clientName",client.getFirstname());
-		        jsonObject.put("orderId",order.getId());
-		        jsonObject.put("planName",planName);
-		        jsonObject.put("macId",inventoryItemDetails.getSerialNumber());
+			    jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTID,client.getAccountNo());
+			    jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTNAME,client.getFirstname());
+		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_ORDERID,order.getId());
+		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_PLANNAME,planName);
+		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_MACID,inventoryItemDetails.getSerialNumber());
 		        if(groupname != null){
-		        	jsonObject.put("OLD_GROUP_NAME",groupname);
+		        	jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_GROUPNAME,groupname);
 		        }
 		        for(ServiceParameters serviceParameters:parameters){
-		        	if(serviceParameters.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
+		        	
+		        	if(serviceParameters.getParameterName().equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS)){
 		        		if(serviceParameters.getParameterValue().contains("/")){
-		        			jsonObject.put("ip_type","Subnet");
+		        			jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,"Subnet");
 		        		}else if(serviceParameters.getParameterValue().contains("[")){
 		        			JSONArray jsonArray=new JSONArray(serviceParameters.getParameterValue());
 		        			if(jsonArray.length() > 1)
-		        			jsonObject.put("ip_type","Multiple");
+		        			jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,"Multiple");
 		        		}else{
-		        			jsonObject.put("ip_type","Single");
+		        			jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,"Single");
 		        		}
 		        	}
-		        	if(serviceParameters.getParameterName().equalsIgnoreCase("GROUP_NAME") && groupname != null){
+		        	if(serviceParameters.getParameterName().equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_GROUPNAME) && groupname != null){
 		        		jsonObject.put("NEW_"+serviceParameters.getParameterName(),serviceParameters.getParameterValue());
 		        	}else{
 		        	   jsonObject.put(serviceParameters.getParameterName(),serviceParameters.getParameterValue());
@@ -455,7 +450,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    	
 			    	
 					ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
-					jsonObject.put("Service_type",service.getServiceType());
+					jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
 			    	
 			    	 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 								jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),

@@ -528,7 +528,7 @@ try {
              for (OrderData orderData : orderDatas)
                {
             
-             this.scheduleJob.ProcessAutoExipiryDetails(orderData,fw,exipirydate,data);
+             this.scheduleJob.ProcessAutoExipiryDetails(orderData,fw,exipirydate,data,clientId);
 
                }
                 }

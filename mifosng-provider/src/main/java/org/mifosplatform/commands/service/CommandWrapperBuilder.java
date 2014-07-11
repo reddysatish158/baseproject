@@ -2234,5 +2234,14 @@ public CommandWrapperBuilder updateIpStatus(Long id) {
 	this.href = "/ippooling/status";
 	return this;
 }
+
+public CommandWrapperBuilder terminateOrder(Long orderId) {
+	
+	this.actionName = "TERMINATE";
+	this.entityName = "ORDER";
+	this.entityId=orderId;
+	this.href = "/orders/terminate/"+orderId;
+	return this;
+}
 	
 }

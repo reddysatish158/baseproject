@@ -28,4 +28,6 @@ public interface OrderWritePlatformService {
 	CommandProcessingResult deleteSchedulingOrder(Long entityId,JsonCommand command);
 
 	CommandProcessingResult orderExtension(JsonCommand command, Long entityId);
+
+	CommandProcessingResult orderTermination(JsonCommand command, Long entityId);
 }

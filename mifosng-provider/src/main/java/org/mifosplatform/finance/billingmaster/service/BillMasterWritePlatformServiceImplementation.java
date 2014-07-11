@@ -14,7 +14,6 @@ import org.mifosplatform.finance.financialtransaction.data.FinancialTransactions
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.infrastructure.security.service.TenantDetailsService;
 import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
 import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetailsRepository;
 import org.mifosplatform.portfolio.client.domain.Client;
@@ -38,7 +37,6 @@ public class BillMasterWritePlatformServiceImplementation implements
 		private final BillMasterReadPlatformService billMasterReadPlatformService;
 		private final BillWritePlatformService billWritePlatformService;
 		private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
-	    private final TenantDetailsService tenantDetailsService;
 	    private final BillMasterCommandFromApiJsonDeserializer  apiJsonDeserializer;
 	    private final ClientRepository clientRepository;
 	    private final GroupsDetailsRepository groupsDetailsRepository;
@@ -47,7 +45,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 	@Autowired
 	 public BillMasterWritePlatformServiceImplementation(final PlatformSecurityContext context,final BillMasterRepository billMasterRepository,
 				final BillMasterReadPlatformService billMasterReadPlatformService,final BillWritePlatformService billWritePlatformService,
-				final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final TenantDetailsService tenantDetailsService,
+				final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
 				final BillMasterCommandFromApiJsonDeserializer apiJsonDeserializer,final ClientRepository clientRepository,
 				final GroupsDetailsRepository groupsDetailsRepository) {
 
@@ -57,7 +55,6 @@ public class BillMasterWritePlatformServiceImplementation implements
 			this.billMasterReadPlatformService=billMasterReadPlatformService;
 			this.billWritePlatformService=billWritePlatformService;
 			this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
-			this.tenantDetailsService=tenantDetailsService;
 			this.apiJsonDeserializer=apiJsonDeserializer;
 			this.groupsDetailsRepository=groupsDetailsRepository;
 			
@@ -118,7 +115,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 		}
 	
 		billMaster = this.billMasterRepository.saveAndFlush(billMaster);
-		this.billWritePlatformService.ireportPdf(billMaster.getId());
+		//this.billWritePlatformService.ireportPdf(billMaster.getId());
 		
 		
 		//List<BillDetail> billDetail = billWritePlatformService.createBillDetail(financialTransactionsDatas, billMaster);
@@ -132,6 +129,7 @@ public class BillMasterWritePlatformServiceImplementation implements
        // this.billWritePlatformService.generatePdf(billDetails,financialTransactionsDatas);
         return new CommandProcessingResult(billMaster.getId());
 	}   catch (DataIntegrityViolationException dve) {
+		logger.error(dve.getLocalizedMessage());
 		 handleCodeDataIntegrityIssues(command, dve);
 		return  CommandProcessingResult.empty();
 	}
