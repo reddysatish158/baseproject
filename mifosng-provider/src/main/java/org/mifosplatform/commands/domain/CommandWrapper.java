@@ -1065,4 +1065,8 @@ public class CommandWrapper {
 			return  this.entityName.equalsIgnoreCase("IPSTATUS");
 		}
 
+		public boolean isCreateStatment() {
+			return this.actionName.equalsIgnoreCase("CREATESTATMENT");
+		}
+
 }

@@ -2243,5 +2243,14 @@ public CommandWrapperBuilder terminateOrder(Long orderId) {
 	this.href = "/orders/terminate/"+orderId;
 	return this;
 }
+
+public CommandWrapperBuilder createGroupsStatment(Long clientId) {
+	
+	this.actionName = "CREATESTATMENT";
+	this.entityName = "GROUPS";
+	this.entityId = clientId;
+	this.href = "/groups/statment/"+clientId;
+	return this;
+}
 	
 }

@@ -946,6 +946,8 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isGroupDetailsResource()){
 				   if(wrapper.isCreate()){
 					   handler = applicationContext.getBean("createGroupsDetailsCommandHandler",NewCommandSourceHandler.class);
+				   }else if(wrapper.isCreateStatment()){
+					   handler = applicationContext.getBean("createGroupsStatmentCommandHandler",NewCommandSourceHandler.class);
 				   }
 			   }else if(wrapper.isCreateIpPoolManagement()){
 				     if(wrapper.isCreate()) {

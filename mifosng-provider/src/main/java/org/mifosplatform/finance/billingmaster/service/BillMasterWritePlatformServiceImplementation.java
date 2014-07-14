@@ -70,7 +70,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 			this.apiJsonDeserializer.validateForCreate(command.json());
 			//final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default"); 
 	        //ThreadLocalContextUtil.setTenant(tenant);
-			Long groupId=new Long(0);
+			Long groupId=null;
 			Client client=this.clientRepository.findOne(clientId);
 			if(client.getGroupName() != null){
 			GroupsDetails groupsDetails=this.groupsDetailsRepository.findOne(client.getGroupName());//findOneByGroupName(client.getGroupName());
@@ -115,7 +115,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 		}
 	
 		billMaster = this.billMasterRepository.saveAndFlush(billMaster);
-		//this.billWritePlatformService.ireportPdf(billMaster.getId());
+	//	this.billWritePlatformService.ireportPdf(billMaster);
 		
 		
 		//List<BillDetail> billDetail = billWritePlatformService.createBillDetail(financialTransactionsDatas, billMaster);

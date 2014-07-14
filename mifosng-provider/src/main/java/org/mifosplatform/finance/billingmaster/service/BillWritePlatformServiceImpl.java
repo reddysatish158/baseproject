@@ -3,15 +3,18 @@ package org.mifosplatform.finance.billingmaster.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 
+import org.joda.time.LocalDate;
 import org.mifosplatform.finance.adjustment.domain.Adjustment;
 import org.mifosplatform.finance.adjustment.domain.AdjustmentRepository;
 import org.mifosplatform.finance.billingmaster.domain.BillDetail;
@@ -33,6 +36,11 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
+import org.mifosplatform.portfolio.client.service.ClientWritePlatformServiceJpaRepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -52,6 +60,7 @@ import com.lowagie.text.pdf.PdfWriter;
 
 @Service
 public class BillWritePlatformServiceImpl implements BillWritePlatformService {
+	private final static Logger logger = LoggerFactory.getLogger(BillWritePlatformServiceImpl.class);
 	private final PlatformSecurityContext context;
 	private final BillMasterRepository billMasterRepository;
 	private final BillDetailRepository billDetailRepository;
@@ -61,22 +70,26 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 	private final InvoiceTaxRepository invoiceTaxRepository;
 	private final InvoiceRepository invoiceRepository;
 	private final TenantAwareRoutingDataSource dataSource;
+	private final ClientRepository clientRepository;
 	
 	@Autowired
 	public BillWritePlatformServiceImpl(final PlatformSecurityContext context,final BillMasterRepository billMasterRepository,
 			final BillDetailRepository billDetailRepository,final PaymentRepository paymentRepository,final AdjustmentRepository adjustmentRepository,
 			final BillingOrderRepository billingOrderRepository,final InvoiceTaxRepository invoiceTaxRepository,final InvoiceRepository invoiceRepository,
-			final TenantAwareRoutingDataSource dataSource) {
+			final TenantAwareRoutingDataSource dataSource,final ClientRepository  clientRepository) {
 
 		this.context = context;
+		this.dataSource = dataSource;
+		this.invoiceRepository=invoiceRepository;
+		this.paymentRepository = paymentRepository;
+		this.clientRepository=clientRepository;
 		this.billMasterRepository = billMasterRepository;
 		this.billDetailRepository = billDetailRepository;
 		this.adjustmentRepository = adjustmentRepository;
-		this.billingOrderRepository = billingOrderRepository;
 		this.invoiceTaxRepository = invoiceTaxRepository;
-		this.paymentRepository = paymentRepository;
-		this.invoiceRepository=invoiceRepository;
-		this.dataSource = dataSource;
+		this.billingOrderRepository = billingOrderRepository;
+		
+		
 	}
 
 	@Override
@@ -532,42 +545,36 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 			if (!new File(fileLocation).isDirectory()) {
 				new File(fileLocation).mkdirs();
 			}
-			
+			BillMaster billMaster=this.billMasterRepository.findOne(billId);
 			String jpath = fileLocation+File.separator+"jasper"; //System.getProperty("user.home") + File.separator + "billing";
-			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
-			//InputStream input = new FileInputStream(new File("/usr/hugotest/EmployeeReport.jasper"));
-			//JasperDesign jasperDesign = JRXmlLoader.load(input);
-
-			//String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
-			BillMaster billMaster = this.billMasterRepository.findOne(billId);
+			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billMaster.getId()+ ".pdf";
 			billMaster.setFileName(printInvoicedetailsLocation);
 			this.billMasterRepository.save(billMaster);
-			//FileInputStream inputStream = new FileInputStream(jpath +File.separator +"Bill_Mainreport.jasper");
 			String jfilepath =jpath+File.separator+"Bill_Mainreport.jasper";
-			@SuppressWarnings("rawtypes")
-			Map<String, Object> parameters = new HashMap();
-			String id = String.valueOf(billId);
-				parameters.put("param1", id);
-				parameters.put("SUBREPORT_DIR",jpath+""+File.separator);
-			   JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, this.dataSource.getConnection());
-				JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);
+			Long billNo=null;
+			Client client=this.clientRepository.findOne(billMaster.getClientId());
 			
-			/*String jpath =  System.getProperty("user.home") + File.separator + "billing";
-			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
-			BillMaster billMaster = this.billMasterRepository.findOne(billId);
-			billMaster.setFileName(printInvoicedetailsLocation);
-			this.billMasterRepository.save(billMaster);
-			FileInputStream inputStream = new FileInputStream(jpath +File.separator +"Bill_Mainreport.jrxml");
-			Map parameters = new HashMap();
-			String id = String.valueOf(billId);
-			parameters.put("param1", id);
+				if(client.getGroupName() != null){
+					billNo=client.getGroupName();
+				}else{
+					billNo=billMaster.getId();
+				}
+				
+			Map<String, Object> parameters = new HashMap();
+			String id = String.valueOf(billMaster.getId());
+			//parameters.put("param1", id);
+			parameters.put("param1",new LocalDate(billMaster.getBillDate())+"/"+billNo);
 			parameters.put("SUBREPORT_DIR",jpath+""+File.separator);
-			JasperDesign jasperDesign = JRXmlLoader.load(inputStream);
-			JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, this.dataSource.getConnection());
-			JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);*/
-		} catch (Exception exception) {
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, this.dataSource.getConnection());
+			JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);
+
+		} catch (DataIntegrityViolationException exception) {
 			exception.printStackTrace();
+		} catch (JRException e) {
+		 logger.error("unable to generate pdf"+e.getLocalizedMessage());
+			e.printStackTrace();
+		} catch (SQLException e) {
+			logger.error("unable to retrieve data"+e.getLocalizedMessage());
 		}
 	}
 

@@ -12,7 +12,6 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.mifosplatform.portfolio.plan.domain.Plan;
 import org.mifosplatform.portfolio.plan.domain.PlanDetails;
-import org.mifosplatform.portfolio.plan.domain.PlanHardWareDetailsRepository;
 import org.mifosplatform.portfolio.plan.domain.PlanRepository;
 import org.mifosplatform.portfolio.plan.domain.VolumeDetails;
 import org.mifosplatform.portfolio.plan.domain.VolumeDetailsRepository;

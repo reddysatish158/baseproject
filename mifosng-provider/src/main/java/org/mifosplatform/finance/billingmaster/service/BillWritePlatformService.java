@@ -12,9 +12,13 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 public interface BillWritePlatformService {
 
 	List<BillDetail> createBillDetail(List<FinancialTransactionsData> financialTransactionsDatas,BillMaster master);
+	
 	CommandProcessingResult updateBillMaster(List<BillDetail> billDetails,BillMaster billMaster, BigDecimal previousBal);
+	
 	String generatePdf(BillDetailsData billDetails,List<FinancialTransactionsData> data);
+	
 	void updateBillId(List<FinancialTransactionsData> financialTransactionsDatas, Long billId);
+	
 	void ireportPdf(Long billId);
 
 
