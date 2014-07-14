@@ -148,13 +148,13 @@ public class SelfCareApiResource {
                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
         
-        SelfCare selfCare=this.selfCareRepository.findOneByClientId(clientId);
+     /*   SelfCare selfCare=this.selfCareRepository.findOneByClientId(clientId);
         if(selfCare.getStatus().equalsIgnoreCase("ACTIVE")){
         	throw new ClientStatusException(clientId);
         }else{
         	selfCare.setStatus("ACTIVE");
         	this.selfCareRepository.saveAndFlush(selfCare);
-        }
+        }*/
         
         careData.setClientId(clientId);
         ClientData clientsData = this.clientReadPlatformService.retrieveOne(clientId);
