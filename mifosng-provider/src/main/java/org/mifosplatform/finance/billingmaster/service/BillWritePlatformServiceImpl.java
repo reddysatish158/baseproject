@@ -562,8 +562,8 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 				
 			Map<String, Object> parameters = new HashMap();
 			String id = String.valueOf(billMaster.getId());
-			//parameters.put("param1", id);
-			parameters.put("param1",new LocalDate(billMaster.getBillDate())+"/"+billNo);
+			parameters.put("param1", id);
+			//parameters.put("param1",new LocalDate(billMaster.getBillDate())+"/"+billNo);
 			parameters.put("SUBREPORT_DIR",jpath+""+File.separator);
 			JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, this.dataSource.getConnection());
 			JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);
