@@ -35,7 +35,7 @@ public interface InventoryItemDetailsReadPlatformService {
 
 	public InventoryItemDetailsData retriveSingleItemDetail(Long itemId);
 
-	public List<String> retriveSerialNumbersOnKeyStroke(Long oneTimeSaleId,String query);
+	public List<String> retriveSerialNumbersOnKeyStroke(Long oneTimeSaleId,String query, Long officeId);
 
 	public InventoryItemSerialNumberData retriveAllocationData(
 			List<String> itemSerialNumbers);

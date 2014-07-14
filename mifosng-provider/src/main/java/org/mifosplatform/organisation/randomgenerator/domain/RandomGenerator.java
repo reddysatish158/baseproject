@@ -27,7 +27,7 @@ public class RandomGenerator extends  AbstractPersistable<Long>  {
 	
 	@Column(name = "batch_name", nullable = false)
 	private String batchName;
-
+	
 	@Column(name = "batch_description", nullable = false)
 	private String batchDescription;
 

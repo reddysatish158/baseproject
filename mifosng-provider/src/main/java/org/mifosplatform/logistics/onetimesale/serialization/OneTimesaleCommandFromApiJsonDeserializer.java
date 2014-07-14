@@ -32,7 +32,7 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("itemId","locale","dateFormat","units","chargeCode","unitPrice",
-    		"quantity","totalPrice","saleDate","discountId","serialNumber","orderId","clientId","status","itemMasterId","isNewHw"));
+    		"quantity","totalPrice","saleDate","discountId","serialNumber","orderId","clientId","status","itemMasterId","isNewHw","saleType","officeId"));
     
     private final FromJsonHelper fromApiJsonHelper;
 
@@ -51,7 +51,8 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("onetimesale");
 
         final JsonElement element = fromApiJsonHelper.parse(json);
-
+        final String saleType = fromApiJsonHelper.extractStringNamed("saleType", element);
+        baseDataValidator.reset().parameter("saleType").value(saleType).notNull();
         final LocalDate saleDate = fromApiJsonHelper.extractLocalDateNamed("saleDate", element);
         baseDataValidator.reset().parameter("saleDate").value(saleDate).notBlank();
         final Long itemId = fromApiJsonHelper.extractLongNamed("itemId", element);
@@ -66,7 +67,8 @@ public final class OneTimesaleCommandFromApiJsonDeserializer {
         baseDataValidator.reset().parameter("totalPrice").value(totalPrice).notNull();
         final BigDecimal unitPrice=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("unitPrice", element);
         baseDataValidator.reset().parameter("unitPrice").value(unitPrice).notNull();
-        
+        final Long officeId = fromApiJsonHelper.extractLongNamed("officeId", element);
+        baseDataValidator.reset().parameter("officeId").value(officeId).notNull();
         
         
         
