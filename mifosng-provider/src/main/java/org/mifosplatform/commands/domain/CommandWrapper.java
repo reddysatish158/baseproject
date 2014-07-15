@@ -1029,6 +1029,11 @@ public class CommandWrapper {
 		public boolean isClientStatus() {
 			
 			   return this.actionName.equalsIgnoreCase("UPDATESTATUS") && this.entityName.equalsIgnoreCase("CLIENT");
+			   
+		}
+
+		public boolean isProvisioningPlanMappingResource() {
+			return this.entityName.equalsIgnoreCase("PROVISIONINGPLANMAPPING");
 		}
 
 }
