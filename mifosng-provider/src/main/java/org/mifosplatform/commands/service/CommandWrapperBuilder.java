@@ -2161,5 +2161,19 @@ public CommandWrapperBuilder createRedemption() {
 	return this;
 }
 
+public CommandWrapperBuilder createProvisioningPlanMapping() {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISIONINGPLANMAPPING";
+	this.href = "/planmapping";
+	return this;
+}
+
+public CommandWrapperBuilder updateProvisioningPlanMapping(Long planMappingId) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROVISIONINGPLANMAPPING";
+	this.entityId = planMappingId;
+	this.href = "/planmapping/" + planMappingId ;
+	return this;	
+}
 
 }

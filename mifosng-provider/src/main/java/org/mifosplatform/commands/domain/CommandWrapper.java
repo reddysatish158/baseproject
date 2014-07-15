@@ -1026,4 +1026,8 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
 		}
 
+		public boolean isProvisioningPlanMappingResource() {
+			return this.entityName.equalsIgnoreCase("PROVISIONINGPLANMAPPING");
+		}
+
 }

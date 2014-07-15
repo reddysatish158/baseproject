@@ -936,31 +936,38 @@ public class SynchronousCommandProcessingService implements
 				   }   
 		
 			   }else if(wrapper.isCreditDistributionResource()){
-				     if(wrapper.isCreate()) {
+				   if(wrapper.isCreate()) {
 				         handler = applicationContext.getBean("createCreditDistributionCommandHandler",NewCommandSourceHandler.class);
-				     }else {
+				   }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
-				     }
-
+				   }
 			   }else if(wrapper.isProvisioningDetails()){
 				   if(wrapper.isUpdate()) {
 				         handler = applicationContext.getBean("updateProvisioningDetailsCommandHandler",NewCommandSourceHandler.class);
-				     }else {
+				   }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
-				     }
+				   }
 			   }else if(wrapper.isMediaDeviceDetails()){
 				   if(wrapper.isUpdateOperation()) {
 				         handler = applicationContext.getBean("updateMediaDeviceDetailsCommandHandler",NewCommandSourceHandler.class);
-				     }else {
+				   }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
-				     }
+				   }
 			   }else if (wrapper.isRedemptionResource()) {
+		           if (wrapper.isCreate()) {
+		                 handler = applicationContext.getBean("createRedemptionCommandHandler", NewCommandSourceHandler.class);
+		           }else {
+		                    throw new UnsupportedCommandException(wrapper.commandName());
+		           }
+				}else if (wrapper.isProvisioningPlanMappingResource()) {
 		        	if (wrapper.isCreate()) {
-		                handler = applicationContext.getBean("createRedemptionCommandHandler", NewCommandSourceHandler.class);
-		        	}else {
+		                 handler = applicationContext.getBean("createProvisioningPlanMappingCommandHandler", NewCommandSourceHandler.class);
+		        	}else if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateProvisioningPlanMappingCommandHandler",NewCommandSourceHandler.class);					   
+				    }else {
 		                    throw new UnsupportedCommandException(wrapper.commandName());
 		                }
-				} else {
+				}else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		       }
 			       
