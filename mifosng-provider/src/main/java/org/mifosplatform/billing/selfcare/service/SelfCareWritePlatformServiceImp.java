@@ -12,6 +12,8 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.PlatformEmailService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.infrastructure.security.service.RandomPasswordGenerator;
+import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
+import org.mifosplatform.portfolio.client.exception.ClientStatusException;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,6 +131,34 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	        }else if (realCause.getMessage().contains("unique_reference")){
 	        	throw new PlatformDataIntegrityException("validation.error.msg.selfcare.duplicate.email", "email: " + command.stringValueOfParameterNamed("uniqueReference")+ " already exists", "email", command.stringValueOfParameterNamed("uniqueReference"));
 	        }
+		
+	}
+	
+	@Override
+	public CommandProcessingResult updateClientStatus(JsonCommand command,Long entityId) {
+            try{
+            	
+            	this.context.authenticatedUser();
+            	String status=command.stringValueOfParameterNamed("status");
+            	SelfCare client=this.selfCareRepository.findOneByClientId(entityId);
+            	if(client == null){
+            		throw new ClientNotFoundException(entityId);
+            	}
+            	if(status.equalsIgnoreCase("ACTIVE")){
+            	
+            		if(status.equals(client.getStatus())){
+            			throw new ClientStatusException(entityId);
+            		}
+            	}
+            	client.setStatus(status);
+            	this.selfCareRepository.save(client);
+            	return new CommandProcessingResult(Long.valueOf(entityId));
+            	
+            }catch(DataIntegrityViolationException dve){
+            	handleDataIntegrityIssues(command, dve);
+            	return new CommandProcessingResult(Long.valueOf(-1));
+            }
+
 		
 	}
 	
