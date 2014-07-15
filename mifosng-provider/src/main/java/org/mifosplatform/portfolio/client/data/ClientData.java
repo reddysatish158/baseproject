@@ -212,7 +212,12 @@ final public class ClientData implements Comparable<ClientData> {
         return !imageKeyExists();
     }
 
-    private boolean imageKeyExists() {
+    
+    public Boolean isActive() {
+		return active;
+	}
+
+	private boolean imageKeyExists() {
         return StringUtils.isNotBlank(this.imageKey);
     }
 

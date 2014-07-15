@@ -7,14 +7,18 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.selfcare.data.SelfCareData;
+import org.mifosplatform.billing.selfcare.domain.SelfCare;
 import org.mifosplatform.billing.selfcare.service.SelfCareReadPlatformService;
+import org.mifosplatform.billing.selfcare.service.SelfCareRepository;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -36,12 +40,16 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.organisation.address.data.AddressData;
 import org.mifosplatform.organisation.address.service.AddressReadPlatformService;
 import org.mifosplatform.portfolio.client.data.ClientData;
+import org.mifosplatform.portfolio.client.exception.ClientStatusException;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;
 import org.mifosplatform.portfolio.order.data.OrderData;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 
 @Path("selfcare")
@@ -68,9 +76,10 @@ public class SelfCareApiResource {
 	private final PaymodeReadPlatformService paymentReadPlatformService;
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
 	private final GlobalConfigurationRepository configurationRepository;
+	private final SelfCareRepository selfCareRepository;
 	
 	@Autowired
-	public SelfCareApiResource(final PlatformSecurityContext context,
+	public SelfCareApiResource(final PlatformSecurityContext context,final SelfCareRepository selfCareRepository,
 			final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
 			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, 
 			final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, 
@@ -93,6 +102,7 @@ public class SelfCareApiResource {
 				this.billMasterReadPlatformService = billMasterReadPlatformService;
 				this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
 				this.configurationRepository=configurationRepository;
+				this.selfCareRepository=selfCareRepository;
 	}
 	
 	
@@ -132,9 +142,21 @@ public class SelfCareApiResource {
         SelfCareData careData = new SelfCareData();
         try{
         final Long clientId = this.selfCareReadPlatformService.login(username, password);
+        if(clientId == null){
+        	  MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+        	   throw new BadCredentialsException(messages.getMessage(
+                       "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        }
+        
+     /*   SelfCare selfCare=this.selfCareRepository.findOneByClientId(clientId);
+        if(selfCare.getStatus().equalsIgnoreCase("ACTIVE")){
+        	throw new ClientStatusException(clientId);
+        }else{
+        	selfCare.setStatus("ACTIVE");
+        	this.selfCareRepository.saveAndFlush(selfCare);
+        }*/
+        
         careData.setClientId(clientId);
-        
-        
         ClientData clientsData = this.clientReadPlatformService.retrieveOne(clientId);
         ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
         List<AddressData> addressData = this.addressReadPlatformService.retrieveAddressDetails(clientId);
@@ -155,5 +177,25 @@ public class SelfCareApiResource {
         return this.toApiJsonSerializerForItem.serialize(careData);
         
 	}
+	
+	  
+    @PUT
+    @Path("status/{clientId}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public String updateClientStatus(@PathParam("clientId")Long clientId,final String apiRequestBodyAsJson) {
+
+        final CommandWrapper commandRequest = new CommandWrapperBuilder() //
+                .updateClientStatus(clientId) //
+                .withJson(apiRequestBodyAsJson) //
+                .build(); //
+
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+        return this.toApiJsonSerializerForItem.serialize(result);
+    }
+
+
+
 	
 }

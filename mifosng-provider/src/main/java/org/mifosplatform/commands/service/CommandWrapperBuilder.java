@@ -2161,6 +2161,14 @@ public CommandWrapperBuilder createRedemption() {
 	return this;
 }
 
+public CommandWrapperBuilder updateClientStatus(Long clientId) {
+	this.actionName = "UPDATESTATUS";
+	this.entityName = "CLIENT";
+	this.entityId=clientId;
+	this.href = "/clients/"+clientId;
+	return this;
+}
+
 public CommandWrapperBuilder createProvisioningPlanMapping() {
 	this.actionName = "CREATE";
 	this.entityName = "PROVISIONINGPLANMAPPING";

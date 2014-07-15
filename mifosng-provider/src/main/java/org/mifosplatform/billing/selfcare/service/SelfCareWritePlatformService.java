@@ -12,4 +12,6 @@ public interface SelfCareWritePlatformService {
 	 * @return
 	 */
 	public CommandProcessingResult createSelfCareUDPassword(JsonCommand command);
+
+	CommandProcessingResult updateClientStatus(JsonCommand command,Long entityId);
 }

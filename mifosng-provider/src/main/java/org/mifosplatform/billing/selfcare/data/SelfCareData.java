@@ -21,30 +21,20 @@ private Long clientId;
 	private String uniqueReference;
 	private Boolean isDeleted;
 	private String email;
-
 	private ClientData clientData;
-
 	private ClientBalanceData clientBalanceData;
-
 	private List<AddressData> addressData;
-
 	private List<OrderData> clientOrdersData;
-
 	private List<FinancialTransactionsData> statementsData;
-
 	private List<PaymentData> paymentsData;
-
 	private List<TicketMasterData> ticketMastersData;
-	
 	private GlobalConfigurationProperty paypalConfigData;
-	
+
 	public SelfCareData(Long clientId, String email) {
 		this.clientId = clientId;
 		this.email = email;
 	}
 
-	
-	
 	public SelfCareData() {
 		// TODO Auto-generated constructor stub
 	}

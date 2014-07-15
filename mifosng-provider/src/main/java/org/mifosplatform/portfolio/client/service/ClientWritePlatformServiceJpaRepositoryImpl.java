@@ -389,4 +389,6 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private void logAsErrorUnexpectedDataIntegrityException(final DataIntegrityViolationException dve) {
         logger.error(dve.getMessage(), dve);
     }
+
+	
 }
