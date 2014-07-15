@@ -18,7 +18,6 @@ import org.mifosplatform.portfolio.order.data.OrderHistoryData;
 import org.mifosplatform.portfolio.order.data.OrderLineData;
 import org.mifosplatform.portfolio.order.data.OrderPriceData;
 import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
-import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +33,13 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 	
 	    private final JdbcTemplate jdbcTemplate;
 	    private final PlatformSecurityContext context;
-	    private OrderRepository orderRepository;
         private  static  PriceReadPlatformService priceReadPlatformService;
         
 	    @Autowired
 	    public OrderReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
-			final PriceReadPlatformService priceReadPlatformService,final OrderRepository repository) {
+			final PriceReadPlatformService priceReadPlatformService) {
 	        this.context = context;
 	        this.jdbcTemplate = new JdbcTemplate(dataSource);
-	        this.orderRepository=repository;
 	       OrderReadPlatformServiceImpl.priceReadPlatformService=priceReadPlatformService;
 
 	    }
@@ -211,11 +208,12 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 			private static final class ClientOrderMapper implements RowMapper<OrderData> {
 
 			public String clientOrderLookupSchema() {
-			return "o.id AS id,o.plan_id AS plan_id, o.start_date AS start_date,o.order_status AS order_status,p.plan_code AS plan_code,"
-					+"o.end_date AS end_date,co.contract_period as contractPeriod,o.order_no as orderNo,o.user_action AS userAction,o.active_date AS activeDate," +
-					"p.is_prepaid as isprepaid,p.allow_topup as allowTopUp, ifnull(c.group_name,p.plan_code ) as groupName,  " +
-					"date_sub(o.next_billable_day,INTERVAL 1 DAY) as invoiceTillDate,(SELECT sum(ol.price) AS price FROM b_order_price ol"
-					+" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co, m_client c ";
+			return  " o.id AS id,o.plan_id AS plan_id, o.start_date AS start_date,o.order_status AS order_status,p.plan_code AS plan_code,"
+				   +" o.end_date AS end_date,co.contract_period as contractPeriod,o.order_no as orderNo,o.user_action AS userAction,o.active_date AS activeDate," +
+					" p.is_prepaid as isprepaid,p.allow_topup as allowTopUp, ifnull(g.group_name, p.plan_code) as groupName,  " +
+					" date_sub(o.next_billable_day,INTERVAL 1 DAY) as invoiceTillDate,(SELECT sum(ol.price) AS price FROM b_order_price ol"
+				   +" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co, m_client c " +
+				   "  left join b_group g on g.id=c.group_id ";
 			}
 
 			@Override
@@ -411,7 +409,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					private static final class ClientOrderServiceMapper implements RowMapper<OrderLineData> {
 
 						public String orderServiceLookupSchema() {
-						return " ol.id as id,ol.order_id as orderId,s.service_code as serviceCode, s.service_description as serviceDescription,s.service_type as serviceType FROM b_order_line ol, b_service s" +
+						return " ol.id as id,s.id as serviceId,ol.order_id as orderId,s.service_code as serviceCode, s.service_description as serviceDescription,s.service_type as serviceType FROM b_order_line ol, b_service s" +
 								" WHERE order_id =? and ol.service_id=s.id and ol.is_deleted ='N'";
 						}
 
@@ -423,8 +421,8 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 						final String serviceCode=rs.getString("serviceCode");
 						final String serviceDescription=rs.getString("serviceDescription");
 						final String serviceType=rs.getString("serviceType");
-						
-						return new OrderLineData(id,orderId,serviceCode,serviceDescription,serviceType);
+						final Long serviceId=rs.getLong("serviceId");
+						return new OrderLineData(id,orderId,serviceCode,serviceDescription,serviceType,serviceId);
 						}
 				}
 

@@ -30,22 +30,18 @@ public class IpPoolManagementDetail extends AbstractPersistable<Long>{
 	@Column(name="type")
 	private Long type;
 
-	
-	@Column(name="subnet")
-	private Long subnet;
-	
 	public IpPoolManagementDetail(){
 		
 	}
 
-	public IpPoolManagementDetail(String ipAddress, String ipPoolDescription, char status, Long type, String notes, Long subnet) {
+	public IpPoolManagementDetail(String ipAddress, String ipPoolDescription, char status, Long type, String notes) {
 		// TODO Auto-generated constructor stub
 		this.ipAddress=ipAddress;
 		this.status=status;
 		this.ipPoolDescription=ipPoolDescription;
 		this.type=type;
 		this.notes=notes;
-		this.subnet=subnet;
+		
 	}
 
 	public String getIpAddress() {

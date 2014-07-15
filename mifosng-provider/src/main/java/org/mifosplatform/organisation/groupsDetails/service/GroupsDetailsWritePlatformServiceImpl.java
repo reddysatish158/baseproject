@@ -2,14 +2,19 @@ package org.mifosplatform.organisation.groupsDetails.service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
+import net.sf.json.JSONObject;
+
+import org.mifosplatform.finance.billingmaster.service.BillMasterWritePlatformService;
+import org.mifosplatform.finance.billingmaster.service.BillWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetailsRepository;
 import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetailsRepository;
 import org.mifosplatform.organisation.groupsDetails.serialization.GroupsDetailsCommandFromApiJsonDeserializer;
 import org.mifosplatform.provisioning.processrequest.service.ProcessRequestWriteplatformService;
 import org.slf4j.Logger;
@@ -19,6 +24,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 @Service
@@ -26,22 +32,29 @@ public class GroupsDetailsWritePlatformServiceImpl implements GroupsDetailsWrite
 	
 	private static final Logger logger =LoggerFactory.getLogger(GroupsDetailsReadPlatformServiceImpl.class);
 	private final PlatformSecurityContext context;
-	private final GroupsDetailsRepository groupsDetailsRepository;
 	private final FromJsonHelper fromJsonHelper;
+	private final GroupsDetailsRepository groupsDetailsRepository;
+	private final BillMasterWritePlatformService billWritePlatformService;
+	private final GroupsDetailsReadPlatformService groupsDetailsReadPlatformService;
 	private final ProcessRequestWriteplatformService processRequestWriteplatformService;
 	private final GroupsDetailsCommandFromApiJsonDeserializer groupsDetailsCommandFromApiJsonDeserializer;
 	
+	
 	@Autowired
-	public GroupsDetailsWritePlatformServiceImpl(final PlatformSecurityContext context,
-												  final GroupsDetailsRepository groupsDetailsRepository,
-												  final FromJsonHelper fromJsonHelper,
-												  final ProcessRequestWriteplatformService processRequestWriteplatformService,
-												  final GroupsDetailsCommandFromApiJsonDeserializer groupsDetailsCommandFromApiJsonDeserializer){
+	public GroupsDetailsWritePlatformServiceImpl(final PlatformSecurityContext context,final GroupsDetailsRepository groupsDetailsRepository,
+			final FromJsonHelper fromJsonHelper,final ProcessRequestWriteplatformService processRequestWriteplatformService,
+			final GroupsDetailsCommandFromApiJsonDeserializer groupsDetailsCommandFromApiJsonDeserializer,
+			final GroupsDetailsReadPlatformService detailsReadPlatformService,final BillMasterWritePlatformService  billWritePlatformService){
+		
 		this.context = context;
-		this.groupsDetailsRepository = groupsDetailsRepository;
 		this.fromJsonHelper = fromJsonHelper;
+		this.groupsDetailsRepository = groupsDetailsRepository;
+		this.groupsDetailsReadPlatformService=detailsReadPlatformService;
 		this.processRequestWriteplatformService = processRequestWriteplatformService;
+		this.billWritePlatformService=billWritePlatformService;
 		this.groupsDetailsCommandFromApiJsonDeserializer = groupsDetailsCommandFromApiJsonDeserializer;
+		
+		
 	}
 	
 	@Transactional
@@ -115,6 +128,45 @@ public class GroupsDetailsWritePlatformServiceImpl implements GroupsDetailsWrite
 	        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
 	                "Unknown data integrity issue with resource: " + realCause.getMessage());
 		
+	}
+
+	@Override
+	public CommandProcessingResult generateStatment(JsonCommand command,Long groupId) {
+		
+		try{
+			this.context.authenticatedUser();
+			List<Long> clientIds=this.groupsDetailsReadPlatformService.retrieveclientIdsByGroupId(groupId);
+			
+				if(clientIds != null && !clientIds.isEmpty()){
+					
+					for(Long clientId:clientIds){
+						 
+						try{
+						  JSONObject jsonobject=new  JSONObject();
+						  jsonobject.put("dueDate",command.localDateValueOfParameterNamed("dueDate"));
+						  jsonobject.put("locale", "en");
+						  jsonobject.put("dateFormat", "dd MMMM YYYY");
+						  jsonobject.put("message","");
+						  final JsonElement parsedCommand = this.fromJsonHelper.parse(jsonobject.toString());
+						  final JsonCommand jsonCommand = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromJsonHelper,
+			    	        		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null);
+			    		  this.billWritePlatformService.createBillMaster(jsonCommand,command.entityId());
+						
+						}catch(Exception exception){
+							exception.printStackTrace();
+						}
+						
+						}
+					
+				   
+				}
+			
+			
+			
+		}catch(DataIntegrityViolationException dve){
+			
+		}
+		return null;
 	}
 
 }

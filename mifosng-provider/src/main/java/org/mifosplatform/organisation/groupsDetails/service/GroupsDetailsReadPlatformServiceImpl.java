@@ -2,6 +2,7 @@ package org.mifosplatform.organisation.groupsDetails.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.service.Page;
@@ -10,6 +11,7 @@ import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSourc
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.groupsDetails.data.GroupsDetailsData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -90,5 +92,36 @@ public class GroupsDetailsReadPlatformServiceImpl implements GroupsDetailsReadPl
 			
 		}
 	}
+
+	@Override
+	public List<Long> retrieveclientIdsByGroupId(Long groupId) {
+	try{
+
+		this.context.authenticatedUser();
+		ClientIdMapper mapper=new ClientIdMapper();
+		final String  sql="select "+mapper.schema();
+		return this.jdbcTemplate.query(sql,mapper, new Object[]{groupId});
+		
+	}catch(EmptyResultDataAccessException dve){
+		return null;
+		
+	}
+	}
+	
+	private class ClientIdMapper implements RowMapper<Long>{
+
+		@Override
+		public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+			
+			Long clientId = rs.getLong("clientId");
+			return clientId;
+		}
+		public String schema(){
+			String sql = "id as clientId from m_client c where group_id=? ";
+			return sql;
+			
+		}
+	}
+
 
 }

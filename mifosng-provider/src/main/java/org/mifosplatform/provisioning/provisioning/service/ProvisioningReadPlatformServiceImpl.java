@@ -179,7 +179,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 		            	   j++;
 		            	   String paramValue=datas.get(i).getRow().get(j);
 		            	   j=j++;
-		            	   parameterDatas.add(new ServiceParameterData(new Long(id), paramName, paramValue));
+		            	   parameterDatas.add(new ServiceParameterData(new Long(id), paramName, paramValue,null));
 		               }
 		           }
 				 /*  for(int i=0;i<columnHeaderDatas.size();i++){
@@ -237,7 +237,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 				  Long id = rs.getLong("id");
 				  String paramName=rs.getString("paramName");
 				  String paramValue=rs.getString("paramValue");
-				  return new ServiceParameterData(id,paramName,paramValue);
+				  return new ServiceParameterData(id,paramName,paramValue,null);
 		       }
 		}
 		 

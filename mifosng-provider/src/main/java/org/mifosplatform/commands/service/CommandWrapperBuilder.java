@@ -2226,5 +2226,31 @@ public CommandWrapperBuilder updateIpPoolManagement(Long id) {
 	this.href = "/ippooling/"+id;
 	return this;
 }
+
+public CommandWrapperBuilder updateIpStatus(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "IPSTATUS";
+	this.entityId=id;
+	this.href = "/ippooling/status";
+	return this;
+}
+
+public CommandWrapperBuilder terminateOrder(Long orderId) {
+	
+	this.actionName = "TERMINATE";
+	this.entityName = "ORDER";
+	this.entityId=orderId;
+	this.href = "/orders/terminate/"+orderId;
+	return this;
+}
+
+public CommandWrapperBuilder createGroupsStatment(Long clientId) {
+	
+	this.actionName = "CREATESTATMENT";
+	this.entityName = "GROUPS";
+	this.entityId = clientId;
+	this.href = "/groups/statment/"+clientId;
+	return this;
+}
 	
 }
