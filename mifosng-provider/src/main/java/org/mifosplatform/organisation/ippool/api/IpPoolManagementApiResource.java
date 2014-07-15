@@ -1,6 +1,5 @@
 package org.mifosplatform.organisation.ippool.api;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,7 +29,6 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.ippool.data.IpPoolManagementData;
-import org.mifosplatform.organisation.ippool.exception.IpAddresNotAvailableException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.organisation.mcodevalues.service.MCodeReadPlatformService;
@@ -150,11 +148,19 @@ public class IpPoolManagementApiResource {
 		
 		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		List<IpPoolManagementData> ipPoolManagementDatas = ipPoolManagementReadPlatformService.retrieveClientIpPoolDetails(clientId);
-		
 		return this.toApiJsonSerializer.serialize(ipPoolManagementDatas);
-
 	}
 	
+	@PUT
+	@Path("ping/{id}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public String gatStatusOfIP(@PathParam("id") final Long id,final String apiRequestBodyAsJson) {
+		
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().updateIpStatus(id).withJson(apiRequestBodyAsJson).build();
+        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        return this.toApiJsonSerializer.serialize(result);
+    } 
 }
 
 

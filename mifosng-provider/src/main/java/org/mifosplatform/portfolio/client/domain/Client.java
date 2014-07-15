@@ -104,8 +104,8 @@ public final class Client extends AbstractPersistable<Long> {
     private String login;
     @Column(name = "password", length = 100)
     private String password;
-    @Column(name = "group_name", length = 100)
-    private String groupName;
+    @Column(name = "group_Id", length = 100)
+    private Long groupId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "closure_reason_cv_id", nullable = true)
@@ -130,6 +130,9 @@ public final class Client extends AbstractPersistable<Long> {
     
     @Column(name = "exempt_tax",nullable = false)
 	private char taxExemption='N';
+    
+    @Column(name = "is_indororp",nullable = false)
+ 	private String entryType;
 
 
     public static Client createNew(final Office clientOffice, final Group clientParentGroup, final JsonCommand command) {
@@ -144,13 +147,12 @@ public final class Client extends AbstractPersistable<Long> {
         final Long categoryType=command.longValueOfParameterNamed(ClientApiConstants.clientCategoryParamName);
         final String phone = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
         final String homePhoneNumber = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
-        
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
-
 	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+	    String entryType = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
 
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
-	     String groupName=command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+	     Long groupName=command.longValueOfParameterNamed(ClientApiConstants.groupParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -158,9 +160,9 @@ public final class Client extends AbstractPersistable<Long> {
 	    if(login.isEmpty()){
 	    	login=null;
 	    }
-	    if(groupName.isEmpty()){
+	   /* if(groupName.isEmpty()){
 	    	groupName=null;
-	    }
+	    }*/
 	    ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
@@ -172,7 +174,7 @@ public final class Client extends AbstractPersistable<Long> {
         }
 
         return new Client(status, clientOffice, clientParentGroup, accountNo, firstname, middlename, lastname, fullname, activationDate,
-                externalId,categoryType,email,phone,homePhoneNumber,login,password,groupName);
+                externalId,categoryType,email,phone,homePhoneNumber,login,password,groupName,entryType);
     }
 
     protected Client() {
@@ -181,8 +183,9 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,String groupName) {
-        if (StringUtils.isBlank(accountNo)) {
+            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,Long groupName,String entryType) {
+        
+    	if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
             this.accountNumberRequiresAutoGeneration = true;
         } else {
@@ -196,7 +199,8 @@ public final class Client extends AbstractPersistable<Long> {
         this.homePhoneNumber=homePhoneNumber;
         this.login=login;
         this.password=password;
-        this.groupName = groupName;
+        this.groupId = groupName;
+        this.entryType=entryType;
         if (StringUtils.isNotBlank(externalId)) {
             this.externalId = externalId.trim();
         } else {
@@ -234,7 +238,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.groups.add(clientParentGroup);
         }
 
-        deriveDisplayName();
+        deriveDisplayName(entryType);
         validateNameParts();
     }
 
@@ -388,10 +392,16 @@ public final class Client extends AbstractPersistable<Long> {
             actualChanges.put(ClientApiConstants.passwordParamName, newValue);
             this.password = StringUtils.defaultIfEmpty(newValue,null);
         }
-        if (command.isChangeInStringParameterNamed(ClientApiConstants.groupParamName, this.groupName)) {
-            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.groupParamName);
+        if (command.isChangeInLongParameterNamed(ClientApiConstants.groupParamName, this.groupId)) {
+            final Long newValue = command.longValueOfParameterNamed(ClientApiConstants.groupParamName);
             actualChanges.put(ClientApiConstants.groupParamName, newValue);
-            this.groupName = StringUtils.defaultIfEmpty(newValue,null);
+            this.groupId = newValue;
+        }
+        
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.entryTypeParamName, this.entryType)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
+            actualChanges.put(ClientApiConstants.entryTypeParamName, newValue);
+            this.entryType = StringUtils.defaultIfEmpty(newValue,null);
         }
         validateNameParts();
 
@@ -408,8 +418,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.activationDate = newValue.toDate();
         }
 
-        deriveDisplayName();
-
+        deriveDisplayName(this.entryType);
         return actualChanges;
     }
 
@@ -452,25 +461,30 @@ public final class Client extends AbstractPersistable<Long> {
         if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException(dataValidationErrors); }
     }
 
-    private void deriveDisplayName() {
+    private void deriveDisplayName(String entryType) {
+    	 
+    	StringBuilder nameBuilder = new StringBuilder();
+    	
+    	if(entryType.equalsIgnoreCase("IND")){
+    	    
+    		if (StringUtils.isNotBlank(this.firstname)) {
+    	       nameBuilder.append(this.firstname).append(' ');
+    	    }
+    	    if (StringUtils.isNotBlank(this.lastname)) {
+    	            nameBuilder.append(this.lastname);
+    	    }
+    	    if (StringUtils.isNotBlank(this.middlename)) {
+    	            nameBuilder.append(this.middlename).append(' ');
+    	    }
+    	}else{
 
-        StringBuilder nameBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(this.firstname)) {
-            nameBuilder.append(this.firstname).append(' ');
-        }
-
-        if (StringUtils.isNotBlank(this.middlename)) {
-            nameBuilder.append(this.middlename).append(' ');
-        }
-
-        if (StringUtils.isNotBlank(this.lastname)) {
-            nameBuilder.append(this.lastname);
-        }
-
+    		if (StringUtils.isNotBlank(this.firstname)) {
+     	       nameBuilder.append(this.firstname).append(' ');
+     	    }
+    	}
         if (StringUtils.isNotBlank(this.fullname)) {
             nameBuilder = new StringBuilder(this.fullname);
         }
-
         this.displayName = nameBuilder.toString();
     }
 
@@ -573,8 +587,8 @@ public final class Client extends AbstractPersistable<Long> {
 	public String getPassword() {
 		return password;
 	}
-	public String getGroupName(){
-		return groupName;
+	public Long getGroupName(){
+		return groupId;
 	}
 	
 	public Set<Group> getGroups() {

@@ -38,30 +38,30 @@ import org.springframework.stereotype.Component;
 public class GroupsDetailsApiResource {
 	
 	private final Set<String> RESPONSE_DATA_GROUPS_DETAILS_PARAMETERS = new HashSet<String>(Arrays.asList("id","groupName","groupAddress","countNo","attr1","attr2","attr3","attr4"));
-	
 	private final String resourceNameForPermission = "GROUPS";
-	
 	private final PlatformSecurityContext context;
-	private final GroupsDetailsReadPlatformService groupsDetailsReadPlatformService; 
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
 	private final DefaultToApiJsonSerializer<GroupsDetailsData> toApiJsonSerializer;
+	private final GroupsDetailsReadPlatformService groupsDetailsReadPlatformService; 
 	private final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService;
 	
 	@Autowired
 	public GroupsDetailsApiResource(final PlatformSecurityContext context,final GroupsDetailsReadPlatformService groupsDetailsReadPlatformService,
 		final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<GroupsDetailsData> toApiJsonSerializer,
 		final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService){
-		this.context = context;		
-		this.groupsDetailsReadPlatformService = groupsDetailsReadPlatformService;
-		this.apiRequestParameterHelper = apiRequestParameterHelper;
+		
+		this.context = context;
 		this.toApiJsonSerializer = toApiJsonSerializer;
+		this.apiRequestParameterHelper = apiRequestParameterHelper;
+		this.groupsDetailsReadPlatformService = groupsDetailsReadPlatformService;
 		this.commandSourceWritePlatformService = commandSourceWritePlatformService;
 	}
 	
 	@GET
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String retrieveGroupDetails(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,@QueryParam("limit") final Integer limit,@QueryParam("offset") final Integer offset){
+	public String retrieveGroupDetails(@Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch,@QueryParam("limit") final Integer limit,
+			@QueryParam("offset") final Integer offset){
 		
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
 		final SearchSqlQuery searchGroupsDetails =SearchSqlQuery.forSearch(sqlSearch, offset, limit);
@@ -88,6 +88,17 @@ public class GroupsDetailsApiResource {
 	public String postProvisionDetails(@PathParam("prepareRequestId") final Long prepareRequestId,final String jsonRequestBody){
 		
 		final CommandWrapper commandRequest = new CommandWrapperBuilder().createprovisioningDetails(prepareRequestId).withJson(jsonRequestBody).build();
+		final CommandProcessingResult result = this.commandSourceWritePlatformService.logCommandSource(commandRequest);
+		return this.toApiJsonSerializer.serialize(result);
+	}
+	
+	@POST
+	@Path("statment/{clientId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String generateStatment(@PathParam("{clientid}")final Long clientId,final String jsonRequestBody){
+		
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createGroupsStatment(clientId).withJson(jsonRequestBody).build();
 		final CommandProcessingResult result = this.commandSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializer.serialize(result);
 	}

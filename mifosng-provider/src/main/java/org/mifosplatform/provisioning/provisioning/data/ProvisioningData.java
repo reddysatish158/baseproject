@@ -6,6 +6,7 @@ import java.util.List;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
+import org.mifosplatform.portfolio.client.service.GroupData;
 import org.mifosplatform.portfolio.order.data.OrderLineData;
 
 public class ProvisioningData {
@@ -20,7 +21,8 @@ public class ProvisioningData {
     private Collection<MCodeData> vlanDatas;
 	private List<OrderLineData> services;
 	private List<IpPoolData> ipPoolDatas;
-	private List<ServiceParameterData> parameterDatas;
+	private List<ServiceParameterData> parameterDatas,serviceDatas;
+	private Collection<GroupData> groupDatas;
 	
 
 	public ProvisioningData(final Long id,final String ProvisioningSystem,
@@ -40,12 +42,15 @@ public class ProvisioningData {
 
 
 	public ProvisioningData(Collection<MCodeData> vlanDatas,List<IpPoolData> ipPoolDatas, 
-			List<OrderLineData> services,final List<ServiceParameterData> parameterDatas) {
+			List<OrderLineData> services,final List<ServiceParameterData> serviceDatas, 
+			List<ServiceParameterData> parameterDatas, Collection<GroupData> groupDatas) {
 		
 		this.vlanDatas=vlanDatas;
 		this.services=services;
 		this.ipPoolDatas=ipPoolDatas;
 		this.parameterDatas=parameterDatas;
+		this.serviceDatas=serviceDatas;
+		this.groupDatas=groupDatas;
 	}
 
 

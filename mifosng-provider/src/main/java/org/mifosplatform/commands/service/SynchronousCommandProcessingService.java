@@ -536,6 +536,8 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("retrackOsdMessageOrderCommandHandler",NewCommandSourceHandler.class);
 			}else if (wrapper.isOrderExtension()) {
 				handler = applicationContext.getBean("orderExtensionCommandHandler",NewCommandSourceHandler.class);
+			}else if (wrapper.isOrderTerminate()) {
+				handler = applicationContext.getBean("orderTerminationCommandHandler",NewCommandSourceHandler.class);
 			}
 		} else if (wrapper.isOrderScheduling()) {
 			if (wrapper.isCreate()) {
@@ -944,6 +946,8 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isGroupDetailsResource()){
 				   if(wrapper.isCreate()){
 					   handler = applicationContext.getBean("createGroupsDetailsCommandHandler",NewCommandSourceHandler.class);
+				   }else if(wrapper.isCreateStatment()){
+					   handler = applicationContext.getBean("createGroupsStatmentCommandHandler",NewCommandSourceHandler.class);
 				   }
 			   }else if(wrapper.isCreateIpPoolManagement()){
 				     if(wrapper.isCreate()) {
@@ -996,6 +1000,13 @@ public class SynchronousCommandProcessingService implements
 				}else if(wrapper.isTaxExemptionResource()){
 				     if(wrapper.isUpdate()) {
 				         handler = applicationContext.getBean("updateClientTaxExemptionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+				}else if(wrapper.isIpStatus()){
+				     
+					if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateIpStatusCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }

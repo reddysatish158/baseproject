@@ -108,15 +108,18 @@ final JsonArray serviceParametersArray=fromApiJsonHelper.extractJsonArrayNamed("
 		     final String paramName = fromApiJsonHelper.extractStringNamed("paramName", attributeElement);
 		     baseDataValidator.reset().parameter("paramName").value(paramName).notBlank();
 
-		     if(paramName.equalsIgnoreCase("IP_ADDRESS") && !ipRange.equalsIgnoreCase("subnet")){
+		     if(paramName.equalsIgnoreCase("IP_ADDRESS")){
 		    	 
-		    	 final String[] parmaValue = fromApiJsonHelper.extractArrayNamed("paramValue", attributeElement);
-			     baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
+		    	  if(ipRange.equalsIgnoreCase("subnet")){
+		    	    final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
+			        baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
+		          }else{
+		            final String[] parmaValue = fromApiJsonHelper.extractArrayNamed("paramValue", attributeElement);
+		            baseDataValidator.reset().parameter(paramName).value(parmaValue).arrayNotEmpty();
+		         }
 		     }else{
-		     
-		     final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
-		     baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
-
+		    	 final String parmaValue = fromApiJsonHelper.extractStringNamed("paramValue", attributeElement);
+		    	 baseDataValidator.reset().parameter(paramName).value(parmaValue).notBlank();
 		     }
 	  }    
 
