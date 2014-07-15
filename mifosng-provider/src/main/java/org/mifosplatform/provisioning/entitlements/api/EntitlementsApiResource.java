@@ -47,8 +47,9 @@ public class EntitlementsApiResource {
 
 	private final static Logger logger = LoggerFactory.getLogger(EntitlementsApiResource.class);
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id,prepareReqId,product,requestType,hardwareId,provisioingSystem,serviceId," +
-			"results,error,status","orderId","startDate","endDate"));
-    private final String resourceNameForPermissions = "CREATE_ENTITLEMENT";
+			"results,error,status","orderId","startDate","endDate","serviceType"));
+
+	private final String resourceNameForPermissions = "CREATE_ENTITLEMENT";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<EntitlementsData> toApiJsonSerializer;
 	private final DefaultToApiJsonSerializer<ClientEntitlementData> toSerializer;
@@ -76,10 +77,10 @@ public class EntitlementsApiResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
    public String retrievedata(@QueryParam("no") final Long No,@QueryParam("provisioningSystem") final String provisioningSystem,
-		                     @Context final UriInfo uriInfo)
+		    @QueryParam("serviceType") final String serviceType,@Context final UriInfo uriInfo)
 	{
 	       context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-	        List<EntitlementsData> data=this.entitlementReadPlatformService.getProcessingData(No,provisioningSystem);
+	        List<EntitlementsData> data=this.entitlementReadPlatformService.getProcessingData(No,provisioningSystem,serviceType);
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 	}

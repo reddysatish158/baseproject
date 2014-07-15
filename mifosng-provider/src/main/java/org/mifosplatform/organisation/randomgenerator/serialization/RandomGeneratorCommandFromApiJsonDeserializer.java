@@ -86,15 +86,15 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 		final BigDecimal Quantity1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("quantity", element);
 	    baseDataValidator.reset().parameter("quantity").value(Quantity1).notNull();
 	    
-		final BigDecimal Serial1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("serialNo", element);
+	    final BigDecimal Serial1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("serialNo", element);
 	    baseDataValidator.reset().parameter("serialNo").value(Serial1).notNull();
-		
+
 		final String pinType = fromApiJsonHelper.extractStringNamed("pinType",
 				element);
 		baseDataValidator.reset().parameter("pinType").value(pinType)
 				.notBlank();
-
-		BigDecimal pinValue1 = null ;
+		
+		 BigDecimal pinValue1 = null ;
 		if(pinType != null){
 			if(pinType.equalsIgnoreCase("VALUE")){
 				pinValue1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("pinValue", element);
@@ -106,6 +106,7 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 				baseDataValidator.reset().parameter("productValue").value(pinValue1).notNull();
 			}
 		}
+
 	  
 		final LocalDate ExpiryDate = fromApiJsonHelper.extractLocalDateNamed(
 				"expiryDate", element);

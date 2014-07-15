@@ -7,6 +7,8 @@ package org.mifosplatform.infrastructure.configuration.service;
 
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
+import org.mifosplatform.infrastructure.codes.domain.Code;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.configuration.exception.GlobalConfigurationPropertyNotFoundException;
@@ -20,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.gson.JsonObject;
 
 @Service
 public class GlobalConfigurationWritePlatformServiceJpaRepositoryImpl implements GlobalConfigurationWritePlatformService {
@@ -39,7 +43,7 @@ public class GlobalConfigurationWritePlatformServiceJpaRepositoryImpl implements
         this.globalConfigurationDataValidator=globalConfigurationDataValidator;
     }
 
-
+    
     @Transactional
     @Override
     public CommandProcessingResult update(final Long configId, final JsonCommand command) {
@@ -65,7 +69,46 @@ public class GlobalConfigurationWritePlatformServiceJpaRepositoryImpl implements
         }
 
     }
+    
+    @Override
+	public CommandProcessingResult create(JsonCommand command) {
+		try{
+			
+			this.context.authenticatedUser();
+			//this.globalConfigurationDataValidator.validateForCreate(command);
+			final String userName = command.stringValueOfParameterNamed("userName");
+			final String mailId = command.stringValueOfParameterNamed("mailId");
+			final String password = command.stringValueOfParameterNamed("password");
+			final String hostName=command.stringValueOfParameterNamed("hostName");
+			final String port=command.stringValueOfParameterNamed("port");
+						
+			
+			final String unencodedPassword = password;
+			String encodedString = Base64.encodeBase64String(unencodedPassword.getBytes());
+			
+			/*  For Decoding above string
+			 * 
+			 * byte[] decodeString = Base64.decodeBase64(encodedString);
+			 * System.out.println("decodeString: "+new String(decodeString));
+			 */
 
+			JsonObject json =new JsonObject();
+			json.addProperty("mailId", mailId);
+			json.addProperty("password", encodedString);
+			json.addProperty("hostName", hostName);
+			json.addProperty("port", port);
+			final GlobalConfigurationProperty globalConfigurationProperty = GlobalConfigurationProperty.fromJson(command, userName, json.toString());
+	        
+			this.repository.save(globalConfigurationProperty);
+	
+			return new CommandProcessingResultBuilder().withEntityId(globalConfigurationProperty.getId()).build();
+		}
+		catch (final DataIntegrityViolationException dve) {
+            handleDataIntegrityIssues(dve);
+            return CommandProcessingResult.empty();
+        }
+	}
+    
     private GlobalConfigurationProperty retrieveBy(final String propertyName) {
         final GlobalConfigurationProperty property = this.repository.findOneByName(propertyName);
         if (property == null) { throw new GlobalConfigurationPropertyNotFoundException(propertyName); }

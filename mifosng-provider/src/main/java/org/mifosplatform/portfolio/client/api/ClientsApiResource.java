@@ -23,6 +23,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.cms.mediadetails.exception.NoMediaDeviceFoundException;
+import org.mifosplatform.cms.mediadevice.data.MediaDeviceData;
+import org.mifosplatform.cms.mediadevice.service.MediaDeviceReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -60,7 +63,7 @@ public class ClientsApiResource {
     private final ClientReadPlatformService clientReadPlatformService;
     private final OfficeReadPlatformService officeReadPlatformService;
     private final ToApiJsonSerializer<ClientData> toApiJsonSerializer;
-   
+    private final MediaDeviceReadPlatformService mediaDeviceReadPlatformService;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
     private final AddressReadPlatformService addressReadPlatformService;
@@ -72,7 +75,7 @@ public class ClientsApiResource {
             final OfficeReadPlatformService officeReadPlatformService, final ToApiJsonSerializer<ClientData> toApiJsonSerializer,
             final ApiRequestParameterHelper apiRequestParameterHelper,AddressReadPlatformService addressReadPlatformService,
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final AllocationReadPlatformService allocationReadPlatformService,
-            final GlobalConfigurationRepository configurationRepository) {
+            final GlobalConfigurationRepository configurationRepository,final MediaDeviceReadPlatformService deviceReadPlatformService) {
         this.context = context;
         this.clientReadPlatformService = readPlatformService;
         this.officeReadPlatformService = officeReadPlatformService;
@@ -82,6 +85,7 @@ public class ClientsApiResource {
         this.addressReadPlatformService=addressReadPlatformService;
         this.allocationReadPlatformService=allocationReadPlatformService;
         this.configurationRepository=configurationRepository;
+        this.mediaDeviceReadPlatformService=deviceReadPlatformService;
     }
 
     @GET
@@ -145,6 +149,7 @@ public class ClientsApiResource {
         if(configurationProperty.isEnabled()){
         	balanceCheck="Y";
         }
+
         if (settings.isTemplate()) {
             final List<OfficeData> allowedOffices = new ArrayList<OfficeData>(officeReadPlatformService.retrieveAllOfficesForDropdown());
             final Collection<ClientCategoryData> categoryDatas=this.clientReadPlatformService.retrieveClientCategories();
@@ -154,8 +159,12 @@ public class ClientsApiResource {
         }else{
         	 List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
              clientData = ClientData.templateOnTop(clientData, null,null,null,allocationDetailsDatas,balanceCheck);
-        }
 
+        }
+        
+        GlobalConfigurationProperty paypalconfigurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+        clientData.setConfigurationProperty(paypalconfigurationProperty);
+        
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);
     }
 
@@ -239,6 +248,5 @@ public class ClientsApiResource {
     private boolean is(final String commandParam, final String commandValue) {
         return StringUtils.isNotBlank(commandParam) && commandParam.trim().equalsIgnoreCase(commandValue);
     }
-
-
+  
 }

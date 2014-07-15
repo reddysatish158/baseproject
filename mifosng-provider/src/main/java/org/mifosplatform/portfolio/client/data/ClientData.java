@@ -67,7 +67,6 @@ final public class ClientData implements Comparable<ClientData> {
 
     // template
     private final Collection<OfficeData> officeOptions;
-    
     private final Collection<ClientCategoryData> clientCategoryDatas;
 	private final String categoryType;
 	private AddressData addressTemplateData;
@@ -95,6 +94,7 @@ final public class ClientData implements Comparable<ClientData> {
     public static ClientData templateOnTop(final ClientData clientData, final List<OfficeData> allowedOffices, Collection<ClientCategoryData> categoryDatas,
     		Collection<GroupData> groupDatas, List<String> allocationDetailsDatas, String balanceCheck) {
 
+
         return new ClientData(clientData.accountNo,clientData.groupName, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
                 clientData.externalId, clientData.activationDate, clientData.imageKey, allowedOffices, clientData.groups,
@@ -105,11 +105,13 @@ final public class ClientData implements Comparable<ClientData> {
 
     public static ClientData setParentGroups(final ClientData clientData, final Collection<GroupGeneralData> parentGroups) {
         return new ClientData(clientData.accountNo,clientData.groupName, clientData.status, clientData.officeId, clientData.officeName, clientData.id,
+
                 clientData.firstname, clientData.middlename, clientData.lastname, clientData.fullname, clientData.displayName,
                 clientData.externalId, clientData.activationDate, clientData.imageKey, clientData.officeOptions, parentGroups,
                 clientData.clientCategoryDatas,clientData.categoryType,clientData.email,clientData.phone,clientData.homePhoneNumber,
                 clientData.addressNo,clientData.street,clientData.city,clientData.state,clientData.country,clientData.zip,clientData.balanceAmount,
                 clientData.hardwareDetails,clientData.hwSerialNumber,clientData.currency, clientData.groupNameDatas,null,null,clientData.taxExemption,clientData.entryType);
+
     }
 
     public static ClientData clientIdentifier(final Long id, final String accountNo, final EnumOptionData status, final String firstname,
@@ -123,6 +125,7 @@ final public class ClientData implements Comparable<ClientData> {
     public static ClientData lookup(final Long id, final String displayName, final Long officeId, final String officeName) {
         return new ClientData(null,null, null, officeId, officeName, id, null, null, null, null, displayName, null, null, null, null, null,null,null,null,null,
         		null,null,null, null,null,null,null,null,null,null,null, null,null,null,null,null);
+
     }
 
     public static ClientData instance(final String accountNo, final String groupName, final EnumOptionData status, final Long officeId, final String officeName,final Long id, 
@@ -133,6 +136,7 @@ final public class ClientData implements Comparable<ClientData> {
         return new ClientData(accountNo,groupName, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
                 externalId, activationDate, imageKey, null, null,null,categoryType,email,phone,homePhoneNumber,addrNo,street,city,state,country,zip,
                 balanceAmount,null,hwSerialNumber,currency, null,null,null,taxExemption,entryType);
+
     }
 
     private ClientData(final String accountNo,final String groupName, final EnumOptionData status, final Long officeId, final String officeName, final Long id,final String firstname,
@@ -141,6 +145,7 @@ final public class ClientData implements Comparable<ClientData> {
     		final String categoryType,final String email,final String phone,final String homePhoneNumber,final String addrNo,final String street,final String city,final String state,
     		final String country,final String zip, BigDecimal balanceAmount,final List<String> hardwareDetails,final String hwSerialNumber,final String currency, Collection<GroupData> groupNameDatas, 
     		List<CodeValueData> closureReasons, String balanceCheck,final String taxExemption, String entryType) {
+
         this.accountNo = accountNo;
         this.groupName=groupName;
         this.status = status;
@@ -198,7 +203,7 @@ final public class ClientData implements Comparable<ClientData> {
        else
     	   this.balanceCheck=false;
    
-       
+
     }
       
 	public Long id() {
@@ -225,7 +230,12 @@ final public class ClientData implements Comparable<ClientData> {
         return !imageKeyExists();
     }
 
-    private boolean imageKeyExists() {
+    
+    public Boolean isActive() {
+		return active;
+	}
+
+	private boolean imageKeyExists() {
         return StringUtils.isNotBlank(this.imageKey);
     }
 

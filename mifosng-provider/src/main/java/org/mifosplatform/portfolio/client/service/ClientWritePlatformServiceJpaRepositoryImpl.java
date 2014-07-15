@@ -464,4 +464,5 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
 		}
 		return new CommandProcessingResultBuilder().withEntityId(clientTaxStatus.getId()).build();
 	}
+
 }

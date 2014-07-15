@@ -107,9 +107,7 @@ public class CommandWrapper {
         return this.actionName.equalsIgnoreCase("CREATE");
     }
     
-    public boolean isCreateSelfCareUDP() {
-        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("CREATE");
-    }
+   
     
     public boolean isOwnUpdate() {
         return this.actionName.equalsIgnoreCase("UPDATE");
@@ -198,7 +196,7 @@ public class CommandWrapper {
     }
 
     public boolean isConfigurationResource() {
-        return this.entityName.equalsIgnoreCase("CONFIGURATION");
+        return this.entityName.equalsIgnoreCase("CONFIGURATION") || this.entityName.equalsIgnoreCase("SMTPCONFIGURATION");
     }
 
     public boolean isPermissionResource() {
@@ -1038,8 +1036,9 @@ public class CommandWrapper {
 
 		}
 
-		public boolean isRedemptionResource() {
-			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
+		
+		public boolean isPaypalEnquirey() {
+			return this.actionName.equalsIgnoreCase("CREATEENQUIREY") && this.entityName.equalsIgnoreCase("PAYMENT");
 		}
 
 		public boolean isClientCardDetailsResource() {
@@ -1056,9 +1055,6 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("CLIENTTAXEXEMPTION");
 		}
 
-		public boolean isProcessRandomGenerator() {
-			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
-		}
 
 		public boolean isIpStatus() {
 			
@@ -1067,6 +1063,29 @@ public class CommandWrapper {
 
 		public boolean isCreateStatment() {
 			return this.actionName.equalsIgnoreCase("CREATESTATMENT");
+		}
+			public boolean isProcessRandomGenerator() {
+			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
+		}
+		
+	
+		 
+		public boolean isCreateSelfCareUDP() {
+		        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("CREATE");
+		}
+
+		public boolean isMediaDeviceDetails() {
+			
+			return this.entityName.equalsIgnoreCase("MEDIADEVICE") && this.actionName.equalsIgnoreCase("UPDATE");
+		}
+		
+		public boolean isRedemptionResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("REDEMPTION");
+		}
+
+		public boolean isClientStatus() {
+			
+			   return this.actionName.equalsIgnoreCase("UPDATESTATUS") && this.entityName.equalsIgnoreCase("CLIENT");
 		}
 
 }

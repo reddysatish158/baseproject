@@ -120,6 +120,7 @@ private static final class retrieveMapper implements RowMapper<String> {
 						"case m.pin_type when 'VALUE' then p.plan_code=null when 'PRODUCT' then p.plan_code end as planCode, "+
 						"m.is_processed as isProcessed from b_pin_master m  "+
 						"left join b_plan_master p on m.pin_value=p.id";
+
 			
 			}
 			
@@ -141,6 +142,7 @@ private static final class retrieveMapper implements RowMapper<String> {
 				 String isProcessed=rs.getString("isProcessed");	
 				 
 				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id,planCode,isProcessed);
+
 			}
 		}
 	

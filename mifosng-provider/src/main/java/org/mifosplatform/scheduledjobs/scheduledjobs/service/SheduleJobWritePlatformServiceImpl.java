@@ -199,6 +199,7 @@ try
 	}catch(DataIntegrityViolationException exception){
 		exception.printStackTrace();
 	} catch (Exception exception) {	
+
 		exception.printStackTrace();
 	}
 	}
@@ -213,7 +214,6 @@ public void processRequest() {
  try {
    System.out.println("Processing Request Details.......");
      List<PrepareRequestData> data = this.prepareRequestReadplatformService.retrieveDataForProcessing();
-
       if(!data.isEmpty()){
            MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
            final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
@@ -250,7 +250,75 @@ public void processRequest() {
 @CronTarget(jobName = JobName.RESPONSOR)
 public void processResponse() {
 
+<<<<<<< HEAD
 try {
+=======
+	@Override
+	@CronTarget(jobName = JobName.GENERATE_STATMENT)
+	public void generateStatment() {
+
+		try {
+			System.out.println("Processing statement Details.......");
+			JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
+		    if(data!=null){
+		    	
+		    	  MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();				
+					final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+					LocalTime date=new LocalTime(zone);
+					String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
+		    	String path=FileUtils.generateLogFileDirectory()+ JobName.GENERATE_STATMENT.toString() + File.separator +"statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+		    	 File fileHandler = new File(path.trim());
+				 fileHandler.createNewFile();
+				 FileWriter fw = new FileWriter(fileHandler);
+			     FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+			     
+		        fw.append("Processing statement Details....... \r\n");
+		    	List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+		    	if(sheduleDatas.isEmpty()){
+	 				fw.append("ScheduleJobData Empty \r\n");
+	 		    }
+		    	for(ScheduleJobData scheduleJobData:sheduleDatas)
+				{
+		    		fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
+    	    				" ,query="+scheduleJobData.getQuery()+"\r\n");
+		    		
+					List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
+					if(clientIds.isEmpty()){
+    	 				fw.append("no records are available for statement generation \r\n");
+    	 			}
+    	 			else{
+    	 				fw.append("generate Statements for the clients..... \r\n");
+    	 			}
+					 for(Long clientId:clientIds)
+					 {
+						 try {
+						    fw.append("processing clientId: "+clientId+ " \r\n");
+						    JSONObject jsonobject = new JSONObject();
+						
+							DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
+							String formattedDate ;
+							if(data.isDynamic().equalsIgnoreCase("Y")){
+								formattedDate = formatter1.print(new LocalDate());	
+							}else{
+								formattedDate = formatter1.print(data.getDueDate());
+							}
+							
+
+							// System.out.println(formattedDate);
+							jsonobject.put("dueDate",formattedDate);
+							jsonobject.put("locale", "en");
+							jsonobject.put("dateFormat", "dd MMMM YYYY");
+							jsonobject.put("message", data.getPromotionalMessage());
+							fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");
+							this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
+						
+						 }catch(Exception exception){
+							 fw.append("error"+exception.getMessage());
+							 System.out.println(exception.getMessage());
+	                               handleCodeDataIntegrityIssues(null, exception);	
+	}
+					 }
+>>>>>>> obsplatform-1.01
 
 System.out.println("Processing Response Details.......");
 List<ProcessingDetailsData> processingDetails = this.processRequestReadplatformService.retrieveProcessingDetails();
@@ -589,8 +657,7 @@ public void processMiddleware() {
        String credentials = data.getUsername().trim() + ":"+ data.getPassword().trim();
        byte[] encoded = Base64.encodeBase64(credentials.getBytes());
        HttpClient httpClient = new DefaultHttpClient();
-       List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem());
-      
+       List<EntitlementsData> entitlementDataForProcessings = this.entitlementReadPlatformService.getProcessingData(new Long(100),data.getProvSystem(),null);
        if(!entitlementDataForProcessings.isEmpty()){
            String path=FileUtils.generateLogFileDirectory()+ JobName.Middleware.toString() + File.separator +"middleware_"+new LocalDate().toString().replace("-","")+
         		   "_"+dateTime+".log";
@@ -790,7 +857,6 @@ public void processMiddleware() {
                     System.out.println("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode());
                     fw.append("Failed : HTTP error code : "+ response1.getStatusLine().getStatusCode()+" \r\n");
                    continue;
-
                 }
                BufferedReader br2 = new BufferedReader(new InputStreamReader((response1.getEntity().getContent())));
                String output2;

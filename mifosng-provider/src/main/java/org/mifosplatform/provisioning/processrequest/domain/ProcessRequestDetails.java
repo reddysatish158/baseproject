@@ -48,6 +48,9 @@ public class ProcessRequestDetails extends
 	@Column(name = "request_type")
 	private String requestType;
 
+	@Column(name = "service_type")
+	private String serviceType;
+	
 	@Column(name = "sent_date")
 	private Date sentDate;
 
@@ -66,10 +69,8 @@ public class ProcessRequestDetails extends
 
 	}
 
-	public ProcessRequestDetails(Long orderlinId, Long serviceId,
-			String sentMessage, String recievedMessage, String hardwareId,
-			Date startDate, Date endDate, Date sentDate, Date recievedDate,
-			char isDeleted, String requestType) {
+	public ProcessRequestDetails(Long orderlinId, Long serviceId,String sentMessage, String recievedMessage, String hardwareId,
+			Date startDate, Date endDate, Date sentDate, Date recievedDate,char isDeleted, String requestType,String serviceType) {
 
 		this.orderlinId = orderlinId;
 		this.serviceId = serviceId;
@@ -82,6 +83,7 @@ public class ProcessRequestDetails extends
 		this.endDate = endDate;
 		this.sentDate = sentDate;
 		this.receivedDate = recievedDate;
+		this.serviceType=serviceType;
 
 	}
 
@@ -128,7 +130,6 @@ public class ProcessRequestDetails extends
 		return new ProcessRequestDetails(processReq,orderlinId,serviceId,sentMessage,receiveMessage,requestType,
 											hardwareId,startDate,endDate,sentDate,receivedDate,receivedStatus);
 	}
-
 	public void update(ProcessRequest processRequest) {
 
 		this.processRequest = processRequest;
@@ -213,6 +214,10 @@ public class ProcessRequestDetails extends
 		
 		this.hardwareId=provSerilaNum;
 		
+	}
+
+	public String getServiceType() {
+		return serviceType;
 	}
 	
 	
