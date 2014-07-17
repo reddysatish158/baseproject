@@ -1,5 +1,6 @@
 package org.mifosplatform.organisation.ippool.service;
 
+import java.net.InetAddress;
 import java.util.Map;
 
 import org.apache.commons.collections.map.HashedMap;
@@ -11,6 +12,7 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
+import org.mifosplatform.organisation.ippool.exception.IpAddresNotAvailableException;
 import org.mifosplatform.organisation.ippool.serialization.IpPoolManagementCommandFromApiJsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -66,14 +68,14 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 				
 				for(int i=0;i<data.length;i++){
 					int j=i+1;
-					IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription,'I',type,notes,subnet);
+					IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(data[i],ipPoolDescription,'I',type,notes);
 					this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 					generatedIPPoolID.put(String.valueOf(j), ipPoolManagementDetail.getId());
 				}
 				
 			}else{
 				String i="1";
-				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(ipAddress,ipPoolDescription,'I',type,notes,subnet);
+				IpPoolManagementDetail ipPoolManagementDetail= new IpPoolManagementDetail(ipAddress,ipPoolDescription,'I',type,notes);
 
 				this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 				generatedIPPoolID.put(i, ipPoolManagementDetail.getId());
@@ -118,10 +120,33 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 
 		} catch (DataIntegrityViolationException dve) {
 			return CommandProcessingResult.empty();
-		} catch (Exception e) {
-			return null;
-		}
+		} 
 
+	}
+
+	@Override
+	public CommandProcessingResult updateIpStatus(Long entityId) {
+		
+		try{
+			
+			this.context.authenticatedUser();
+			IpPoolManagementDetail ipPoolManagementDetail=this.ipPoolManagementJpaRepository.findOne(entityId);
+			
+			if(ipPoolManagementDetail == null){
+				throw  new IpAddresNotAvailableException(entityId.toString());
+			}
+			  InetAddress inet = InetAddress.getByName(ipPoolManagementDetail.getIpAddress());
+			  boolean status = inet.isReachable(5000);
+			  if(status){
+				  return new CommandProcessingResult("ACTIVE");
+			  }else{
+				  return new CommandProcessingResult("DeACTIVE");
+			  }
+		}catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return CommandProcessingResult.empty();
+		}
 	}
 
 }

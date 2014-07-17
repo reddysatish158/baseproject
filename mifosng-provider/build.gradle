@@ -319,7 +319,8 @@ buildscript {
 
 
 flyway {
-    url = "jdbc:mysql://localhost:3306/obstenant-dev"
+
+    url = "jdbc:mysql://localhost:3306/obstenant-default"
     user = mysqlUser
     password = mysqlPassword
     
@@ -328,10 +329,12 @@ flyway {
 }
 
 task migrateTenantDB<<{
-    description="Migrates a Tenant DB. Optionally can pass dbName. Defaults to 'obstenant-dev' (Example: -PdbName=someTenantDBname)"
+
+    description="Migrates a Tenant DB. Optionally can pass dbName. Defaults to 'obstenant-default' (Example: -PdbName=someTenantDBname)"
 
 	def filePath = "filesystem:$projectDir" + System.properties['file.separator'] + '..' + System.properties['file.separator'] + 'mifosng-db' + System.properties['file.separator'] + 'migrations/core_db'
-	def tenantDbName = 'obstenant-dev';
+	def tenantDbName = 'obstenant-default';
+
     if (rootProject.hasProperty("dbName")) {
 		tenantDbName = rootProject.getProperty("dbName")
 	}
@@ -343,10 +346,12 @@ task migrateTenantDB<<{
 }
 
 task showTenantDBInfo<<{
-    description="Shows the migration info for a Tenant DB. Optionally can pass dbName. Defaults to 'obstenant-dev' (Example: -PdbName=someTenantDBname)"
+
+    description="Shows the migration info for a Tenant DB. Optionally can pass dbName. Defaults to 'obstenant-default' (Example: -PdbName=someTenantDBname)"
     
     def filePath = "filesystem:$projectDir" + System.properties['file.separator'] + '..' + System.properties['file.separator'] + 'mifosng-db' + System.properties['file.separator'] + 'migrations/core_db'
-    def tenantDbName = 'obstenant-dev';
+    def tenantDbName = 'obstenant-default';
+
     if (rootProject.hasProperty("dbName")) {
 		tenantDbName = rootProject.getProperty("dbName")
 	}

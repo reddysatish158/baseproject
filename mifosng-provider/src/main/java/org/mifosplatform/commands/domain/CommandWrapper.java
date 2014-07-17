@@ -978,6 +978,9 @@ public class CommandWrapper {
 		public boolean isOrderExtension() {
 			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
 		}
+		public boolean isOrderTerminate() {
+			return this.actionName.equalsIgnoreCase("TERMINATE") && this.entityName.equalsIgnoreCase("ORDER");
+		}
 		public boolean isGroupDetailsResource(){
 			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("GROUPS");
 			
@@ -1079,5 +1082,18 @@ public class CommandWrapper {
 	        return isDatatableResource() && isUpdateOperation() && this.subentityId != null;
 	    }
 	    
+		public boolean isIpStatus() {
+			
+			return  this.entityName.equalsIgnoreCase("IPSTATUS");
+		}
+
+		public boolean isCreateStatment() {
+			return this.actionName.equalsIgnoreCase("CREATESTATMENT");
+		}
+
+		public boolean isProvisioningPlanMappingResource() {
+			return this.entityName.equalsIgnoreCase("PROVISIONINGPLANMAPPING");
+		}
+
 
 }

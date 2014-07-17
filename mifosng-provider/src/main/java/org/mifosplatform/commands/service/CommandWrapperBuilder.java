@@ -2193,13 +2193,6 @@ public CommandWrapperBuilder updateIpPoolManagement(Long id) {
 	return this;
 }
 
-/*public CommandWrapperBuilder createBillMode(Long clientId) {
-	this.actionName = "CREATE";
-	this.entityName = "CLIENTBILLMODE";
-	this.entityId = clientId;
-	this.href = "/billmode/" +clientId;
-	return this;
-}*/
 
 public CommandWrapperBuilder updateBillMode(Long clientId) {
 	this.actionName = "UPDATE";
@@ -2208,6 +2201,48 @@ public CommandWrapperBuilder updateBillMode(Long clientId) {
 	this.href = "/billmode/" +clientId;
 	return this;
 }
+
+public CommandWrapperBuilder updateIpStatus(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "IPSTATUS";
+	this.entityId=id;
+	this.href = "/ippooling/status";
+	return this;
+}
+
+public CommandWrapperBuilder terminateOrder(Long orderId) {
+	
+	this.actionName = "TERMINATE";
+	this.entityName = "ORDER";
+	this.entityId=orderId;
+	this.href = "/orders/terminate/"+orderId;
+	return this;
+}
+
+public CommandWrapperBuilder createGroupsStatment(Long clientId) {
+	
+	this.actionName = "CREATESTATMENT";
+	this.entityName = "GROUPS";
+	this.entityId = clientId;
+	this.href = "/groups/statment/"+clientId;
+	return this;
+}
+
+public CommandWrapperBuilder createProvisioningPlanMapping() {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISIONINGPLANMAPPING";
+	this.href = "/planmapping";
+	return this;
+}
+
+public CommandWrapperBuilder updateProvisioningPlanMapping(Long planMappingId) {
+	this.actionName = "UPDATE";
+	this.entityName = "PROVISIONINGPLANMAPPING";
+	this.entityId = planMappingId;
+	this.href = "/planmapping/" + planMappingId ;
+	return this;	
+}
+	
 
 public CommandWrapperBuilder createDBDatatable(final String json) {
     this.actionName = "CREATE";

@@ -73,6 +73,9 @@ public class BillMaster {
 	@Column(name="adjustments_payments")
 	private BigDecimal adjustmentsAndPayments;
 	
+	@Column(name="group_id")
+	private Long groupId;
+	
 	
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "billMaster", orphanRemoval = true)
@@ -87,7 +90,7 @@ public class BillMaster {
 			final BigDecimal previousBalance,final BigDecimal chargeAmount,
 			final BigDecimal adjustmentAmount,final BigDecimal taxAmount,
 			final BigDecimal paidAmount,final BigDecimal dueAmount,final String fileName,
-			final String promotionDescription) {
+			final String promotionDescription, Long groupId) {
 
 		this.billNumber = billNumber;
 		this.clientId = clientId;
@@ -101,10 +104,10 @@ public class BillMaster {
 		this.taxAmount = taxAmount;
 		this.paidAmount = paidAmount;
 		this.dueAmount = dueAmount;
-
 		this.promotionDescription = promotionDescription;
 		this.fileName="invoice";
 		this.billPeriod="monthly";
+		this.groupId=groupId;
 
 	}
 
@@ -241,6 +244,18 @@ public class BillMaster {
          
          this.billDetails.add(billDetail);
 		
+	}
+
+	public String getBillPeriod() {
+		return billPeriod;
+	}
+
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public List<BillDetail> getBillDetails() {
+		return billDetails;
 	}
 
 

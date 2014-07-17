@@ -5,6 +5,7 @@ import java.util.List;
 import net.sf.json.JSONObject;
 
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
@@ -16,6 +17,7 @@ import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
+import org.mifosplatform.organisation.ippool.exception.IpNotAvailableException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -87,7 +89,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 		try{
 			
 			     this.context.authenticatedUser();
-			     this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
+			    // this.fromApiJsonDeserializer.validateForAddProvisioning(command.json());
 			     final JsonElement element = fromApiJsonHelper.parse(command.json());
 				 JsonArray serviceParameters = fromApiJsonHelper.extractJsonArrayNamed("serviceParameters", element);
 				 String[] ipAddressArray=null;
@@ -102,10 +104,11 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	            final String ipRange=command.stringValueOfParameterNamed("ipRange");
 	            final Long subnet=command.longValueOfParameterNamed("subnet");
 	            Client client=this.clientRepository.findOne(clientId);
-				jsonObject.put("clientId", client.getAccountNo());
-				jsonObject.put("orderId", orderId);
-				jsonObject.put("macId", macId);
-				jsonObject.put("planName",planName);
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTID, client.getAccountNo());
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTNAME,client.getFirstname());
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_ORDERID, orderId);
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_MACID, macId);
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_PLANNAME,planName);
 
 				for(ServiceParameters serviceParameter:parameters){
 				
@@ -114,19 +117,20 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 					
 				String paramName=fromApiJsonHelper.extractStringNamed("paramName",jsonElement);
 				String service=fromApiJsonHelper.extractStringNamed("paramValue", jsonElement);
+				boolean flag= checkValueifNull(paramName,ipRange,jsonElement);
 					   
 					if(serviceParameter.getParameterName().equalsIgnoreCase(paramName)){
 						
-						if(!oldValue.equalsIgnoreCase(service)){
+						if(!oldValue.equalsIgnoreCase(service) && !flag){
 
 							serviceParameter.setStatus("INACTIVE");
 				            this.serviceParametersRepository.saveAndFlush(serviceParameter);
 						    serviceParameter=ServiceParameters.fromJson(jsonElement,fromApiJsonHelper,clientId,orderId,planName,"ACTIVE",ipRange,subnet);
 						    this.serviceParametersRepository.saveAndFlush(serviceParameter);
                             
-						    if(serviceParameter.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
+						    if(serviceParameter.getParameterName().equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS)){
                      		  
-						    	if(ipRange.equalsIgnoreCase("subnet")){
+						    	if(ipRange.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_SUBNET)){
                     	           
 						    		String ipAddress=fromApiJsonHelper.extractStringNamed("paramValue",jsonElement);
  						            String ipData=ipAddress+"/"+subnet;
@@ -141,21 +145,26 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 									     throw new IpAddresAllocatedException(ipAddressArray[i]);
 								         }
  							         }
- 							            jsonObject.put("subnet",subnet);
+ 							            jsonObject.put(ProvisioningApiConstants.PROV_DATA_SUBNET,subnet);
                     		   }else{
                     			 ipAddressArray=fromApiJsonHelper.extractArrayNamed("paramValue", jsonElement);//new  JSONArray(ipAddressArray);
                     		    }
 						      
 							     for(String ipaddress:ipAddressArray){
 							      IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipaddress);
-							      ipPoolManagementDetail.setStatus('A');
-							      ipPoolManagementDetail.setClientId(clientId);
-							      this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+							  
+							      if(ipPoolManagementDetail == null){
+									throw new IpNotAvailableException(ipaddress);
+							       }
+							        ipPoolManagementDetail.setStatus('A');
+							        ipPoolManagementDetail.setClientId(clientId);
+							        this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
+							     
 						      }
-							     jsonObject.put("new_ip_type", ipType);
+							     jsonObject.put(ProvisioningApiConstants.PROV_DATA_NEW_IPTYPE, ipType);
 							    
 							     if(oldValue.contains("/")){
-								    IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
+								//    IpGeneration ipGeneration=new IpGeneration(oldValue,this.ipPoolManagementReadPlatformService);
 		 					        //ipAddressArray=this.ipGeneration.getInfo().getsubnetAddresses(oldValue);
 		 					          
 		 					        for(int i=0;i<ipAddressArray.length;i++){
@@ -167,7 +176,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 									         this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 									     }
 								    }
-		 					          jsonObject.put("old_ip_type","Subnet");
+		 					          jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_IPTYPE,"Subnet");
 		 					      
 								}else{
 									
@@ -182,18 +191,18 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 							      }
 						       }
                   	      	       if(oldIpAddressArray.length() >1){
-						  		   jsonObject.put("old_ip_type","multiple");
+						  		   jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_IPTYPE,"multiple");
 						  	        
                   	      	       }else{
-						  		   jsonObject.put("old_ip_type","single");
+						  		   jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_IPTYPE,"single");
 						  	         }
 								}
-						
+						    }						
 					   jsonObject.put("OLD_"+serviceParameter.getParameterName(), oldValue);
 					   jsonObject.put("NEW_"+serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 					
 					
-					}
+					
 				}else{
 					jsonObject.put(serviceParameter.getParameterName(), serviceParameter.getParameterValue());
 				}
@@ -211,7 +220,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			  
   			  for(OrderLine orderLine:orderLines){
 				 ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
-				 jsonObject.put("service_type",service.getServiceType());
+				 jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),jsonObject.toString(),"Recieved",
 						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',"CHANGE_PROVISIONING");
 				  processRequest.add(processRequestDetails);
@@ -225,7 +234,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 			handleCodeDataIntegrityIssues(command, dataIntegrityViolationException);
 			return new CommandProcessingResult(Long.valueOf(-1l));
 		
-		} catch (org.codehaus.jettison.json.JSONException e) {
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return new CommandProcessingResult(Long.valueOf(-1l));
@@ -233,6 +242,27 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 	}
 	
 	
+	private boolean checkValueifNull(String paramName,String ipRange, JsonElement jsonElement) {
+		boolean flag=false;
+		if(paramName.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS) &&ipRange.equalsIgnoreCase("ipAddress")){
+			  
+					String[] service=fromApiJsonHelper.extractArrayNamed("paramValue", jsonElement);
+					if(service.length == 0){
+						flag =true;
+					}else{
+						flag =false;
+					}
+					
+			
+		}else{
+		String paramValue=fromApiJsonHelper.extractStringNamed("paramValue", jsonElement);
+		if(paramValue == null){
+			flag =true;
+		}
+		}
+		return flag;
+	}
+
 	private void handleCodeDataIntegrityIssues(JsonCommand command,DataIntegrityViolationException dve) {
 
 		Throwable realCause = dve.getMostSpecificCause();
