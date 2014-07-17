@@ -84,7 +84,7 @@ public class BillingMasterApiResourse {
 		
 		 final JsonElement parsedCommand = this.fromApiJsonHelper.parse(apiRequestBodyAsJson.toString());
          final JsonCommand command = JsonCommand.from(apiRequestBodyAsJson.toString(),parsedCommand,this.fromApiJsonHelper,
-        		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null);
+        		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null,null);
 		final CommandProcessingResult result=this.billMasterWritePlatformService.createBillMaster(command,command.entityId());
 	    this.billWritePlatformService.ireportPdf(result.resourceId());
 	    return this.toApiJsonSerializer.serialize(result);

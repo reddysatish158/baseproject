@@ -131,8 +131,13 @@ public final class Client extends AbstractPersistable<Long> {
     @Column(name = "exempt_tax",nullable = false)
 	private char taxExemption='N';
     
+
+    @Column(name = "bill_mode",nullable = true)
+   	private String billMode;
+
     @Column(name = "is_indororp",nullable = false)
  	private String entryType;
+
 
 
     public static Client createNew(final Office clientOffice, final Group clientParentGroup, final JsonCommand command) {
@@ -609,6 +614,14 @@ public final class Client extends AbstractPersistable<Long> {
 
 	public void setTaxExemption(char taxExemption) {
 		this.taxExemption = taxExemption;
+	}
+	
+	public String getBillMode() {
+		return billMode;
+	}
+
+	public void setBillMode(String billMode) {
+		this.billMode = billMode;
 	}
 
 	public void close(final AppUser currentUser, final CodeValue closureReason, final Date closureDate) {

@@ -35,7 +35,7 @@ public final class MediaAssetCommandFromApiJsonDeserializer {
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("mediaTitle","mediatype",
     		  "catageoryId","genre","releaseDate","overview","subject","mediaImage","duration","contentProvider",
     		  "rated","mediaRating","ratingCount","status","mediaassetAttributes","mediaAssetLocations","locale",
-    		  "dateFormat","attributeName","formatType","languageId"));
+    		  "dateFormat","attributeName","formatType","languageId","cpShareValue"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -60,38 +60,39 @@ public final class MediaAssetCommandFromApiJsonDeserializer {
         baseDataValidator.reset().parameter("mediatype").value(mediaType).notBlank();
         final Integer mediaCategoryId = fromApiJsonHelper.extractIntegerSansLocaleNamed("catageoryId", element);
         baseDataValidator.reset().parameter("catageoryId").value(mediaCategoryId).notNull().integerGreaterThanZero();
-        final String genre = fromApiJsonHelper.extractStringNamed("genre", element);
-        baseDataValidator.reset().parameter("genre").value(genre).notBlank();
         //final String overview = fromApiJsonHelper.extractStringNamed("overview", element);
       //  baseDataValidator.reset().parameter("overview").value(overview).notBlank();
-        final String subject = fromApiJsonHelper.extractStringNamed("subject", element);
-        baseDataValidator.reset().parameter("subject").value(subject).notBlank();
         final String image = fromApiJsonHelper.extractStringNamed("mediaImage", element);
         baseDataValidator.reset().parameter("mediaImage").value(image).notBlank();
         final String duration = fromApiJsonHelper.extractStringNamed("duration", element);
         baseDataValidator.reset().parameter("duration").value(duration).notBlank();
-        final String contentProvider = fromApiJsonHelper.extractStringNamed("contentProvider", element);
+        final String genre = fromApiJsonHelper.extractStringNamed("genre", element);
+        baseDataValidator.reset().parameter("genre").value(genre).notBlank();
+        
+        final Long contentProvider = fromApiJsonHelper.extractLongNamed("contentProvider", element);
         baseDataValidator.reset().parameter("contentProvider").value(contentProvider).notBlank();
-        final LocalDate releaseDate = fromApiJsonHelper.extractLocalDateNamed("releaseDate", element);
-        baseDataValidator.reset().parameter("releaseDate").value(releaseDate).notBlank();
        /* final String[] mediaassetAttributes = fromApiJsonHelper.extractArrayNamed("mediaassetAttributes", element);
         baseDataValidator.reset().parameter("mediaassetAttributes").value(mediaassetAttributes).arrayNotEmpty();*/
         final String rated = fromApiJsonHelper.extractStringNamed("rated", element);
         baseDataValidator.reset().parameter("rated").value(rated).notBlank();
         final BigDecimal rating=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("mediaRating", element);
         baseDataValidator.reset().parameter("mediaRating").value(rating).notNull();
- /*       final BigDecimal cpShareValue=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("cpShareValue", element);
-        baseDataValidator.reset().parameter("cpShareValue").value(cpShareValue).notNull().inMinAndMaxAmountRange(BigDecimal.ZERO,BigDecimal.valueOf(100));*/
-       // final Long ratingCount=fromApiJsonHelper.extractLongNamed("ratingCount", element);
-       // baseDataValidator.reset().parameter("ratingCount").value(ratingCount).notNull();
         final String status=fromApiJsonHelper.extractStringNamed("status", element);
         baseDataValidator.reset().parameter("status").value(status).notBlank();
+        final LocalDate releaseDate = fromApiJsonHelper.extractLocalDateNamed("releaseDate", element);
+        baseDataValidator.reset().parameter("releaseDate").value(releaseDate).notBlank();
+        final String subject = fromApiJsonHelper.extractStringNamed("subject", element);
+        baseDataValidator.reset().parameter("subject").value(subject).notBlank();
+        final BigDecimal cpShareValue=fromApiJsonHelper.extractBigDecimalWithLocaleNamed("cpShareValue", element);
+        baseDataValidator.reset().parameter("cpShareValue").value(cpShareValue).notNull().inMinAndMaxAmountRange(BigDecimal.ZERO,BigDecimal.valueOf(100));
+       // final Long ratingCount=fromApiJsonHelper.extractLongNamed("ratingCount", element);
+       // baseDataValidator.reset().parameter("ratingCount").value(ratingCount).notNull();
         final JsonArray mediaassetAttributesArray=fromApiJsonHelper.extractJsonArrayNamed("mediaassetAttributes",element);
        //baseDataValidator.reset().parameter("mediaassetAttributes").value(mediaassetAttributesArray).
         String[] mediaassetAttributes =null;
 	    mediaassetAttributes=new String[mediaassetAttributesArray.size()];
 	      int mediaassetAttributeSize=mediaassetAttributesArray.size();
-	      baseDataValidator.reset().parameter(null).value(mediaassetAttributeSize).integerGreaterThanZero();
+	      baseDataValidator.reset().parameter("mediaassetAttributes").value(mediaassetAttributeSize).integerGreaterThanZero();
 	    for(int i=0; i<mediaassetAttributesArray.size();i++){
 	    	mediaassetAttributes[i] =mediaassetAttributesArray.get(i).toString();
 	    	//JsonObject temp = mediaassetAttributesArray.getAsJsonObject();
@@ -122,7 +123,7 @@ public final class MediaAssetCommandFromApiJsonDeserializer {
         String[] mediaAssetLocations =null;
         mediaAssetLocations=new String[mediaAssetLocationsArray.size()];
         int mediaassetLocationSize=mediaAssetLocationsArray.size();
-	      baseDataValidator.reset().parameter(null).value(mediaassetLocationSize).integerGreaterThanZero();
+	      baseDataValidator.reset().parameter("mediaAssetLocations").value(mediaassetLocationSize).integerGreaterThanZero();
 	    for(int i=0; i<mediaAssetLocationsArray.size();i++){
 	    	mediaAssetLocations[i] =mediaAssetLocationsArray.get(i).toString();
 	    	//JsonObject temp = mediaassetAttributesArray.getAsJsonObject();
@@ -143,8 +144,6 @@ public final class MediaAssetCommandFromApiJsonDeserializer {
 			  
      
 		  }
-     
-        
      
         
         throwExceptionIfValidationWarningsExist(dataValidationErrors);

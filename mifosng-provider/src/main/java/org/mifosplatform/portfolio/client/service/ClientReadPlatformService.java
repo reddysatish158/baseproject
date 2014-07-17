@@ -39,5 +39,8 @@ public interface ClientReadPlatformService {
 
 	ClientData retrieveAllClosureReasons(String clientClosureReason);
 
+	ClientCategoryData retrieveClientBillModes(Long clientId);
+
+
 	
 }

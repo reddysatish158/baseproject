@@ -26,4 +26,8 @@ public class CodeData {
         this.name = name;
         this.systemDefined = systemDefined;
     }
+
+	public Long getCodeId() {
+		 return this.id;       
+   }
 }
