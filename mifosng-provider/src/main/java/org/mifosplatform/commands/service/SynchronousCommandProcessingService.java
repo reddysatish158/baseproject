@@ -1010,6 +1010,14 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+				}else if (wrapper.isProvisioningPlanMappingResource()) {
+		        	if (wrapper.isCreate()) {
+		                 handler = applicationContext.getBean("createProvisioningPlanMappingCommandHandler", NewCommandSourceHandler.class);
+		        	}else if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateProvisioningPlanMappingCommandHandler",NewCommandSourceHandler.class);					   
+				    }else {
+		                    throw new UnsupportedCommandException(wrapper.commandName());
+		                }
 				}else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		              }
