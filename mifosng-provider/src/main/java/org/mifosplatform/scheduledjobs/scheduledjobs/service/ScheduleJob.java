@@ -116,7 +116,7 @@ orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
                             jsonobject.put("description","Order Renewal By Scheduler");
                             final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
                             final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"RENEWAL",order.getClientId(), null,
-                              null,order.getClientId(), null, null, null,null, null, null);
+                              null,order.getClientId(), null, null, null,null, null, null,null);
                             fw.append("sending json data for Renewal Order is : "+jsonobject.toString()+"\r\n");
                             this.orderWritePlatformService.renewalClientOrder(command,orderData.getId());
                             fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been renewaled for one month via " +"Auto Exipiry on Dated"+exipirydate);
@@ -131,7 +131,7 @@ orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
                              
                              final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
                              final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",order.getClientId(), null,
-                                    null,order.getClientId(), null, null, null,null, null, null);
+                                    null,order.getClientId(), null, null, null,null, null, null,null);
                              this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
                              fw.append("Client Id"+order.getClientId()+" With this Orde"+order.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
                          }
@@ -144,7 +144,7 @@ orderData.getPrice()+" ,OrderEndDate="+orderData.getEndDate()+"\r\n");*/
                            jsonobject.put("locale","en");
                            final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonobject.toString());
                            final JsonCommand command = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",orderData.getClientId(), null,
-                                  null,orderData.getClientId(), null, null, null,null, null, null);
+                                  null,orderData.getClientId(), null, null, null,null, null, null,null);
                            this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
                            fw.append("Client Id"+orderData.getClientId()+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
                   }

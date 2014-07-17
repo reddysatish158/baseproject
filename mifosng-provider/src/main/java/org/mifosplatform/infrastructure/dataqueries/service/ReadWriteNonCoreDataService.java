@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public interface ReadWriteNonCoreDataService {
 
-    List<DatatableData> retrieveDatatableNames(String appTable);
+    /*List<DatatableData> retrieveDatatableNames(String appTable);
 
     @PreAuthorize(value = "hasAnyRole('ALL_FUNCTIONS', 'REGISTER_DATATABLE')")
     void registerDatatable(String datatable, String appTable);
@@ -33,6 +33,47 @@ public interface ReadWriteNonCoreDataService {
 
     CommandProcessingResult deleteDatatableEntries(String datatable, Long appTableId);
 
-    CommandProcessingResult deleteDatatableEntry(String datatable, Long appTableId, Long datatableId);
+    CommandProcessingResult deleteDatatableEntry(String datatable, Long appTableId, Long datatableId);*/
 
-}
+	    List<DatatableData> retrieveDatatableNames(String appTable);
+
+	    DatatableData retrieveDatatable(String datatable);
+
+	    @PreAuthorize(value = "hasAnyRole('ALL_FUNCTIONS', 'REGISTER_DATATABLE')")
+	    void registerDatatable(JsonCommand command);
+
+	    @PreAuthorize(value = "hasAnyRole('ALL_FUNCTIONS', 'REGISTER_DATATABLE')")
+	    void registerDatatable(String dataTableName, String applicationTableName);
+
+	    @PreAuthorize(value = "hasAnyRole('ALL_FUNCTIONS', 'REGISTER_DATATABLE')")
+	    void registerDatatable(JsonCommand command, String permissionTable);
+
+	    @PreAuthorize(value = "hasAnyRole('ALL_FUNCTIONS', 'DEREGISTER_DATATABLE')")
+	    void deregisterDatatable(String datatable);
+
+	    GenericResultsetData retrieveDataTableGenericResultSet(String datatable, Long appTableId, String order, Long id);
+
+	    CommandProcessingResult createDatatable(JsonCommand command);
+
+	    void updateDatatable(String datatableName, JsonCommand command);
+
+	    void deleteDatatable(String datatableName);
+
+	    CommandProcessingResult createNewDatatableEntry(String datatable, Long appTableId, JsonCommand command);
+
+	    CommandProcessingResult createPPIEntry(String datatable, Long appTableId, JsonCommand command);
+
+	    CommandProcessingResult updateDatatableEntryOneToOne(String datatable, Long appTableId, JsonCommand command);
+
+	    CommandProcessingResult updateDatatableEntryOneToMany(String datatable, Long appTableId, Long datatableId, JsonCommand command);
+
+	    CommandProcessingResult deleteDatatableEntries(String datatable, Long appTableId);
+
+	    CommandProcessingResult deleteDatatableEntry(String datatable, Long appTableId, Long datatableId);
+
+	    String getTableName(String Url);
+
+	    String getDataTableName(String Url);
+
+	}
+

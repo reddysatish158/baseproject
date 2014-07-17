@@ -71,4 +71,19 @@ public class CodeReadPlatformServiceImpl implements CodeReadPlatformService {
             throw new CodeNotFoundException(codeId);
         }
     }
+    
+    @Override
+    public CodeData retriveCode(final String codeName) {
+        try {
+            this.context.authenticatedUser();
+
+            final CodeMapper rm = new CodeMapper();
+            final String sql = "select " + rm.schema() + " where c.code_name = ?";
+
+            return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { codeName });
+        } catch (final EmptyResultDataAccessException e) {
+            throw new CodeNotFoundException(codeName);
+        }
+    }
+    
 }
