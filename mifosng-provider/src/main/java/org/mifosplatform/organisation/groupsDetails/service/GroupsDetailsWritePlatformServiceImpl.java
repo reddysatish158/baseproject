@@ -89,7 +89,7 @@ public class GroupsDetailsWritePlatformServiceImpl implements GroupsDetailsWrite
 			 sentMsgObj.addProperty("attribute3", command.stringValueOfParameterNamed("attribute3"));
 			 sentMsgObj.addProperty("attribute4", command.stringValueOfParameterNamed("attribute4"));
 			 
-			 JsonCommand sentMsgCommand = new JsonCommand(null, sentMsgObj.toString(), sentMsgObj, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+			 JsonCommand sentMsgCommand = new JsonCommand(null, sentMsgObj.toString(), sentMsgObj, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
 			 /*String groupName = command.stringValueOfParameterNamed("groupName");
 			 String attr1 = command.stringValueOfParameterNamed("attr1");
 			 String attr2 = command.stringValueOfParameterNamed("attr2");
@@ -107,7 +107,7 @@ public class GroupsDetailsWritePlatformServiceImpl implements GroupsDetailsWrite
 			 json.addProperty("hardwareId", "");json.addProperty("startDate",new SimpleDateFormat("dd MMMM yyyy").format(new Date()));
 			 json.addProperty("endDate", new SimpleDateFormat("dd MMMM yyyy").format(new Date()));json.addProperty("sentDate",new SimpleDateFormat("dd MMMM yyyy").format(new Date()));
 			 json.addProperty("receivedStatus","");json.addProperty("receivedDate", new SimpleDateFormat("dd MMMM yyyy").format(new Date()));
-			 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, command.entityId(), null, null, null, null, null, null, null, null, null);
+			 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, command.entityId(), null, null, null, null, null, null, null, null, null,null);
 			 this.processRequestWriteplatformService.addProcessRequest(commd);
 	          
 			 GroupsDetails groupsDetails = this.groupsDetailsRepository.findOne(command.entityId());
@@ -149,7 +149,7 @@ public class GroupsDetailsWritePlatformServiceImpl implements GroupsDetailsWrite
 						  jsonobject.put("message","");
 						  final JsonElement parsedCommand = this.fromJsonHelper.parse(jsonobject.toString());
 						  final JsonCommand jsonCommand = JsonCommand.from(jsonobject.toString(),parsedCommand,this.fromJsonHelper,
-			    	        		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null);
+			    	        		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null,null);
 			    		  this.billWritePlatformService.createBillMaster(jsonCommand,command.entityId());
 						
 						}catch(Exception exception){

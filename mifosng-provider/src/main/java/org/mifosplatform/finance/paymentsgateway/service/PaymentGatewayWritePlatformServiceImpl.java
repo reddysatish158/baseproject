@@ -101,7 +101,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 					String entityName = "PAYMENT";
 					final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
 					JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper,entityName,
-							                            clientId,null, null, null, null, null, null, null, null, null);
+							                            clientId,null, null, null, null, null, null, null, null, null,null);
 					
 					result = this.paymentWritePlatformService.createPayment(comm);
 					if (result.resourceId() != null) {
@@ -161,7 +161,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 				String entityName = "PAYMENT";
 				final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
 				JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper,entityName,
-						                            clientId,null, null, null, null, null, null, null, null, null);
+						                            clientId,null, null, null, null, null, null, null, null, null,null);
 				
 				result = this.paymentWritePlatformService.createPayment(comm);
 				if (result.resourceId() != null) {

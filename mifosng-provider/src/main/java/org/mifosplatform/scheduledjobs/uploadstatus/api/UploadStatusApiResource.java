@@ -17,6 +17,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,12 +26,14 @@ import javax.ws.rs.core.UriInfo;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.api.ApiConstants;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
+import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.scheduledjobs.uploadstatus.command.UploadStatusCommand;
 import org.mifosplatform.scheduledjobs.uploadstatus.data.UploadStatusData;
@@ -90,16 +93,17 @@ public class UploadStatusApiResource {
 	 @Path("/getData")
 	    @Consumes({ MediaType.APPLICATION_JSON })
 	    @Produces({ MediaType.APPLICATION_JSON })
-	    public String retrieveUploadFiles( @Context final UriInfo uriInfo) {
+	    public String retrieveUploadFiles( @Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit,
+				@QueryParam("offset") final Integer offset) {
 		 context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 /*
 	        final Collection<UploadStatusData> codes = this.readPlatformService.retrieveAllCodes();
 		 final Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 			final boolean prettyPrint = ApiParameterHelper.prettyPrint(uriInfo.getQueryParameters());*/
-
-			final List<UploadStatusData> uploadstatusdata= this.readPlatformService.retrieveAllUploadStatusData();			
+		 	final SearchSqlQuery searchUploads =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
+			final Page<UploadStatusData> uploadstatusdata= this.readPlatformService.retrieveAllUploadStatusData(searchUploads);	
 			ApiRequestJsonSerializationSettings  settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-			return this.defaulttoApiJsonSerializerforUploadStatus.serialize(settings, uploadstatusdata, UPLOAD_STATUS_PARAMETERS);
+			return this.defaulttoApiJsonSerializerforUploadStatus.serialize(uploadstatusdata);
 			//return this.apiJsonSerializerService.serializeUploadStatusDataToJson(prettyPrint,responseParameters,uploadstatusdata);
 	 
 	    }

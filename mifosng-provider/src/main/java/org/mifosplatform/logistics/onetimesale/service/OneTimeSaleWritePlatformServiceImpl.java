@@ -109,7 +109,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
         	 jsonObject.addProperty("quantity", oneTimeSale.getQuantity());
         	 jsonObject.add("serialNumber", serialData);
         	 JsonCommand jsonCommand=new JsonCommand(null, jsonObject.toString(),element, fromJsonHelper, null, null, null, null, null, null, null, 
-        			                       null, null, null, null);
+        			                       null, null, null, null,null);
 			this.inventoryItemDetailsWritePlatformService.allocateHardware(jsonCommand);
 			return new CommandProcessingResult(Long.valueOf(oneTimeSale.getId()));
 		} catch (DataIntegrityViolationException dve) {

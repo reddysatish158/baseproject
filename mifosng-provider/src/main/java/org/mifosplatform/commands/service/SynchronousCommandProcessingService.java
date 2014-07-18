@@ -123,7 +123,13 @@ public class SynchronousCommandProcessingService implements
 		if (wrapper.isConfigurationResource()) {
 			handler = applicationContext.getBean("updateGlobalConfigurationCommandHandler",NewCommandSourceHandler.class);
 		} else if (wrapper.isDatatableResource()) {
-			if (wrapper.isCreate()) {
+			if (wrapper.isCreateDatatable()) {
+                handler = this.applicationContext.getBean("createDatatableCommandHandler", NewCommandSourceHandler.class);
+            } else if (wrapper.isDeleteDatatable()) {
+                handler = this.applicationContext.getBean("deleteDatatableCommandHandler", NewCommandSourceHandler.class);
+            } else if (wrapper.isUpdateDatatable()) {
+                handler = this.applicationContext.getBean("updateDatatableCommandHandler", NewCommandSourceHandler.class);
+            } else if (wrapper.isCreate()) {
 				handler = applicationContext.getBean("createDatatableEntryCommandHandler",NewCommandSourceHandler.class);
 			} else if (wrapper.isUpdateMultiple()) {
 				handler = applicationContext.getBean("updateOneToManyDatatableEntryCommandHandler",	NewCommandSourceHandler.class);
@@ -133,7 +139,9 @@ public class SynchronousCommandProcessingService implements
 				handler = applicationContext.getBean("deleteOneToManyDatatableEntryCommandHandler",	NewCommandSourceHandler.class);
 			} else if (wrapper.isDeleteOneToOne()) {
 				handler = applicationContext.getBean("deleteOneToOneDatatableEntryCommandHandler",NewCommandSourceHandler.class);
-			} else {
+			} else if (wrapper.isRegisterDatatable()) {
+                handler = this.applicationContext.getBean("registerDatatableCommandHandler", NewCommandSourceHandler.class);
+            }else {
 				throw new UnsupportedCommandException(wrapper.commandName());
 			}
 		} else if (wrapper.isNoteResource()) {
@@ -1000,6 +1008,13 @@ public class SynchronousCommandProcessingService implements
 				}else if(wrapper.isTaxExemptionResource()){
 				     if(wrapper.isUpdate()) {
 				         handler = applicationContext.getBean("updateClientTaxExemptionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
+
+				}else if(wrapper.isBillModeResource()){
+					 if(wrapper.isUpdate()) {
+				         handler = applicationContext.getBean("updateClientBillModeCommandHandler",NewCommandSourceHandler.class);
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }

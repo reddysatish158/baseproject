@@ -385,27 +385,6 @@ public class CommandWrapper {
         return this.actionName.equalsIgnoreCase("BULKREASSIGN") && this.entityName.equalsIgnoreCase("LOAN");
     }
 
-    public boolean isDatatableResource() {
-        return this.href.startsWith("/datatables/");
-    }
-
-    public boolean isDeleteOneToOne() {
-        /* also covers case of deleting all of a one to many */
-        return isDatatableResource() && isDeleteOperation() && this.subentityId == null;
-    }
-
-    public boolean isDeleteMultiple() {
-        return isDatatableResource() && isDeleteOperation() && this.subentityId != null;
-    }
-
-    public boolean isUpdateOneToOne() {
-        return isDatatableResource() && isUpdateOperation() && this.subentityId == null;
-    }
-
-    public boolean isUpdateMultiple() {
-        return isDatatableResource() && isUpdateOperation() && this.subentityId != null;
-    }
-
     public boolean isUnassignStaff() {
         return this.actionName.equalsIgnoreCase("UNASSIGNSTAFF") && this.entityName.equalsIgnoreCase("GROUP");
     }
@@ -1060,6 +1039,49 @@ public class CommandWrapper {
 			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
 		}
 
+		public boolean isBillModeResource() {
+			
+			return this.entityName.equalsIgnoreCase("CLIENTBILLMODE");
+		}
+		
+		
+	   public boolean isDatatableResource() {
+		        return this.href.startsWith("/datatables/");
+		    }
+		
+		public boolean isCreateDatatable() {
+	        return this.actionName.equalsIgnoreCase("CREATE") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+
+	    public boolean isDeleteDatatable() {
+	        return this.actionName.equalsIgnoreCase("DELETE") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+
+	    public boolean isUpdateDatatable() {
+	        return this.actionName.equalsIgnoreCase("UPDATE") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+	    
+	    public boolean isRegisterDatatable() {
+	        return this.actionName.equalsIgnoreCase("REGISTER") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+	    
+	    public boolean isDeleteOneToOne() {
+	        /* also covers case of deleting all of a one to many */
+	        return isDatatableResource() && isDeleteOperation() && this.subentityId == null;
+	    }
+
+	    public boolean isDeleteMultiple() {
+	        return isDatatableResource() && isDeleteOperation() && this.subentityId != null;
+	    }
+
+	    public boolean isUpdateOneToOne() {
+	        return isDatatableResource() && isUpdateOperation() && this.subentityId == null;
+	    }
+
+	    public boolean isUpdateMultiple() {
+	        return isDatatableResource() && isUpdateOperation() && this.subentityId != null;
+	    }
+	    
 		public boolean isIpStatus() {
 			
 			return  this.entityName.equalsIgnoreCase("IPSTATUS");
@@ -1072,5 +1094,6 @@ public class CommandWrapper {
 		public boolean isProvisioningPlanMappingResource() {
 			return this.entityName.equalsIgnoreCase("PROVISIONINGPLANMAPPING");
 		}
+
 
 }

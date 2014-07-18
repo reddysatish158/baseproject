@@ -275,15 +275,16 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 		final String subject = rs.getString("subject");
 		final String overview = rs.getString("overview");
 		final String image = rs.getString("image");
-		final String contentProvider = rs.getString("contentProvider");
+		final Long contentProvider = rs.getLong("contentProvider");
 		final String rated=rs.getString("rated");
 		final BigDecimal rating=rs.getBigDecimal("rating");
 		final Long ratingCount=rs.getLong("ratingCount");
 		final String status=rs.getString("status");
 		final String duration=rs.getString("duration");
-		
+		final BigDecimal cpShareValue=rs.getBigDecimal("cpShareValue");
+
 		return new MediaAssetData(mediaId,mediatitle,type,genre,catageoryId,releaseDate,subject,overview,image,contentProvider,
-				rated,rating,ratingCount,status,duration);
+				rated,rating,ratingCount,status,duration,cpShareValue);
 	}
 	public String scheme() {
 
@@ -293,7 +294,6 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 
 
 	}
-
 
 		}
 
@@ -424,15 +424,14 @@ private static final class MediaLocationDataMapper implements RowMapper<MediaLoc
 				return new MediaLocationData(languageId,formatType,location);
 			}
 			
-			
 		}
 
- /*  @Override
+     @Override
       public List<McodeData> retrieveContentProviders() {
 	         context.authenticatedUser();
 	           SystemDataMapper mapper = new SystemDataMapper();
 	           String sql = "select " + mapper.schema();
 	           return this.jdbcTemplate.query(sql, mapper, new Object[] { "Content Provider" });
-}
-*/
+  }
+
 }
