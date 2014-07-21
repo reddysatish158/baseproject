@@ -34,4 +34,7 @@ public interface ClientWritePlatformService {
 	CommandProcessingResult updateClientTaxExemption(Long entityId,
 			JsonCommand command);
 
+	CommandProcessingResult updateClientBillMode(Long entityId,
+			JsonCommand command);
+
 }

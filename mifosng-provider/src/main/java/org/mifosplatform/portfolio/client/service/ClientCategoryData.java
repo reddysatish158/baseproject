@@ -4,10 +4,12 @@ public class ClientCategoryData {
 	
 	private final Long id;
 	private final String categoryType;
+	private final String billMode;
 
-	public ClientCategoryData(Long id, String categoryType) {
+	public ClientCategoryData(Long id, String categoryType,String billMode) {
            this.id=id;
            this.categoryType=categoryType;
+           this.billMode = billMode;
 	
 	}
 
@@ -17,6 +19,10 @@ public class ClientCategoryData {
 
 	public String getCategoryType() {
 		return categoryType;
+	}
+
+	public String getBillMode() {
+		return billMode;
 	}
 
 	

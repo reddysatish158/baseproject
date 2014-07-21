@@ -73,28 +73,23 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 		final BigDecimal length1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("length", element);
 	    baseDataValidator.reset().parameter("length").value(length1).notNull();
 	    
-	    final String beginWith = fromApiJsonHelper.extractStringNamed(
-				"beginWith", element);
-		baseDataValidator.reset().parameter("beginWith").value(beginWith)
-				.notBlank();
+	    final String beginWith = fromApiJsonHelper.extractStringNamed("beginWith", element);
+		baseDataValidator.reset().parameter("beginWith").value(beginWith).notBlank();
 
-		final String pinCategory = fromApiJsonHelper.extractStringNamed(
-				"pinCategory", element);
-		baseDataValidator.reset().parameter("pinCategory").value(pinCategory)
-				.notBlank();
+		final String pinCategory = fromApiJsonHelper.extractStringNamed("pinCategory", element);
+		baseDataValidator.reset().parameter("pinCategory").value(pinCategory).notBlank();
 		
 		final BigDecimal Quantity1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("quantity", element);
 	    baseDataValidator.reset().parameter("quantity").value(Quantity1).notNull();
 	    
-	    final BigDecimal Serial1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("serialNo", element);
-	    baseDataValidator.reset().parameter("serialNo").value(Serial1).notNull();
-
-		final String pinType = fromApiJsonHelper.extractStringNamed("pinType",
-				element);
-		baseDataValidator.reset().parameter("pinType").value(pinType)
-				.notBlank();
+		final BigDecimal Serial1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("serialNo", element);
+	    baseDataValidator.reset().parameter("serialNo").value(Serial1).notNull().inMinMaxRange(0, 18);
 		
-		 BigDecimal pinValue1 = null ;
+		final String pinType = fromApiJsonHelper.extractStringNamed("pinType",element);
+		baseDataValidator.reset().parameter("pinType").value(pinType).notBlank();
+
+		BigDecimal pinValue1 = null ;
+
 		if(pinType != null){
 			if(pinType.equalsIgnoreCase("VALUE")){
 				pinValue1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("pinValue", element);
@@ -133,11 +128,9 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 				BigDecimal maxNo = new BigDecimal(maxSerialSeries);//Long.parseLong(maxSerialSeries);
 				baseDataValidator.reset().parameter("quantity").value(Quantity1.longValue()).
 				inMinAndMaxAmountRange(minNo, maxNo);
-				int val = beginWith.length();
-				baseDataValidator.reset().parameter("beginWith").value(val)
-						.notGreaterThanMax(length1);
-				baseDataValidator.reset().parameter("pinValue").value(pinValue1.longValue())
-						.inMinMaxRange(1, 1000000000);
+
+				baseDataValidator.reset().parameter("beginWith").value(beginWith.length()).notGreaterThanMax(length1);
+				baseDataValidator.reset().parameter("pinValue").value(pinValue1.longValue()).inMinMaxRange(1, 1000000000);
 			}
 		}
 

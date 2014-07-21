@@ -112,7 +112,7 @@ public class ItemApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveAllItems(@Context final UriInfo uriInfo,  @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-
+		
 		final SearchSqlQuery searchItems =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		Page<ItemData> itemData=this.itemReadPlatformService.retrieveAllItems(searchItems);

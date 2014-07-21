@@ -1292,10 +1292,11 @@ public void processMiddleware() {
              fw.append("sending json data to EntitlementApi is:"+object.toString()+"\r\n");
              final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
              JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper, entityName,
-            entitlementsData.getId(), null, null, null, null,null, null, null, null, null);
+            entitlementsData.getId(), null, null, null, null,null, null, null, null, null,null);
              CommandProcessingResult result = this.entitlementWritePlatformService.create(comm);
              System.out.println(result.resourceId()+" \r\n");
              fw.append("Result From the EntitlementApi is:"+result.resourceId()+" \r\n");
+
 
 /* SimpleDateFormat ft = new SimpleDateFormat ("hh:mm:ss a");
 this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsData.getClientId(),"Provisioning",new Date(),

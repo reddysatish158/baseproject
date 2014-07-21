@@ -30,6 +30,10 @@ public class IpPoolManagementData {
 		this.ipAddressData=ipAddressData;
 	}
 
+	public IpPoolManagementData(Long id) {
+		this.id=id;
+	}
+
 	public Long getId() {
 		return id;
 	}

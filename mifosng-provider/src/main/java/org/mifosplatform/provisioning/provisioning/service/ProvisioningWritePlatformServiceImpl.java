@@ -232,7 +232,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	        	
 				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName,"ACTIVE",iprange,subnet);
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
-
+				
 				//ip_pool_data status updation
 				String paramName = fromJsonHelper.extractStringNamed("paramName", j);
 				 if(paramName.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS)){

@@ -23,6 +23,7 @@ public interface MediaAssetDetailsReadPlatformService {
 	List<String> retrieveActors(Long mediaId);
 
 	List<String> retrieveCountry(Long mediaId);
+	
 	MediaAssetDetailsData retrieveMediaAssetDetailsData(Long category);
 	
 	List<MediaAssetLocationDetails> retrieveMediaAssetLocationData(Long mediaId);

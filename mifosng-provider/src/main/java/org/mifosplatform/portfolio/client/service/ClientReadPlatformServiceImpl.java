@@ -647,7 +647,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	            final String codeValue = rs.getString("codeValue");
 
 	            
-                    return new ClientCategoryData(id,codeValue);
+                    return new ClientCategoryData(id,codeValue,null);
 	            
 	        }
 	    }
@@ -688,4 +688,34 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	                this.codeValueReadPlatformService.retrieveCodeValuesByCode(clientClosureReason));
 	        return ClientData.template(null, null, null, null, closureReasons);
 	    }
+	    
+	    
+	    @Override
+		public ClientCategoryData retrieveClientBillModes(Long clientId) {
+			
+			context.authenticatedUser();
+			try{
+				BillModeMapper mapper=new BillModeMapper();
+				final String sql="select id as id , bill_mode as billMode from m_client where id=?";
+				return this.jdbcTemplate.queryForObject(sql, mapper,new Object[]{clientId});
+				
+			}catch(EmptyResultDataAccessException e){
+				return null;
+			}
+			
+		}
+		
+		private static final class BillModeMapper implements RowMapper<ClientCategoryData> {
+		
+		  @Override
+	      public ClientCategoryData mapRow(final ResultSet rs,final int rowNum) throws SQLException {
+
+	        
+	          final Long id = rs.getLong("id");
+	          final String billMode = rs.getString("billMode");
+	         return new  ClientCategoryData(id,null, billMode);
+	          
+	      }
+	}
+
 }

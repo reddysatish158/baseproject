@@ -99,7 +99,7 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	       
 	        for(JsonElement j:clientData){
            
-	        	JsonCommand comm=new JsonCommand(null, j.toString(),j, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+	        	JsonCommand comm=new JsonCommand(null, j.toString(),j, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
 	        	resultClient=this.clientWritePlatformService.createClient(comm);
 	        }
 
@@ -107,13 +107,13 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	        if(configuration.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
 	             
 	        	for(JsonElement sale:saleData){
-	        	  JsonCommand comm=new JsonCommand(null, sale.toString(),sale, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+	        	  JsonCommand comm=new JsonCommand(null, sale.toString(),sale, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
 	        	  resultSale=this.oneTimeSaleWritePlatformService.createOneTimeSale(comm,resultClient.getClientId());
 	           }
 	        }else if(configuration.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
 	        	for(JsonElement ownDevice:owndevices){
 	        		
-	        		  JsonCommand comm=new JsonCommand(null, ownDevice.toString(),ownDevice, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+	        		  JsonCommand comm=new JsonCommand(null, ownDevice.toString(),ownDevice, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
 		        	  resultSale=this.ownedHardwareWritePlatformService.createOwnedHardware(comm,resultClient.getClientId());
 	        	}
 	        	
@@ -121,7 +121,7 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	       
 	         for(JsonElement order:bookOrder){
 		        	
-		        	JsonCommand comm=new JsonCommand(null, order.toString(),order, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+		        	JsonCommand comm=new JsonCommand(null, order.toString(),order, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
 		        	resultOrder=this.orderWritePlatformService.createOrder(resultClient.getClientId(),comm);
 		        
 		        }
