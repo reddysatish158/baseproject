@@ -27,7 +27,7 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 
 	private FromJsonHelper fromJsonHelper;
 
-	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet","statusType","type","notes","clientId"));
+	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("ipPoolDescription","ipAddress","subnet","statusType","type","notes","clientId","ipAndSubnet"));
 
 
 	
@@ -50,8 +50,8 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 		
 		final JsonElement element = fromJsonHelper.parse(json);
 		
-		final String ipPoolDescription = fromJsonHelper.extractStringNamed("ipPoolDescription", element);		
-		baseValidatorBuilder.reset().parameter("ipPoolDescription").value(ipPoolDescription).notBlank().notExceedingLengthOf(100);
+		/*final String ipPoolDescription = fromJsonHelper.extractStringNamed("ipPoolDescription", element);		
+		baseValidatorBuilder.reset().parameter("ipPoolDescription").value(ipPoolDescription).notBlank().notExceedingLengthOf(100);*/
 		
 		final String ipAddress = fromJsonHelper.extractStringNamed("ipAddress", element);
 		baseValidatorBuilder.reset().parameter("ipAddress").value(ipAddress).notBlank().notExceedingLengthOf(100);
@@ -84,10 +84,28 @@ public class IpPoolManagementCommandFromApiJsonDeserializer {
 		baseValidatorBuilder.reset().parameter("statusType").value(statusType).notBlank().notExceedingLengthOf(2);
 		
 		final String notes = fromJsonHelper.extractStringNamed("notes", element);
-		baseValidatorBuilder.reset().parameter("notes").value(notes).notBlank().notExceedingLengthOf(60);
+		baseValidatorBuilder.reset().parameter("notes").value(notes).notExceedingLengthOf(60);
 		
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
 	}
 	
+	public void validateForUpdateDecription(String json){
+		
+		if(StringUtils.isBlank(json)){
+			throw new InvalidJsonException();
+		}
+		final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType(); 
+		fromJsonHelper.checkForUnsupportedParameters(typeOfMap, json, supportedParams);
+		
+		final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
+		final DataValidatorBuilder baseValidatorBuilder = new DataValidatorBuilder(dataValidationErrors);
+		
+		final JsonElement element = fromJsonHelper.parse(json);
+		
+		final String ipAndSubnet = fromJsonHelper.extractStringNamed("ipAndSubnet", element);		
+		baseValidatorBuilder.reset().parameter("ipAndSubnet").value(ipAndSubnet).notBlank().notExceedingLengthOf(100);
+	
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
+	}
 
 }

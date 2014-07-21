@@ -266,6 +266,30 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 		return null;
 		}
 	}
+	
+	@Override
+	public IpPoolManagementData retrieveIdByIpAddress(String ip) {
+		try{
+			
+			IpPoolMapperForId mapper=new IpPoolMapperForId();
+			String sql="select id as id from b_ippool_details where ip_address=?";
+			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {ip});
+			
+		}catch(EmptyResultDataAccessException accessException){
+		return null;
+		}
+	}
+	private static final class IpPoolMapperForId implements
+	RowMapper<IpPoolManagementData> {
 
+		@Override
+		public IpPoolManagementData mapRow(ResultSet rs, int rowNum)
+		throws SQLException {
+	
+			Long id=rs.getLong("id");
+			
+			return new IpPoolManagementData(id);
+		}
+	}
 }
 
