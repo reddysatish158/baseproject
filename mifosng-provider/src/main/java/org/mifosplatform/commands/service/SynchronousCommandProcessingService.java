@@ -1025,6 +1025,13 @@ public class SynchronousCommandProcessingService implements
 				     }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
+				}else if(wrapper.isIpDescription()){
+				     
+					if(wrapper.isUpdateOperation()) {
+				         handler = applicationContext.getBean("updateIpDescriptionCommandHandler",NewCommandSourceHandler.class);
+				     }else {
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				     }
 				}else if (wrapper.isProvisioningPlanMappingResource()) {
 		        	if (wrapper.isCreate()) {
 		                 handler = applicationContext.getBean("createProvisioningPlanMappingCommandHandler", NewCommandSourceHandler.class);
