@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.mifosplatform.infrastructure.core.service.DataSourcePerTenantService;
 import org.mifosplatform.logistics.onetimesale.data.AllocationDetailsData;
 import org.mifosplatform.portfolio.allocation.service.AllocationReadPlatformService;
@@ -144,7 +145,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 				
 				try{
 
-					String requestType=null;			        
+					String requestType=null,sentMessage=null;			        
 					  Order order=this.orderRepository.findOne(requestData.getOrderId());
 					 AllocationDetailsData detailsData=this.allocationReadPlatformService.getTheHardwareItemDetails(requestData.getOrderId(),configProp);
 					 requestType=requestData.getRequestType();
@@ -181,18 +182,30 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 						  List<ProvisionServiceDetails> provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
 						
 						  if(!provisionServiceDetails.isEmpty()){
-							 
+							  /*Ashok adding
+							   * 
+							   */
+							  sentMessage = provisionServiceDetails.get(0).getServiceIdentification();
+							  
                               if(requestData.getRequestType().equalsIgnoreCase(UserActionStatusTypeEnum.DEVICE_SWAP.toString())){
                             	  
-                            	   requestType=UserActionStatusTypeEnum.ACTIVATION.toString();
+                            	/*   requestType=UserActionStatusTypeEnum.ACTIVATION.toString();*/
                             		 AllocationDetailsData allocationDetailsData=this.allocationReadPlatformService.getDisconnectedHardwareItemDetails(requestData.getOrderId(),requestData.getClientId(),configProp);
+                            		 JSONObject object = new JSONObject();
+                            		 object.put("clientId", order.getClientId());
+                            		 object.put("service", provisionServiceDetails.get(0).getServiceIdentification());
+                            		 object.put("OldHWId", allocationDetailsData.getSerialNo());
+                            		 object.put("NewHWId", HardWareId);
                             		 
-                            		 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
+                            		 sentMessage = object.toString();
+                            		 
+                            		/* ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
                             				 allocationDetailsData.getSerialNo(),order.getStartDate(),order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.DISCONNECTION.toString());
-                            		 processRequest.add(processRequestDetails);
+                            		 processRequest.add(processRequestDetails);*/
+                            		 
                               }
                            
-						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),provisionServiceDetails.get(0).getServiceIdentification(),"Recieved",
+						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),sentMessage,"Recieved",
 								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
 						  processRequest.add(processRequestDetails);
 						  
