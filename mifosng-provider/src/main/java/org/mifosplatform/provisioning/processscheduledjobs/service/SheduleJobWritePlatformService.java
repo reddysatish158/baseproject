@@ -2,7 +2,6 @@ package org.mifosplatform.provisioning.processscheduledjobs.service;
 
 public interface SheduleJobWritePlatformService {
 
-	//void runSheduledJobs();
 
 	void processInvoice();
 	

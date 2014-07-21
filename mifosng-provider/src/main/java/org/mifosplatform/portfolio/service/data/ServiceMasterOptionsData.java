@@ -16,7 +16,8 @@ private String serviceType;
 private String serviceStatus;
 private String serviceUnitType;
 private String isOptional;
-Collection<EnumValuesData> serviceTypes;
+private Collection<EnumValuesData> serviceTypes;
+
 private List<EnumOptionData> serviceUnitTypes,status;
 
 public ServiceMasterOptionsData(Collection<ServiceMasterData> serviceMasterOptions)

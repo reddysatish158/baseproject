@@ -6,9 +6,11 @@ import java.util.List;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.item.data.ItemData;
+import org.mifosplatform.organisation.hardwareplanmapping.data.HardwareMappingDetailsData;
 import org.mifosplatform.organisation.hardwareplanmapping.data.HardwarePlanData;
 import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -156,6 +158,47 @@ public class HardwarePlanReadPlatformServiceImpl implements HardwarePlanReadPlat
 		PlanDataMapper mapper = new PlanDataMapper();
 		 sql = "select " + mapper.schema()+" where h.item_code=?";
 		return this.jdbcTemplate.query(sql, mapper, new Object[] { itemCode});
+	}
+
+	@Override
+	public List<HardwareMappingDetailsData> getPlanDetailsByItemCode(
+			String itemCode, Long clientId) {
+        try
+        {
+       	 this.context.authenticatedUser();
+       	 HardwareMapper mapper=new HardwareMapper();
+       	 String sql="select"+mapper.schema();
+       		return this.jdbcTemplate.query(sql, mapper, new Object[] {itemCode,clientId});
+       		
+        }catch(EmptyResultDataAccessException accessException)
+        {
+       	 return null;
+        }
+		
+	}
+	
+private static final class HardwareMapper implements RowMapper<HardwareMappingDetailsData>{
+
+		
+		public String schema() {
+		
+			return " p.id AS planId, p.plan_code AS planCode, o.id AS orderId FROM b_orders o,b_plan_master p,b_hw_plan_mapping phw" +
+					"  WHERE p.id = o.plan_id  AND phw.plan_code = p.plan_code and phw.item_code =? and o.client_id=?";
+		}
+		
+		@Override
+		public HardwareMappingDetailsData mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+
+			Long planId = rs.getLong("planId");
+			Long orderId = rs.getLong("orderId");
+			String planCode = rs.getString("planCode");
+			
+			return new HardwareMappingDetailsData(planId,orderId,planCode);
+		}
+
+		
+		
 	}
 
 	}

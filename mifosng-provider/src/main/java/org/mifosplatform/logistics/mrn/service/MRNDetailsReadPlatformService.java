@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.service.Page;
-import org.mifosplatform.logistics.itemdetails.mrn.data.InventoryTransactionHistoryData;
-import org.mifosplatform.logistics.itemdetails.mrn.data.MRNDetailsData;
+import org.mifosplatform.logistics.mrn.data.InventoryTransactionHistoryData;
+import org.mifosplatform.logistics.mrn.data.MRNDetailsData;
 
 public interface MRNDetailsReadPlatformService {
 

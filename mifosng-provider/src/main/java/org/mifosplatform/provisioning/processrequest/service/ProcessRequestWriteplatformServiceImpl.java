@@ -29,6 +29,7 @@ import org.mifosplatform.provisioning.preparerequest.service.PrepareRequestReadp
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
+import org.mifosplatform.provisioning.provisioning.api.ProvisioningApiConstants;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.service.ActionDetailsReadPlatformService;
 import org.mifosplatform.workflow.eventaction.service.ActiondetailsWritePlatformService;
@@ -121,7 +122,9 @@ public class ProcessRequestWriteplatformServiceImpl implements ProcessRequestWri
 		@Override
 		public void notifyProcessingDetails(ProcessRequest detailsData,char status) {
 			try{
-				if(detailsData!=null &&!detailsData.getRequestType().equalsIgnoreCase(MiddlewareJobConstants.Terminate) && status !='F'){
+
+				if(detailsData!=null && !(detailsData.getRequestType().equalsIgnoreCase(ProvisioningApiConstants.REQUEST_TERMINATE)) && status != 'F'){
+
 					
 				 Order order=this.orderRepository.findOne(detailsData.getOrderId());
 				 Client client=this.clientRepository.findOne(order.getClientId());

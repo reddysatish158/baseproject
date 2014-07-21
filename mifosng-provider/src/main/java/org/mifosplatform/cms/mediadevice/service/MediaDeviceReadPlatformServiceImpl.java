@@ -37,7 +37,7 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			this.context.authenticatedUser();
 			final MediaDeviceMapper eventMasterMapper = new MediaDeviceMapper();
 			final String sql = eventMasterMapper.mediaDeviceSchema();
-			return jdbcTemplate.queryForObject(sql, eventMasterMapper,new Object[] {deviceId,deviceId});
+			return jdbcTemplate.queryForObject(sql, eventMasterMapper,new Object[] {deviceId});
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
@@ -45,13 +45,35 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 	
 	private static final class MediaDeviceMapper implements RowMapper<MediaDeviceData> {
 		public String mediaDeviceSchema() {
-			 return "  SELECT a.id AS deviceId,a.client_id AS clientId,mc.code_value AS clientType,mc.id AS clientTypeId,b.balance_amount as balanceAmount " +
+			/* return "  SELECT a.id AS deviceId,a.client_id AS clientId,mc.code_value AS clientType,mc.id AS clientTypeId,b.balance_amount as balanceAmount " +
 					"  FROM b_allocation a,m_code_value mc, m_client c left join b_client_balance b on b.client_id = c.id WHERE  a.client_id = c.id AND " +
 					"  mc.id = c.category_type AND serial_no = ? AND a.is_deleted = 'N' UNION SELECT a.id,a.client_id,mc.code_value,mc.id, b.balance_amount as balanceAmount" +
 					"  FROM b_owned_hardware a, m_code_value mc, m_client c left join b_client_balance b on b.client_id = c.id WHERE a.client_id = c.id AND mc.id = c.category_type" +
-					"  AND serial_number =?  and a.is_deleted ='N'"; 
+					"  AND serial_number =?  and a.is_deleted ='N'"; */
+			
+			return "SELECT ifnull(a.id, oh.id) AS deviceId," +
+					"ifnull(a.client_id,oh.client_id) AS clientId,cv.code_value AS clientType,cv.id AS clientTypeId," +
+					"cb.balance_amount as balanceAmount ,cc.currency " +
+					"from m_client c " +
+					"left join m_code_value cv on (c.category_type=cv.id ) " +
+					"left join b_allocation a on (c.id =a.client_id AND a.is_deleted = 'N' ) " +
+					"left join b_client_balance cb on (c.id =cb.client_id ) " +
+					"left join b_owned_hardware oh on (c.id =oh.client_id AND oh.is_deleted = 'N') " +
+					"left join b_client_address ca on (c.id=ca.client_id and address_key='PRIMARY') " +
+					"left join b_country_currency cc on (cc.country=ca.country ) " +
+					"WHERE ifnull(a.serial_no, oh.serial_number) = ?";
+					
+		}
+		
+		public String MediaDeviceBasedOnCientIdSchema() {
+			
+			return "SELECT null as deviceId,c.id clientId,cv.code_value AS clientType,cv.id AS clientTypeId," +
+					"cb.balance_amount as balanceAmount ,cc.currency from m_client c left join m_code_value cv on (c.category_type=cv.id )" +
+					" left join b_client_balance cb on (c.id =cb.client_id ) left join b_client_address ca on (c.id=ca.client_id and address_key='PRIMARY')" +
+					" left join b_country_currency cc on (cc.country=ca.country ) WHERE c.id = ? group by c.id";
   
 		}
+		
 		@Override
 		public MediaDeviceData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 			
@@ -60,7 +82,8 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			final String clientType = rs.getString("clientType");
 			final Long clientTypeId = rs.getLong("clientTypeId");
 			final BigDecimal balanceAmount=rs.getBigDecimal("balanceAmount");
-			return new MediaDeviceData(deviceId,clientId,clientType,clientTypeId,balanceAmount);
+			final String currency = rs.getString("currency");
+			return new MediaDeviceData(deviceId,clientId,clientType,clientTypeId,balanceAmount,currency);
 		}
 	}
 
@@ -138,7 +161,44 @@ public class MediaDeviceReadPlatformServiceImpl implements MediaDeviceReadPlatfo
 			return new PlanData(id, planCode, planDescription);
 		}
 	}
+	
+	private static final class MediaDeviceDetailsMapper implements RowMapper<Long> {
+		
+		@Override
+		public Long mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+			
+			final Long deviceId = rs.getLong("deviceIds");
+			return deviceId;
+		}
+		
+	}
+	
 
+	@Override
+	public Long retrieveDeviceDataDetails(Long clientId,String deviceId) {
+		
+		try {
+			final MediaDeviceDetailsMapper mapper = new MediaDeviceDetailsMapper();
+			final String sql ="select count(*) as deviceIds from b_owned_hardware  where client_id = ? and status = 'ACTIVE' " +
+					" and provisioning_serial_number != ?  and is_deleted='N'";
+			return jdbcTemplate.queryForObject(sql, mapper,new Object[] {clientId,deviceId});
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+	
+	@Override
+	public MediaDeviceData retrieveClientDetails(String clientId) {
+		try {
+			
+			this.context.authenticatedUser();
+			final MediaDeviceMapper eventMasterMapper = new MediaDeviceMapper();
+			final String sql = eventMasterMapper.MediaDeviceBasedOnCientIdSchema();
+			return jdbcTemplate.queryForObject(sql, eventMasterMapper,new Object[] {clientId});
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
 	
 }
 
