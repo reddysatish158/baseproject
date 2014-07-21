@@ -26,7 +26,8 @@ public class ItemData {
 	private String itemClass;
 	private LocalDate saleDate;
 	private List<DiscountMasterData> discountMasterDatas;
-	
+	private Long itemMasterId;
+	private LocalDate changedDate;
 
 	public ItemData(Long id, String itemCode, String itemDesc,String itemClass,String units,   String chargeCode, int warranty, BigDecimal unitPrice) {
 		

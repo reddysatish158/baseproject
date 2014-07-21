@@ -1095,5 +1095,8 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("PROVISIONINGPLANMAPPING");
 		}
 
-
+		public boolean isIpDescription() {
+			return  this.entityName.equalsIgnoreCase("IPDESCRIPTION");
+		}
+		
 }

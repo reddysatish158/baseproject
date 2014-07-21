@@ -2308,8 +2308,15 @@ public CommandWrapperBuilder registerDBDatatable(final String datatable, final S
         this.href = "/datatables/" + datatable + "/" + apptableId + "/" + datatableId;
     }
  }
+ 
+ public CommandWrapperBuilder updateIpPoolDescription() {
+		
+		this.actionName = "UPDATE";
+	    this.entityName = "IPDESCRIPTION";
+	    this.href = "/ippooling/description";
+		return this;
 
-
+	}
 }
 
 
