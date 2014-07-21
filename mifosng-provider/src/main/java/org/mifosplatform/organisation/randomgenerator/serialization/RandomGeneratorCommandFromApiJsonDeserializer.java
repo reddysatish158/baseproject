@@ -89,6 +89,7 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 		baseDataValidator.reset().parameter("pinType").value(pinType).notBlank();
 
 		BigDecimal pinValue1 = null ;
+
 		if(pinType != null){
 			if(pinType.equalsIgnoreCase("VALUE")){
 				pinValue1 = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("pinValue", element);
@@ -100,6 +101,7 @@ public class RandomGeneratorCommandFromApiJsonDeserializer {
 				baseDataValidator.reset().parameter("productValue").value(pinValue1).notNull();
 			}
 		}
+
 	  
 		final LocalDate ExpiryDate = fromApiJsonHelper.extractLocalDateNamed(
 				"expiryDate", element);

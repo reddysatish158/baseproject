@@ -6,6 +6,7 @@ import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
 import org.mifosplatform.finance.clientbalance.data.ClientBalanceData;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.finance.payments.data.PaymentData;
+import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.organisation.address.data.AddressData;
 import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.order.data.OrderData;
@@ -20,28 +21,20 @@ private Long clientId;
 	private String uniqueReference;
 	private Boolean isDeleted;
 	private String email;
-
 	private ClientData clientData;
-
 	private ClientBalanceData clientBalanceData;
-
 	private List<AddressData> addressData;
-
 	private List<OrderData> clientOrdersData;
-
 	private List<FinancialTransactionsData> statementsData;
-
 	private List<PaymentData> paymentsData;
-
 	private List<TicketMasterData> ticketMastersData;
-	
+	private GlobalConfigurationProperty paypalConfigData;
+
 	public SelfCareData(Long clientId, String email) {
 		this.clientId = clientId;
 		this.email = email;
 	}
 
-	
-	
 	public SelfCareData() {
 		// TODO Auto-generated constructor stub
 	}
@@ -127,6 +120,18 @@ private Long clientId;
 		this.paymentsData = paymentsData;
 		this.ticketMastersData = ticketMastersData;
 		
+	}
+
+
+
+	public GlobalConfigurationProperty getPaypalConfigData() {
+		return paypalConfigData;
+	}
+
+
+
+	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
+		this.paypalConfigData = paypalConfigData;
 	}
 	
 	

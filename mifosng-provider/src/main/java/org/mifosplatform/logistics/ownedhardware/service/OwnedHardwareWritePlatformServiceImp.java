@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.mifosplatform.infrastructure.codes.exception.DiscountNotFoundException;
+import org.mifosplatform.billing.discountmaster.exceptions.DiscountNotFoundException;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -17,6 +17,7 @@ import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundExcepti
 import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsReadPlatformService;
 import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
+import org.mifosplatform.logistics.ownedhardware.exception.ActiveDeviceExceedException;
 import org.mifosplatform.logistics.ownedhardware.serialization.OwnedHardwareFromApiJsonDeserializer;
 import org.mifosplatform.portfolio.association.data.HardwareAssociationData;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
@@ -50,6 +51,7 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	private final OrderReadPlatformService orderReadPlatformService; 
 	private final HardwareAssociationRepository associationRepository;
 	private final ProvisioningWritePlatformService provisioningWritePlatformService;
+	public static final String ACTIVE_DEVICE="Active Devices"; 
 	
 	
 	@Autowired
@@ -59,18 +61,20 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 			final HardwareAssociationWriteplatformService hardwareAssociationWriteplatformService,final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderReadPlatformService orderReadPlatformService,
 			final HardwareAssociationRepository associationRepository,final ProvisioningWritePlatformService provisioningWritePlatformService) {
-		this.ownedHardwareJpaRepository = ownedHardwareJpaRepository;
+		
 		this.context = context;
 		this.apiJsonDeserializer = apiJsonDeserializer;
-		this.ownedHardwareReadPlatformService = ownedHardwareReadPlatformService;
-		this.inventoryItemDetailsReadPlatformService = inventoryItemDetailsReadPlatformService;
-		this.globalConfigurationRepository=globalConfigurationRepository;
-		this.hardwareAssociationWriteplatformService=hardwareAssociationWriteplatformService;
-		this.associationReadplatformService=hardwareAssociationReadplatformService;
-		this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
-		this.orderReadPlatformService=orderReadPlatformService;
 		this.associationRepository=associationRepository;
+		this.orderReadPlatformService=orderReadPlatformService;
+		this.ownedHardwareJpaRepository = ownedHardwareJpaRepository;
+		this.globalConfigurationRepository=globalConfigurationRepository;
 		this.provisioningWritePlatformService=provisioningWritePlatformService;
+		this.ownedHardwareReadPlatformService = ownedHardwareReadPlatformService;
+		this.associationReadplatformService=hardwareAssociationReadplatformService;
+        this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
+		this.inventoryItemDetailsReadPlatformService = inventoryItemDetailsReadPlatformService;
+		this.hardwareAssociationWriteplatformService=hardwareAssociationWriteplatformService;
+		
 	}
 	
 	
@@ -82,6 +86,13 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	try{	
 		this.context.authenticatedUser();
 		this.apiJsonDeserializer.validateForCreate(command.json());
+	
+		boolean isCheck=this.checkforClientActiveDevices(clientId);
+	
+		if(!isCheck){
+			throw new ActiveDeviceExceedException(clientId);
+		}
+		
 		ownedHardware = OwnedHardware.fromJson(command,clientId);
 		List<String> inventorySerialNumbers = inventoryItemDetailsReadPlatformService.retriveSerialNumbers();
 		List<String> ownedhardwareSerialNumbers = ownedHardwareReadPlatformService.retriveSerialNumbers();
@@ -113,6 +124,13 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 		    		   }
 		    }
 		}
+		/*GlobalConfigurationProperty balanceCheckconfigurationProperty=this.globalConfigurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+        ClientData clientData = this.clientReadPlatformService.retrieveOne(clientId);
+
+        String balanceCheck="N";
+        if(configurationProperty.isEnabled()){
+        	balanceCheck="Y";
+        }*/
 		return new CommandProcessingResultBuilder().withEntityId(ownedHardware.getId()).build();
 		
 	}catch(DataIntegrityViolationException dve){
@@ -125,6 +143,22 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 	
 
 	
+	private boolean checkforClientActiveDevices(Long clientId) {
+		
+		boolean isCheck=true;
+		GlobalConfigurationProperty configurationProperty=this.globalConfigurationRepository.findOneByName(ACTIVE_DEVICE);
+		
+		if(configurationProperty.isEnabled()){
+			int clientDevices=this.ownedHardwareReadPlatformService.retrieveClientActiveDevices(clientId);
+			
+			if(clientDevices >= Integer.parseInt(configurationProperty.getValue())){
+				isCheck=false;
+			}
+		}
+		   return isCheck; 
+	}
+
+
 	private void handleDataIntegrityIssues(final JsonCommand command, final DataIntegrityViolationException dve) {
 
         Throwable realCause = dve.getMostSpecificCause();
@@ -203,10 +237,15 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
     	 ownedHardware.delete();
     	 
     	 this.ownedHardwareJpaRepository.save(ownedHardware);
-    	 HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(ownedHardware.getSerialNumber());
-    	 if(hardwareAssociation != null){
+    	 List<HardwareAssociation> hardwareAssociations=this.associationRepository.findOneByserialNo(ownedHardware.getSerialNumber());
+    	 
+    	 if(!hardwareAssociations.isEmpty()){
+    		 
+    		 for(HardwareAssociation hardwareAssociation:hardwareAssociations){
     		 hardwareAssociation.delete();
     		 this.associationRepository.save(hardwareAssociation);
+    		 
+    		 }
     	 }
     	 
     	 return new CommandProcessingResult(id);

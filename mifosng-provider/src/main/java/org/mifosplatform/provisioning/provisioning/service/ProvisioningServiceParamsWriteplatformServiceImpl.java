@@ -222,7 +222,7 @@ public ProvisioningServiceParamsWriteplatformServiceImpl(final PlatformSecurityC
 				 ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
 				 jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),jsonObject.toString(),"Recieved",
-						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',"CHANGE_PROVISIONING");
+						inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),order.getEndDate(),null,null,'N',"CHANGE_PROVISIONING",service.getServiceType());
 				  processRequest.add(processRequestDetails);
 			}
 			

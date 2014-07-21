@@ -16,7 +16,8 @@ import org.mifosplatform.portfolio.plan.domain.StatusTypeEnum;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetails;
 import org.mifosplatform.portfolio.service.domain.ProvisionServiceDetailsRepository;
-import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.portfolio.service.domain.ServiceMaster;
+import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
 import org.mifosplatform.provisioning.preparerequest.data.PrepareRequestData;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequest;
 import org.mifosplatform.provisioning.preparerequest.domain.PrepareRequsetRepository;
@@ -39,23 +40,24 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 	  private final PrepareRequsetRepository prepareRequsetRepository;
 	  private final AllocationReadPlatformService allocationReadPlatformService;
 	  private final ProvisionServiceDetailsRepository provisionServiceDetailsRepository;
+	  private final ServiceMasterRepository serviceMasterRepository;
 	  public final static String PROVISIONGSYS_COMVENIENT="Comvenient";
-	  private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	
 
 	    @Autowired
-	    public PrepareRequestReadplatformServiceImpl(final DataSourcePerTenantService dataSourcePerTenantService,
-	           final OrderRepository orderRepository,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
-		   final ProcessRequestRepository processRequestRepository,final AllocationReadPlatformService allocationReadPlatformService,
-		   final PrepareRequsetRepository prepareRequsetRepository,final ProvisionServiceDetailsRepository provisionServiceDetailsRepository) {
+	    public PrepareRequestReadplatformServiceImpl(final DataSourcePerTenantService dataSourcePerTenantService,final OrderRepository orderRepository,
+	    		final ServiceMasterRepository serviceMasterRepository,final ProcessRequestRepository processRequestRepository,
+	    		final AllocationReadPlatformService allocationReadPlatformService,final PrepareRequsetRepository prepareRequsetRepository,
+	    		final ProvisionServiceDetailsRepository provisionServiceDetailsRepository) {
 	            
-	    	    this.dataSourcePerTenantService = dataSourcePerTenantService;
-	            this.orderRepository=orderRepository;
+	    	    
+	    	    this.orderRepository=orderRepository;
+	    	    this.serviceMasterRepository=serviceMasterRepository;
 	            this.processRequestRepository=processRequestRepository;
 	            this.prepareRequsetRepository=prepareRequsetRepository;
+	            this.dataSourcePerTenantService = dataSourcePerTenantService;
 	            this.allocationReadPlatformService=allocationReadPlatformService;
 	            this.provisionServiceDetailsRepository=provisionServiceDetailsRepository;
-	            this.transactionHistoryWritePlatformService=transactionHistoryWritePlatformService;
 	        
 	    }
 
@@ -180,6 +182,8 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 						  }
 						  
 						  List<ProvisionServiceDetails> provisionServiceDetails=this.provisionServiceDetailsRepository.findOneByServiceId(orderLine.getServiceId());
+
+						  ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
 						
 						  if(!provisionServiceDetails.isEmpty()){
 							  /*Ashok adding
@@ -206,7 +210,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
                               }
                            
 						  ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),sentMessage,"Recieved",
-								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType);
+								  HardWareId,order.getStartDate(),order.getEndDate(),null,null,'N',requestType,service.getServiceType());
 						  processRequest.add(processRequestDetails);
 						  
 						/*  this.transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Provisioning",new Date(),"Order No:"+order.getOrderNo(),
@@ -264,6 +268,7 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 				
 				
 			}
+
 			@Override
 			public int getLastPrepareId(Long orderId) {
 			try {
@@ -276,5 +281,5 @@ public class PrepareRequestReadplatformServiceImpl  implements PrepareRequestRea
 			return 0;
 			}
 			}		
-			
+
 }

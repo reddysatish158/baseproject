@@ -293,7 +293,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 				jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 						jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
-						order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
+						order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString(),service.getServiceType());
 				  processRequest.add(processRequestDetails);
 				
 			}
@@ -374,10 +374,15 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	   }
 	   
 	  //Update in Association table if Exist
-	   HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(oldSerialnumber);
-	   if(hardwareAssociation != null){
-	   hardwareAssociation.updateserailNum(serialNumber);
-	   this.associationRepository.saveAndFlush(hardwareAssociation);
+	   List<HardwareAssociation> hardwareAssociations=this.associationRepository.findOneByserialNo(oldSerialnumber);
+	   
+	   if(!hardwareAssociations.isEmpty()){
+		   
+		   for(HardwareAssociation hardwareAssociation:hardwareAssociations){
+	       
+			   hardwareAssociation.updateserailNum(serialNumber);
+	           this.associationRepository.saveAndFlush(hardwareAssociation);
+		   }
 	   }
 	   
 	 //Update ProcessRequest
@@ -454,7 +459,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    	
 			    	 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 								jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
-								order.getEndDate(),null,null,'N',requestType);
+								order.getEndDate(),null,null,'N',requestType,service.getServiceType());
 						  processRequest.add(processRequestDetails);
 				
 			     }

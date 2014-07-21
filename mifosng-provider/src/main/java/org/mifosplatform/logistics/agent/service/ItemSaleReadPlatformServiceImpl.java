@@ -8,7 +8,7 @@ import java.util.List;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
-import org.mifosplatform.logistics.itemdetails.mrn.data.MRNDetailsData;
+import org.mifosplatform.logistics.mrn.data.MRNDetailsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

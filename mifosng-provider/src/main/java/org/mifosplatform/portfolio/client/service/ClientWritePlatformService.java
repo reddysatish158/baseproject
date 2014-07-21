@@ -36,4 +36,5 @@ public interface ClientWritePlatformService {
 
 	CommandProcessingResult updateClientBillMode(Long entityId,
 			JsonCommand command);
+
 }

@@ -2100,6 +2100,43 @@ public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
     return this;
 }
 
+public CommandWrapperBuilder createGlobalConfiguration() {
+	this.actionName = "CREATE";
+	this.entityName = "SMTPCONFIGURATION";
+	//this.entityId=configId;
+	this.href = "/configurations";
+	return this;
+}
+
+public CommandWrapperBuilder PaypalPayment(Long clientId) {
+	this.actionName = "CREATEENQUIREY";
+	this.entityName = "PAYMENT";
+	this.entityId = clientId;
+	this.href = "/payments/paypalEnquirey" + clientId;
+	return this;
+}
+
+
+
+
+
+public CommandWrapperBuilder updateMediaStatus(String deviceId) {
+	
+	this.actionName = "UPDATE";
+	this.entityName = "MEDIADEVICE";
+	this.supportedEntityType = deviceId;
+	this.href = "/mediadevices/"+deviceId;
+	return this;
+}
+
+
+public CommandWrapperBuilder updateClientStatus(Long clientId) {
+	this.actionName = "UPDATESTATUS";
+	this.entityName = "CLIENT";
+	this.entityId=clientId;
+	this.href = "/clients/"+clientId;
+	return this;
+}
 
 
 public CommandWrapperBuilder createOfficeAdjustment(Long officeId) {
