@@ -171,6 +171,19 @@ public class IpPoolManagementApiResource {
         final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
         return this.toApiJsonSerializer.serialize(result);
     } 
+	
+	@GET
+	@Path("id/{poolId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String retrieveSingleIpPoolDetails(@Context final UriInfo uriInfo,@PathParam("poolId") final Long poolId) {
+		
+		this.context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		Collection<MCodeData> codeValueDatas=this.codeReadPlatformService.getCodeValue("IP Type");
+		List<IpPoolManagementData> ipPoolManagementDatas = ipPoolManagementReadPlatformService.retrieveSingleIpPoolDetails(poolId);
+		IpPoolData singleIpPoolData=new IpPoolData(codeValueDatas,ipPoolManagementDatas);
+		return this.toApiJsonSerializer.serialize(singleIpPoolData);
+	}
 }
 
 

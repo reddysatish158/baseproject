@@ -131,9 +131,9 @@ public class ItemApiResource {
 		List<EnumOptionData> itemClassdata = this.itemReadPlatformService.retrieveItemClassType();
    		List<EnumOptionData> unitTypeData = this.itemReadPlatformService.retrieveUnitTypes();
    		List<ChargesData> chargeDatas = this.itemReadPlatformService.retrieveChargeCode();
-   		
+   		List<ItemData> auditDetails = this.itemReadPlatformService.retrieveAuditDetails(itemId);
    		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-   		itemData=new ItemData(itemData,itemClassdata,unitTypeData,chargeDatas);
+   		itemData=new ItemData(itemData,itemClassdata,unitTypeData,chargeDatas,auditDetails);
    		return this.toApiJsonSerializer.serialize(settings, itemData, RESPONSE_ITEM_DATA_PARAMETERS);
    		
 	}

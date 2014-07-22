@@ -110,11 +110,16 @@ public class IpPoolManagementWritePlatformServiceImpl implements IpPoolManagemen
 			
 			String statusType = command.stringValueOfParameterNamed("statusType");
 			String notes = command.stringValueOfParameterNamed("notes");
+			String poolDescription = command.stringValueOfParameterNamed("ipPoolDescription");
+			Long type = command.longValueOfParameterNamed("type");
+			Long subNet = command.longValueOfParameterNamed("subNet");
 			
 			IpPoolManagementDetail ipPoolManagementDetail = this.ipPoolManagementJpaRepository.findOne(command.entityId());
 			ipPoolManagementDetail.setStatus(statusType.trim().charAt(0));
 			ipPoolManagementDetail.setNotes(notes);
-			
+			ipPoolManagementDetail.setIpPoolDescription(poolDescription);
+			ipPoolManagementDetail.setType(type);
+			ipPoolManagementDetail.setSubnet(subNet);
 			this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
 			
 			return new CommandProcessingResult(command.entityId());

@@ -30,10 +30,10 @@ public class ItemMasterAudit extends AbstractPersistable<Long>{
 	public ItemMasterAudit(){}
 	
 	
-	public ItemMasterAudit(Long itemId, JsonCommand command) {
+	public ItemMasterAudit(Long itemId,int existingUnitPrice, JsonCommand command) {
 		
 		final String itemCode = command.stringValueOfParameterNamed("itemCode");
-		final BigDecimal unitPrice = command.bigDecimalValueOfParameterNamed("unitPrice");
+		final BigDecimal unitPrice = new BigDecimal(existingUnitPrice);
 		//final LocalDate changedDate = command.localDateValueOfParameterNamed("changedDate");
 		final Date changedDate = new Date();
 		this.itemMasterId = itemId;

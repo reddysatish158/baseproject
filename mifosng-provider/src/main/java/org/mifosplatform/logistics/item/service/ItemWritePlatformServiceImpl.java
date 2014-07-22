@@ -82,7 +82,7 @@ public class ItemWritePlatformServiceImpl implements ItemWritePlatformService{
 	   int existingUnitPrice = itemMaster.getUnitPrice().intValueExact();
 	   if(unitPrice!=existingUnitPrice){
 		   
-		   ItemMasterAudit itemMasterAudit = new ItemMasterAudit(itemId,command);
+		   ItemMasterAudit itemMasterAudit = new ItemMasterAudit(itemId,existingUnitPrice,command);
 		   this.itemAuditRepository.save(itemMasterAudit);
 		  
 	   }
