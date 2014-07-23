@@ -84,9 +84,24 @@ public class IpPoolManagementDetail extends AbstractPersistable<Long>{
 		return notes;
 	}
 
+	public Long getType() {
+		return type;
+	}
+
+	public void setType(Long type) {
+		this.type = type;
+	}
+
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+	
+	public Long getSubnet() {
+		return subnet;
+	}
 
+	public void setSubnet(Long subnet) {
+		this.subnet = subnet;
+	}
 	
 }

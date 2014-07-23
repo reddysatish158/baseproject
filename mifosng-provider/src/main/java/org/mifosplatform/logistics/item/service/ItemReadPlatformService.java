@@ -22,4 +22,6 @@ public interface ItemReadPlatformService {
 
 	Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems);
 
+	List<ItemData> retrieveAuditDetails(Long itemId);
+
 }
