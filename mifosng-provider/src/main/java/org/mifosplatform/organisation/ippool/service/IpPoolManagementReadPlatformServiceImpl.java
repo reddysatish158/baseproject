@@ -120,9 +120,10 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 
 		public String schema() {
 
-			return "  p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName,p.ip_address as ipAddress ,CASE p.status " +
+			return "  p.id ,p.pool_name as poolName, p.client_id as ClientId,c.display_name as ClientName,p.type as type,mc.code_value as typeValue,p.subnet as subNet,p.ip_address as ipAddress ,CASE p.status " +
 					" WHEN 'I' THEN 'Intermediate' WHEN 'F' THEN 'Free' WHEN 'A' THEN 'Assigned' WHEN 'B' THEN 'Blocked' ELSE 'Unknown Error' end  as status ," +
-					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id where p.status is not null ";
+					" p.notes from b_ippool_details p left join m_client c on p.client_id = c.id "+
+					"left outer join m_code_value mc on mc.id=p.type where p.status is not null ";
 
 		}
 
@@ -137,9 +138,10 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 			String ipAddress=rs.getString("ipAddress");	
 			String status=rs.getString("status");
 			String notes=rs.getString("notes");
-			
-			
-			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId, clientName, notes);
+			Long type=rs.getLong("type");
+			String typeCodeValue=rs.getString("typeValue");
+			Long subNet=rs.getLong("subNet");
+			return new IpPoolManagementData(id, ipAddress, poolName,status, ClientId, clientName, notes,type,typeCodeValue,subNet);
 		}
 	}
 
@@ -289,6 +291,21 @@ public class IpPoolManagementReadPlatformServiceImpl implements IpPoolManagement
 			Long id=rs.getLong("id");
 			
 			return new IpPoolManagementData(id);
+		}
+	}
+	
+	@Override
+	public List<IpPoolManagementData> retrieveSingleIpPoolDetails(Long poolId) {
+		
+		try{
+			IpPoolMapper mapper=new IpPoolMapper();
+			String sql="select "+mapper.schema()+" and p.id=?";
+			
+			return this.jdbcTemplate.query(sql,mapper,new Object[]{poolId});
+			
+			
+		}catch(EmptyResultDataAccessException exception){
+		return null;
 		}
 	}
 }

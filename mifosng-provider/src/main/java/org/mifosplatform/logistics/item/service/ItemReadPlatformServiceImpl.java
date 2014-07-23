@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.service.Page;
@@ -179,6 +181,35 @@ public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
 	return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
             new Object[] {}, mapper);
 }
+
+
+
+@Override
+public List<ItemData> retrieveAuditDetails(Long itemId) {
+	
+	String sql="select bia.id as id,bia.itemmaster_id as itemMasterId,bia.item_code as itemCode,bia.unit_price as unitPrice,"+
+				"bia.changed_date as changedDate from b_item_audit bia where itemmaster_id=?";
+	
+	RowMapper<ItemData> rm = new AuditMapper();
+
+    return this.jdbcTemplate.query(sql, rm, new Object[] {itemId});
+	
+}
+private static final class AuditMapper implements RowMapper<ItemData> {
+
+    @Override
+    public ItemData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
+    	
+    	Long id = rs.getLong("id");
+    	Long itemMasterId = rs.getLong("itemMasterId");
+        String itemCode = rs.getString("itemCode");
+        BigDecimal unitPrice = rs.getBigDecimal("unitPrice");
+        Date changedDate = rs.getDate("changedDate");
+
+        return new ItemData(id,itemMasterId,itemCode,unitPrice,changedDate);
+    }
+}
+
 }
 
 
