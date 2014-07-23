@@ -2354,6 +2354,15 @@ public CommandWrapperBuilder registerDBDatatable(final String datatable, final S
 		return this;
 
 	}
+
+public CommandWrapperBuilder updateMediaCrashDetails(Long clientId) {
+	
+	this.actionName = "UPDATECRASH";
+	this.entityName = "MEDIADEVICE";
+	this.entityId = clientId;
+	this.href = "/mediadevices/client/"+clientId;
+	return this;
+}
 }
 
 

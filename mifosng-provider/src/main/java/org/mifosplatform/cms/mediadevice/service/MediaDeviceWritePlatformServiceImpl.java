@@ -1,6 +1,9 @@
 package org.mifosplatform.cms.mediadevice.service;
 
 
+import org.mifosplatform.billing.selfcare.domain.SelfCare;
+import org.mifosplatform.billing.selfcare.service.SelfCareIdNotFoundException;
+import org.mifosplatform.billing.selfcare.service.SelfCareRepository;
 import org.mifosplatform.cms.mediadevice.exception.DeviceDetailsInActiveException;
 import org.mifosplatform.cms.mediadevice.exception.DeviceIdNotFoundException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -9,6 +12,7 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
+import org.mifosplatform.organisation.message.service.MessagePlatformEmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +26,22 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 	private final PlatformSecurityContext context;
 	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
 	private final MediaDeviceReadPlatformService mediaDeviceReadPlatformService;
+	private final SelfCareRepository selfCareRepository;
+	private final MessagePlatformEmailService messagePlatformEmailService;
 	
 	@Autowired
-	public MediaDeviceWritePlatformServiceImpl(final PlatformSecurityContext context,final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
-			final MediaDeviceReadPlatformService mediaDeviceReadPlatformService){
+	public MediaDeviceWritePlatformServiceImpl(final PlatformSecurityContext context,
+			final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
+			final MediaDeviceReadPlatformService mediaDeviceReadPlatformService, 
+			final SelfCareRepository selfCareRepository, 
+			final MessagePlatformEmailService messagePlatformEmailService){
 		
 		this.context = context;
 		this.ownedHardwareJpaRepository  = ownedHardwareJpaRepository;
 		this.mediaDeviceReadPlatformService = mediaDeviceReadPlatformService;
+		this.selfCareRepository = selfCareRepository;
+		this.messagePlatformEmailService = messagePlatformEmailService;
+		
 	}
 
 	@Override
@@ -79,6 +91,30 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 	        throw new PlatformDataIntegrityException("error.msg.cund.unknown.data.integrity.issue",
 	                "Unknown data integrity issue with resource: " + realCause.getMessage());
 		
+	}
+
+	@Override
+	public CommandProcessingResult updateMediaDetailsCrashStatus(Long clientId,JsonCommand command) {
+		try{
+			this.context.authenticatedUser();
+			String crashReportString = command.stringValueOfParameterNamed("crashReportString");
+			SelfCare selfCare = SelfCareRetrieveByClientId(clientId);
+			selfCare.setStatus("INACTIVE");		
+			String message = this.messagePlatformEmailService.sendMediaDeviceCrashEmailSending(selfCare.getUniqueReference(),crashReportString);
+			if(message.equalsIgnoreCase("Success")){
+				message = clientId.toString();
+			}
+			return new CommandProcessingResult(message);
+	  }catch (DataIntegrityViolationException dve) {
+			handleCodeDataIntegrityIssues(command, dve);
+			return  CommandProcessingResult.empty();
+	  }
+	}
+
+	private SelfCare SelfCareRetrieveByClientId(Long clientId) {
+		SelfCare selfCare = selfCareRepository.findOneByClientId(clientId);
+		if(selfCare==null){throw new SelfCareIdNotFoundException(clientId);}
+		return selfCare;
 	}
 
 
