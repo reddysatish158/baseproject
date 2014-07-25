@@ -213,7 +213,7 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 			private static final class ClientTicketMapper implements RowMapper<TicketMasterData> {
 
 			public String clientOrderLookupSchema() {
-			return "tckt.id as id, tckt.priority as priority, tckt.ticket_date as ticketDate, tckt.assigned_to as userId,tckt.source_of_ticket as sourceOfTicket,tckt.due_date as dueDate, "
+			return "tckt.id as id, tckt.priority as priority, tckt.ticket_date as ticketDate, tckt.assigned_to as userId,tckt.source_of_ticket as sourceOfTicket,tckt.due_date as dueDate,tckt.description as description, "
 			        + " (select code_value from m_code_value mcv where tckt.problem_code=mcv.id)as problemDescription," 
 					+ " tckt.status as status, "
 			        + " (select m_appuser.username from m_appuser "
@@ -238,7 +238,8 @@ public class TicketMasterReadPlatformServiceImpl  implements TicketMasterReadPla
 			int userId=new Integer(usersId);
 			String sourceOfTicket=rs.getString("sourceOfTicket");
 			Date dueDate = rs.getTimestamp("dueDate");
-			return new TicketMasterData(id, priority, status, userId, ticketDate,LastComment,problemDescription,assignedTo,sourceOfTicket,dueDate);
+			String description = rs.getString("description");
+			return new TicketMasterData(id, priority, status, userId, ticketDate,LastComment,problemDescription,assignedTo,sourceOfTicket,dueDate,description);
 			}
 			}
 

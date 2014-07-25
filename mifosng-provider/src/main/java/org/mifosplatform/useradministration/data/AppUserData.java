@@ -68,4 +68,9 @@ public class AppUserData {
     public String username() {
         return this.username;
     }
+
+	public String getEmail() {
+		return email;
+	}
+    
 }

@@ -5,7 +5,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jettison.json.JSONObject;
+import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
+import org.mifosplatform.crm.ticketmaster.service.TicketMasterReadPlatformService;
 import org.mifosplatform.finance.billingorder.api.BillingOrderApiResourse;
+import org.mifosplatform.organisation.message.domain.BillingMessage;
+import org.mifosplatform.organisation.message.domain.BillingMessageTemplate;
+import org.mifosplatform.organisation.message.domain.BillingMessageTemplateRepository;
+import org.mifosplatform.organisation.message.domain.MessageDataRepository;
+import org.mifosplatform.organisation.message.exception.EmailNotFoundException;
 import org.mifosplatform.portfolio.association.data.AssociationData;
 import org.mifosplatform.portfolio.association.exception.HardwareDetailsNotFoundException;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationReadplatformService;
@@ -14,12 +21,16 @@ import org.mifosplatform.portfolio.contract.service.ContractPeriodReadPlatformSe
 import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.useradministration.data.AppUserData;
+import org.mifosplatform.useradministration.service.AppUserReadPlatformService;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.data.EventActionProcedureData;
 import org.mifosplatform.workflow.eventaction.domain.EventAction;
 import org.mifosplatform.workflow.eventaction.domain.EventActionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -33,13 +44,18 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
     private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
     private final OrderRepository orderRepository;
     private final BillingOrderApiResourse billingOrderApiResourse;
-    
- 
+    private static MessageDataRepository messageDataRepository;
+    private static BillingMessageTemplateRepository messageTemplateRepository;
+    private TicketMasterReadPlatformService ticketMasterReadPlatformService ;
+    private final AppUserReadPlatformService readPlatformService;
 
 	@Autowired
 	public EventActionWritePlatformServiceImpl(final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final EventActionRepository eventActionRepository,
 			final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
-			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderRepository orderRepository,final BillingOrderApiResourse billingOrderApiResourse)
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderRepository orderRepository,final BillingOrderApiResourse billingOrderApiResourse,
+			final MessageDataRepository messageDataRepository,final BillingMessageTemplateRepository messageTemplateRepository,
+			final TicketMasterReadPlatformService ticketMasterReadPlatformService,
+			final AppUserReadPlatformService readPlatformService)
 	{
 		this.eventActionRepository=eventActionRepository;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
@@ -47,6 +63,10 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
         this.contractPeriodReadPlatformService=contractPeriodReadPlatformService;
         this.orderRepository=orderRepository;
         this.billingOrderApiResourse=billingOrderApiResourse;
+        this.messageDataRepository=messageDataRepository;
+        this.messageTemplateRepository=messageTemplateRepository;
+        this.ticketMasterReadPlatformService=ticketMasterReadPlatformService;
+        this.readPlatformService=readPlatformService;
 	}
 	
 	
@@ -63,7 +83,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				
 				//if(EventActionConstants.EVENT_CREATE_PAYMENT.equalsIgnoreCase(detailsData.getaActionName())){}
 				
-				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, EventActionConstants.EVENT_CREATE_PAYMENT,detailsData.getaActionName(),resourceId);
+				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, detailsData.getEventName(),detailsData.getaActionName(),resourceId);
 				     JSONObject jsonObject=new JSONObject();
 				     if(actionProcedureData.isCheck()){
 				    	 
@@ -72,7 +92,28 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				    	
 				    	 List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
 				    	 
-				           if(actionProcedureData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
+				    	 if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_EMAIL)){
+				        	  	TicketMasterData data = this.ticketMasterReadPlatformService.retrieveTicket(clientId,new Long(resourceId));
+				        	  	AppUserData user = this.readPlatformService.retrieveUser(new Long(data.getUserId()));
+				        	  	
+				        	  	BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne((long) 11);
+				        	  	if(!user.getEmail().isEmpty()){
+				        	  		BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+data.getStatusDescription(), "", user.getEmail(), user.getEmail(),
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+									messageDataRepository.save(billingMessage);
+				        	  	}else{
+				        	  		if(actionProcedureData.getEmailId().isEmpty()){
+					        	  		
+				        	  			throw new EmailNotFoundException(new Long(data.getUserId()));
+					        	  		
+					        	  	}else{
+				        	  		BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+data.getStatusDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+									messageDataRepository.save(billingMessage);
+					        	  	}
+				        	  	}
+								
+				          }else if(actionProcedureData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
 					  
 					          AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(actionProcedureData.getOrderId());
  					         
@@ -108,14 +149,14 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	   eventAction=new EventAction(new Date(), "CREATE", "PAYMENT",EventActionConstants.ACTION_ACTIVE.toString(),"/orders/reconnect/"+clientId, 
 				        	   Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId);
 				        	   this.eventActionRepository.save(eventAction);
-				        	   
+				        	   	
 				          }else if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_INVOICE)){
-				        	  
-				        	
+				        	  	
+				        	  	
 				        	  jsonObject.put("dateFormat","dd MMMM yyyy");
                               jsonObject.put("locale","en");
 				        	  jsonObject.put("systemDate",dateFormat.format(new Date()));
-				        	  
+				        	  		
 				        	  if(detailsData.IsSynchronous().equalsIgnoreCase("N")){
 				        		  
 				        	  eventAction=new EventAction(new Date(), "CREATE",EventActionConstants.EVENT_ACTIVE_ORDER.toString() ,EventActionConstants.ACTION_INVOICE.toString(),"/billingorder/"+clientId, 
@@ -124,8 +165,8 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				              }else{
 				            	  
 				            	  Order order=this.orderRepository.findOne(new Long(resourceId));
-
-
+				            	  
+				            	  
 				  			//JsonObject jsonObject3=new JsonObject();
 				            	  jsonObject.put("dateFormat","dd MMMM yyyy");
 	                              jsonObject.put("locale","en");
@@ -143,7 +184,6 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 		        	   this.eventActionRepository.save(eventAction);
 		        	   
 		          }
-				
 			}
 		}
 		
