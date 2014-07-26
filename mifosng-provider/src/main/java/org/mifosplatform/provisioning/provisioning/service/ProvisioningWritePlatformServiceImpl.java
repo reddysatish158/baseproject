@@ -402,7 +402,7 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	}
 	@Transactional
     @Override
-	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId,String groupname) {
+	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId,String groupname,String serialNo) {
 		try{
 			
 			this.context.authenticatedUser();
@@ -430,6 +430,10 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_MACID,inventoryItemDetails.getSerialNumber());
 		        if(groupname != null){
 		        	jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_GROUPNAME,groupname);
+		        }
+		        if(serialNo !=null){
+		        	jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_SERIALNO,serialNo);
+		        	jsonObject.put(ProvisioningApiConstants.PROV_DATA_NEW_SERIALNO,inventoryItemDetails.getSerialNumber());
 		        }
 		        for(ServiceParameters serviceParameters:parameters){
 		        	
