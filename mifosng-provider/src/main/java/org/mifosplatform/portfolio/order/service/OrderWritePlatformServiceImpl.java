@@ -519,7 +519,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
 				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.DISCONNECTION.toString(),
-						processingResult.resourceId(),null);
+						processingResult.resourceId(),null,null);
 			}
 			
 			//For Order History
@@ -614,7 +614,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
            			
                   if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
            				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(orderDetails,plan.getPlanCode(),UserActionStatusTypeEnum.ACTIVATION.toString(),
-           						processingResult.resourceId(),null);
+           						processingResult.resourceId(),null,null);
            		   }
                    orderDetails.setNextBillableDay(null);
     	          
@@ -724,7 +724,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
 				
 				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.ACTIVATION.toString(),
-						processingResult.resourceId(),null);
+						processingResult.resourceId(),null,null);
 			}
 			
 			//For Order History
@@ -765,31 +765,19 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				throw new NoOrdersFoundException(command.entityId());
 			}
 			if (commandName.equalsIgnoreCase("RETRACK")) {
-				String restrict = orderReadPlatformService
-						.checkRetrackInterval(command.entityId());
-				if (restrict != null && restrict.equalsIgnoreCase("yes")) {
-
-					Long orderStatus = order.getStatus();
-
-					if (orderStatus == 1) {
-						requstStatus = UserActionStatusTypeEnum.ACTIVATION.toString();
-					} else if (orderStatus == 3) {
-						requstStatus = UserActionStatusTypeEnum.DISCONNECTION.toString();
-					} 
+				String restrict = orderReadPlatformService.checkRetrackInterval(command.entityId());
+				if (restrict != null && restrict.equalsIgnoreCase("yes")) {	
+						requstStatus = UserActionStatusTypeEnum.RETRACK.toString();					 
 				} else {
-					throw new PlatformDataIntegrityException(
-							"retrack.already.done", "retrack.already.done",
-							"retrack.already.done");
+					throw new PlatformDataIntegrityException("retrack.already.done", "retrack.already.done","retrack.already.done");
 				}
-
 			} else if(commandName.equalsIgnoreCase("OSM")) {
 				requstStatus = UserActionStatusTypeEnum.MESSAGE.toString();
 				message = command.stringValueOfParameterNamed("message");
-			} else{
+			} /*else{
 				requstStatus = UserActionStatusTypeEnum.INVALID.toString();
-			}
-			 
-			 
+			}*/
+				 
 			Plan plan = this.planRepository.findOne(order.getPlanId());
 			
 			if (plan == null) {
@@ -1139,7 +1127,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			CommandProcessingResult processingResult= this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,StatusTypeEnum.TERMINATED.toString());
 			if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
 				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order, plan.getCode(), UserActionStatusTypeEnum.TERMINATION.toString(), 
-						processingResult.resourceId(), null);
+						processingResult.resourceId(), null, null);
 			}
 
 			transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(),"Order Termination", new Date(),"User :"+userName,

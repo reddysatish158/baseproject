@@ -2116,10 +2116,6 @@ public CommandWrapperBuilder PaypalPayment(Long clientId) {
 	return this;
 }
 
-
-
-
-
 public CommandWrapperBuilder updateMediaStatus(String deviceId) {
 	
 	this.actionName = "UPDATE";

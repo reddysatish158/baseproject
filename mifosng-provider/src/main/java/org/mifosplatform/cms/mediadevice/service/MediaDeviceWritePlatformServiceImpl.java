@@ -100,7 +100,7 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 			String crashReportString = command.stringValueOfParameterNamed("crashReportString");
 			SelfCare selfCare = SelfCareRetrieveByClientId(clientId);
 			selfCare.setStatus("INACTIVE");		
-			String message = this.messagePlatformEmailService.sendMediaDeviceCrashEmailSending(selfCare.getUniqueReference(),crashReportString);
+			String message = this.messagePlatformEmailService.sendMediaDeviceCrashEmailSending("shiva@openbillingsystem.com",crashReportString);
 			if(message.equalsIgnoreCase("Success")){
 				message = clientId.toString();
 			}
