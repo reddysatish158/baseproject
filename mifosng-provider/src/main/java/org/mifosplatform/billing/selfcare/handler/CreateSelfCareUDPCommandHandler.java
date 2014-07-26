@@ -23,3 +23,4 @@ public class CreateSelfCareUDPCommandHandler implements NewCommandSourceHandler{
 		return selfCareWritePlatformService.createSelfCareUDPassword(command);
 	}
 }
+

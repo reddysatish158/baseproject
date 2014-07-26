@@ -12,10 +12,12 @@ public class IpPoolManagementData {
 	private String clientName;
 	private String notes;
 	List<String> ipAddressData;
-
+	private Long type;
+	private String typeCodeValue;
+	private Long subNet;
 	
 	public IpPoolManagementData(Long id, String ipAddress, String poolName,
-			String status, Long clientId, String clientName, String notes) {
+			String status, Long clientId, String clientName, String notes, Long type, String typeCodeValue, Long subNet) {
 		
 		this.id=id;
 		this.ipAddress=ipAddress;
@@ -24,10 +26,17 @@ public class IpPoolManagementData {
 		this.clientId=clientId;
 		this.clientName=clientName;
 		this.notes=notes;
+		this.type=type;
+		this.typeCodeValue=typeCodeValue;
+		this.subNet=subNet;
 	}
 
 	public IpPoolManagementData(List<String> ipAddressData) {
 		this.ipAddressData=ipAddressData;
+	}
+
+	public IpPoolManagementData(Long id) {
+		this.id=id;
 	}
 
 	public Long getId() {

@@ -14,12 +14,15 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
 import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
 import org.mifosplatform.organisation.ippool.data.IpGeneration;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementDetail;
 import org.mifosplatform.organisation.ippool.domain.IpPoolManagementJpaRepository;
 import org.mifosplatform.organisation.ippool.exception.IpAddresAllocatedException;
+import org.mifosplatform.organisation.ippool.exception.IpNotAvailableException;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.portfolio.association.domain.HardwareAssociation;
+import org.mifosplatform.portfolio.association.exception.PairingNotExistException;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.order.domain.HardwareAssociationRepository;
@@ -27,7 +30,6 @@ import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderLine;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
-import org.mifosplatform.portfolio.plan.domain.Plan;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.service.domain.ServiceMaster;
 import org.mifosplatform.portfolio.service.domain.ServiceMasterRepository;
@@ -218,22 +220,24 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
             PrepareRequest prepareRequest=this.prepareRequsetRepository.getLatestRequestByOrderId(orderId);
 			InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(macId);
 			
+			if(inventoryItemDetails == null){
+				throw new PairingNotExistException(orderId);
+			}
+			
 			 final JsonElement element = fromJsonHelper.parse(command.json());
 			 JsonArray serviceParameters = fromJsonHelper.extractJsonArrayNamed("serviceParameters", element);
-			 
-			
 			
 			JSONObject jsonObject=new JSONObject();
 	        for(JsonElement j:serviceParameters){
 	        	
 				ServiceParameters serviceParameter=ServiceParameters.fromJson(j,fromJsonHelper,clientId,orderId,planName,"ACTIVE",iprange,subnet);
 				this.serviceParametersRepository.saveAndFlush(serviceParameter);
-
+				
 				//ip_pool_data status updation
 				String paramName = fromJsonHelper.extractStringNamed("paramName", j);
-				 if(paramName.equalsIgnoreCase("IP_ADDRESS")){
+				 if(paramName.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS)){
 					 
-					  if(iprange.equalsIgnoreCase("subnet")){
+					  if(iprange.equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_SUBNET)){
 					      
 						  String ipAddress=fromJsonHelper.extractStringNamed("paramValue",j);
 						  String ipData=ipAddress+"/"+subnet;
@@ -248,18 +252,21 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 								}
 							}
 							
-							jsonObject.put("subnet",subnet);
+							jsonObject.put(ProvisioningApiConstants.PROV_DATA_SUBNET,subnet);
 					 }else{
 					 ipAddressArray = fromJsonHelper.extractArrayNamed("paramValue", j);
 					 }
 
 					  for(String ipAddress:ipAddressArray){
 						IpPoolManagementDetail ipPoolManagementDetail= this.ipPoolManagementJpaRepository.findIpAddressData(ipAddress);
-						if(ipPoolManagementDetail!=null){
+
+						if(ipPoolManagementDetail == null){
+								throw new IpNotAvailableException(ipAddress);
+						}
 						ipPoolManagementDetail.setStatus('A');
 						ipPoolManagementDetail.setClientId(clientId);
 						this.ipPoolManagementJpaRepository.save(ipPoolManagementDetail);
-						}
+						
 					}
 				}
 				jsonObject.put(serviceParameter.getParameterName(),serviceParameter.getParameterValue());
@@ -267,11 +274,12 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			    }
 	        
 			Client client=this.clientRepository.findOne(clientId);
-	        jsonObject.put("clientId",client.getAccountNo());
-	        jsonObject.put("orderId",orderId);
-	        jsonObject.put("planName",planName);
-	        jsonObject.put("macId",macId);
-	        jsonObject.put("ip_type",ipType);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTID,client.getAccountNo());
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTNAME,client.getFirstname());
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_ORDERID,orderId);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_PLANNAME,planName);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_MACID,macId);
+	        jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,ipType);
 	        
 			ProcessRequest processRequest=new ProcessRequest(clientId,orderId,ProvisioningApiConstants.PROV_PACKETSPAN, 'N',
 					null,UserActionStatusTypeEnum.ACTIVATION.toString(), prepareRequest.getId());
@@ -282,10 +290,10 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 			for(OrderLine orderLine:orderLines){
 				
 				ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
-				jsonObject.put("Service_type",service.getServiceType());
+				jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
 				ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 						jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
-						order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString());
+						order.getEndDate(),null,null,'N',UserActionStatusTypeEnum.ACTIVATION.toString(),service.getServiceType());
 				  processRequest.add(processRequestDetails);
 				
 			}
@@ -366,10 +374,15 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 	   }
 	   
 	  //Update in Association table if Exist
-	   HardwareAssociation hardwareAssociation=this.associationRepository.findOneByserialNo(oldSerialnumber);
-	   if(hardwareAssociation != null){
-	   hardwareAssociation.updateserailNum(serialNumber);
-	   this.associationRepository.saveAndFlush(hardwareAssociation);
+	   List<HardwareAssociation> hardwareAssociations=this.associationRepository.findOneByserialNo(oldSerialnumber);
+	   
+	   if(!hardwareAssociations.isEmpty()){
+		   
+		   for(HardwareAssociation hardwareAssociation:hardwareAssociations){
+	       
+			   hardwareAssociation.updateserailNum(serialNumber);
+	           this.associationRepository.saveAndFlush(hardwareAssociation);
+		   }
 	   }
 	   
 	 //Update ProcessRequest
@@ -384,57 +397,69 @@ public class ProvisioningWritePlatformServiceImpl implements ProvisioningWritePl
 		   for(ProcessRequestDetails details:processRequestDetails){
 			   details.update(provSerilaNum);
 		   }
-		   
-		 
 		   this.processRequestRepository.saveAndFlush(processRequest);
-		   
 	   }
-	   
-		
 	}
-
 	@Transactional
     @Override
-	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId) {
+	public void postOrderDetailsForProvisioning(Order order,String planName,String requestType,Long prepareId,String groupname) {
 		try{
 			
 			this.context.authenticatedUser();
 			List<ServiceParameters> parameters=this.serviceParametersRepository.findDataByOrderId(order.getId());
 			
 			if(!parameters.isEmpty()){
-			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),"PackeSpan", requestType);
+			    ProcessRequest processRequest=new ProcessRequest(prepareId,order.getClientId(),order.getId(),ProvisioningApiConstants.PROV_PACKETSPAN, requestType);
 			    List<OrderLine> orderLines=order.getServices();
 			    HardwareAssociation hardwareAssociation=this.associationRepository.findOneByOrderId(order.getId());
+			    if(hardwareAssociation == null){
+			    	throw new PairingNotExistException(order.getId());
+			    }
 			    InventoryItemDetails inventoryItemDetails=this.inventoryItemDetailsRepository.getInventoryItemDetailBySerialNum(hardwareAssociation.getSerialNo());
 			    
+			    if(inventoryItemDetails == null){
+			    	throw new PairingNotExistException(order.getId());
+			    }
 			    
+			    Client client=this.clientRepository.findOne(order.getClientId());
 			    JSONObject jsonObject=new JSONObject();
-			    jsonObject.put("clientId",order.getClientId());
-		        jsonObject.put("orderId",order.getId());
-		        jsonObject.put("planName",planName);
-		        jsonObject.put("macId",inventoryItemDetails.getSerialNumber());
-		        
+			    jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTID,client.getAccountNo());
+			    jsonObject.put(ProvisioningApiConstants.PROV_DATA_CLIENTNAME,client.getFirstname());
+		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_ORDERID,order.getId());
+		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_PLANNAME,planName);
+		        jsonObject.put(ProvisioningApiConstants.PROV_DATA_MACID,inventoryItemDetails.getSerialNumber());
+		        if(groupname != null){
+		        	jsonObject.put(ProvisioningApiConstants.PROV_DATA_OLD_GROUPNAME,groupname);
+		        }
 		        for(ServiceParameters serviceParameters:parameters){
-		        	if(serviceParameters.getParameterName().equalsIgnoreCase("IP_ADDRESS")){
+		        	
+		        	if(serviceParameters.getParameterName().equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_IPADDRESS)){
 		        		if(serviceParameters.getParameterValue().contains("/")){
-		        			jsonObject.put("ip_type","Subnet");
+		        			jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,"Subnet");
 		        		}else if(serviceParameters.getParameterValue().contains("[")){
 		        			JSONArray jsonArray=new JSONArray(serviceParameters.getParameterValue());
 		        			if(jsonArray.length() > 1)
-		        			jsonObject.put("ip_type","Multiple");
+		        			jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,"Multiple");
 		        		}else{
-		        			jsonObject.put("ip_type","Single");
+		        			jsonObject.put(ProvisioningApiConstants.PROV_DATA_IPTYPE,"Single");
 		        		}
 		        	}
-		        	
-		        	jsonObject.put(serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	if(serviceParameters.getParameterName().equalsIgnoreCase(ProvisioningApiConstants.PROV_DATA_GROUPNAME) && groupname != null){
+		        		jsonObject.put("NEW_"+serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	}else{
+		        	   jsonObject.put(serviceParameters.getParameterName(),serviceParameters.getParameterValue());
+		        	}
 		        	
 		        }
 			    for(OrderLine orderLine:orderLines){
 			    	
+			    	
+					ServiceMaster service=this.serviceMasterRepository.findOne(orderLine.getServiceId());
+					jsonObject.put(ProvisioningApiConstants.PROV_DATA_SERVICETYPE,service.getServiceType());
+			    	
 			    	 ProcessRequestDetails processRequestDetails=new ProcessRequestDetails(orderLine.getId(),orderLine.getServiceId(),
 								jsonObject.toString(),"Recieved",inventoryItemDetails.getProvisioningSerialNumber(),order.getStartDate(),
-								order.getEndDate(),null,null,'N',requestType);
+								order.getEndDate(),null,null,'N',requestType,service.getServiceType());
 						  processRequest.add(processRequestDetails);
 				
 			     }

@@ -117,6 +117,7 @@ public class PaymentGatewayApiResource {
 		} catch (JSONException e) {
 			    return e.getCause().toString();	 
 		} catch (PlatformDataIntegrityException e) {
+			
 		        return null;
 	    }   
 	}

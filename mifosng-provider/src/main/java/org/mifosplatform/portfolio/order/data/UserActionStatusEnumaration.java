@@ -41,8 +41,15 @@ public class UserActionStatusEnumaration {
 		
 		case CHANGE_PLAN:
 			optionData = new EnumOptionData(UserActionStatusTypeEnum.CHANGE_PLAN.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.CHANGE_PLAN.getCode(), "CHANGE PLAN");
-			break;		
+			break;
 			
+		case CHANGE_GROUP:
+			optionData = new EnumOptionData(UserActionStatusTypeEnum.CHANGE_GROUP.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.CHANGE_GROUP.getCode(), "CHANGE GROUP"); 
+			break;
+			
+		case TERMINATION:
+			optionData = new EnumOptionData(UserActionStatusTypeEnum.TERMINATION.getValue().longValue(), codePrefix + UserActionStatusTypeEnum.TERMINATION.getCode(), "TERMINATION"); 
+			break;	
 		
 		default:
 			optionData = new EnumOptionData(StatusTypeEnum.INVALID.getValue().longValue(), StatusTypeEnum.INVALID.getCode(), "INVALID");

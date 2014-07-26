@@ -1,10 +1,17 @@
+import org.mifosplatform.logistics.item.domain.StatusTypeEnum;
 
-class TelnetClient
+
+class Jasper
 {
     public static void main(String args[]) throws Exception
     {
-    	
-    	 // String hex = Integer.toHexString(0xFF &  digest[i]);
-    	  System.out.println(Integer.toHexString(1223));
+
+		Long i=new Long(1);
+		Integer j=StatusTypeEnum.ACTIVE.getValue();
+		   if(i.equals(StatusTypeEnum.ACTIVE.getValue().longValue())){
+		System.out.println("tu");
+		   }else	
+			   System.out.println("false");
+
     }
-    }
+}

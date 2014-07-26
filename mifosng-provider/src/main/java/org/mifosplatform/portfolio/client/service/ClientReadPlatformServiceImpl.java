@@ -5,7 +5,6 @@
  */
 package org.mifosplatform.portfolio.client.service;
 
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -149,7 +148,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (sqlSearch != null) {
           //  extraCriteria = " and (" + sqlSearch + ")";
             
-        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%'"
+        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%' OR g.group_name like '%"+sqlSearch+"%' "
         			+ " OR IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id),'No Hardware') LIKE '%"+sqlSearch+"%' )";
             
 /*        	display_name like '%undefined%' OR c.account_no LIKE '%undefined%' 
@@ -184,7 +183,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         }
         
         if (groupName != null) {
-            extraCriteria += " and c.group_name = " + ApiParameterHelper.sqlEncodeString(groupName);
+            extraCriteria += " and g.group_name = " + ApiParameterHelper.sqlEncodeString(groupName);
         }
         
         if (StringUtils.isNotBlank(extraCriteria)) {
@@ -251,17 +250,18 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         private final String schema;
 
-        public ClientMembersOfGroupMapper() {
+        public ClientMembersOfGroupMapper() { 
             final StringBuilder sqlBuilder = new StringBuilder(200);
 
-            sqlBuilder.append("c.id as id, c.account_no as accountNo,c.group_name as groupName, c.external_id as externalId, ");
+            sqlBuilder.append("c.id as id, c.account_no as accountNo,g.group_name as groupName, c.external_id as externalId, ");
             sqlBuilder.append("c.office_id as officeId, o.name as officeName, ");
-            sqlBuilder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
+            sqlBuilder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname,c.is_indororp as entryType, ");
             sqlBuilder.append("c.fullname as fullname, c.display_name as displayName,c.category_type as categoryType, ");
             sqlBuilder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey,c.exempt_tax as taxExemption ");
             sqlBuilder.append("from m_client c ");
             sqlBuilder.append("join m_office o on o.id = c.office_id ");
             sqlBuilder.append("join m_group_client pgc on pgc.client_id = c.id");
+            sqlBuilder.append(" left outer join b_group g on  g.id = c.group_id ");
 
             this.schema = sqlBuilder.toString();
         }
@@ -294,8 +294,10 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String homePhoneNumber = rs.getString("homePhoneNumber");
             final String currency = rs.getString("currency");
             final String taxExemption = rs.getString("taxExemption");
+            final String entryType=rs.getString("entryType");
             return ClientData.instance(accountNo,groupName, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency,taxExemption);
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency,taxExemption,
+                    entryType);
         }
     }
 
@@ -307,10 +309,10 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         	
             StringBuilder builder = new StringBuilder(400);
 
-            builder.append("c.id as id, c.account_no as accountNo,c.group_name as groupName, c.external_id as externalId, c.status_enum as statusEnum, ");
+            builder.append("c.id as id, c.account_no as accountNo,g.group_name as groupName, c.external_id as externalId, c.status_enum as statusEnum, ");
             builder.append("c.office_id as officeId, o.name as officeName, ");
             builder.append("c.office_id as officeId, o.name as officeName, ");
-            builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
+            builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname,c.is_indororp as entryType, ");
             builder.append("c.fullname as fullname, c.display_name as displayName,mc.code_value as categoryType, ");
             builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey,c.exempt_tax as taxExemption, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
@@ -326,6 +328,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("from m_client c ");
             builder.append("join m_office o on o.id = c.office_id ");
             builder.append("left outer join b_client_balance b on  b.client_id = c.id ");
+            builder.append("left outer join b_group g on  g.id = c.group_id ");
             builder.append("left outer join  m_code_value mc on  mc.id =c.category_type  ");
             builder.append("left outer join b_client_address a on  a.client_id = c.id ");
             builder.append("left outer join b_country_currency bc on  bc.country = a.country ");
@@ -371,11 +374,12 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final BigDecimal clientBalance = rs.getBigDecimal("balanceAmount");
             final String currency=rs.getString("currency");
             final String taxExemption=rs.getString("taxExemption");
+            final String entryType=rs.getString("entryType");
            
 
             return ClientData.instance(accountNo,groupName, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
                     externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode,
-                    clientBalance,hwSerial,currency,taxExemption);
+                    clientBalance,hwSerial,currency,taxExemption,entryType);
         }
     }
 
@@ -643,7 +647,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	            final String codeValue = rs.getString("codeValue");
 
 	            
-                    return new ClientCategoryData(id,codeValue);
+                    return new ClientCategoryData(id,codeValue,null);
 	            
 	        }
 	    }
@@ -684,4 +688,34 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	                this.codeValueReadPlatformService.retrieveCodeValuesByCode(clientClosureReason));
 	        return ClientData.template(null, null, null, null, closureReasons);
 	    }
+	    
+	    
+	    @Override
+		public ClientCategoryData retrieveClientBillModes(Long clientId) {
+			
+			context.authenticatedUser();
+			try{
+				BillModeMapper mapper=new BillModeMapper();
+				final String sql="select id as id , bill_mode as billMode from m_client where id=?";
+				return this.jdbcTemplate.queryForObject(sql, mapper,new Object[]{clientId});
+				
+			}catch(EmptyResultDataAccessException e){
+				return null;
+			}
+			
+		}
+		
+		private static final class BillModeMapper implements RowMapper<ClientCategoryData> {
+		
+		  @Override
+	      public ClientCategoryData mapRow(final ResultSet rs,final int rowNum) throws SQLException {
+
+	        
+	          final Long id = rs.getLong("id");
+	          final String billMode = rs.getString("billMode");
+	         return new  ClientCategoryData(id,null, billMode);
+	          
+	      }
+	}
+
 }

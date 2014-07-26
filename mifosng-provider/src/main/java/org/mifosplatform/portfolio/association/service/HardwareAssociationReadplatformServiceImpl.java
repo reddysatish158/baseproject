@@ -106,6 +106,7 @@ public class HardwareAssociationReadplatformServiceImpl implements HardwareAssoc
 						" WHERE  a.order_id=o.id  AND a.client_id = o.client_id  AND a.is_deleted = 'N') AND o.client_id =? AND hm.plan_code = p.plan_code" +
 						" AND o.plan_id = p.id and hm.item_code=?  and o.id =(select max(id) from b_orders where client_id=o.client_id )";
 
+
 			}
 
 			@Override

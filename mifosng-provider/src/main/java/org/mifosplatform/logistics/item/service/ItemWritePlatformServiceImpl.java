@@ -7,7 +7,9 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.item.domain.ItemAuditRepository;
 import org.mifosplatform.logistics.item.domain.ItemMaster;
+import org.mifosplatform.logistics.item.domain.ItemMasterAudit;
 import org.mifosplatform.logistics.item.domain.ItemRepository;
 import org.mifosplatform.logistics.item.exception.ItemNotFoundException;
 import org.mifosplatform.logistics.item.serialization.ItemCommandFromApiJsonDeserializer;
@@ -22,13 +24,16 @@ public class ItemWritePlatformServiceImpl implements ItemWritePlatformService{
 	private ItemCommandFromApiJsonDeserializer itemCommandFromApiJsonDeserializer; 
 	private final PlatformSecurityContext context;
 	private final ItemRepository itemRepository;
- 
+	private final ItemAuditRepository itemAuditRepository;
+	
  @Autowired
  public ItemWritePlatformServiceImpl(final PlatformSecurityContext context,
-		 final ItemRepository itemrepository,final ItemCommandFromApiJsonDeserializer itemCommandFromApiJsonDeserializer){
+		 final ItemRepository itemrepository,final ItemCommandFromApiJsonDeserializer itemCommandFromApiJsonDeserializer,
+		 final ItemAuditRepository itemAuditRepository){
 	 this.context=context;
 	 this.itemRepository=itemrepository;
 	 this.itemCommandFromApiJsonDeserializer = itemCommandFromApiJsonDeserializer;
+	 this.itemAuditRepository=itemAuditRepository;
  }
 	
     @Transactional
@@ -73,6 +78,14 @@ public class ItemWritePlatformServiceImpl implements ItemWritePlatformService{
 	   this.itemCommandFromApiJsonDeserializer.validateForCreate(command.json());
 	   
 	   ItemMaster itemMaster = retrieveCodeBy(itemId);
+	   final int unitPrice = command.integerValueOfParameterNamed("unitPrice");
+	   int existingUnitPrice = itemMaster.getUnitPrice().intValueExact();
+	   if(unitPrice!=existingUnitPrice){
+		   
+		   ItemMasterAudit itemMasterAudit = new ItemMasterAudit(itemId,existingUnitPrice,command);
+		   this.itemAuditRepository.save(itemMasterAudit);
+		  
+	   }
 	   final Map<String, Object> changes = itemMaster.update(command);
 	   
 	   if(changes.isEmpty()){

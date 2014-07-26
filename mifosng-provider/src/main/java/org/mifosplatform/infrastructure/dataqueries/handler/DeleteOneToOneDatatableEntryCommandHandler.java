@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class DeleteOneToOneDatatableEntryCommandHandler implements NewCommandSourceHandler {
 
-    private final ReadWriteNonCoreDataService writePlatformService;
+	private final ReadWriteNonCoreDataService writePlatformService;
 
     @Autowired
     public DeleteOneToOneDatatableEntryCommandHandler(final ReadWriteNonCoreDataService writePlatformService) {
@@ -28,7 +28,7 @@ public class DeleteOneToOneDatatableEntryCommandHandler implements NewCommandSou
     @Override
     public CommandProcessingResult processCommand(final JsonCommand command) {
 
-        CommandProcessingResult commandProcessingResult = this.writePlatformService.deleteDatatableEntries(command.entityName(),
+        final CommandProcessingResult commandProcessingResult = this.writePlatformService.deleteDatatableEntries(command.entityName(),
                 command.entityId());
 
         return new CommandProcessingResultBuilder() //
@@ -42,3 +42,4 @@ public class DeleteOneToOneDatatableEntryCommandHandler implements NewCommandSou
                 .build();
     }
 }
+

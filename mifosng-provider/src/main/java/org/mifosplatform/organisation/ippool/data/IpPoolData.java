@@ -1,6 +1,7 @@
 package org.mifosplatform.organisation.ippool.data;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 
@@ -10,6 +11,7 @@ public class IpPoolData {
 	private  String poolName;
 	private  String ipAddress;
 	private Collection<MCodeData> codeValueDatas;
+	private List<IpPoolManagementData> ipPoolManagementData;
 
 	public IpPoolData(Long id, String poolName, String ipaddress) {
 
@@ -21,6 +23,13 @@ public class IpPoolData {
 
 	public IpPoolData(Collection<MCodeData> codeValueDatas) {
 		this.codeValueDatas=codeValueDatas;
+	}
+
+	public IpPoolData(Collection<MCodeData> codeValueDatas,
+			List<IpPoolManagementData> ipPoolManagementData) {
+		
+		this.codeValueDatas = codeValueDatas;
+		this.ipPoolManagementData = ipPoolManagementData;
 	}
 
 /*=======

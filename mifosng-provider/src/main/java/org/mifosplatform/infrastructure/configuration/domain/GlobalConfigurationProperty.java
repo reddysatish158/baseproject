@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mifosplatform.infrastructure.codes.domain.Code;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -41,7 +42,13 @@ public class GlobalConfigurationProperty extends AbstractPersistable<Long> {
         this.value=value;
     }
     
-    public boolean isEnabled() {
+    public GlobalConfigurationProperty(String username, String value) {
+		
+    	this.name=username;
+    	this.value=value;
+	}
+
+	public boolean isEnabled() {
         return this.enabled;
     }
 
@@ -80,6 +87,12 @@ public class GlobalConfigurationProperty extends AbstractPersistable<Long> {
         return actualChanges;
 
     }
-    
-    
+
+	public static GlobalConfigurationProperty fromJson(JsonCommand command,
+			String userName, String value) {
+		
+		final String username=userName;
+		final String valueOfMailIdAndPasswordAndHostName=value;
+		return new GlobalConfigurationProperty(username,valueOfMailIdAndPasswordAndHostName);
+	}
 }

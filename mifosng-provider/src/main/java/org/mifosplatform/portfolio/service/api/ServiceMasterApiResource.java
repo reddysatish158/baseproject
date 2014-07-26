@@ -42,8 +42,8 @@ import org.springframework.stereotype.Component;
 public class ServiceMasterApiResource {
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","serviceType","serviceCode","serviceDescription","serviceTypes",
 			"serviceUnitTypes","serviceUnitTypes","isOptional","status","serviceStatus"));
-    private final String resourceNameForPermissions = "SERVICE";
-	  private final PlatformSecurityContext context;
+        private final String resourceNameForPermissions = "SERVICE";
+	    private final PlatformSecurityContext context;
 	    private final DefaultToApiJsonSerializer<ServiceMasterOptionsData> toApiJsonSerializer;
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
 	    private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
@@ -56,13 +56,16 @@ public class ServiceMasterApiResource {
 	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 	    		final ServiceMasterReadPlatformService serviceMasterReadPlatformService,final PlanReadPlatformService planReadPlatformService,
 	    		final EnumReadplaformService enumReadplaformService) {
-		        this.context = context;
+
+			    this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
-		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.enumReadplaformService=enumReadplaformService;
+		        this.planReadPlatformService=planReadPlatformService;
+		        this.apiRequestParameterHelper = apiRequestParameterHelper;
 		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.serviceMasterReadPlatformService=serviceMasterReadPlatformService;
-		        this.planReadPlatformService=planReadPlatformService;
+		        
+		        
 		    }		
 		
 	@POST
@@ -83,7 +86,8 @@ public class ServiceMasterApiResource {
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.toApiJsonSerializer.serialize(settings, masterOptionsDatas, RESPONSE_DATA_PARAMETERS);
 		}
-	 @GET
+
+	    @GET
 	    @Path("template")
 	    @Consumes({MediaType.APPLICATION_JSON})
 	    @Produces({MediaType.APPLICATION_JSON})
@@ -95,7 +99,7 @@ public class ServiceMasterApiResource {
 		}
 
 	 private ServiceMasterOptionsData handleTemplateData() {
-		// List<EnumOptionData> serviceType = this.serviceMasterReadPlatformService.retrieveServicesTypes();
+
 		 Collection<EnumValuesData> serviceType = this.enumReadplaformService.getEnumValues("service_type");
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 		 List<EnumOptionData> serviceUnitType = this.serviceMasterReadPlatformService.retrieveServiceUnitType();

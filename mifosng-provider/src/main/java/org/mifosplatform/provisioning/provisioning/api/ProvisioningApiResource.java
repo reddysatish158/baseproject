@@ -14,6 +14,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -32,8 +33,11 @@ import org.mifosplatform.organisation.ippool.data.IpPoolData;
 import org.mifosplatform.organisation.ippool.service.IpPoolManagementReadPlatformService;
 import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.organisation.mcodevalues.service.MCodeReadPlatformService;
+import org.mifosplatform.portfolio.client.service.GroupData;
+import org.mifosplatform.portfolio.group.service.GroupReadPlatformService;
 import org.mifosplatform.portfolio.order.data.OrderLineData;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
+import org.mifosplatform.portfolio.servicemapping.service.ServiceMappingReadPlatformService;
 import org.mifosplatform.provisioning.provisioning.data.ProcessRequestData;
 import org.mifosplatform.provisioning.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.provisioning.provisioning.data.ProvisioningData;
@@ -51,7 +55,7 @@ public class ProvisioningApiResource {
 	
 	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","cancelledStatus","status","contractPeriod","nextBillDate","flag",
 	           "currentDate","plan_code","units","service_code","allowedtypes","data","servicedata","billing_frequency", "start_date", "contract_period",
-	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes"));
+	           "billingCycle","startDate","invoiceTillDate","orderHistory","userAction","ispaymentEnable","paymodes","serviceDatas","groupDatas"));
 	
 	  private final String resourceNameForPermissions = "PROVISIONINGSYSTEM";
 	  
@@ -61,9 +65,11 @@ public class ProvisioningApiResource {
 	  private final ProvisioningReadPlatformService provisioningReadPlatformService;
 	  private final MCodeReadPlatformService codeReadPlatformService;
 	  private final OrderReadPlatformService orderReadPlatformService;
+	  private final ServiceMappingReadPlatformService serviceMappingReadPlatformService;
 	  private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	  private final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService;
-	  final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest;
+	  private final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest;
+	  private final GroupReadPlatformService groupReadPlatformService;
 	  
 	 
 	  
@@ -71,8 +77,9 @@ public class ProvisioningApiResource {
 	   public ProvisioningApiResource(final PlatformSecurityContext context,final GlobalConfigurationRepository configurationRepository,  
 	   final ApiRequestParameterHelper apiRequestParameterHelper,final DefaultToApiJsonSerializer<ProvisioningData> toApiJsonSerializer,
 	   final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final ProvisioningReadPlatformService provisioningReadPlatformService,
-	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService,
-	   final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService,  final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest) {
+	   final MCodeReadPlatformService codeReadPlatformService,final OrderReadPlatformService orderReadPlatformService,final ServiceMappingReadPlatformService mappingReadPlatformService,
+	   final IpPoolManagementReadPlatformService ipPoolManagementReadPlatformService,final DefaultToApiJsonSerializer<ProcessRequestData> toApiJsonSerializerProcessRequest,
+	   final GroupReadPlatformService groupReadPlatformService) {
 	 
 		  
 		        this.context = context;
@@ -84,6 +91,8 @@ public class ProvisioningApiResource {
 		        this.orderReadPlatformService=orderReadPlatformService;
 		        this.ipPoolManagementReadPlatformService=ipPoolManagementReadPlatformService;
 		        this.toApiJsonSerializerProcessRequest=toApiJsonSerializerProcessRequest;
+		        this.serviceMappingReadPlatformService=mappingReadPlatformService;
+		        this.groupReadPlatformService=groupReadPlatformService;
 		       
 		    }
 	
@@ -102,13 +111,13 @@ public class ProvisioningApiResource {
 	 @Consumes({MediaType.APPLICATION_JSON})
 	 @Produces({MediaType.APPLICATION_JSON})
 		public String retrieveTemplate(@Context final UriInfo uriInfo) {
-		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		
-		List<McodeData> provisioning=this.provisioningReadPlatformService.retrieveProvisioningCategory();
-		List<McodeData> commands=this.provisioningReadPlatformService.retrievecommands();
-		ProvisioningData data=new ProvisioningData(provisioning,commands);
-		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-	    return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+		 context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+		 List<McodeData> provisioning=this.provisioningReadPlatformService.retrieveProvisioningCategory();
+		 List<McodeData> commands=this.provisioningReadPlatformService.retrievecommands();
+		 ProvisioningData data=new ProvisioningData(provisioning,commands);
+		 final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+	     return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 		}
 	 
 	 @GET
@@ -172,14 +181,17 @@ public class ProvisioningApiResource {
 	 @Path("provisiontemplate/{orderId}")
 	 @Consumes({MediaType.APPLICATION_JSON})
 	 @Produces({MediaType.APPLICATION_JSON})
-	 public String retrieveProvisionTemplateData(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
+	 public String retrieveProvisionTemplateData(@PathParam("orderId") final Long orderId,@QueryParam("serviceId") Long serviceId,
+			 @Context final UriInfo uriInfo) {
 		 
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		List<ServiceParameterData> parameterDatas=this.provisioningReadPlatformService.getSerivceParameters(orderId);
+		List<ServiceParameterData> parameterDatas=this.serviceMappingReadPlatformService.getSerivceParameters(orderId,serviceId);
+		List<ServiceParameterData> serviceDatas=this.provisioningReadPlatformService.getSerivceParameters(orderId);
 		Collection<MCodeData> vlanDatas=this.provisioningReadPlatformService.retrieveVlanDetails("VLANS");
 		List<IpPoolData> ipPoolDatas=this.ipPoolManagementReadPlatformService.getUnallocatedIpAddressDetailds();
 		List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
-		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,parameterDatas);
+		Collection<GroupData> groupDatas = this.groupReadPlatformService.retrieveGroupServiceDetails(orderId);
+		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,serviceDatas,parameterDatas,groupDatas);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
 		}
@@ -188,14 +200,17 @@ public class ProvisioningApiResource {
 	 @Path("serviceparmas/{orderId}")
 	 @Consumes({MediaType.APPLICATION_JSON})
 	 @Produces({MediaType.APPLICATION_JSON})
-	 public String retrieveOrderServicesData(@PathParam("orderId") final Long orderId,@Context final UriInfo uriInfo) {
+	 public String retrieveOrderServicesData(@PathParam("orderId") final Long orderId,@QueryParam("serviceId") final Long serviceId,
+			 @Context final UriInfo uriInfo) {
 		 
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		List<ServiceParameterData> parameterDatas=this.provisioningReadPlatformService.getProvisionedSerivceParameters(orderId);
+		List<ServiceParameterData> parameterDatas=this.serviceMappingReadPlatformService.getSerivceParameters(orderId,serviceId);
+		List<ServiceParameterData> serviceDatas=this.provisioningReadPlatformService.getProvisionedSerivceParameters(orderId);
 		Collection<MCodeData> vlanDatas=this.codeReadPlatformService.getCodeValue("VLANS");
 		List<IpPoolData> ipPoolDatas=this.ipPoolManagementReadPlatformService.getUnallocatedIpAddressDetailds();
 		List<OrderLineData> services = this.orderReadPlatformService.retrieveOrderServiceDetails(orderId);
-		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,parameterDatas);
+		Collection<GroupData> groupDatas = this.groupReadPlatformService.retrieveGroupServiceDetails(orderId);
+		ProvisioningData provisioningData=new ProvisioningData(vlanDatas,ipPoolDatas,services,serviceDatas,parameterDatas,groupDatas);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	    return this.toApiJsonSerializer.serialize(settings, provisioningData, RESPONSE_DATA_PARAMETERS);
 		}

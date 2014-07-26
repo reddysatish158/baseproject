@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.organisation.hardwaremapping.data.HardwareMappingDetailsData;
+import org.mifosplatform.organisation.hardwareplanmapping.data.HardwareMappingDetailsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

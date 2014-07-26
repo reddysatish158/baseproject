@@ -112,7 +112,7 @@ public class ItemApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveAllItems(@Context final UriInfo uriInfo,  @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-
+		
 		final SearchSqlQuery searchItems =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		Page<ItemData> itemData=this.itemReadPlatformService.retrieveAllItems(searchItems);
@@ -131,9 +131,9 @@ public class ItemApiResource {
 		List<EnumOptionData> itemClassdata = this.itemReadPlatformService.retrieveItemClassType();
    		List<EnumOptionData> unitTypeData = this.itemReadPlatformService.retrieveUnitTypes();
    		List<ChargesData> chargeDatas = this.itemReadPlatformService.retrieveChargeCode();
-   		
+   		List<ItemData> auditDetails = this.itemReadPlatformService.retrieveAuditDetails(itemId);
    		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-   		itemData=new ItemData(itemData,itemClassdata,unitTypeData,chargeDatas);
+   		itemData=new ItemData(itemData,itemClassdata,unitTypeData,chargeDatas,auditDetails);
    		return this.toApiJsonSerializer.serialize(settings, itemData, RESPONSE_ITEM_DATA_PARAMETERS);
    		
 	}

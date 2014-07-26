@@ -1,6 +1,7 @@
 package org.mifosplatform.logistics.item.data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
@@ -26,8 +27,9 @@ public class ItemData {
 	private String itemClass;
 	private LocalDate saleDate;
 	private List<DiscountMasterData> discountMasterDatas;
-	
-
+	private Long itemMasterId;
+	private LocalDate changedDate;
+	private List<ItemData> auditDetails;
 	public ItemData(Long id, String itemCode, String itemDesc,String itemClass,String units,   String chargeCode, int warranty, BigDecimal unitPrice) {
 		
 		this.id=id;
@@ -72,7 +74,7 @@ public class ItemData {
 	
 
 	public ItemData(ItemData itemData, List<EnumOptionData> itemClassdata,
-			List<EnumOptionData> unitTypeData, List<ChargesData> chargeDatas) {
+			List<EnumOptionData> unitTypeData, List<ChargesData> chargeDatas,List<ItemData> auditDetails) {
 		this.id=itemData.getId();
 		this.itemCode=itemData.getItemCode();
 		this.units=itemData.getUnits();
@@ -84,10 +86,21 @@ public class ItemData {
 		this.chargesData=chargeDatas;
 		this.unitData=unitTypeData;
 		this.itemClassData=itemClassdata;
+		this.auditDetails=auditDetails;
 	}
 
 	public ItemData(List<ItemData> itemCodes) {
 		this.itemDatas = itemCodes;
+	}
+
+	public ItemData(Long id, Long itemMasterId, String itemCode,
+			BigDecimal unitPrice, Date changedDate) {
+		
+		this.id=id;
+		this.itemMasterId=itemMasterId;
+		this.itemCode=itemCode;
+		this.unitPrice=unitPrice;
+		this.changedDate=new LocalDate(changedDate);
 	}
 
 	public String getChargeCode() {

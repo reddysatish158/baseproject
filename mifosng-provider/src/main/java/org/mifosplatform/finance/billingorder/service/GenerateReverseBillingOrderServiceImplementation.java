@@ -125,7 +125,7 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 					billingOrderCommand.getChargeCode(),billingOrderCommand.getChargeType(),discountMaster.getDiscountCode(), billingOrderCommand.getPrice(), discountAmount,
 					netChargeAmount, billingOrderCommand.getStartDate(), billingOrderCommand.getEndDate());
 			//client taxExemption
-			if(tax.getTaxExemption().equalsIgnoreCase("Y")){
+			if(tax.getTaxExemption().equalsIgnoreCase("N")){
 			
 			for(InvoiceTaxCommand invoiceTaxCommand : invoiceTaxCommands){
 				
@@ -157,6 +157,7 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 			if(isTaxInclusive(billingOrderCommands.get(0).getTaxInclusive())){
 			invoiceAmount = totalChargeAmount;
 			}else{
+
 				invoiceAmount = totalChargeAmount.add(netTaxAmount);
 			}
 			}else{
