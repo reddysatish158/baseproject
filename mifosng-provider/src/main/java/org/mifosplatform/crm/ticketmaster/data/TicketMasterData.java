@@ -32,6 +32,8 @@ public class TicketMasterData {
 	private String attachedFile;
 	private String sourceOfTicket;
 	private Date dueDate;
+	private String resolutionDescription;
+	
   	public TicketMasterData(List<EnumOptionData> statusType,
 			List<EnumOptionData> priorityType) {
 		this.priorityType=priorityType;
@@ -59,7 +61,7 @@ public class TicketMasterData {
 
 	public TicketMasterData(Long id, String priority, String status,
 			Integer assignedTo, LocalDate ticketDate,String lastComment,String problemDescription,
-			String userName,String sourceOfTicket,Date dueDate,String description) {
+			String userName,String sourceOfTicket,Date dueDate,String description,String resolutionDescription) {
 		
 		this.id=id;
 		this.priority=priority;
@@ -72,6 +74,7 @@ public class TicketMasterData {
 		this.sourceOfTicket=sourceOfTicket;
 		this.dueDate=dueDate;
 		this.statusDescription=description;
+		this.resolutionDescription=resolutionDescription;
 		
 	}
 
@@ -160,6 +163,14 @@ public class TicketMasterData {
 	public void setStatusData(List<TicketMasterData> Statusdata) {
 		
 		this.statusType=Statusdata;
+	}
+
+	public String getResolutionDescription() {
+		return resolutionDescription;
+	}
+
+	public void setResolutionDescription(String resolutionDescription) {
+		this.resolutionDescription = resolutionDescription;
 	}
 
 	

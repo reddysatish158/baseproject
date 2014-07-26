@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.codehaus.jettison.json.JSONObject;
 import org.mifosplatform.crm.ticketmaster.data.TicketMasterData;
+import org.mifosplatform.crm.ticketmaster.domain.TicketMaster;
+import org.mifosplatform.crm.ticketmaster.domain.TicketMasterRepository;
 import org.mifosplatform.crm.ticketmaster.service.TicketMasterReadPlatformService;
 import org.mifosplatform.finance.billingorder.api.BillingOrderApiResourse;
 import org.mifosplatform.organisation.message.domain.BillingMessage;
@@ -48,6 +50,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
     private static BillingMessageTemplateRepository messageTemplateRepository;
     private TicketMasterReadPlatformService ticketMasterReadPlatformService ;
     private final AppUserReadPlatformService readPlatformService;
+    private final TicketMasterRepository repository;
 
 	@Autowired
 	public EventActionWritePlatformServiceImpl(final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final EventActionRepository eventActionRepository,
@@ -55,7 +58,8 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderRepository orderRepository,final BillingOrderApiResourse billingOrderApiResourse,
 			final MessageDataRepository messageDataRepository,final BillingMessageTemplateRepository messageTemplateRepository,
 			final TicketMasterReadPlatformService ticketMasterReadPlatformService,
-			final AppUserReadPlatformService readPlatformService)
+			final AppUserReadPlatformService readPlatformService,
+			final TicketMasterRepository repository)
 	{
 		this.eventActionRepository=eventActionRepository;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
@@ -67,6 +71,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
         this.messageTemplateRepository=messageTemplateRepository;
         this.ticketMasterReadPlatformService=ticketMasterReadPlatformService;
         this.readPlatformService=readPlatformService;
+        this.repository=repository;
 	}
 	
 	
@@ -92,27 +97,72 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				    	
 				    	 List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
 				    	 
+				    	 /**
+				    	  * Workflow events for create,edit,close tickets
+				    	  * Action Send Email
+				    	  * Events Create Ticket,Add Comment,Close Ticket
+				    	  * */
 				    	 if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_EMAIL)){
+				    		 
 				        	  	TicketMasterData data = this.ticketMasterReadPlatformService.retrieveTicket(clientId,new Long(resourceId));
+				        	  	TicketMaster ticketMaster=this.repository.findOne(new Long(resourceId));
 				        	  	AppUserData user = this.readPlatformService.retrieveUser(new Long(data.getUserId()));
 				        	  	
 				        	  	BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne((long) 11);
-				        	  	if(!user.getEmail().isEmpty()){
-				        	  		BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+data.getStatusDescription(), "", user.getEmail(), user.getEmail(),
+				        	  	
+				        	  	if(detailsData.getEventName().equalsIgnoreCase(EventActionConstants.EVENT_CREATE_TICKET)){
+				        	  		if(!user.getEmail().isEmpty()){
+				        	  			BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription(), "", user.getEmail(), user.getEmail(),
 											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-									messageDataRepository.save(billingMessage);
-				        	  	}else{
-				        	  		if(actionProcedureData.getEmailId().isEmpty()){
+				        	  			messageDataRepository.save(billingMessage);
+				        	  		}else{
+				        	  			if(actionProcedureData.getEmailId().isEmpty()){
 					        	  		
 				        	  			throw new EmailNotFoundException(new Long(data.getUserId()));
 					        	  		
-					        	  	}else{
-				        	  		BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+data.getStatusDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
+				        	  			}else{
+				        	  				BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
 											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-									messageDataRepository.save(billingMessage);
-					        	  	}
+				        	  				messageDataRepository.save(billingMessage);
+				        	  			}
+				        	  		}
+				        	  	}else if(detailsData.getEventName().equalsIgnoreCase(EventActionConstants.EVENT_EDIT_TICKET)){
+				        	  		
+				        	  		if(!user.getEmail().isEmpty()){
+				        	  			BillingMessage billingMessage = new BillingMessage("ADD COMMENT", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"COMMENT: \t"+data.getLastComment(), "", user.getEmail(), user.getEmail(),
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+				        	  			messageDataRepository.save(billingMessage);
+				        	  		}else{
+				        	  			if(actionProcedureData.getEmailId().isEmpty()){
+						        	  		
+					        	  			throw new EmailNotFoundException(new Long(data.getUserId()));	
+					        	  		}else{
+					        	  			
+					        	  			BillingMessage billingMessage = new BillingMessage("ADD COMMENT", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"COMMENT: \t"+data.getLastComment(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
+													"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+						        	  		messageDataRepository.save(billingMessage);
+					        	  		}
+				        	  		}
+									
+				        	  	}else if(detailsData.getEventName().equalsIgnoreCase(EventActionConstants.EVENT_CLOSE_TICKET)){
+				        	  		
+				        	  		if(!user.getEmail().isEmpty()){
+				        	  			BillingMessage billingMessage = new BillingMessage("CLOSED TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"RESOLUTION: \t"+ticketMaster.getResolutionDescription(), "", user.getEmail(), user.getEmail(),
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+				        	  			messageDataRepository.save(billingMessage);
+				        	  		}else{
+				        	  			if(actionProcedureData.getEmailId().isEmpty()){
+						        	  		
+					        	  			throw new EmailNotFoundException(new Long(data.getUserId()));	
+					        	  		}else{
+					        	  			
+					        	  			BillingMessage billingMessage = new BillingMessage("CLOSED TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"RESOLUTION: \t"+ticketMaster.getResolutionDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
+													"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+						        	  		messageDataRepository.save(billingMessage);
+					        	  		}
+				        	  		}
 				        	  	}
-								
+				        	  		
 				          }else if(actionProcedureData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
 					  
 					          AssociationData associationData=this.hardwareAssociationReadplatformService.retrieveSingleDetails(actionProcedureData.getOrderId());

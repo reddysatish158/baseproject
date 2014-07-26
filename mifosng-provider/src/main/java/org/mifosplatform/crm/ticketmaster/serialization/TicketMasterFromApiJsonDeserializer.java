@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.mifosplatform.crm.ticketmaster.command.TicketMasterCommand;
 import org.mifosplatform.infrastructure.core.data.ApiParameterError;
 import org.mifosplatform.infrastructure.core.data.DataValidatorBuilder;
 import org.mifosplatform.infrastructure.core.exception.InvalidJsonException;
@@ -60,6 +61,5 @@ public class TicketMasterFromApiJsonDeserializer {
 	 private void throwExceptionIfValidationWarningsExist(final List<ApiParameterError> dataValidationErrors) {
 	        if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException("validation.msg.validation.errors.exist",
 	                "Validation errors exist.", dataValidationErrors); }
-	    }
-	
+	    }	
 }

@@ -99,6 +99,11 @@ public class TicketMasterWritePlatformServiceImpl implements TicketMasterWritePl
          this.ticketDetailsRepository.save(detail);
          transactionHistoryWritePlatformService.saveTransactionHistory(ticketMaster.getClientId(), "UpdateTicketDetails", ticketMaster.getCreatedDate(),
 					"Comments:"+ticketMaster.getDescription(),"AssignedTo:"+ticketMaster.getAssignedTo(),"TicketMasterID:"+ticketMaster.getId());
+         
+         List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_EDIT_TICKET);
+  		 if(actionDetaislDatas.size() != 0){
+  			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,ticketMaster.getClientId(), ticketMaster.getId().toString());
+  		 }
          return detail.getId();
 
 	 	}
@@ -134,6 +139,12 @@ catch (DataIntegrityViolationException dve) {
 				this.repository.save(ticketMaster);
 				transactionHistoryWritePlatformService.saveTransactionHistory(ticketMaster.getClientId(), "TicketClose", ticketMaster.getClosedDate(),
 						"Status:"+ticketMaster.getStatus(),"ResolutionDescription:"+ticketMaster.getResolutionDescription(),"TicketMasterID:"+ticketMaster.getId());
+				
+				List<ActionDetaislData> actionDetaislDatas=this.actionDetailsReadPlatformService.retrieveActionDetails(EventActionConstants.EVENT_CLOSE_TICKET);
+		  		 if(actionDetaislDatas.size() != 0){
+		  			this.actiondetailsWritePlatformService.AddNewActions(actionDetaislDatas,ticketMaster.getClientId(), ticketMaster.getId().toString());
+		  		 }
+				
 			} else {
 				
 			}
