@@ -35,13 +35,10 @@ public class ActionDetaislData {
 	/**
 	 * @return the actionType
 	 */
-	public String getaActionName() {
-		return actionName;
-	}
-
 	public String getActionName() {
 		return actionName;
 	}
+
 
 	public String IsSynchronous() {
 		return isSynchronous;
