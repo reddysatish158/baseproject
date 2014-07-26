@@ -27,6 +27,7 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mifosplatform.finance.billingmaster.api.BillingMasterApiResourse;
+import org.mifosplatform.finance.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.finance.billingorder.service.InvoiceClient;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
@@ -432,7 +433,7 @@ try {
     	   }
     	   for(Long clientId:clientIds)
     	   {
-    		   System.out.println(clientId);
+    		  
     		   fw.append("processing clientId: "+clientId+ " \r\n");
     		   JSONObject jsonobject = new JSONObject();
     		   DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
@@ -448,8 +449,13 @@ try {
     		   jsonobject.put("dateFormat", "dd MMMM YYYY");
     		   jsonobject.put("message", data.getPromotionalMessage());
     		   fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");
-    		   System.out.println(jsonobject.toString());
-    		   this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
+    		  
+    		   try{
+    			   this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString()); 
+    		   }catch(BillingOrderNoRecordsFoundException e){
+    			   e.getMessage();
+    		   }
+    		   
     	   }
        }
        fw.append("statement Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");

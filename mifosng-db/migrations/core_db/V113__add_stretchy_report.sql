@@ -10,7 +10,7 @@ values
 'Select CASE status_enum WHEN 100 THEN "New" WHEN 300 THEN "Active" WHEN 600 THEN "Inactive" ELSE "Pending" END as status, count(0) as ccounts from m_client group by status_enum',
 'Clientcounts',1,1) ;
 
-insert into stretchy_report values(null,'PaymodeCollection Chart','Chart','Pie','Client','select mcv.code_value PayMode ,round(sum(p.amount_paid),2) Collection
+insert IGNORE into stretchy_report values(null,'PaymodeCollection Chart','Chart','Pie','Client','select mcv.code_value PayMode ,round(sum(p.amount_paid),2) Collection
 from b_payments p, m_code_value mcv ,m_client c, m_office of
 where p.paymode_id=mcv.id
 and mcv.code_id=11
