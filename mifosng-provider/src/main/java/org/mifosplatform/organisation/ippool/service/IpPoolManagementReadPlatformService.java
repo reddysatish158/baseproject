@@ -24,4 +24,6 @@ public interface IpPoolManagementReadPlatformService {
 
 	IpPoolManagementData retrieveIdByIpAddress(String ip);
 
+	List<IpPoolManagementData> retrieveSingleIpPoolDetails(Long poolId);
+
 }
