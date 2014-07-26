@@ -52,7 +52,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("singleton")
 public class TicketMasterApiResource {
-
+		
 		private final String resourceNameForPermission = "TICKET";
 		private TicketMasterWritePlatformService ticketMasterWritePlatformService;
 		private TicketMasterReadPlatformService ticketMasterReadPlatformService ;
@@ -94,15 +94,15 @@ public class TicketMasterApiResource {
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
 		public String createTicketMaster(@PathParam("clientId") final Long clientId,final String jsonRequestBody) {
-
+			
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().createTicketMaster(clientId).withJson(jsonRequestBody).build();
 			final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 			
 			return this.toApiJsonSerializer.serialize(result);
-		}
-
-		
-		
+		}	
+			
+			
+			
 		@GET
 		@Path("alltickets")
 		@Consumes({ MediaType.APPLICATION_JSON })

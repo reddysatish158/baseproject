@@ -1013,7 +1013,9 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isMediaDeviceDetails()){
 				   if(wrapper.isUpdateOperation()) {
 				         handler = applicationContext.getBean("updateMediaDeviceDetailsCommandHandler",NewCommandSourceHandler.class);
-				     }else {
+				   } else if(wrapper.isUpdateMediaDeviceCrash()) {
+				         handler = applicationContext.getBean("updateMediaDeviceCrashDetailsCommandHandler",NewCommandSourceHandler.class);
+				   }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				     }
 			   }else if (wrapper.isRedemptionResource()) {

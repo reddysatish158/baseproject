@@ -130,8 +130,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MessageGmailBackedPlatformEmailService implements
-		MessagePlatformEmailService {
+public class MessageGmailBackedPlatformEmailService implements MessagePlatformEmailService {
+	
 	private final MessageDataRepository messageDataRepository;
 	private final GlobalConfigurationRepository repository;
 	private String mailId;
@@ -331,5 +331,57 @@ public class MessageGmailBackedPlatformEmailService implements
 		      throw new RuntimeException(e);
 		    }
 		    
+	}
+
+	@Override
+	public String sendMediaDeviceCrashEmailSending(String emailId, String crashReportString) {
+		
+		        Email email = new SimpleEmail();
+				GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
+		        String value= configuration.getValue();
+		       
+		        try {
+					JSONObject object =new JSONObject(value);
+					mailId=(String) object.get("mailId");
+					encodedPassword=(String) object.get("password");
+					decodePassword=new String(Base64.decodeBase64(encodedPassword));
+					hostName=(String) object.get("hostName");
+					String port=object.getString("port");
+					if(port.isEmpty()){
+						portNumber=Integer.parseInt("25");
+					}else{
+						portNumber=Integer.parseInt(port);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				String authuserName = mailId;
+				String authuser = mailId;
+				String authpwd = decodePassword;
+				// Very Important, Don't use email.setAuthentication()
+				email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
+				email.setDebug(false); // true if you want to debug
+				email.setHostName(hostName);
+				try {
+					email.getMailSession().getProperties()
+							.put("mail.smtp.starttls.enable", "true");
+					email.setFrom(authuserName, authuser);
+					email.setSmtpPort(portNumber);
+					StringBuilder subjectBuilder = new StringBuilder().append(" ")
+							.append("OBS App Crash Exception").append("  ");
+
+					email.setSubject(subjectBuilder.toString());
+
+					String sendToEmail = emailId;
+					 StringBuilder messageBuilder = new StringBuilder()
+				     .append(crashReportString);
+					email.addTo(sendToEmail, sendToEmail);
+					email.setMsg(messageBuilder.toString());
+					email.send();
+					return "Success";
+				} catch (Exception e) {
+					handleCodeDataIntegrityIssues(null, e);
+					return e.getMessage();
+				}
 	}
 }
