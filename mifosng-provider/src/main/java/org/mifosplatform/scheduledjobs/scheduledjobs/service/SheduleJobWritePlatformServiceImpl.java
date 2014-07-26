@@ -395,19 +395,19 @@ exception.printStackTrace();
 }
 
 @Override
-@CronTarget(jobName = JobName.GENERATE_STATMENT)
+@CronTarget(jobName = JobName.GENERATE_STATEMENT)
 public void generateStatment() {
 
 try {
 	System.out.println("Processing statement Details.......");
-	JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATMENT.toString());
+	JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.GENERATE_STATEMENT.toString());
 	
 	if(data!=null){
 		MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
 		final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
 		LocalTime date=new LocalTime(zone);
 		String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
-		String path=FileUtils.generateLogFileDirectory()+ JobName.GENERATE_STATMENT.toString() + File.separator +"statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+		String path=FileUtils.generateLogFileDirectory()+ JobName.GENERATE_STATEMENT.toString() + File.separator +"statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
 		File fileHandler = new File(path.trim());
 		fileHandler.createNewFile();
 		FileWriter fw = new FileWriter(fileHandler);
@@ -432,6 +432,7 @@ try {
     	   }
     	   for(Long clientId:clientIds)
     	   {
+    		   System.out.println(clientId);
     		   fw.append("processing clientId: "+clientId+ " \r\n");
     		   JSONObject jsonobject = new JSONObject();
     		   DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
@@ -447,6 +448,7 @@ try {
     		   jsonobject.put("dateFormat", "dd MMMM YYYY");
     		   jsonobject.put("message", data.getPromotionalMessage());
     		   fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");
+    		   System.out.println(jsonobject.toString());
     		   this.billingMasterApiResourse.retrieveBillingProducts(clientId,	jsonobject.toString());
     	   }
        }
@@ -1422,5 +1424,75 @@ public void reportEmail() {
 public void processInstances() {
 System.out.println("Just Instance of Message......");
 }*/
+@Transactional
+@Override
+@CronTarget(jobName = JobName.REPORT_STATMENT)
+public void reportStatmentPdf() {
+	try {
+		System.out.println("Processing statement pdf files....");
+		JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.REPORT_STATMENT.toString());
+		
+		if(data!=null){
+			MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
+			final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+			LocalTime date=new LocalTime(zone);
+			String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
+			String path=FileUtils.generateLogFileDirectory()+ JobName.REPORT_STATMENT.toString() + File.separator +"statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+			File fileHandler = new File(path.trim());
+			fileHandler.createNewFile();
+			FileWriter fw = new FileWriter(fileHandler);
+			FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+	       fw.append("Processing statement pdf files....... \r\n");
+	       List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
+	       
+	       if(sheduleDatas.isEmpty()){
+	    	   fw.append("ScheduleJobData Empty \r\n");
+	       }
+	       for(ScheduleJobData scheduleJobData:sheduleDatas)
+	       {
+	    	   fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
+	    			   " ,query="+scheduleJobData.getQuery()+"\r\n");
+	    	   List<Long> billIds = this.sheduleJobReadPlatformService.getBillIds(scheduleJobData.getQuery());
+
+	    	   if(billIds.isEmpty()){
+	    		   fw.append("no records are available for generate statement pdf files \r\n");
+	    	   
+	    	   }else{
+	    		   fw.append("generate statement pdf files for the  statment bills..... \r\n");
+	    	   }
+	    	   for(Long billId:billIds)
+	    	   {
+	    		   fw.append("processing statement bill: "+billId+ " \r\n");
+	    		   /*JSONObject jsonobject = new JSONObject();
+	    		   DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
+	    		   String formattedDate ;
+
+	    		   if(data.isDynamic().equalsIgnoreCase("Y")){
+	    			   formattedDate = formatter1.print(new LocalDate());	
+	    		   }else{
+	    			   formattedDate = formatter1.print(data.getDueDate());
+	    		   }
+	    		   jsonobject.put("dueDate",formattedDate);
+	    		   jsonobject.put("locale", "en");
+	    		   jsonobject.put("dateFormat", "dd MMMM YYYY");
+	    		   jsonobject.put("message", data.getPromotionalMessage());
+	    		   fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");*/
+	    		   this.billingMasterApiResourse.printInvoice(billId);
+	    	   }
+	       }
+	       fw.append("statement pdf file Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
+	       fw.flush();
+	       fw.close();
+		}
+		System.out.println("statement  pdf file Job is Completed..."
+				+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+		
+		} catch (Exception exception) {
+		System.out.println(exception.getMessage());
+		exception.printStackTrace();
+		}
+		}
+
+
 }
 

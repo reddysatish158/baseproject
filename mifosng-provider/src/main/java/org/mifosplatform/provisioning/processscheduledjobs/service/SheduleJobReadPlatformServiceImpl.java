@@ -244,5 +244,28 @@ public class SheduleJobReadPlatformServiceImpl implements
 		return new ScheduleJobData(id, batchName,query);
 		}
 	 }
-}
+
+	@Override
+	public List<Long> getBillIds(String query) {
+		try {
+			
+	        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSourcePerTenantService.retrieveDataSource());
+			final BillIdMapper mapper = new BillIdMapper();
+			return jdbcTemplate.query(query, mapper, new Object[] { });
+			} catch (EmptyResultDataAccessException e) {
+			return null;
+			}
+			}
+	
+	  private static final class BillIdMapper implements RowMapper<Long> {
+		@Override
+		public Long mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
+		final Long billId = rs.getLong("billId");
+	       return billId;
+		
+			}
+		}
+		
+	}
+
 
