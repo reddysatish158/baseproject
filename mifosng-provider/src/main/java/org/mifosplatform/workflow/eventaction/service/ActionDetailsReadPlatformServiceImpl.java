@@ -71,11 +71,11 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 	private static final class EventMappingMapper implements RowMapper<ActionDetaislData> {
 
 		public String schema() {
-			return "em.id as actionId,em.action_name as actionName,em.process as processName,em.is_synchronous as isSync" +
+			return "em.id as actionId,em.action_name as actionName,em.process as processName,em.is_synchronous as isSync,em.event_name as eventName " +
 					" from b_eventaction_mapping em where em.event_name=? and em.is_deleted='N'";
 
 		}
-
+		
 		@Override
 		public ActionDetaislData mapRow(final ResultSet rs,
 				@SuppressWarnings("unused") final int rowNum)
@@ -84,7 +84,8 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			String procedureName = rs.getString("processName");
 			String procedureType = rs.getString("actionName");
 			String isSynchronous = rs.getString("isSync");
-			return new ActionDetaislData(id,procedureName,procedureType,isSynchronous);
+			String eventName = rs.getString("eventName");
+			return new ActionDetaislData(id,procedureName,procedureType,isSynchronous,eventName);
 
 		}
 	}
@@ -101,7 +102,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			  parameterSource.addValue("resourceid", resourceId, Types.VARCHAR);
 			    
 			  Map<String, Object> out = jdbcCall.execute(parameterSource);
-			     
+			  
 			  String result=(String)out.get("result");
 			  String resource=(String)out.get("strjson");
 			  
@@ -110,6 +111,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			  String actionName=null;
 			  Long orderId=null;
 			  String planId=null;
+			  String emailId=null;
 			  if(result.equalsIgnoreCase("true") && resource != null){
 
 				  isCheck=true;
@@ -121,7 +123,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 					   map.put(data[0],data[1]);
 					   
 				   }
-				  
+				  emailId=map.get("Email_Id");
 				  actionName=map.get("action");
 				  orderresource=map.get("orderid");
 				  planId=map.get("planid");
@@ -130,7 +132,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
   		   orderId=Long.parseLong(orderresource);
 			  }
 			  
-  		return new EventActionProcedureData(isCheck,orderId,actionName,planId);
+  		return new EventActionProcedureData(isCheck,orderId,actionName,planId,emailId);
 	}
 
 
