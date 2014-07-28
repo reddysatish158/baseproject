@@ -1098,7 +1098,7 @@ public class CommandWrapper {
 
 		public boolean isMediaDeviceDetails() {
 			
-			return this.entityName.equalsIgnoreCase("MEDIADEVICE") && this.actionName.equalsIgnoreCase("UPDATE");
+			return this.entityName.equalsIgnoreCase("MEDIADEVICE");
 		}
 		
 		public boolean isRedemptionResource() {
@@ -1116,6 +1116,10 @@ public class CommandWrapper {
 
 		public boolean isIpDescription() {
 			return  this.entityName.equalsIgnoreCase("IPDESCRIPTION");
+		}
+
+		public boolean isUpdateMediaDeviceCrash() {
+			return  this.actionName.equalsIgnoreCase("UPDATECRASH");
 		}
 		
 }

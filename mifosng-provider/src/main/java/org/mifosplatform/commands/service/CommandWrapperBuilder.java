@@ -2116,10 +2116,6 @@ public CommandWrapperBuilder PaypalPayment(Long clientId) {
 	return this;
 }
 
-
-
-
-
 public CommandWrapperBuilder updateMediaStatus(String deviceId) {
 	
 	this.actionName = "UPDATE";
@@ -2354,6 +2350,15 @@ public CommandWrapperBuilder registerDBDatatable(final String datatable, final S
 		return this;
 
 	}
+
+public CommandWrapperBuilder updateMediaCrashDetails(Long clientId) {
+	
+	this.actionName = "UPDATECRASH";
+	this.entityName = "MEDIADEVICE";
+	this.entityId = clientId;
+	this.href = "/mediadevices/client/"+clientId;
+	return this;
+}
 }
 
 

@@ -16,6 +16,8 @@ public interface MessagePlatformEmailService {
 	String sendToUserMobile(String message, Long id);
 
 	String createEmail(String pdfFileName, String emailId);
+
+	String sendMediaDeviceCrashEmailSending(String uniqueReference, String crashReportString);
 	
 	
 

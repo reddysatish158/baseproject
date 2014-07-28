@@ -14,7 +14,8 @@ public enum UserActionStatusTypeEnum {
 	EXTENSION(9,"CategoryType.extension"),
 	CHANGE_GROUP(10,"CategoryType.extension"),
 	TERMINATION(11,"CategoryType.extension"),
-	INVALID(12, "CategoryType.invalid");
+	RETRACK(12,"CategoryType.retrack"),
+	INVALID(13, "CategoryType.invalid");
 
 
     private final Integer value;
@@ -70,6 +71,9 @@ public enum UserActionStatusTypeEnum {
 			
 		case 11:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.TERMINATION;
+			
+		case 12:
+			actionStatusTypeEnum = UserActionStatusTypeEnum.RETRACK;	
 			
 		default:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.INVALID;

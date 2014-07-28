@@ -27,5 +27,7 @@ public class ProvisioningApiConstants {
 	public static final String PROV_DATA_OLD_GROUPNAME="OLD_GROUP_NAME";
 	public static final String PROV_DATA_NEW_GROUPNAME="NEW_GROUP_NAME";
 	public static final String PROV_DATA_SUBNET="subnet";
+	public static final String PROV_DATA_OLD_SERIALNO="OLD_SERIALNO";
+	public static final String PROV_DATA_NEW_SERIALNO="NEW_SERIALNO";
 
 }
