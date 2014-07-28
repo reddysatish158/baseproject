@@ -175,8 +175,10 @@ dependencies {
                 [group: 'org.quartz-scheduler', name: 'quartz', version: '2.1.7'],
                 [group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'],
                 [group: 'org.json', name: 'json', version: '20070829'],
+                [group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'],
                 [group: 'com.paypal.sdk', name: 'paypal-core', version: '1.4.3'],
                 [group: 'com.paypal.sdk', name: 'rest-api-sdk', version: '0.9.0']
+
  	        )
 
  	 testCompile 'junit:junit:4.11',
@@ -320,7 +322,8 @@ buildscript {
 
 
 flyway {
-    url = "jdbc:mysql://localhost:3306/mifostenant-default"
+
+    url = "jdbc:mysql://localhost:3306/obstenant-default"
     user = mysqlUser
     password = mysqlPassword
     
@@ -329,10 +332,12 @@ flyway {
 }
 
 task migrateTenantDB<<{
-    description="Migrates a Tenant DB. Optionally can pass dbName. Defaults to 'mifostenant-default' (Example: -PdbName=someTenantDBname)"
+
+    description="Migrates a Tenant DB. Optionally can pass dbName. Defaults to 'obstenant-default' (Example: -PdbName=someTenantDBname)"
 
 	def filePath = "filesystem:$projectDir" + System.properties['file.separator'] + '..' + System.properties['file.separator'] + 'mifosng-db' + System.properties['file.separator'] + 'migrations/core_db'
-	def tenantDbName = 'mifostenant-default';
+	def tenantDbName = 'obstenant-default';
+
     if (rootProject.hasProperty("dbName")) {
 		tenantDbName = rootProject.getProperty("dbName")
 	}
@@ -344,10 +349,12 @@ task migrateTenantDB<<{
 }
 
 task showTenantDBInfo<<{
-    description="Shows the migration info for a Tenant DB. Optionally can pass dbName. Defaults to 'mifostenant-default' (Example: -PdbName=someTenantDBname)"
+
+    description="Shows the migration info for a Tenant DB. Optionally can pass dbName. Defaults to 'obstenant-default' (Example: -PdbName=someTenantDBname)"
     
     def filePath = "filesystem:$projectDir" + System.properties['file.separator'] + '..' + System.properties['file.separator'] + 'mifosng-db' + System.properties['file.separator'] + 'migrations/core_db'
-    def tenantDbName = 'mifostenant-default';
+    def tenantDbName = 'obstenant-default';
+
     if (rootProject.hasProperty("dbName")) {
 		tenantDbName = rootProject.getProperty("dbName")
 	}
@@ -359,10 +366,10 @@ task showTenantDBInfo<<{
 
 
 task migrateTenantListDB<<{
-    description="Migrates a Tenant List DB. Optionally can pass dbName. Defaults to 'mifosplatform-tenants' (Example: -PdbName=someDBname)"
+    description="Migrates a Tenant List DB. Optionally can pass dbName. Defaults to 'obsplatform-tenants' (Example: -PdbName=someDBname)"
 
 	def filePath = "filesystem:$projectDir" + System.properties['file.separator'] + '..' + System.properties['file.separator'] + 'mifosng-db' + System.properties['file.separator'] + 'migrations/list_db'
- 	def tenantsDbName = 'mifosplatform-tenants';
+ 	def tenantsDbName = 'obsplatform-tenants';
     if (rootProject.hasProperty("dbName")) {
 		tenantsDbName = rootProject.getProperty("dbName")
 	}
@@ -374,10 +381,10 @@ task migrateTenantListDB<<{
 }
 
 task showTenantListDBInfo<<{
-    description="Shows the migration info for a List DB. Optionally can pass dbName. Defaults to 'mifosplatform-tenants' (Example: -PdbName=someDBname)"
+    description="Shows the migration info for a List DB. Optionally can pass dbName. Defaults to 'obsplatform-tenants' (Example: -PdbName=someDBname)"
     
     def filePath = "filesystem:$projectDir" + System.properties['file.separator'] + '..' + System.properties['file.separator'] + 'mifosng-db' + System.properties['file.separator'] + 'migrations/list_db'
-    def tenantsDbName = 'mifosplatform-tenants';
+    def tenantsDbName = 'obsplatform-tenants';
     if (rootProject.hasProperty("dbName")) {
 		tenantsDbName = rootProject.getProperty("dbName")
 	}

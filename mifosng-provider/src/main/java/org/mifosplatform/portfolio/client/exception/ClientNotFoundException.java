@@ -15,4 +15,8 @@ public class ClientNotFoundException extends AbstractPlatformDomainRuleException
     public ClientNotFoundException(final Long clientId) {
         super("error.msg.client.id.invalid", "Client with identifier " + clientId + " does not exist", clientId);
     }
+    
+    public ClientNotFoundException(final String email) {
+        super("error.msg.mail.not.exist", "Client with mail " + email + " does not exist", email);
+    }
 }

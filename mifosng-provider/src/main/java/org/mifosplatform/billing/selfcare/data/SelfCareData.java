@@ -41,6 +41,11 @@ private Long clientId;
 
 
 
+	public SelfCareData(String email, String password) {
+	this.email= email;
+	this.password = password;
+	}
+
 	public Long getClientId() {
 		return clientId;
 	}
