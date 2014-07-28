@@ -48,7 +48,7 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 
 		public String schema() {
 			return "em.id as id, em.event_name as eventName, em.action_name as actionName," +
-				 " em.process as process,em.is_deleted as isDeleted from b_eventaction_mapping em ";
+				 " em.process as process,em.is_deleted as isDeleted from b_eventaction_mapping em order by em.is_deleted";
 
 		}
 	

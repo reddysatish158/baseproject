@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -87,7 +88,7 @@ public class BillingMasterApiResourse {
          final JsonCommand command = JsonCommand.from(apiRequestBodyAsJson.toString(),parsedCommand,this.fromApiJsonHelper,
         		 "BILLMASTER",clientId,null,null,clientId,null,null,null,null,null,null,null);
 		final CommandProcessingResult result=this.billMasterWritePlatformService.createBillMaster(command,command.entityId());
-	    this.billWritePlatformService.ireportPdf(result.resourceId());
+	    //this.billWritePlatformService.ireportPdf(result.resourceId());
 	    return this.toApiJsonSerializer.serialize(result);
 	}
 	@GET
@@ -107,7 +108,12 @@ public class BillingMasterApiResourse {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response printInvoice(@PathParam("billId") final Long billId) {
 		BillMaster billMaster = this.billMasterRepository.findOne(billId);
-		String printFileName = billMaster.getFileName();
+		String FileName = billMaster.getFileName();
+		if(FileName.equalsIgnoreCase("invoice")){
+		this.billWritePlatformService.ireportPdf(billId);
+		}
+		BillMaster billMaster1=this.billMasterRepository.findOne(billId);
+		String printFileName = billMaster1.getFileName();
 		File file = new File(printFileName);
 		ResponseBuilder response = Response.ok(file);
 		response.header("Content-Disposition", "attachment; filename=\""+ printFileName + "\"");

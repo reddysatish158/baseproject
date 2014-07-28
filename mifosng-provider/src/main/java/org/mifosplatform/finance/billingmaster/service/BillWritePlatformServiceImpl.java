@@ -122,6 +122,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 		BigDecimal dueAmount = BigDecimal.ZERO;
 		BigDecimal taxAmount = BigDecimal.ZERO;
 		BigDecimal adjustMentsAndPayments = BigDecimal.ZERO;
+		BigDecimal OneTimeSaleAmount =BigDecimal.ZERO;
 		for (BillDetail billDetail : billDetails) {
 			if (billDetail.getTransactionType().equalsIgnoreCase("SERVICE_CHARGES")) {
 				if (billDetail.getAmount() != null)
@@ -137,9 +138,15 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 				if (billDetail.getAmount() != null)
 					paymentAmount = paymentAmount.add(billDetail.getAmount());
 
+			} else if (billDetail.getTransactionType().contains("ONETIME_CHARGES")) {
+				if (billDetail.getAmount() != null)
+					OneTimeSaleAmount =OneTimeSaleAmount.add(billDetail.getAmount());
+
 			}
+			
+			
 			dueAmount = chargeAmount.add(taxAmount).add(adjustmentAmount)
-					.subtract(paymentAmount).add(clientBalance);
+					    .subtract(paymentAmount).add(OneTimeSaleAmount).add(clientBalance);
 			billMaster.setChargeAmount(chargeAmount);
 			billMaster.setAdjustmentAmount(adjustmentAmount);
 			billMaster.setTaxAmount(taxAmount);
@@ -524,6 +531,10 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
             	BillingOrder billingOrder = this.billingOrderRepository.findOne(transIds.getTransactionId());
 				billingOrder.updateBillId(billId);
 				this.billingOrderRepository.save(billingOrder);
+				Invoice invoice = this.invoiceRepository.findOne(transIds.getTransactionId());
+				invoice.updateBillId(billId);
+				this.invoiceRepository.save(invoice);
+				
             }
 
 		}
