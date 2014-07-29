@@ -1,5 +1,5 @@
-/*Alter table m_code add code_description varchar(1000) DEFAULT NULL;
-*/
+Alter table m_code add code_description varchar(1000) DEFAULT NULL;
+
 Update m_code set code_description='Client Identites list can be added' where id=1;
 Update m_code set code_description='Depricated' where id=2;
 Update m_code set code_description='Depricated' where id=3;
