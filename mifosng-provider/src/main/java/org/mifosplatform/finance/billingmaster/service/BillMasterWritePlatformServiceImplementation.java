@@ -67,28 +67,28 @@ public class BillMasterWritePlatformServiceImplementation implements
 		try
 		{
 			
-			this.apiJsonDeserializer.validateForCreate(command.json());
+		 this.apiJsonDeserializer.validateForCreate(command.json());
 			//final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById("default"); 
 	        //ThreadLocalContextUtil.setTenant(tenant);
-			Long groupId=null;
-			Client client=this.clientRepository.findOne(clientId);
-			if(client.getGroupName() != null){
-			GroupsDetails groupsDetails=this.groupsDetailsRepository.findOne(client.getGroupName());//findOneByGroupName(client.getGroupName());
-			groupId=groupsDetails.getId();
-			}
-		List<FinancialTransactionsData> financialTransactionsDatas = billMasterReadPlatformService.retrieveFinancialData(clientId);
-		if (financialTransactionsDatas.size() == 0) {
+		 Long groupId=null;
+		 Client client=this.clientRepository.findOne(clientId);
+		 if(client.getGroupName() != null){
+		 GroupsDetails groupsDetails=this.groupsDetailsRepository.findOne(client.getGroupName());//findOneByGroupName(client.getGroupName());
+		 groupId=groupsDetails.getId();
+		 }
+		 List<FinancialTransactionsData> financialTransactionsDatas = billMasterReadPlatformService.retrieveFinancialData(clientId);
+		 if (financialTransactionsDatas.size() == 0) {
 			String msg = "no Bills to Generate";
 			throw new BillingOrderNoRecordsFoundException(msg);
 		}
 	//	BillMaster billMaster = null;
-		BigDecimal previousBal = BigDecimal.ZERO;
-		List<BillMaster> billMasters = this.billMasterRepository.findAll();
-		for (BillMaster data : billMasters) {
-			if (data.getClientId().compareTo(clientId)==0) {
-				previousBal = this.billMasterReadPlatformService.retrieveClientBalance(clientId);
-			}
-		}
+	//	BigDecimal previousBal = BigDecimal.ZERO;
+	//	List<BillMaster> billMasters = this.billMasterRepository.findAll();
+	//	for (BillMaster data : billMasters) {
+	//		if (data.getClientId().compareTo(clientId)==0) {
+		BigDecimal	previousBal = this.billMasterReadPlatformService.retrieveClientBalance(clientId);
+			
+		
 		LocalDate billDate = new LocalDate();
 		BigDecimal previousBalance = BigDecimal.ZERO;
 		BigDecimal chargeAmount = BigDecimal.ZERO;
@@ -137,7 +137,7 @@ public class BillMasterWritePlatformServiceImplementation implements
 
 	private void handleCodeDataIntegrityIssues(JsonCommand command,
 			DataIntegrityViolationException dve) {
-		// TODO Auto-generated method stub
+	
 		
 	}
 }

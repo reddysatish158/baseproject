@@ -1468,32 +1468,19 @@ public void reportStatmentPdf() {
 	    	   }
 	    	   for(Long billId:billIds)
 	    	   {
-	    		   fw.append("processing statement bill: "+billId+ " \r\n");
-	    		   /*JSONObject jsonobject = new JSONObject();
-	    		   DateTimeFormatter formatter1 = DateTimeFormat.forPattern("dd MMMM yyyy");
-	    		   String formattedDate ;
-
-	    		   if(data.isDynamic().equalsIgnoreCase("Y")){
-	    			   formattedDate = formatter1.print(new LocalDate());	
-	    		   }else{
-	    			   formattedDate = formatter1.print(data.getDueDate());
-	    		   }
-	    		   jsonobject.put("dueDate",formattedDate);
-	    		   jsonobject.put("locale", "en");
-	    		   jsonobject.put("dateFormat", "dd MMMM YYYY");
-	    		   jsonobject.put("message", data.getPromotionalMessage());
-	    		   fw.append("sending jsonData for Statement Generation is: "+jsonobject.toString()+" . \r\n");*/
+	    		   fw.append("processing statement  billId: "+billId+ " \r\n");
+	    		   
 	    		   this.billingMasterApiResourse.printInvoice(billId);
 	    	   }
 	       }
-	       fw.append("statement pdf file Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
+	       fw.append("statement pdf files Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
 	       fw.flush();
 	       fw.close();
 		}
 		System.out.println("statement  pdf file Job is Completed..."
 				+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
 		
-		} catch (Exception exception) {
+		} catch (Exception exception) {  
 		System.out.println(exception.getMessage());
 		exception.printStackTrace();
 		}

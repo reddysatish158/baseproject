@@ -1,6 +1,7 @@
 package org.mifosplatform.finance.billingmaster.service;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.mifosplatform.finance.billingmaster.domain.BillDetail;
@@ -19,7 +20,7 @@ public interface BillWritePlatformService {
 	
 	void updateBillId(List<FinancialTransactionsData> financialTransactionsDatas, Long billId);
 	
-	void ireportPdf(Long billId);
+	void ireportPdf(Long billId) throws SQLException;
 
 
 }
