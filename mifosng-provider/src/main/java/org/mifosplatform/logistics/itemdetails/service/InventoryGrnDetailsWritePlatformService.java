@@ -7,5 +7,7 @@ public interface InventoryGrnDetailsWritePlatformService {
 
 
 	CommandProcessingResult addGrnDetails(JsonCommand command);
+
+	CommandProcessingResult editGrnDetails(JsonCommand command, Long entityId);
 	
 }

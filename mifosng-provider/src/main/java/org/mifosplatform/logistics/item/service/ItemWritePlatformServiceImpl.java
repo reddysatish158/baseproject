@@ -43,7 +43,7 @@ public class ItemWritePlatformServiceImpl implements ItemWritePlatformService{
     try{	 
     this.context.authenticatedUser();
     this.itemCommandFromApiJsonDeserializer.validateForCreate(command.json());
-    ItemMaster itemMaster=new ItemMaster(command.stringValueOfParameterNamed("itemCode"),command.stringValueOfParameterNamed("itemDescription"),command.stringValueOfParameterNamed("itemClass"),command.bigDecimalValueOfParameterNamed("unitPrice"),command.stringValueOfParameterNamed("units"),command.longValueOfParameterNamed("warranty"),command.stringValueOfParameterNamed("chargeCode")); 
+    ItemMaster itemMaster=new ItemMaster(command.stringValueOfParameterNamed("itemCode"),command.stringValueOfParameterNamed("itemDescription"),command.stringValueOfParameterNamed("itemClass"),command.bigDecimalValueOfParameterNamed("unitPrice"),command.stringValueOfParameterNamed("units"),command.longValueOfParameterNamed("warranty"),command.stringValueOfParameterNamed("chargeCode"),command.longValueOfParameterNamed("reorderLevel")); 
     this.itemRepository.save(itemMaster);
     return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(itemMaster.getId()).build();
     } catch (DataIntegrityViolationException dve) {
