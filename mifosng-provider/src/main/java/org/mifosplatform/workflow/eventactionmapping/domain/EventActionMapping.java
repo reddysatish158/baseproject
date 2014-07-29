@@ -98,6 +98,8 @@ public class EventActionMapping extends AbstractPersistable<Long> {
 		
 		if(this.isDeleted == 'N'){
 			this.isDeleted='Y';
+		}else{
+			this.isDeleted='N';
 		}
 		
 	}

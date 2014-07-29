@@ -46,9 +46,9 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
     private final ContractPeriodReadPlatformService contractPeriodReadPlatformService;
     private final OrderRepository orderRepository;
     private final BillingOrderApiResourse billingOrderApiResourse;
-    private static MessageDataRepository messageDataRepository;
-    private static BillingMessageTemplateRepository messageTemplateRepository;
-    private TicketMasterReadPlatformService ticketMasterReadPlatformService ;
+    private final MessageDataRepository messageDataRepository;
+    private final BillingMessageTemplateRepository messageTemplateRepository;
+    private final TicketMasterReadPlatformService ticketMasterReadPlatformService ;
     private final AppUserReadPlatformService readPlatformService;
     private final TicketMasterRepository repository;
 
@@ -57,8 +57,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 			final HardwareAssociationReadplatformService hardwareAssociationReadplatformService,final ContractPeriodReadPlatformService contractPeriodReadPlatformService,
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final OrderRepository orderRepository,final BillingOrderApiResourse billingOrderApiResourse,
 			final MessageDataRepository messageDataRepository,final BillingMessageTemplateRepository messageTemplateRepository,
-			final TicketMasterReadPlatformService ticketMasterReadPlatformService,
-			final AppUserReadPlatformService readPlatformService,
+			final TicketMasterReadPlatformService ticketMasterReadPlatformService,final AppUserReadPlatformService readPlatformService,
 			final TicketMasterRepository repository)
 	{
 		this.eventActionRepository=eventActionRepository;
@@ -88,7 +87,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				
 				//if(EventActionConstants.EVENT_CREATE_PAYMENT.equalsIgnoreCase(detailsData.getaActionName())){}
 				
-				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, detailsData.getEventName(),detailsData.getaActionName(),resourceId);
+				     EventActionProcedureData actionProcedureData=this.actionDetailsReadPlatformService.checkCustomeValidationForEvents(clientId, detailsData.getEventName(),detailsData.getActionName(),resourceId);
 				     JSONObject jsonObject=new JSONObject();
 				     if(actionProcedureData.isCheck()){
 				    	 
@@ -102,19 +101,19 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				    	  * Action Send Email
 				    	  * Events Create Ticket,Add Comment,Close Ticket
 				    	  * */
-				    	 if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_EMAIL)){
+				    	 if(detailsData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_SEND_EMAIL)){
 				    		 
 				        	  	TicketMasterData data = this.ticketMasterReadPlatformService.retrieveTicket(clientId,new Long(resourceId));
 				        	  	TicketMaster ticketMaster=this.repository.findOne(new Long(resourceId));
 				        	  	AppUserData user = this.readPlatformService.retrieveUser(new Long(data.getUserId()));
 				        	  	
-				        	  	BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne((long) 11);
+				        	  	BillingMessageTemplate billingMessageTemplate = this.messageTemplateRepository.findOne((long) 11);
 				        	  	
 				        	  	if(detailsData.getEventName().equalsIgnoreCase(EventActionConstants.EVENT_CREATE_TICKET)){
 				        	  		if(!user.getEmail().isEmpty()){
 				        	  			BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription(), "", user.getEmail(), user.getEmail(),
 											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-				        	  			messageDataRepository.save(billingMessage);
+				        	  			this.messageDataRepository.save(billingMessage);
 				        	  		}else{
 				        	  			if(actionProcedureData.getEmailId().isEmpty()){
 					        	  		
@@ -123,7 +122,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	  			}else{
 				        	  				BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
 											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-				        	  				messageDataRepository.save(billingMessage);
+				        	  				this.messageDataRepository.save(billingMessage);
 				        	  			}
 				        	  		}
 				        	  	}else if(detailsData.getEventName().equalsIgnoreCase(EventActionConstants.EVENT_EDIT_TICKET)){
@@ -131,7 +130,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	  		if(!user.getEmail().isEmpty()){
 				        	  			BillingMessage billingMessage = new BillingMessage("ADD COMMENT", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"COMMENT: \t"+data.getLastComment(), "", user.getEmail(), user.getEmail(),
 											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-				        	  			messageDataRepository.save(billingMessage);
+				        	  			this.messageDataRepository.save(billingMessage);
 				        	  		}else{
 				        	  			if(actionProcedureData.getEmailId().isEmpty()){
 						        	  		
@@ -140,7 +139,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					        	  			
 					        	  			BillingMessage billingMessage = new BillingMessage("ADD COMMENT", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"COMMENT: \t"+data.getLastComment(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
 													"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-						        	  		messageDataRepository.save(billingMessage);
+						        	  		this.messageDataRepository.save(billingMessage);
 					        	  		}
 				        	  		}
 									
@@ -149,7 +148,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	  		if(!user.getEmail().isEmpty()){
 				        	  			BillingMessage billingMessage = new BillingMessage("CLOSED TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"RESOLUTION: \t"+ticketMaster.getResolutionDescription(), "", user.getEmail(), user.getEmail(),
 											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-				        	  			messageDataRepository.save(billingMessage);
+				        	  			this.messageDataRepository.save(billingMessage);
 				        	  		}else{
 				        	  			if(actionProcedureData.getEmailId().isEmpty()){
 						        	  		
@@ -158,7 +157,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					        	  			
 					        	  			BillingMessage billingMessage = new BillingMessage("CLOSED TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"RESOLUTION: \t"+ticketMaster.getResolutionDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
 													"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
-						        	  		messageDataRepository.save(billingMessage);
+						        	  		this.messageDataRepository.save(billingMessage);
 					        	  		}
 				        	  		}
 				        	  	}
@@ -200,7 +199,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	   Long.parseLong(resourceId), jsonObject.toString(),actionProcedureData.getOrderId(),clientId);
 				        	   this.eventActionRepository.save(eventAction);
 				        	   	
-				          }else if(detailsData.getaActionName().equalsIgnoreCase(EventActionConstants.ACTION_INVOICE)){
+				          }else if(detailsData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_INVOICE)){
 				        	  	
 				        	  	
 				        	  jsonObject.put("dateFormat","dd MMMM yyyy");
