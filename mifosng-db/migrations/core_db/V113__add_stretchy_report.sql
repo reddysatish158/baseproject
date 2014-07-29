@@ -18,7 +18,7 @@ AND date_format(`payment_date`,\'%Y-%m\')=date_format(now(),\'%Y-%m\')
 and p.client_id=c.id 
 and c.office_id=of.id
 and of.hierarchy like concat((select ino.hierarchy from m_office ino where ino.id = ${officeId}),"%" ) 
-group by mcv.code_value','PaymodeCollection Chart1',1,1);
+group by mcv.code_value','PaymodeCollection Chart',1,1);
 
 alter table b_clientuser Drop column status,
 ADD column status varchar(10) NOT NULL after password;
