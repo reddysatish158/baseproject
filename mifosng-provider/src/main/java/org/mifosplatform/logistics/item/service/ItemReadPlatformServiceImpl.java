@@ -92,7 +92,7 @@ public List<ItemData> retrieveAllItems() {
 
 	SalesDataMapper mapper = new SalesDataMapper();
 
-	String sql = "select " + mapper.schema()+" where  i.is_deleted='n'";
+	String sql = "select " + mapper.schema()+" where  a.is_deleted='n'";
 
 	return this.jdbcTemplate.query(sql, mapper, new Object[] {  });
 }
@@ -104,10 +104,23 @@ private static final class SalesDataMapper implements
 		/*return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,i.item_class as itemClass,i.units AS units, "
 			+" i.charge_code as chargeCode,i.unit_price as unitPrice,i.warranty as warranty FROM b_item_master i ";
 */
-		return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,"
+		/*return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,"
 		+ "i.item_class as itemClass,i.units AS units, "
 	+" i.charge_code as chargeCode,i.unit_price as unitPrice,i.warranty as warranty "
-	+ "FROM b_item_master i ";
+	+ "FROM b_item_master i ";*/
+		
+		return " a.id as id,a.item_code as itemCode,a.item_description as itemDescription,a.item_class as itemClass,a.units as units,a.charge_code as chargeCode,round(a.unit_price,2) price,a.warranty as warranty,"+
+				"b.Used as used,b.Available as available,b.Total_items as totalItems from b_item_master a "+
+				"left join ( Select item_master_id,Sum(Case When Client_id IS NULL "+
+                "        Then 1 "+
+                "        Else 0 "+
+                " End) Available,"+
+                "Sum(Case When Client_id Is Not NULL "+
+                "         Then 1 "+
+                "        Else 0 "+
+                " End) Used,"+
+                "Count(1) Total_items "+
+                "From b_item_detail group by item_master_id ) b on a.id=b.item_master_id ";
 
 	}
 
@@ -121,10 +134,13 @@ private static final class SalesDataMapper implements
 		String itemClass = rs.getString("itemClass");
 		String units = rs.getString("units");
 		String chargeCode = rs.getString("chargeCode");
-		BigDecimal unitPrice = rs.getBigDecimal("unitPrice");
+		BigDecimal unitPrice = rs.getBigDecimal("price");
 		int warranty = rs.getInt("warranty");
+		Long used = rs.getLong("used");
+		Long available = rs.getLong("available");
+		Long totalItems = rs.getLong("totalItems");
 		
-		return new ItemData(id,itemCode,itemDescription,itemClass,units,chargeCode,warranty,unitPrice);
+		return new ItemData(id,itemCode,itemDescription,itemClass,units,chargeCode,warranty,unitPrice,used,available,totalItems);
 
 
 	}
@@ -137,7 +153,7 @@ public ItemData retrieveSingleItemDetails(Long itemId) {
 
 	SalesDataMapper mapper = new SalesDataMapper();
 
-	String sql = "select " + mapper.schema()+" where i.id=? and  i.is_deleted='n'";
+	String sql = "select " + mapper.schema()+" where a.id=? and  a.is_deleted='n'";
 
 	return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { itemId });
 }
@@ -152,14 +168,14 @@ public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
 	StringBuilder sqlBuilder = new StringBuilder(200);
     sqlBuilder.append("select ");
     sqlBuilder.append(mapper.schema());
-    sqlBuilder.append(" where i.is_deleted='n' ");
+    sqlBuilder.append(" where a.is_deleted='n' ");
     
     String sqlSearch = searchItems.getSqlSearch();
     String extraCriteria = "";
     if (sqlSearch != null) {
     	sqlSearch=sqlSearch.trim();
-    	extraCriteria = " and (i.item_description like '%"+sqlSearch+"%' OR" 
-    			+ " i.item_code like '%"+sqlSearch+"%' )";
+    	extraCriteria = " and (a.item_description like '%"+sqlSearch+"%' OR" 
+    			+ " a.item_code like '%"+sqlSearch+"%' )";
     			
     			
     }

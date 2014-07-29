@@ -664,6 +664,8 @@ public class SynchronousCommandProcessingService implements
 			}else if (wrapper.isGrnResource()) {
 				if (wrapper.isCreate()){
 					handler = applicationContext.getBean("createInventoryGrnCommandHandler", NewCommandSourceHandler.class);
+				}else if(wrapper.isUpdateOperation()){
+					handler = applicationContext.getBean("editInventoryGrnCommandHandler", NewCommandSourceHandler.class);
 				}
 			} else if (wrapper.isAllocateHardwareResource()) {
 				if(wrapper.isCreate()){
@@ -1064,7 +1066,15 @@ public class SynchronousCommandProcessingService implements
 				    }else {
 		                    throw new UnsupportedCommandException(wrapper.commandName());
 		                }
-				}else {
+				}else if(wrapper.isEventValidationResource()){
+	         		 if(wrapper.isCreateEventValidation()) {
+			        		handler = applicationContext.getBean("createEventValidationCommandHandler",NewCommandSourceHandler.class);
+					   }else if(wrapper.isDeleteEventValidation()) {
+			        		handler = applicationContext.getBean("deleteEventValidationCommandHandler",NewCommandSourceHandler.class);	
+					   }else{
+				           throw new UnsupportedCommandException(wrapper.commandName());
+				       }
+			    }else {
 			               throw new UnsupportedCommandException(wrapper.commandName());
 		       }
 			       

@@ -24,7 +24,7 @@ import com.google.gson.reflect.TypeToken;
 @Component
 public class InventoryGrnCommandFromApiJsonDeserializer {
 
-	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("supplierId","itemMasterId","orderdQuantity","officeId","purchaseDate","grnlisttable_length","locale","dateFormat","balanceQuantity","itemDescription"));
+	private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("supplierId","itemMasterId","orderdQuantity","officeId","purchaseDate","grnlisttable_length","locale","dateFormat","balanceQuantity","itemDescription","purchaseNo"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 	
@@ -54,7 +54,7 @@ public class InventoryGrnCommandFromApiJsonDeserializer {
 	        final Long itemMasterId = fromApiJsonHelper.extractLongNamed("itemMasterId", element);
 	        
 	        final LocalDate purchaseDate = fromApiJsonHelper.extractLocalDateNamed("purchaseDate", element);
-	        
+	        /*final String purchaseNo = fromApiJsonHelper.extractStringNamed("purchaseNo", element);*/
 	        
 	        
 	        baseDataValidator.reset().parameter("purchaseDate").value(purchaseDate).notBlank();
@@ -62,6 +62,7 @@ public class InventoryGrnCommandFromApiJsonDeserializer {
 			baseDataValidator.reset().parameter("officeId").value(officeId).notBlank();
 			baseDataValidator.reset().parameter("itemMasterId").value(itemMasterId).notBlank();
 			baseDataValidator.reset().parameter("orderdQuantity").value(orderdQuantity).notBlank().positiveAmount();
+			/*baseDataValidator.reset().parameter("purchaseNo").value(purchaseNo).notBlank();*/
 			
 			
 	        

@@ -125,7 +125,18 @@ public class InventoryItemDetailsApiResource {
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 		return this.toApiJsonSerializerForGrn.serialize(result);
 	}
-
+	
+	@PUT
+	@Path("editgrn/{grnId}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	public String addGrnDetails(@PathParam("grnId") final Long grnId,final String jsonRequestBody){
+		
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().editGrn(grnId).withJson(jsonRequestBody).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		return this.toApiJsonSerializerForGrn.serialize(result);
+	}
+	
 	@GET
 	@Path("addgrn")
 	@Consumes({MediaType.APPLICATION_JSON})

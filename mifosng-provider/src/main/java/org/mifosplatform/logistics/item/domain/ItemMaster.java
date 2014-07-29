@@ -40,7 +40,10 @@ public class ItemMaster extends AbstractPersistable<Long>{
 	
 	@Column(name = "warranty")
 	private Long warranty;
-
+	
+	@Column(name="reorder_level")
+	private int reorderLevel;
+	
 	@Column(name = "is_deleted", nullable = false)
 	private char deleted = 'n';
 	
@@ -48,7 +51,7 @@ public class ItemMaster extends AbstractPersistable<Long>{
 	
 	public ItemMaster(String itemCode, String itemDescription,
 			String itemClass, BigDecimal unitPrice, String units,
-			Long warranty, String chargeCode) {
+			Long warranty, String chargeCode,Long reorderLevel) {
              this.itemCode=itemCode;
              this.itemDescription=itemDescription;
              this.itemClass=itemClass;
@@ -56,9 +59,9 @@ public class ItemMaster extends AbstractPersistable<Long>{
              this.units=units;
              this.warranty=warranty;
              this.unitPrice=unitPrice;
-             
-	
-	
+             if(reorderLevel!=null){
+            	 this.reorderLevel=reorderLevel.intValue(); 
+             }
 	}
 
 	public String getItemCode() {
