@@ -3,6 +3,7 @@ package org.mifosplatform.finance.billingmaster.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+
 
 @Service
 public class BillWritePlatformServiceImpl implements BillWritePlatformService {
@@ -152,7 +154,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 			billMaster.setTaxAmount(taxAmount);
 			billMaster.setPaidAmount(paymentAmount);
 			billMaster.setDueAmount(dueAmount);
-			billMaster.setAdjustmentsAndPayments(paymentAmount.add(adjustmentAmount));
+			billMaster.setAdjustmentsAndPayments(paymentAmount.subtract(adjustmentAmount));
 			billMaster.setPreviousBalance(clientBalance);
 			this.billMasterRepository.save(billMaster);
 
@@ -501,37 +503,34 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 				adjustment.updateBillId(billId);
 				this.adjustmentRepository.save(adjustment);
 			}
-			if (transIds.getTransactionType().equalsIgnoreCase("TAXES")) {
+			else if (transIds.getTransactionType().equalsIgnoreCase("TAXES")) {
 				InvoiceTax invoice = this.invoiceTaxRepository.findOne(transIds.getTransactionId());
 				invoice.updateBillId(billId);
 				this.invoiceTaxRepository.save(invoice);
 			}
-			if (transIds.getTransactionType().contains("PAYMENT")) {
+			else if (transIds.getTransactionType().contains("PAYMENT")) {
 				Payment payment = this.paymentRepository.findOne(transIds.getTransactionId());
 				payment.updateBillId(billId);
 				this.paymentRepository.save(payment);
 			}
-			if (transIds.getTransactionType().equalsIgnoreCase("SERVICE_CHARGES")) {
+			else if (transIds.getTransactionType().equalsIgnoreCase("SERVICE_CHARGES")) {
 				BillingOrder billingOrder = this.billingOrderRepository.findOne(transIds.getTransactionId());
 				billingOrder.updateBillId(billId);
 				this.billingOrderRepository.save(billingOrder);
+				Invoice invoice = this.invoiceRepository.findOne(billingOrder.getInvoice().getId());
+				invoice.updateBillId(billId);
+				this.invoiceRepository.save(invoice);
+			}
+			else if (transIds.getTransactionType().equalsIgnoreCase("INVOICE")) {
 				Invoice invoice = this.invoiceRepository.findOne(transIds.getTransactionId());
 				invoice.updateBillId(billId);
 				this.invoiceRepository.save(invoice);
 			}
-			
-			if (transIds.getTransactionType().equalsIgnoreCase("INVOICE")) {
-				Invoice invoice = this.invoiceRepository.findOne(transIds.getTransactionId());
-				invoice.updateBillId(billId);
-				this.invoiceRepository.save(invoice);
-			}
-			
-
-            if (transIds.getTransactionType().equalsIgnoreCase("ONETIME_CHARGES")) {
+			else if (transIds.getTransactionType().equalsIgnoreCase("ONETIME_CHARGES")) {
             	BillingOrder billingOrder = this.billingOrderRepository.findOne(transIds.getTransactionId());
 				billingOrder.updateBillId(billId);
 				this.billingOrderRepository.save(billingOrder);
-				Invoice invoice = this.invoiceRepository.findOne(transIds.getTransactionId());
+				Invoice invoice = this.invoiceRepository.findOne(billingOrder.getInvoice().getId());
 				invoice.updateBillId(billId);
 				this.invoiceRepository.save(invoice);
 				
@@ -548,7 +547,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 
 	@Transactional
 	@Override
-	public void ireportPdf(Long billId) {
+	public void ireportPdf(Long billId) throws SQLException {
 		try {
 			String fileLocation = FileUtils.MIFOSX_BASE_DIR;
 
@@ -576,9 +575,17 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 			parameters.put("param1", id);
 			//parameters.put("param1",new LocalDate(billMaster.getBillDate())+"/"+billNo);
 			parameters.put("SUBREPORT_DIR",jpath+""+File.separator);
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, this.dataSource.getConnection());
+			Connection connection=this.dataSource.getConnection();
+			try{
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, connection);
 			JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);
-
+			}finally{
+	            try {
+	            	connection.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+			}
 		} catch (DataIntegrityViolationException exception) {
 			exception.printStackTrace();
 		} catch (JRException e) {

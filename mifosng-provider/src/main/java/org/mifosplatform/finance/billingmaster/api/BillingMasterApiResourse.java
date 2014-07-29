@@ -1,6 +1,7 @@
 package org.mifosplatform.finance.billingmaster.api;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -110,7 +111,11 @@ public class BillingMasterApiResourse {
 		BillMaster billMaster = this.billMasterRepository.findOne(billId);
 		String FileName = billMaster.getFileName();
 		if(FileName.equalsIgnoreCase("invoice")){
-		this.billWritePlatformService.ireportPdf(billId);
+		try {
+			this.billWritePlatformService.ireportPdf(billId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		}
 		BillMaster billMaster1=this.billMasterRepository.findOne(billId);
 		String printFileName = billMaster1.getFileName();

@@ -17,6 +17,7 @@ import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -300,14 +301,19 @@ public class BillMasterReadPlatformServiceImplementation implements
 
 		@Override
 		public BigDecimal retrieveClientBalance(Long clientId) {
-
+         
+			BigDecimal previousBalance = BigDecimal.ZERO;
 			ClientBalanceMapper mapper = new ClientBalanceMapper();
 			String sql = "select " + mapper.billStatemnetSchema();
-
-			BigDecimal previousBalance =  this.jdbcTemplate.queryForObject(sql, mapper,new Object[] { clientId });
+			try{
+			 previousBalance =  this.jdbcTemplate.queryForObject(sql, mapper,new Object[] { clientId });
 			if( previousBalance == null ){
 				previousBalance = BigDecimal.ZERO;
 			}
+			}catch(EmptyResultDataAccessException accessException){
+				return previousBalance;
+			}
+			
 			return previousBalance;
 		}
 
