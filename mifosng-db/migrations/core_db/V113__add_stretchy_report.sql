@@ -11,6 +11,7 @@ values
 'Clientcounts',1,1) ;
 
 insert IGNORE into stretchy_report values(null,'PaymodeCollection Chart','Chart','Pie','Client','select mcv.code_value PayMode ,round(sum(p.amount_paid),2) Collection
+>>>>>>> upstream/master
 from b_payments p, m_code_value mcv ,m_client c, m_office of
 where p.paymode_id=mcv.id
 and mcv.code_id=11
@@ -18,7 +19,7 @@ AND date_format(`payment_date`,\'%Y-%m\')=date_format(now(),\'%Y-%m\')
 and p.client_id=c.id 
 and c.office_id=of.id
 and of.hierarchy like concat((select ino.hierarchy from m_office ino where ino.id = ${officeId}),"%" ) 
-group by mcv.code_value','PaymodeCollection Chart1',1,1);
+group by mcv.code_value','PaymodeCollection Chart',1,1);
 
 alter table b_clientuser Drop column status,
 ADD column status varchar(10) NOT NULL after password;
