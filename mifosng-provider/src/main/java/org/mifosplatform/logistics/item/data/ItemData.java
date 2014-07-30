@@ -30,7 +30,12 @@ public class ItemData {
 	private Long itemMasterId;
 	private LocalDate changedDate;
 	private List<ItemData> auditDetails;
-	public ItemData(Long id, String itemCode, String itemDesc,String itemClass,String units,   String chargeCode, int warranty, BigDecimal unitPrice) {
+	private Long usedItems;
+	private Long availableItems;
+	private Long totalItems;
+	
+	public ItemData(Long id, String itemCode, String itemDesc,String itemClass,String units,   String chargeCode, int warranty, BigDecimal unitPrice,
+			Long usedItems,Long availableItems,Long totalItems) {
 		
 		this.id=id;
 		this.itemCode=itemCode;
@@ -40,8 +45,9 @@ public class ItemData {
 		this.itemDescription=itemDesc;
 		this.warranty=warranty;
 		this.itemClass=itemClass;
-		
-		
+		this.usedItems=usedItems;
+		this.availableItems=availableItems;
+		this.totalItems=totalItems;
 		
 	}
 

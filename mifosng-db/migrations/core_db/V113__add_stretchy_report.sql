@@ -11,7 +11,6 @@ values
 'Clientcounts',1,1) ;
 
 insert IGNORE into stretchy_report values(null,'PaymodeCollection Chart','Chart','Pie','Client','select mcv.code_value PayMode ,round(sum(p.amount_paid),2) Collection
->>>>>>> upstream/master
 from b_payments p, m_code_value mcv ,m_client c, m_office of
 where p.paymode_id=mcv.id
 and mcv.code_id=11

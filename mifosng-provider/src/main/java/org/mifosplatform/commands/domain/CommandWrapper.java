@@ -1121,5 +1121,13 @@ public class CommandWrapper {
 		public boolean isUpdateMediaDeviceCrash() {
 			return  this.actionName.equalsIgnoreCase("UPDATECRASH");
 		}
-		
+		public boolean isEventValidationResource() {
+			return this.entityName.equalsIgnoreCase("EVENTVALIDATION");
+		}
+		public boolean isCreateEventValidation() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("EVENTVALIDATION");
+		}
+		public boolean isDeleteEventValidation() {
+			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("EVENTVALIDATION");
+		}
 }

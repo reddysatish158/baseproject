@@ -2359,6 +2359,29 @@ public CommandWrapperBuilder updateMediaCrashDetails(Long clientId) {
 	this.href = "/mediadevices/client/"+clientId;
 	return this;
 }
+public CommandWrapperBuilder createEventValidation() {
+	this.actionName = "CREATE";
+	this.entityName = "EVENTVALIDATION";
+	this.entityId = null;
+	this.href = "/eventvalidation";
+	return this;
+}
+public CommandWrapperBuilder deleteEventValidation(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "EVENTVALIDATION";
+	this.entityId = id;
+	this.href = "/eventvalidation";
+	return this;
+}
+public CommandWrapperBuilder editGrn(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "GRN";
+	this.entityId = id;
+	this.href = "itemdetails/editgrn";
+	return this;
+}
+
+
 }
 
 

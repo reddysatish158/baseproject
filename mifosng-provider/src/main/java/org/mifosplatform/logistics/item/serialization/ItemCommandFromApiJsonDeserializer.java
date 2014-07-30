@@ -25,7 +25,7 @@ import com.google.gson.reflect.TypeToken;
 public class ItemCommandFromApiJsonDeserializer {
 	 
 	
-	 	Set<String> supportedParameters = new HashSet<String>(Arrays.asList("itemCode","itemDescription","units","chargeCode","locale","unitPrice","warranty","itemClass"));
+	 	Set<String> supportedParameters = new HashSet<String>(Arrays.asList("itemCode","itemDescription","units","chargeCode","locale","unitPrice","warranty","itemClass","reorderLevel"));
 	    private final FromJsonHelper fromApiJsonHelper;
 
 	    @Autowired
