@@ -112,7 +112,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	  	if(detailsData.getEventName().equalsIgnoreCase(EventActionConstants.EVENT_CREATE_TICKET)){
 				        	  		if(!user.getEmail().isEmpty()){
 				        	  			BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription(), "", user.getEmail(), user.getEmail(),
-											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E',null);
 				        	  			this.messageDataRepository.save(billingMessage);
 				        	  		}else{
 				        	  			if(actionProcedureData.getEmailId().isEmpty()){
@@ -121,7 +121,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					        	  		
 				        	  			}else{
 				        	  				BillingMessage billingMessage = new BillingMessage("CREATE TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
-											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E',null);
 				        	  				this.messageDataRepository.save(billingMessage);
 				        	  			}
 				        	  		}
@@ -129,7 +129,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	  		
 				        	  		if(!user.getEmail().isEmpty()){
 				        	  			BillingMessage billingMessage = new BillingMessage("ADD COMMENT", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"COMMENT: \t"+data.getLastComment(), "", user.getEmail(), user.getEmail(),
-											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E',null);
 				        	  			this.messageDataRepository.save(billingMessage);
 				        	  		}else{
 				        	  			if(actionProcedureData.getEmailId().isEmpty()){
@@ -138,7 +138,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					        	  		}else{
 					        	  			
 					        	  			BillingMessage billingMessage = new BillingMessage("ADD COMMENT", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"COMMENT: \t"+data.getLastComment(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
-													"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+													"Ticket:"+resourceId, "N", billingMessageTemplate,'E',null);
 						        	  		this.messageDataRepository.save(billingMessage);
 					        	  		}
 				        	  		}
@@ -147,7 +147,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 				        	  		
 				        	  		if(!user.getEmail().isEmpty()){
 				        	  			BillingMessage billingMessage = new BillingMessage("CLOSED TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"RESOLUTION: \t"+ticketMaster.getResolutionDescription(), "", user.getEmail(), user.getEmail(),
-											"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+											"Ticket:"+resourceId, "N", billingMessageTemplate,'E',null);
 				        	  			this.messageDataRepository.save(billingMessage);
 				        	  		}else{
 				        	  			if(actionProcedureData.getEmailId().isEmpty()){
@@ -156,7 +156,7 @@ public class EventActionWritePlatformServiceImpl implements ActiondetailsWritePl
 					        	  		}else{
 					        	  			
 					        	  			BillingMessage billingMessage = new BillingMessage("CLOSED TICKET", data.getProblemDescription()+"\n"+ticketMaster.getDescription()+"\n"+"RESOLUTION: \t"+ticketMaster.getResolutionDescription(), "", actionProcedureData.getEmailId(), actionProcedureData.getEmailId(),
-													"Ticket:"+resourceId, "N", billingMessageTemplate,'E');
+													"Ticket:"+resourceId, "N", billingMessageTemplate,'E',null);
 						        	  		this.messageDataRepository.save(billingMessage);
 					        	  		}
 				        	  		}

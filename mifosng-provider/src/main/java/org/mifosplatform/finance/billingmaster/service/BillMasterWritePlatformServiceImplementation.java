@@ -16,6 +16,10 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
 import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetailsRepository;
+import org.mifosplatform.organisation.message.domain.BillingMessage;
+import org.mifosplatform.organisation.message.domain.BillingMessageTemplate;
+import org.mifosplatform.organisation.message.domain.BillingMessageTemplateRepository;
+import org.mifosplatform.organisation.message.domain.MessageDataRepository;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.service.service.ServiceMasterWritePlatformServiceImpl;
@@ -40,6 +44,8 @@ public class BillMasterWritePlatformServiceImplementation implements
 	    private final BillMasterCommandFromApiJsonDeserializer  apiJsonDeserializer;
 	    private final ClientRepository clientRepository;
 	    private final GroupsDetailsRepository groupsDetailsRepository;
+	    private final MessageDataRepository messageDataRepository;
+	    private final BillingMessageTemplateRepository messageTemplateRepository;
 	    
 	   
 	@Autowired
@@ -47,7 +53,9 @@ public class BillMasterWritePlatformServiceImplementation implements
 				final BillMasterReadPlatformService billMasterReadPlatformService,final BillWritePlatformService billWritePlatformService,
 				final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
 				final BillMasterCommandFromApiJsonDeserializer apiJsonDeserializer,final ClientRepository clientRepository,
-				final GroupsDetailsRepository groupsDetailsRepository) {
+				final GroupsDetailsRepository groupsDetailsRepository,
+				final MessageDataRepository messageDataRepository,
+				final BillingMessageTemplateRepository messageTemplateRepository) {
 
 		    this.context = context;
 			this.billMasterRepository = billMasterRepository;
@@ -57,6 +65,8 @@ public class BillMasterWritePlatformServiceImplementation implements
 			this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 			this.apiJsonDeserializer=apiJsonDeserializer;
 			this.groupsDetailsRepository=groupsDetailsRepository;
+			this.messageDataRepository=messageDataRepository;
+			this.messageTemplateRepository=messageTemplateRepository;
 			
 	}
 	
@@ -116,8 +126,6 @@ public class BillMasterWritePlatformServiceImplementation implements
 	
 		billMaster = this.billMasterRepository.saveAndFlush(billMaster);
 	//	this.billWritePlatformService.ireportPdf(billMaster);
-		
-		
 		//List<BillDetail> billDetail = billWritePlatformService.createBillDetail(financialTransactionsDatas, billMaster);
 		
 		billWritePlatformService.updateBillMaster(listOfBillingDetail, billMaster,previousBal);
@@ -139,5 +147,25 @@ public class BillMasterWritePlatformServiceImplementation implements
 			DataIntegrityViolationException dve) {
 	
 		
+	}
+
+
+	@Override
+	public Long sendBillDetailFilePath(BillMaster billMaster) {
+		
+		context.authenticatedUser();
+		Client client=this.clientRepository.findOne(billMaster.getClientId());
+		String clientEmail=client.getEmail();
+		String filePath=billMaster.getFileName();
+		BillingMessage billingMessage=null;
+		List<BillingMessageTemplate> billingMessageTemplate=this.messageTemplateRepository.findAll();
+		for(BillingMessageTemplate  msgTemplate:billingMessageTemplate){
+			if(msgTemplate.getTemplateDescription().equalsIgnoreCase("Bill_EMAIL"));
+		              
+		    billingMessage=new BillingMessage(msgTemplate.getHeader(),msgTemplate.getBody(),msgTemplate.getFooter(),clientEmail,clientEmail,
+		    		                    msgTemplate.getSubject(),"N",msgTemplate,msgTemplate.getMessageType(),filePath);
+		}
+		this.messageDataRepository.save(billingMessage);
+		return billingMessage.getId();
 	}
 }
