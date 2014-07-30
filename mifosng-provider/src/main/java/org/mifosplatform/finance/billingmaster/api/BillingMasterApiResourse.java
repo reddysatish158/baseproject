@@ -27,6 +27,7 @@ import org.mifosplatform.finance.billingmaster.service.BillMasterReadPlatformSer
 import org.mifosplatform.finance.billingmaster.service.BillMasterWritePlatformService;
 import org.mifosplatform.finance.billingmaster.service.BillWritePlatformService;
 import org.mifosplatform.finance.billingorder.data.BillDetailsData;
+import org.mifosplatform.finance.billingorder.exceptions.BillingOrderNoRecordsFoundException;
 import org.mifosplatform.finance.financialtransaction.data.FinancialTransactionsData;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -135,6 +136,21 @@ public class BillingMasterApiResourse {
 		final List<BillDetailsData> data = this.billMasterReadPlatformService.retrievegetStatementDetails(billId);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.ApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+	}
+	
+	
+	@PUT
+	@Path("/email/{billId}")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String sendBillPathToMsg(@PathParam("billId") final Long billId) {
+			BillMaster billMaster = this.billMasterRepository.findOne(billId);
+			String FileName = billMaster.getFileName();	
+			if(FileName.equalsIgnoreCase("invoice")){
+				String msg="No Generate Pdf file For This Statement";
+				throw new BillingOrderNoRecordsFoundException(msg,billId);}
+		Long msgId=this.billMasterWritePlatformService.sendBillDetailFilePath(billMaster);
+	    return this.toApiJsonSerializer.serialize(CommandProcessingResult.resourceResult(msgId, null));
 	}
 
 }
