@@ -267,7 +267,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 						String messageTo = columndata.get(0).toString();
 						BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
 						BillingMessage billingMessage = new BillingMessage(header, body, footer, messageFrom, messageTo,
-								subject, status, billingMessageTemplate,messgeType);
+								subject, status, billingMessageTemplate,messgeType,null);
 						messageDataRepository.save(billingMessage);
 					}
 
@@ -376,8 +376,9 @@ public class BillingMesssageReadPlatformServiceImpl implements
 			String messageType = rs.getString("messageType");
 			char c = messageType.charAt(0);
 			Long id = new Long(id1);
+			String attachment = rs.getString("attachment");
 			return new BillingMessageDataForProcessing(id, messageto,
-					messagefrom, subject, header, body, footer, c);
+					messagefrom, subject, header, body, footer, c,attachment);
 		}
 	}
 
