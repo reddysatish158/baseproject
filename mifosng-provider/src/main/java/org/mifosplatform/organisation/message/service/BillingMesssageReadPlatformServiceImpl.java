@@ -359,7 +359,8 @@ public class BillingMesssageReadPlatformServiceImpl implements
 		public String schema() {
 
 			return "md.id as id,md.message_to as messageto,md.message_from as messagefrom,md.subject as subject,md.header as header,"
-					+ "md.body as body,md.footer as footer,md.message_type as messageType from b_message_data md where md.status='N' ";
+					+ "md.body as body,md.footer as footer,md.message_type as messageType,md.attachment as attachment from" +
+					" b_message_data md where md.status='N' ";
 		}
 
 		@Override
@@ -374,10 +375,10 @@ public class BillingMesssageReadPlatformServiceImpl implements
 			String body = rs.getString("body");
 			String footer = rs.getString("footer");
 			String messageType = rs.getString("messageType");
+			String attachment = rs.getString("attachment"); 
 			char c = messageType.charAt(0);
 			Long id = new Long(id1);
-			return new BillingMessageDataForProcessing(id, messageto,
-					messagefrom, subject, header, body, footer, c);
+			return new BillingMessageDataForProcessing(id, messageto,messagefrom, subject, header, body, footer, c, attachment);
 		}
 	}
 

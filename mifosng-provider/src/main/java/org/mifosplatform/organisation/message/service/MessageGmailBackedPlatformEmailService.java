@@ -103,6 +103,7 @@ import java.util.Properties;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -134,44 +135,29 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 	
 	private final MessageDataRepository messageDataRepository;
 	private final GlobalConfigurationRepository repository;
-	private String mailId;
+	private String authuser;
 	private String encodedPassword;
-	private String decodePassword;
+	private String authpwd;
 	private String hostName;
 	private int portNumber;
 	@Autowired
-	public MessageGmailBackedPlatformEmailService(
-			MessageDataRepository messageDataRepository,
-			final GlobalConfigurationRepository repository) {
+	public MessageGmailBackedPlatformEmailService(MessageDataRepository messageDataRepository,final GlobalConfigurationRepository repository) {
 
 		this.messageDataRepository = messageDataRepository;
 		this.repository=repository;
-
+		SmtpDataProcessing();
 	}
-
-	@Override
-	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
+	
+	public void SmtpDataProcessing(){
 		
-		Email email = new SimpleEmail();
-
-/*
-		String authuserName ="info@hugotechnologies.com";
-
-		String authuser ="kiran@hugotechnologies.com";
-		String authpwd = "kirankiran";
-*/
-	/*	String authuserName ="billing@clear-tv.com";// "info@hugotechnologies.com";
-
-		String authuser ="billing@clear-tv.com";// "kiran@hugotechnologies.com";
-		String authpwd = "BrownTablet123";*/
 		GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
         String value= configuration.getValue();
-       
+      
         try {
 			JSONObject object =new JSONObject(value);
-			mailId=(String) object.get("mailId");
+			authuser=(String) object.get("mailId");
 			encodedPassword=(String) object.get("password");
-			decodePassword=new String(Base64.decodeBase64(encodedPassword));
+			authpwd=new String(Base64.decodeBase64(encodedPassword));
 			hostName=(String) object.get("hostName");
 			String port=object.getString("port");
 			if(port.isEmpty()){
@@ -182,43 +168,77 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		String authuserName = mailId;
-		String authuser = mailId;
-		String authpwd = decodePassword;
-		// Very Important, Don't use email.setAuthentication()
-		email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
-		email.setDebug(false); // true if you want to debug
-		email.setHostName(hostName);
-		try {
-			email.getMailSession().getProperties()
-					.put("mail.smtp.starttls.enable", "true");
-			email.setFrom(authuserName, authuser);
-			email.setSmtpPort(portNumber);
-			StringBuilder subjectBuilder = new StringBuilder().append(" ")
-					.append(emailDetail.getSubject()).append("  ");
+	}
+		
 
-			email.setSubject(subjectBuilder.toString());
+	@Override
+	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
+				
+		 //1) get the session object      
+	     Properties properties = System.getProperties();  
+	     properties.setProperty("mail.smtp.host", hostName);   
+	     properties.put("mail.smtp.auth", "true");    
 
-			String sendToEmail = emailDetail.getMessageTo();
-			 StringBuilder messageBuilder = new StringBuilder()
+	     Session session = Session.getDefaultInstance(properties,   
+	             new javax.mail.Authenticator() {   
+	         protected PasswordAuthentication getPasswordAuthentication() {   
+	             return new PasswordAuthentication(authuser,authpwd);    }   });       
+
+	     //2) compose message      
+	     try{
+	    	 Date date=new Date();
+			 String dateTime=date.getHours()+""+date.getMinutes();
+		     String fileName="Statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
+	    	 
+	    	 MimeMessage message = new MimeMessage(session);    
+	         message.setFrom(new InternetAddress(authuser));     
+	         message.addRecipient(Message.RecipientType.TO,new InternetAddress(emailDetail.getMessageTo()));    
+	         message.setSubject(emailDetail.getSubject());     
+	         
+	         StringBuilder messageBuilder = new StringBuilder()
 		     .append(emailDetail.getHeader()+'\n')   
 		     .append(emailDetail.getBody()+'\n')
 		     .append(emailDetail.getFooter());
-			email.addTo(sendToEmail, emailDetail.getMessageFrom());
-			// email.setHtmlMsg("<html>"+messageBuilder.toString()+"</html>");
-			email.setMsg(messageBuilder.toString());
-			email.send();
-			BillingMessage billingMessage = this.messageDataRepository
-					.findOne(emailDetail.getId());
+
+	         //3) create MimeBodyPart object and set your message text        
+	         BodyPart messageBodyPart1 = new MimeBodyPart();     
+	         messageBodyPart1.setText(messageBuilder.toString());      
+	       
+
+	         //4) create new MimeBodyPart object and set DataHandler object to this object        
+	         MimeBodyPart messageBodyPart2 = new MimeBodyPart();      
+	         String filename = emailDetail.getAttachment();//change accordingly     
+	         DataSource source = new FileDataSource(filename);    
+	         messageBodyPart2.setDataHandler(new DataHandler(source));    
+	         messageBodyPart2.setFileName(fileName);             
+
+	         //5) create Multipart object and add MimeBodyPart objects to this object        
+	         Multipart multipart = new MimeMultipart();    
+	         multipart.addBodyPart(messageBodyPart1);  
+	         if(!emailDetail.getAttachment().isEmpty()){
+	        	 multipart.addBodyPart(messageBodyPart2);    
+	         }
+	           
+	         //6) set the multiplart object to the message object    
+	         message.setContent(multipart );        
+
+	         //7) send message    
+	         Transport.send(message);      
+	         System.out.println("message sent....");   
+			BillingMessage billingMessage = this.messageDataRepository.findOne(emailDetail.getId());
 			if (billingMessage.getStatus().contentEquals("N")) {
 				billingMessage.updateStatus();
 			}
 			this.messageDataRepository.save(billingMessage);
-            return "success";
-		} catch (Exception e) {
-			handleCodeDataIntegrityIssues(null, e);
-			return e.getMessage();
-		}
+			return "success";
+			
+	     }catch(Exception e){
+	    	 handleCodeDataIntegrityIssues(null, e);
+		     return e.getMessage();
+	     }
+	        
+            
+		
 	}
 
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
@@ -284,20 +304,19 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 		
 		 Date date=new Date();
 		 String dateTime=date.getHours()+""+date.getMinutes();
-	     String fileLocation="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
-		final String username = "billing@clear-tv.com";//"kiran@hugotechnologies.com";
-		final String password = "BrownTablet123";//"kirankiran";
+	     String fileName="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
+	
 
 		    Properties props = new Properties();
 
 		    props.put("mail.smtp.auth", "true");
 		    props.put("mail.smtp.starttls.enable", "true");
-		    props.put("mail.smtp.host", "smtp.gmail.com");
-		    props.put("mail.smtp.port", "587");
+		    props.put("mail.smtp.host", hostName);
+		    props.put("mail.smtp.port", portNumber);
 
 		    Session session = Session.getInstance(props,new javax.mail.Authenticator() {
 		      protected PasswordAuthentication getPasswordAuthentication() {
-		        return new PasswordAuthentication(username, password);
+		        return new PasswordAuthentication(authuser, authpwd);
 		      }
 		      });
 
@@ -307,17 +326,13 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 		      message.setFrom(new InternetAddress(emailId));
 		      message.setRecipients(Message.RecipientType.TO,
 		        InternetAddress.parse(emailId));
-		      message.setSubject("hello, For Testing");
-				message.setText("Dear Mail Crawler,"
-						+ "\n\n No spam to my email, please!");
+		      message.setSubject("ReportEmail");
 				
 				MimeBodyPart messageBodyPart = new MimeBodyPart();
 
 		        Multipart multipart = new MimeMultipart();
-
-		        messageBodyPart = new MimeBodyPart();
+		  
 		        String file = pdfFileName;
-		        String fileName = fileLocation;
 		        DataSource source = new FileDataSource(file);
 		        messageBodyPart.setDataHandler(new DataHandler(source));
 		        messageBodyPart.setFileName(fileName);
@@ -342,9 +357,9 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 		       
 		        try {
 					JSONObject object =new JSONObject(value);
-					mailId=(String) object.get("mailId");
+					authuser=(String) object.get("mailId");
 					encodedPassword=(String) object.get("password");
-					decodePassword=new String(Base64.decodeBase64(encodedPassword));
+					authpwd=new String(Base64.decodeBase64(encodedPassword));
 					hostName=(String) object.get("hostName");
 					String port=object.getString("port");
 					if(port.isEmpty()){
@@ -355,9 +370,6 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-				String authuserName = mailId;
-				String authuser = mailId;
-				String authpwd = decodePassword;
 				// Very Important, Don't use email.setAuthentication()
 				email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
 				email.setDebug(false); // true if you want to debug
@@ -365,7 +377,7 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 				try {
 					email.getMailSession().getProperties()
 							.put("mail.smtp.starttls.enable", "true");
-					email.setFrom(authuserName, authuser);
+					email.setFrom(authuser, authuser);
 					email.setSmtpPort(portNumber);
 					StringBuilder subjectBuilder = new StringBuilder().append(" ")
 							.append("OBS App Crash Exception").append("  ");
