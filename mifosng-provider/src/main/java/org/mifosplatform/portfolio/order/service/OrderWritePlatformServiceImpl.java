@@ -374,6 +374,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		} else if (durationType.equalsIgnoreCase("week(s)")) {
 			
 			 contractEndDate = startDate.plusWeeks(duration.intValue()).minusDays(1);
+		} else if(durationType.equalsIgnoreCase("None")) {
+			contractEndDate = null;
 		}
  
 		return contractEndDate;
@@ -677,7 +679,8 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 		  }
 		  
 		  final LocalDate startDate=new LocalDate();
-		  List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
+		 // List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
+		  List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyOrder(orderId);
 		  Contract contractPeriod=this.subscriptionRepository.findOne(subscriptionDatas.get(0).getId());
 		  LocalDate EndDate=calculateEndDate(startDate,contractPeriod.getSubscriptionType(),contractPeriod.getUnits());
 		   order.setStartDate(startDate);
@@ -723,7 +726,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 			
 			if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
 				
-				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.ACTIVATION.toString(),
+				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(), requstStatus,
 						processingResult.resourceId(),null,null);
 			}
 			
