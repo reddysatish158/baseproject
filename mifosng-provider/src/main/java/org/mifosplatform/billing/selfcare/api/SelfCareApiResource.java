@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -19,6 +20,7 @@ import org.mifosplatform.billing.selfcare.data.SelfCareData;
 import org.mifosplatform.billing.selfcare.domain.SelfCare;
 import org.mifosplatform.billing.selfcare.service.SelfCareReadPlatformService;
 import org.mifosplatform.billing.selfcare.service.SelfCareRepository;
+import org.mifosplatform.billing.selfcare.service.SelfCareWritePlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -52,6 +54,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 
+import com.sun.jersey.multipart.FormDataParam;
+
 @Path("selfcare")
 @Component
 @Scope("singleton")
@@ -77,7 +81,7 @@ public class SelfCareApiResource {
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
 	private final GlobalConfigurationRepository configurationRepository;
 	private final SelfCareRepository selfCareRepository;
-	
+	private final SelfCareWritePlatformService selfCareWritePlatformService;
 	@Autowired
 	public SelfCareApiResource(final PlatformSecurityContext context,final SelfCareRepository selfCareRepository,
 			final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
@@ -87,7 +91,8 @@ public class SelfCareApiResource {
 			final ClientBalanceReadPlatformService balanceReadPlatformService, final ClientReadPlatformService clientReadPlatformService, 
 			final OrderReadPlatformService  orderReadPlatformService, final BillMasterReadPlatformService billMasterReadPlatformService,
 			final TicketMasterReadPlatformService ticketMasterReadPlatformService, 
-			final GlobalConfigurationRepository configurationRepository) {
+			final GlobalConfigurationRepository configurationRepository,
+			final SelfCareWritePlatformService selfCareWritePlatformService) {
 		
 				this.context = context;
 				this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
@@ -103,6 +108,7 @@ public class SelfCareApiResource {
 				this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
 				this.configurationRepository=configurationRepository;
 				this.selfCareRepository=selfCareRepository;
+				this.selfCareWritePlatformService=selfCareWritePlatformService;
 	}
 	
 	
@@ -128,8 +134,7 @@ public class SelfCareApiResource {
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);	 
 	    return this.toApiJsonSerializerForItem.serialize(result);	
 	}	
-    
-	
+   
 	
 	@Path("/login")
 	@POST
@@ -194,7 +199,18 @@ public class SelfCareApiResource {
 
         return this.toApiJsonSerializerForItem.serialize(result);
     }
-
+    
+    @PUT
+    @Path("resetpassword")
+    @Consumes({ MediaType.APPLICATION_JSON})
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String updateSelfCareUDPassword(@QueryParam("password") final String password, @QueryParam("email") final String email){
+    	 	SelfCareData careData = new SelfCareData(email,password);
+            Long clientId=this.selfCareWritePlatformService.updateSelfCareUDPassword(careData);
+			return this.toApiJsonSerializerForItem.serialize(CommandProcessingResult.resourceResult(clientId, null));
+    	    	
+    	
+    }
 
 
 	

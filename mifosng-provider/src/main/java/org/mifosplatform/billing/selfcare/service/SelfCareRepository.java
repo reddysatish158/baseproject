@@ -10,5 +10,8 @@ public interface SelfCareRepository extends JpaRepository<SelfCare, Long>, JpaSp
 
 	@Query("from SelfCare selfCare where selfCare.clientId =:clientId")
 	SelfCare findOneByClientId(@Param("clientId")Long clientId);
+	
+	@Query("from SelfCare selfCare where selfCare.uniqueReference =:email")
+	SelfCare findOneByEmail(@Param("email")String email);
 
 }
