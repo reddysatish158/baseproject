@@ -378,7 +378,8 @@ public class BillingMesssageReadPlatformServiceImpl implements
 			Long id = new Long(id1);
 			String attachment = rs.getString("attachment");
 			return new BillingMessageDataForProcessing(id, messageto,
-					messagefrom, subject, header, body, footer, c,attachment);
+					messagefrom, subject, header, body, footer, c, attachment);
+
 		}
 	}
 

@@ -14,12 +14,14 @@ public class BillingMessageDataForProcessing {
 	private final String footer;
 	private final Long id;
 	private char messageType;
-	private String attachment;
+	private final String attachment;
+
 	
 	
 	public BillingMessageDataForProcessing(Long id, String messageto,
 			String messagefrom, String subject, String header, String body,
-			String footer,char messageType,String attachment  ) {
+			String footer,char messageType,String attachment) {
+
 		// TODO Auto-generated constructor stub
 		this.id=id;
 		this.messageFrom=messagefrom;
@@ -31,10 +33,6 @@ public class BillingMessageDataForProcessing {
 		this.messageType=messageType;
 		this.attachment=attachment;
 		
-	}
-	
-	public String getAttachment() {
-		return attachment;
 	}
 
 	public String getMessageTo() {
@@ -68,7 +66,9 @@ public class BillingMessageDataForProcessing {
 	public char getMessageType() {
 		return messageType;
 	}
-	
+	public String getAttachment() {
+		return attachment;
+	}
 
 	
 	
