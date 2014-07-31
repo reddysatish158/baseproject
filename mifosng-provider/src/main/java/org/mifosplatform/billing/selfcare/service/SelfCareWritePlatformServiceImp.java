@@ -2,6 +2,7 @@ package org.mifosplatform.billing.selfcare.service;
 
 import java.util.Date;
 
+import org.mifosplatform.billing.selfcare.data.SelfCareData;
 import org.mifosplatform.billing.selfcare.domain.SelfCare;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
@@ -87,6 +88,8 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
 	}
 	
+	
+	
 	@Override
 	public CommandProcessingResult createSelfCareUDPassword(JsonCommand command) {
 		SelfCare selfCare = null;
@@ -118,7 +121,16 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		
 		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
 	}
-    
+	public Long updateSelfCareUDPassword(SelfCareData careData) {
+		   context.authenticatedUser();
+		   SelfCare selfCare = this.selfCareRepository.findOneByEmail(careData.getEmail());
+		   if(selfCare == null){
+			   throw new ClientNotFoundException(careData.getEmail());
+		   }
+		   selfCare.setPassword(careData.getPassword());
+		   this.selfCareRepository.save(selfCare);
+		return selfCare.getClientId();
+	}
    
 	
 	
@@ -161,5 +173,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 
 		
 	}
+
+	
 	
 }

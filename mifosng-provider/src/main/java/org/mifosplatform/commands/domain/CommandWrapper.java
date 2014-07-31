@@ -781,7 +781,7 @@ public class CommandWrapper {
 		public boolean isSelfCare() {
 			return this.entityName.equalsIgnoreCase("SELFCARE") && this.actionName.equalsIgnoreCase("CREATE");
 		}
-
+		
 		public boolean isDeleteRegion() {
 			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("REGION");
 		}
