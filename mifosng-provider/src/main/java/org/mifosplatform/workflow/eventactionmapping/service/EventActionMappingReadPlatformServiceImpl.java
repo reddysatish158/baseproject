@@ -51,6 +51,11 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 				 " em.process as process,em.is_deleted as isDeleted from b_eventaction_mapping em order by em.is_deleted";
 
 		}
+		
+		public String schemaForSingle() {
+			return " em.id as id, em.event_name as eventName, em.action_name as actionName,em.process as process," +
+					" em.is_deleted as isDeleted from b_eventaction_mapping em ";
+		}
 	
 
 		@Override
@@ -107,7 +112,7 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 			context.authenticatedUser();
 			EventActionMapper mapper = new EventActionMapper();
 
-			String sql = "select " + mapper.schema()+" where em.id=?";
+			String sql = "select " + mapper.schemaForSingle()+" where em.id=?";
 			
 			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { discountId });
 		}catch(EmptyResultDataAccessException accessException){
