@@ -100,7 +100,7 @@ public class ClientsApiResource {
         clientData = this.clientReadPlatformService.retrieveAllClosureReasons(ClientApiConstants.CLIENT_CLOSURE_REASON);
         }
         GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName("LOGIN");
-        clientData.setConfigurationPropertyForIos(configurationProperty);
+        clientData.setConfigurationProperty(configurationProperty);
         clientData=handleAddressTemplateData(clientData);
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);
