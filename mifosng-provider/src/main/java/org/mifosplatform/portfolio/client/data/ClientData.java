@@ -71,6 +71,7 @@ final public class ClientData implements Comparable<ClientData> {
 	private AddressData addressTemplateData;
     private final List<String> hardwareDetails;
     private GlobalConfigurationProperty configurationProperty;
+    private GlobalConfigurationProperty configurationPropertyforIos;
 	private  final String currency;
 	 private final Collection<CodeValueData> closureReasons;
 	 private final boolean balanceCheck;
@@ -278,6 +279,9 @@ final public class ClientData implements Comparable<ClientData> {
 
 	public void setConfigurationProperty(GlobalConfigurationProperty configurationProperty) {
 		this.configurationProperty = configurationProperty;
+	}
+	public void setConfigurationPropertyForIos(GlobalConfigurationProperty configurationPropertyforIos) {
+		this.configurationPropertyforIos = configurationPropertyforIos;
 	}
 	
 	

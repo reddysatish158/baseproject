@@ -100,7 +100,7 @@ public class ClientsApiResource {
         clientData = this.clientReadPlatformService.retrieveAllClosureReasons(ClientApiConstants.CLIENT_CLOSURE_REASON);
         }
         GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName("LOGIN");
-        clientData.setConfigurationProperty(configurationProperty);
+        clientData.setConfigurationPropertyForIos(configurationProperty);
         clientData=handleAddressTemplateData(clientData);
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);
@@ -162,6 +162,8 @@ public class ClientsApiResource {
         
         GlobalConfigurationProperty paypalconfigurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
         clientData.setConfigurationProperty(paypalconfigurationProperty);
+        GlobalConfigurationProperty paypalconfigurationPropertyForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
+        clientData.setConfigurationPropertyForIos(paypalconfigurationPropertyForIos);
         
         return this.toApiJsonSerializer.serialize(settings, clientData, ClientApiConstants.CLIENT_RESPONSE_DATA_PARAMETERS);
     }

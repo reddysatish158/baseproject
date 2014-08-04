@@ -82,6 +82,8 @@ public class MediaDeviceApiResource {
 			
 			 GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
 			 datas.setPaypalConfigData(paypalConfigData);
+			 GlobalConfigurationProperty paypalConfigDataForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
+			 datas.setPaypalConfigDataForIos(paypalConfigDataForIos);
 			 GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			 datas.setBalanceCheck(configurationProperty.isEnabled());
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -157,11 +159,23 @@ public class MediaDeviceApiResource {
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}
-			GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
-			datas.setPaypalConfigData(paypalConfigData);
+			GlobalConfigurationProperty paypalConfigDataForAndroid=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+			datas.setPaypalConfigData(paypalConfigDataForAndroid);
+			GlobalConfigurationProperty paypalConfigDataForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
 			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			datas.setBalanceCheck(configurationProperty.isEnabled());
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializer.serialize(settings,datas, RESPONSE_DATA_PARAMETERS);
+		}
+		
+		@PUT
+		@Path("client/{clientId}")
+		@Consumes({MediaType.APPLICATION_JSON})
+		@Produces({MediaType.APPLICATION_JSON})
+		public String updateCrashDetails(@PathParam("clientId") final Long clientId,final String apiRequestBodyAsJson){
+			 final CommandWrapper commandRequest = new CommandWrapperBuilder().updateMediaCrashDetails(clientId).withJson(apiRequestBodyAsJson).build();
+			 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+			  return this.toApiJsonSerializer.serialize(result);
+
 		}
 }

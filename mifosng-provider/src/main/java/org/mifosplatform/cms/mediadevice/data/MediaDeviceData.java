@@ -17,6 +17,7 @@ public class MediaDeviceData {
 	private List<MediaDeviceData> data;
 	private GlobalConfigurationProperty paypalConfigData;
     private String currency;
+	private GlobalConfigurationProperty paypalConfigDataForIos;
 	
 	
 	public MediaDeviceData(Long deviceId, Long clientId, String clientType, Long clientTypeId, BigDecimal balanceAmount, String currency) {
@@ -86,6 +87,11 @@ public class MediaDeviceData {
 	}
 	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
 		this.paypalConfigData = paypalConfigData;
+	}
+	public void setPaypalConfigDataForIos(GlobalConfigurationProperty paypalConfigDataForIos) {
+		this.paypalConfigDataForIos =paypalConfigDataForIos;
+		
+		
 	}
 	
 }
