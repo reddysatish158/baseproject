@@ -813,8 +813,13 @@ public class SynchronousCommandProcessingService implements
 			}else if(wrapper.isSelfCareUDP()){
 		    	   if(wrapper.isCreateSelfCareUDP()){
 		    		   handler = applicationContext.getBean("createSelfCareUDPCommandHandler",NewCommandSourceHandler.class);
-		    	   } 
-			}else if(wrapper.isDiscountResource()){
+		    	   } else if(wrapper.isUpdateSelfCareUDP()){
+		    		       handler= applicationContext.getBean("updateSelfcareUDPCommandHandler", NewCommandSourceHandler.class);
+		    	   } else if(wrapper.isForgotSelfCareUDP()){
+		 		       handler= applicationContext.getBean("forgotSelfcareUDPCommandHandler", NewCommandSourceHandler.class);
+		     	   }
+			}
+			else if(wrapper.isDiscountResource()){
 		           		 if(wrapper.isCreateDiscount()) {
 				        		handler = applicationContext.getBean("createDiscountCommandHandler",NewCommandSourceHandler.class);
 						   } else if(wrapper.isUpdateDiscount()) {
@@ -953,6 +958,8 @@ public class SynchronousCommandProcessingService implements
 			   }else if(wrapper.isMediaDeviceDetails()){
 				   if(wrapper.isUpdateOperation()) {
 				         handler = applicationContext.getBean("updateMediaDeviceDetailsCommandHandler",NewCommandSourceHandler.class);
+				   }else if(wrapper.isUpdateMediaDeviceCrash()) {
+				         handler = applicationContext.getBean("updateMediaDeviceCrashDetailsCommandHandler",NewCommandSourceHandler.class);
 				   }else {
 				           throw new UnsupportedCommandException(wrapper.commandName());
 				   }

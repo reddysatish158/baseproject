@@ -17,5 +17,7 @@ public interface SelfCareWritePlatformService {
 
 	CommandProcessingResult updateClientStatus(JsonCommand command,Long entityId);
 
-	public Long updateSelfCareUDPassword(SelfCareData careData);
+	CommandProcessingResult updateSelfCareUDPassword(JsonCommand command);
+
+    CommandProcessingResult forgotSelfCareUDPassword(JsonCommand command);
 }

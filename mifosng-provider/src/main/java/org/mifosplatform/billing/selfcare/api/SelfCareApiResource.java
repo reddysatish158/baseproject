@@ -175,6 +175,8 @@ public class SelfCareApiResource {
         //adding Is_paypal Global Data by Ashok
         GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
         careData.setPaypalConfigData(paypalConfigData);
+        GlobalConfigurationProperty paypalConfigDataForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
+        careData.setPaypalConfigData(paypalConfigDataForIos);
         
         }catch(EmptyResultDataAccessException e){
         	throw new PlatformDataIntegrityException("result.set.is.null","result.set.is.null","result.set.is.null");
@@ -204,13 +206,37 @@ public class SelfCareApiResource {
     @Path("resetpassword")
     @Consumes({ MediaType.APPLICATION_JSON})
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String updateSelfCareUDPassword(@QueryParam("password") final String password, @QueryParam("email") final String email){
-    	 	SelfCareData careData = new SelfCareData(email,password);
+	public String updateSelfCareUDPassword(final String apiRequestBodyAsJson){
+    	
+    	final CommandWrapper commandRequest = new CommandWrapperBuilder() //
+        .updateSelfCareUDPassword() //
+        .withJson(apiRequestBodyAsJson) //
+        .build(); //
+
+    	final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+    	return this.toApiJsonSerializerForItem.serialize(result);
+    	 /*	SelfCareData careData = new SelfCareData(email,password);
             Long clientId=this.selfCareWritePlatformService.updateSelfCareUDPassword(careData);
-			return this.toApiJsonSerializerForItem.serialize(CommandProcessingResult.resourceResult(clientId, null));
-    	    	
+			return this.toApiJsonSerializerForItem.serialize(CommandProcessingResult.resourceResult(clientId, null));*/
+        	
     	
     }
+    @Path("/forgotpassword")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+    public String forgotSelfCareUDPassword(final String apiRequestBodyAsJson){
+    	final CommandWrapper commandRequest = new CommandWrapperBuilder() //
+        .forgetSelfCareUDPassword() //
+        .withJson(apiRequestBodyAsJson) //
+        .build(); //
+    	final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		return this.toApiJsonSerializerForItem.serialize(result);
+
+    	
+    }
+    
 
 
 	

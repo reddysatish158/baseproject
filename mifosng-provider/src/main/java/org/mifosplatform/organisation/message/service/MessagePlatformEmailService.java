@@ -17,8 +17,7 @@ public interface MessagePlatformEmailService {
 
 	String createEmail(String pdfFileName, String emailId);
 
-	String sendMediaDeviceCrashEmailSending(String emailId,String crashReportString);
+	String sendGeneralMessage(String emailId,String body,String subject);
 	
 	
-
 }

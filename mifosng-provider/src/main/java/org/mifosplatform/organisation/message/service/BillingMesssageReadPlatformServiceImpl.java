@@ -267,7 +267,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 						String messageTo = columndata.get(0).toString();
 						BillingMessageTemplate billingMessageTemplate = messageTemplateRepository.findOne(messageId);
 						BillingMessage billingMessage = new BillingMessage(header, body, footer, messageFrom, messageTo,
-								subject, status, billingMessageTemplate,messgeType);
+								subject, status, billingMessageTemplate,messgeType,null);
 						messageDataRepository.save(billingMessage);
 					}
 
@@ -379,6 +379,7 @@ public class BillingMesssageReadPlatformServiceImpl implements
 			String attachment = rs.getString("attachment");
 			return new BillingMessageDataForProcessing(id, messageto,
 					messagefrom, subject, header, body, footer, c, attachment);
+
 		}
 	}
 

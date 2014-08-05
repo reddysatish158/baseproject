@@ -124,6 +124,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
+import org.mifosplatform.infrastructure.configuration.exception.GlobalConfigurationPropertyNotFoundException;
 import org.mifosplatform.organisation.message.data.BillingMessageDataForProcessing;
 import org.mifosplatform.organisation.message.domain.BillingMessage;
 import org.mifosplatform.organisation.message.domain.MessageDataRepository;
@@ -140,6 +141,8 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 	private String authpwd;
 	private String hostName;
 	private int portNumber;
+	private GlobalConfigurationProperty configuration;
+	
 	@Autowired
 	public MessageGmailBackedPlatformEmailService(MessageDataRepository messageDataRepository,final GlobalConfigurationRepository repository) {
 
@@ -150,93 +153,119 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 	
 	public void SmtpDataProcessing(){
 		
-		GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
-        String value= configuration.getValue();
-      
-        try {
-			JSONObject object =new JSONObject(value);
-			authuser=(String) object.get("mailId");
-			encodedPassword=(String) object.get("password");
-			authpwd=new String(Base64.decodeBase64(encodedPassword));
-			hostName=(String) object.get("hostName");
-			String port=object.getString("port");
-			if(port.isEmpty()){
-				portNumber=Integer.parseInt("25");
-			}else{
-				portNumber=Integer.parseInt(port);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
+		configuration=repository.findOneByName("SMTP");
+		
+		if(configuration != null){
+			
+			 String value= configuration.getValue();
+		      
+		        try {
+					JSONObject object =new JSONObject(value);
+					authuser=(String) object.get("mailId");
+					encodedPassword=(String) object.get("password");
+					authpwd=new String(Base64.decodeBase64(encodedPassword));
+					hostName=(String) object.get("hostName");
+					String port=object.getString("port");
+					if(port.isEmpty()){
+						portNumber=Integer.parseInt("25");
+					}else{
+						portNumber=Integer.parseInt(port);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+		}
+       
+	}
+	
+	public String rechecking(){
+		configuration = null;
+		SmtpDataProcessing();
+		if(configuration != null){
+			return "success";
+		}else{
+			return "failure";
 		}
 	}
-		
 
 	@Override
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 				
-		 //1) get the session object      
-	     Properties properties = System.getProperties();  
-	     properties.setProperty("mail.smtp.host", hostName);   
-	     properties.put("mail.smtp.auth", "true");    
-
-	     Session session = Session.getDefaultInstance(properties,   
-	             new javax.mail.Authenticator() {   
-	         protected PasswordAuthentication getPasswordAuthentication() {   
-	             return new PasswordAuthentication(authuser,authpwd);    }   });       
-
-	     //2) compose message      
-	     try{
-	    	 Date date=new Date();
-			 String dateTime=date.getHours()+""+date.getMinutes();
-		     String fileName="Statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
-	    	 
-	    	 MimeMessage message = new MimeMessage(session);    
-	         message.setFrom(new InternetAddress(authuser));     
-	         message.addRecipient(Message.RecipientType.TO,new InternetAddress(emailDetail.getMessageTo()));    
-	         message.setSubject(emailDetail.getSubject());     
-	         
-	         StringBuilder messageBuilder = new StringBuilder()
-		     .append(emailDetail.getHeader()+'\n')   
-		     .append(emailDetail.getBody()+'\n')
-		     .append(emailDetail.getFooter());
-
-	         //3) create MimeBodyPart object and set your message text        
-	         BodyPart messageBodyPart1 = new MimeBodyPart();     
-	         messageBodyPart1.setText(messageBuilder.toString());      
-	       
-
-	         //4) create new MimeBodyPart object and set DataHandler object to this object        
-	         MimeBodyPart messageBodyPart2 = new MimeBodyPart();      
-	         String filename = emailDetail.getAttachment();//change accordingly     
-	         DataSource source = new FileDataSource(filename);    
-	         messageBodyPart2.setDataHandler(new DataHandler(source));    
-	         messageBodyPart2.setFileName(fileName);             
-
-	         //5) create Multipart object and add MimeBodyPart objects to this object        
-	         Multipart multipart = new MimeMultipart();    
-	         multipart.addBodyPart(messageBodyPart1);  
-	         if(!emailDetail.getAttachment().isEmpty()){
-	        	 multipart.addBodyPart(messageBodyPart2);    
-	         }
-	           
-	         //6) set the multiplart object to the message object    
-	         message.setContent(multipart );        
-
-	         //7) send message    
-	         Transport.send(message);      
-	         System.out.println("message sent....");   
-			BillingMessage billingMessage = this.messageDataRepository.findOne(emailDetail.getId());
-			if (billingMessage.getStatus().contentEquals("N")) {
-				billingMessage.updateStatus();
-			}
-			this.messageDataRepository.save(billingMessage);
-			return "success";
+		if(configuration != null){
 			
-	     }catch(Exception e){
-	    	 handleCodeDataIntegrityIssues(null, e);
-		     return e.getMessage();
-	     }
-	        
+			 //1) get the session object      
+		     Properties properties = System.getProperties();  
+		     properties.setProperty("mail.smtp.host", hostName);   
+		     properties.put("mail.smtp.auth", "true");    
+
+		     Session session = Session.getDefaultInstance(properties,   
+		             new javax.mail.Authenticator() {   
+		         protected PasswordAuthentication getPasswordAuthentication() {   
+		             return new PasswordAuthentication(authuser,authpwd);    }   });       
+
+		     //2) compose message      
+		     try{
+		    	 Date date=new Date();
+				 String dateTime=date.getHours()+""+date.getMinutes();
+			     String fileName="Statement_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
+		    	 
+		    	 MimeMessage message = new MimeMessage(session);    
+		         message.setFrom(new InternetAddress(authuser));     
+		         message.addRecipient(Message.RecipientType.TO,new InternetAddress(emailDetail.getMessageTo()));    
+		         message.setSubject(emailDetail.getSubject());     
+		         
+		         StringBuilder messageBuilder = new StringBuilder()
+			     .append(emailDetail.getHeader()+'\n')   
+			     .append(emailDetail.getBody()+'\n')
+			     .append(emailDetail.getFooter());
+
+		         //3) create MimeBodyPart object and set your message text        
+		         BodyPart messageBodyPart1 = new MimeBodyPart();     
+		         messageBodyPart1.setText(messageBuilder.toString());      
+		       
+
+		         //4) create new MimeBodyPart object and set DataHandler object to this object        
+		         MimeBodyPart messageBodyPart2 = new MimeBodyPart();      
+		         String filename = emailDetail.getAttachment();//change accordingly     
+		         DataSource source = new FileDataSource(filename);    
+		         messageBodyPart2.setDataHandler(new DataHandler(source));    
+		         messageBodyPart2.setFileName(fileName);             
+
+		         //5) create Multipart object and add MimeBodyPart objects to this object        
+		         Multipart multipart = new MimeMultipart();    
+		         multipart.addBodyPart(messageBodyPart1);  
+		         if(!emailDetail.getAttachment().isEmpty()){
+		        	 multipart.addBodyPart(messageBodyPart2);    
+		         }
+		           
+		         //6) set the multiplart object to the message object    
+		         message.setContent(multipart );        
+
+		         //7) send message    
+		         Transport.send(message);      
+		         System.out.println("message sent....");   
+				BillingMessage billingMessage = this.messageDataRepository.findOne(emailDetail.getId());
+				if (billingMessage.getStatus().contentEquals("N")) {
+					billingMessage.updateStatus();
+				}
+				this.messageDataRepository.save(billingMessage);
+				return "success";
+				
+		     }catch(Exception e){
+		    	 handleCodeDataIntegrityIssues(null, e);
+			     return e.getMessage();
+		     }
+		        
+		}else{
+			String result = rechecking();
+			if(result.equalsIgnoreCase("failure")){
+				throw new GlobalConfigurationPropertyNotFoundException("SMTP GlobalConfiguration Property Not Found"); 
+			}else{
+				return sendToUserEmail(emailDetail);
+			}
+			
+		}
+		
             
 		
 	}
@@ -302,98 +331,96 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 	@Override
 	public String createEmail(String pdfFileName, String emailId) {
 		
-		 Date date=new Date();
-		 String dateTime=date.getHours()+""+date.getMinutes();
-	     String fileName="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
-	
-
+		if(configuration != null){
+			
+			Date date=new Date();
+			String dateTime=date.getHours()+""+date.getMinutes();
+		    String fileName="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
 		    Properties props = new Properties();
-
 		    props.put("mail.smtp.auth", "true");
-		    props.put("mail.smtp.starttls.enable", "true");
-		    props.put("mail.smtp.host", hostName);
-		    props.put("mail.smtp.port", portNumber);
+			props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.host", hostName);
+			props.put("mail.smtp.port", portNumber);
 
-		    Session session = Session.getInstance(props,new javax.mail.Authenticator() {
-		      protected PasswordAuthentication getPasswordAuthentication() {
-		        return new PasswordAuthentication(authuser, authpwd);
-		      }
-		      });
+			Session session = Session.getInstance(props,new javax.mail.Authenticator() {
+			      protected PasswordAuthentication getPasswordAuthentication() {
+			        return new PasswordAuthentication(authuser, authpwd);
+			      }
+			});
 
-		    try {
+			try {
 
-		      Message message = new MimeMessage(session);
-		      message.setFrom(new InternetAddress(emailId));
-		      message.setRecipients(Message.RecipientType.TO,
-		        InternetAddress.parse(emailId));
-		      message.setSubject("ReportEmail");
-				
+				Message message = new MimeMessage(session);
+			    message.setFrom(new InternetAddress(emailId));
+			    message.setRecipients(Message.RecipientType.TO,
+			       InternetAddress.parse(emailId));
+			    message.setSubject("ReportEmail");
+					
 				MimeBodyPart messageBodyPart = new MimeBodyPart();
 
-		        Multipart multipart = new MimeMultipart();
-		  
-		        String file = pdfFileName;
-		        DataSource source = new FileDataSource(file);
-		        messageBodyPart.setDataHandler(new DataHandler(source));
-		        messageBodyPart.setFileName(fileName);
-		        multipart.addBodyPart(messageBodyPart);
-		        message.setContent(multipart);
-		        System.out.println("Sending");
+			    Multipart multipart = new MimeMultipart();
+			  
+			    String file = pdfFileName;
+			    DataSource source = new FileDataSource(file);
+			    messageBodyPart.setDataHandler(new DataHandler(source));
+			    messageBodyPart.setFileName(fileName);
+			    multipart.addBodyPart(messageBodyPart);
+			    message.setContent(multipart);
+			    System.out.println("Sending");
 				Transport.send(message);
-		      System.out.println("Done");
-		      return "Success";
+			    System.out.println("Done");
+			    return "Success";
 		    } catch (MessagingException e) {
-		      throw new RuntimeException(e);
-		    }
+			      throw new RuntimeException(e);
+			}
+			
+		}else{
+			String result = rechecking();
+			if(result.equalsIgnoreCase("failure")){
+				throw new GlobalConfigurationPropertyNotFoundException("SMTP GlobalConfiguration Property Not Found"); 
+			}else{
+				return createEmail(pdfFileName,emailId);
+			}
+		}
+		 
 		    
 	}
 
 	@Override
-	public String sendMediaDeviceCrashEmailSending(String emailId, String crashReportString) {
+	public String sendGeneralMessage(String emailId, String body ,String subject) {
 		
-		        Email email = new SimpleEmail();
-				GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
-		        String value= configuration.getValue();
-		       
-		        try {
-					JSONObject object =new JSONObject(value);
-					authuser=(String) object.get("mailId");
-					encodedPassword=(String) object.get("password");
-					authpwd=new String(Base64.decodeBase64(encodedPassword));
-					hostName=(String) object.get("hostName");
-					String port=object.getString("port");
-					if(port.isEmpty()){
-						portNumber=Integer.parseInt("25");
-					}else{
-						portNumber=Integer.parseInt(port);
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+		if(configuration != null){
+		
+			Email email = new SimpleEmail();
 				// Very Important, Don't use email.setAuthentication()
-				email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
-				email.setDebug(false); // true if you want to debug
-				email.setHostName(hostName);
-				try {
-					email.getMailSession().getProperties()
-							.put("mail.smtp.starttls.enable", "true");
-					email.setFrom(authuser, authuser);
-					email.setSmtpPort(portNumber);
-					StringBuilder subjectBuilder = new StringBuilder().append(" ")
-							.append("OBS App Crash Exception").append("  ");
-
-					email.setSubject(subjectBuilder.toString());
-
-					String sendToEmail = emailId;
-					 StringBuilder messageBuilder = new StringBuilder()
-				     .append(crashReportString);
-					email.addTo(sendToEmail, sendToEmail);
-					email.setMsg(messageBuilder.toString());
-					email.send();
-					return "Success";
-				} catch (Exception e) {
-					handleCodeDataIntegrityIssues(null, e);
-					return e.getMessage();
-				}
+			email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
+			email.setDebug(false); // true if you want to debug
+			email.setHostName(hostName);
+		
+			try {
+				String sendToEmail = emailId;
+				StringBuilder messageBuilder = new StringBuilder().append(body);			
+				email.getMailSession().getProperties().put("mail.smtp.starttls.enable", "true");
+				email.setFrom(authuser, authuser);
+				email.setSmtpPort(portNumber);
+				email.setSubject(subject);		
+				email.addTo(sendToEmail, sendToEmail);
+				email.setMsg(messageBuilder.toString());
+				email.send();
+				return "Success";
+			} catch (Exception e) {
+				handleCodeDataIntegrityIssues(null, e);
+				return e.getMessage();
+			}
+			
+		}else{
+			String result = rechecking();
+			if(result.equalsIgnoreCase("failure")){
+				throw new GlobalConfigurationPropertyNotFoundException("SMTP GlobalConfiguration Property Not Found"); 
+			}else{
+				return sendGeneralMessage(emailId,body,subject);
+			}
+		}
+		       
 	}
 }

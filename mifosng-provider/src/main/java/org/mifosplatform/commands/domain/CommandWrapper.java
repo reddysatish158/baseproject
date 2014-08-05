@@ -1019,7 +1019,7 @@ public class CommandWrapper {
 
 		public boolean isMediaDeviceDetails() {
 			
-			return this.entityName.equalsIgnoreCase("MEDIADEVICE") && this.actionName.equalsIgnoreCase("UPDATE");
+			return this.entityName.equalsIgnoreCase("MEDIADEVICE");
 		}
 		
 		public boolean isRedemptionResource() {
@@ -1034,6 +1034,17 @@ public class CommandWrapper {
 
 		public boolean isProvisioningPlanMappingResource() {
 			return this.entityName.equalsIgnoreCase("PROVISIONINGPLANMAPPING");
+		}
+
+		public boolean isUpdateMediaDeviceCrash() {
+			return  this.actionName.equalsIgnoreCase("UPDATECRASH");
+		}
+		public boolean isUpdateSelfCareUDP() {
+	        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("UPDATE");
+	}
+
+		public boolean isForgotSelfCareUDP() {
+			return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("MAIL");
 		}
 
 }

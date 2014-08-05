@@ -42,16 +42,17 @@ public class BillingMessage extends AbstractAuditableCustom<AppUser, Long> {
 	@ManyToOne
     @JoinColumn(name="msgtemplate_id")
     private BillingMessageTemplate billingMessageTemplate;
-
 	
+	@Column(name = "attachment")
+	private String attachment;
 	
 	
 	public BillingMessage(){
 		//default-constructor
 	}
 
-	public BillingMessage(String header,String body,String footer,
-			String messageFrom,String messageTo,String subject,String status, BillingMessageTemplate billingMessageTemplate, char messageType) {
+	public BillingMessage(String header,String body,String footer, String messageFrom,String messageTo,
+			String subject,String status, BillingMessageTemplate billingMessageTemplate, char messageType,String attachment) {
         
 		this.header=header;
 		this.body=body;
@@ -62,6 +63,15 @@ public class BillingMessage extends AbstractAuditableCustom<AppUser, Long> {
 		this.status=status;
 		this.billingMessageTemplate=billingMessageTemplate;
 		this.messageType=messageType;
+		this.attachment=attachment;
+	}
+
+	public char getMessageType() {
+		return messageType;
+	}
+
+	public String getAttachment() {
+		return attachment;
 	}
 
 	public String getMessageTo() {

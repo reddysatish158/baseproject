@@ -2184,5 +2184,27 @@ public CommandWrapperBuilder updateProvisioningPlanMapping(Long planMappingId) {
 	return this;	
 }
 
+public CommandWrapperBuilder updateMediaCrashDetails(Long clientId2) {
+	this.actionName = "UPDATECRASH";
+	this.entityName = "MEDIADEVICE";
+	this.entityId = clientId;
+	this.href = "/mediadevices/client/"+clientId;
+	return this;
+}
+
+public CommandWrapperBuilder updateSelfCareUDPassword() {
+	this.actionName = "UPDATE";
+	this.entityName = "SELFCAREUDP";
+	this.href = "/selfcare/resetpassword";
+	return this;
+}
+
+public CommandWrapperBuilder forgetSelfCareUDPassword() {
+	this.actionName = "MAIL";
+	this.entityName = "SELFCAREUDP";
+	this.href = "/selfcare/forgotpassword";
+	return this;
+}
+
 
 }

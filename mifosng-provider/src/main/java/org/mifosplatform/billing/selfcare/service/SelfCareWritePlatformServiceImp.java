@@ -13,6 +13,9 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.PlatformEmailService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.infrastructure.security.service.RandomPasswordGenerator;
+import org.mifosplatform.organisation.message.service.MessagePlatformEmailService;
+import org.mifosplatform.portfolio.client.domain.Client;
+import org.mifosplatform.portfolio.client.domain.ClientRepository;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.client.exception.ClientStatusException;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
@@ -34,11 +37,17 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	private SelfCareReadPlatformService selfCareReadPlatformService;
 	private PlatformEmailService platformEmailService; 
 	private TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
+	private MessagePlatformEmailService messagePlatformEmailService;
+	private ClientRepository clientRepository;
 	
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(SelfCareWritePlatformServiceImp.class);
 	
 	@Autowired
-	public SelfCareWritePlatformServiceImp(final PlatformSecurityContext context, final SelfCareRepository selfCareRepository, final FromJsonHelper fromJsonHelper, final SelfCareCommandFromApiJsonDeserializer selfCareCommandFromApiJsonDeserializer, final SelfCareReadPlatformService selfCareReadPlatformService, final PlatformEmailService platformEmailService, final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService) {
+	public SelfCareWritePlatformServiceImp(final PlatformSecurityContext context, final SelfCareRepository selfCareRepository, 
+			final FromJsonHelper fromJsonHelper, final SelfCareCommandFromApiJsonDeserializer selfCareCommandFromApiJsonDeserializer, 
+			final SelfCareReadPlatformService selfCareReadPlatformService, final PlatformEmailService platformEmailService, 
+			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final MessagePlatformEmailService messagePlatformEmailService,
+			ClientRepository clientRepository) {
 		this.context = context;
 		this.selfCareRepository = selfCareRepository;
 		this.fromJsonHelper = fromJsonHelper;
@@ -46,6 +55,8 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		this.selfCareReadPlatformService = selfCareReadPlatformService;
 		this.platformEmailService = platformEmailService;
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
+		this.messagePlatformEmailService= messagePlatformEmailService;
+		this.clientRepository=clientRepository;
 	}
 	
 	@Override
@@ -121,20 +132,39 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		
 		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
 	}
-	public Long updateSelfCareUDPassword(SelfCareData careData) {
+	@Override
+	public CommandProcessingResult updateSelfCareUDPassword(JsonCommand command) {
+		   SelfCare selfCare=null;
 		   context.authenticatedUser();
-		   SelfCare selfCare = this.selfCareRepository.findOneByEmail(careData.getEmail());
-		   if(selfCare == null){
-			   throw new ClientNotFoundException(careData.getEmail());
+		   selfCareCommandFromApiJsonDeserializer.validateForUpdateUDPassword(command);
+		   String email=command.stringValueOfParameterNamed("uniqueReference");
+		   String password=command.stringValueOfParameterNamed("password");
+		   selfCare=this.selfCareRepository.findOneByEmail(email);
+		   if(selfCare==null){
+			   throw new ClientNotFoundException(email);
 		   }
-		   selfCare.setPassword(careData.getPassword());
+		   selfCare.setPassword(password);
 		   this.selfCareRepository.save(selfCare);
-		return selfCare.getClientId();
+		   return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
+	}
+	@Override
+	public CommandProcessingResult forgotSelfCareUDPassword(JsonCommand command) {
+		SelfCare selfCare=null;
+		context.authenticatedUser();
+		selfCareCommandFromApiJsonDeserializer.validateForForgotUDPassword(command);
+		String email=command.stringValueOfParameterNamed("uniqueReference");
+		selfCare=this.selfCareRepository.findOneByEmail(email);
+		if(selfCare == null){
+			throw new ClientNotFoundException(email);
+		}
+		String password=selfCare.getPassword();
+		Client client= this.clientRepository.findOne(selfCare.getClientId());
+		String body="Dear "+client.getDisplayName()+","+"\n"+"Your login information is mentioned below."+"\n"+"Email Id : "+email+"\n"+"Password :"+password+"\n"+"Thanks";
+		String subject="Login Information";
+		messagePlatformEmailService.sendGeneralMessage(email, body, subject);
+		return new CommandProcessingResult(selfCare.getClientId());
 	}
    
-	
-	
-	
 	private void handleDataIntegrityIssues(JsonCommand command,DataIntegrityViolationException dve) {
 		 Throwable realCause = dve.getMostSpecificCause();
 		 logger.error(dve.getMessage(), dve);
@@ -174,6 +204,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		
 	}
 
+	
 	
 	
 }
