@@ -223,18 +223,16 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 		         BodyPart messageBodyPart1 = new MimeBodyPart();     
 		         messageBodyPart1.setText(messageBuilder.toString());      
 		       
-
-		         //4) create new MimeBodyPart object and set DataHandler object to this object        
-		         MimeBodyPart messageBodyPart2 = new MimeBodyPart();      
-		         String filename = emailDetail.getAttachment();//change accordingly     
-		         DataSource source = new FileDataSource(filename);    
-		         messageBodyPart2.setDataHandler(new DataHandler(source));    
-		         messageBodyPart2.setFileName(fileName);             
-
 		         //5) create Multipart object and add MimeBodyPart objects to this object        
 		         Multipart multipart = new MimeMultipart();    
 		         multipart.addBodyPart(messageBodyPart1);  
 		         if(!emailDetail.getAttachment().isEmpty()){
+		        	 //4) create new MimeBodyPart object and set DataHandler object to this object        
+			         MimeBodyPart messageBodyPart2 = new MimeBodyPart();      
+			         String filename = emailDetail.getAttachment();//change accordingly     
+			         DataSource source = new FileDataSource(filename);    
+			         messageBodyPart2.setDataHandler(new DataHandler(source));    
+			         messageBodyPart2.setFileName(fileName); 
 		        	 multipart.addBodyPart(messageBodyPart2);    
 		         }
 		           

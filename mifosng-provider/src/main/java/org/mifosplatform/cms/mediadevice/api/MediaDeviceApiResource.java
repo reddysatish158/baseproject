@@ -159,9 +159,8 @@ public class MediaDeviceApiResource {
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}
-			GlobalConfigurationProperty paypalConfigDataForAndroid=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
-			datas.setPaypalConfigData(paypalConfigDataForAndroid);
-			GlobalConfigurationProperty paypalConfigDataForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
+			GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
+			datas.setPaypalConfigData(paypalConfigData);
 			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			datas.setBalanceCheck(configurationProperty.isEnabled());
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());

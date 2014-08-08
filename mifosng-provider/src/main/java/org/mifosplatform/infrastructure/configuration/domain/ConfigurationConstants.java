@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class ConfigurationConstants {
 	
 	public final static String CONFIG_PROPERTY_IMPLICIT_ASSOCIATION="Implicit Association";
@@ -29,5 +30,6 @@ public class ConfigurationConstants {
 	public static final Set<String> CREATE_CONFIGURATION_DATA_PARAMETERS = new HashSet<String>(Arrays.asList(NAME, MAIL,PASSWORD,HOSTNAME,PORT));
 	public final static String CONFIG_PROPERTY_IS_PAYPAL_CHECK="Is_Paypal";
 	public final static String CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS="Is_Paypal_For_Ios";
+	public static final String CONFIG_PROPERTY_IS_ACTIVE_VIEWERS = "Active Viewers";
 	
 }

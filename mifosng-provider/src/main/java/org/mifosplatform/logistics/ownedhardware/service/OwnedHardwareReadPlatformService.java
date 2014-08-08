@@ -16,5 +16,7 @@ public interface OwnedHardwareReadPlatformService {
 	public List<OwnedHardwareData> retriveSingleOwnedHardwareData(Long id);
 
 	public int retrieveClientActiveDevices(Long clientId);
+
+	public int retrieveNoOfActiveUsers(Long clientId);
 	
 }

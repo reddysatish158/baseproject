@@ -2184,7 +2184,7 @@ public CommandWrapperBuilder updateProvisioningPlanMapping(Long planMappingId) {
 	return this;	
 }
 
-public CommandWrapperBuilder updateMediaCrashDetails(Long clientId2) {
+public CommandWrapperBuilder updateMediaCrashDetails(Long clientId) {
 	this.actionName = "UPDATECRASH";
 	this.entityName = "MEDIADEVICE";
 	this.entityId = clientId;

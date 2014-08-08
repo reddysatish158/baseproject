@@ -12,4 +12,9 @@ public interface OwnedHardwareJpaRepository extends JpaRepository<OwnedHardware,
 	
 	@Query("from OwnedHardware ownedHardware where ownedHardware.provisioningSerialNumber =:deviceId and ownedHardware.isDeleted is 'N'")
 	OwnedHardware findByProvisioningSerialNumber(@Param("deviceId") String deviceId);
+	
+	@Query("from OwnedHardware ownedHardware where ownedHardware.serialNumber =:serialNumber and ownedHardware.clientId =:clientId  and ownedHardware.isDeleted is 'N'")
+	OwnedHardware findBySerialNumber(@Param("serialNumber") String serialNumber,@Param("clientId") Long clientId);
+
+    
 }

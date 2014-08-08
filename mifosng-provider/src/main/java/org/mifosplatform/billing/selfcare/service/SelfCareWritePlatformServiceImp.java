@@ -13,6 +13,8 @@ import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.infrastructure.core.service.PlatformEmailService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.infrastructure.security.service.RandomPasswordGenerator;
+import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
+import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
 import org.mifosplatform.organisation.message.service.MessagePlatformEmailService;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -39,6 +41,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	private TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
 	private MessagePlatformEmailService messagePlatformEmailService;
 	private ClientRepository clientRepository;
+	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
 	
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(SelfCareWritePlatformServiceImp.class);
 	
@@ -47,7 +50,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			final FromJsonHelper fromJsonHelper, final SelfCareCommandFromApiJsonDeserializer selfCareCommandFromApiJsonDeserializer, 
 			final SelfCareReadPlatformService selfCareReadPlatformService, final PlatformEmailService platformEmailService, 
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final MessagePlatformEmailService messagePlatformEmailService,
-			ClientRepository clientRepository) {
+			ClientRepository clientRepository,final OwnedHardwareJpaRepository ownedHardwareJpaRepository) {
 		this.context = context;
 		this.selfCareRepository = selfCareRepository;
 		this.fromJsonHelper = fromJsonHelper;
@@ -57,6 +60,8 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
 		this.messagePlatformEmailService= messagePlatformEmailService;
 		this.clientRepository=clientRepository;
+		this.ownedHardwareJpaRepository=ownedHardwareJpaRepository;
+		
 	}
 	
 	@Override
@@ -204,7 +209,14 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		
 	}
 
-	
+	@Override
+	public void verifyActiveViewers(String serialNo, Long clientId) {
+	   		
+       	OwnedHardware ownedHardware =this.ownedHardwareJpaRepository.findBySerialNumber(serialNo, clientId);
+       	ownedHardware.setStatus("ACTIVE");
+       	this.ownedHardwareJpaRepository.saveAndFlush(ownedHardware);
+       	
+       }
 	
 	
 }
