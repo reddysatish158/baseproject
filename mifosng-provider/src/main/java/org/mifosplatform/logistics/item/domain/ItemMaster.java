@@ -42,7 +42,7 @@ public class ItemMaster extends AbstractPersistable<Long>{
 	private Long warranty;
 	
 	@Column(name="reorder_level")
-	private int reorderLevel;
+	private Long reorderLevel;
 	
 	@Column(name = "is_deleted", nullable = false)
 	private char deleted = 'n';
@@ -60,7 +60,7 @@ public class ItemMaster extends AbstractPersistable<Long>{
              this.warranty=warranty;
              this.unitPrice=unitPrice;
              if(reorderLevel!=null){
-            	 this.reorderLevel=reorderLevel.intValue(); 
+            	 this.reorderLevel=reorderLevel;
              }
 	}
 
@@ -96,8 +96,14 @@ public class ItemMaster extends AbstractPersistable<Long>{
 	public char getDeleted() {
 		return deleted;
 	}
+	public Long getReorderLevel() {
+		return reorderLevel;
+	}
 
-	
+	public void setReorderLevel(long reorderLevel) {
+		this.reorderLevel = reorderLevel;
+	}
+
 	public Map<String, Object> update(JsonCommand command){
 		if("Y".equals(deleted)){
 			throw new ItemNotFoundException(command.entityId().toString());
