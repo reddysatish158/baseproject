@@ -29,6 +29,7 @@ private Long clientId;
 	private List<PaymentData> paymentsData;
 	private List<TicketMasterData> ticketMastersData;
 	private GlobalConfigurationProperty paypalConfigData;
+	private GlobalConfigurationProperty paypalConfigDataForIos;
 
 	public SelfCareData(Long clientId, String email) {
 		this.clientId = clientId;
@@ -137,6 +138,11 @@ private Long clientId;
 
 	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
 		this.paypalConfigData = paypalConfigData;
+	}
+
+	public void setPaypalConfigDataForIos(GlobalConfigurationProperty paypalConfigDataForIos) {
+		this.paypalConfigDataForIos =paypalConfigDataForIos;
+		
 	}
 	
 	

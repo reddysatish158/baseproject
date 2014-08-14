@@ -10,4 +10,5 @@ public interface SelfCareReadPlatformService {
 	public String getEmail(Long clientId);
 	
 	public Long login(String userName, String password);
+	
 }

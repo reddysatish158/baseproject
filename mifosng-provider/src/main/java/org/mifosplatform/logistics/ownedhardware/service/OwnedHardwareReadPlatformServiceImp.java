@@ -3,10 +3,8 @@ package org.mifosplatform.logistics.ownedhardware.service;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
@@ -17,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,6 +87,12 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 		SerialNumberMapper rowMapper = new SerialNumberMapper();
 		String sql = "select serial_number as serialNumber from b_owned_hardware where is_deleted='N'";
 		return jdbcTemplate.query(sql,rowMapper);
+	}
+	
+	@Override
+	public int retrieveNoOfActiveUsers(Long clientId){
+		String sql = "select count(*) from b_owned_hardware h where h.status='ACTIVE' and h.is_deleted='N' and h.client_id=?";
+		return this.jdbcTemplate.queryForInt(sql, new Object[]{clientId});
 	}
 	
 	private static final class ItemDataMapper implements RowMapper<ItemData>{

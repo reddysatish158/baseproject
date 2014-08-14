@@ -15,4 +15,5 @@ public class ClientStatusException extends AbstractPlatformDomainRuleException {
     public ClientStatusException(final Long clientId) {
         super("error.msg.client.is.Already.actvie", "Client with identifier " + clientId + "is already active", clientId);
     }
+    
 }

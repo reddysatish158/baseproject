@@ -20,4 +20,6 @@ public interface SelfCareWritePlatformService {
 	CommandProcessingResult updateSelfCareUDPassword(JsonCommand command);
 
     CommandProcessingResult forgotSelfCareUDPassword(JsonCommand command);
+
+	public void verifyActiveViewers(String serialNo, Long clientId);
 }
