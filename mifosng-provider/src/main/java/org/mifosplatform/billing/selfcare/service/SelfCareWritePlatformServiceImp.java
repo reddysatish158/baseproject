@@ -15,6 +15,8 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.infrastructure.security.service.RandomPasswordGenerator;
 import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
 import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
+import org.mifosplatform.organisation.message.domain.BillingMessageTemplate;
+import org.mifosplatform.organisation.message.domain.BillingMessageTemplateRepository;
 import org.mifosplatform.organisation.message.service.MessagePlatformEmailService;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepository;
@@ -42,6 +44,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	private MessagePlatformEmailService messagePlatformEmailService;
 	private ClientRepository clientRepository;
 	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
+	private final BillingMessageTemplateRepository billingMessageTemplateRepository;
 	
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(SelfCareWritePlatformServiceImp.class);
 	
@@ -50,7 +53,8 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			final FromJsonHelper fromJsonHelper, final SelfCareCommandFromApiJsonDeserializer selfCareCommandFromApiJsonDeserializer, 
 			final SelfCareReadPlatformService selfCareReadPlatformService, final PlatformEmailService platformEmailService, 
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final MessagePlatformEmailService messagePlatformEmailService,
-			ClientRepository clientRepository,final OwnedHardwareJpaRepository ownedHardwareJpaRepository) {
+			ClientRepository clientRepository,final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
+			final BillingMessageTemplateRepository billingMessageTemplateRepository) {
 		this.context = context;
 		this.selfCareRepository = selfCareRepository;
 		this.fromJsonHelper = fromJsonHelper;
@@ -61,6 +65,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		this.messagePlatformEmailService= messagePlatformEmailService;
 		this.clientRepository=clientRepository;
 		this.ownedHardwareJpaRepository=ownedHardwareJpaRepository;
+		this.billingMessageTemplateRepository=billingMessageTemplateRepository;
 		
 	}
 	
@@ -86,8 +91,19 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 				String unencodedPassword = passwordGenerator.generate();
 				selfCare.setPassword(unencodedPassword);
 				selfCareRepository.save(selfCare);
-				
-				platformEmailService.sendToUserAccount(new EmailDetail("Hugo Self Care Organisation ", "SelfCare",email, selfCare.getUserName()), unencodedPassword); 
+				Client client= this.clientRepository.findOne(selfCare.getClientId());
+				BillingMessageTemplate messageDetails=this.billingMessageTemplateRepository.findByTemplateDescription("SELF CARE");
+				String subject=messageDetails.getSubject();
+				String body=messageDetails.getBody();
+				String header=messageDetails.getHeader().replace("PARAM1", client.getDisplayName()+","+"\n");
+				body=body.replace("PARAM2"," "+client.getEmail() );
+				body=body.replace("PARAM3",messageDetails.getFooter());
+				body=body.replace("PARAM4",selfCare.getUserName());
+				body=body.replace("PARAM5", unencodedPassword);
+				StringBuilder body1 =new StringBuilder(header).append(body+"\n").append("\n"+"Thanks"+"\n"+messageDetails.getFooter());
+				body=new String(body1);
+				messagePlatformEmailService.sendGeneralMessage(email, body, subject);
+				/*platformEmailService.sendToUserAccount(new EmailDetail("Hugo Self Care Organisation ", "SelfCare",email, selfCare.getUserName()), unencodedPassword);*/
 				
 				transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Self Care user activation", new Date(), "USerName: "+selfCare.getUserName()+" ClientId"+selfCare.getClientId());
 			}else{
