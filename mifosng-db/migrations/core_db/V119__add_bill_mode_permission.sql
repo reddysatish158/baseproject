@@ -12,6 +12,7 @@ alter table b_process_request_detail
 add column service_type varchar (20) DEFAULT NULL;
 END IF;
 END $$
+DELIMITER ;
 call addservicetype();
 
 insert IGNORE into m_permission values(null, 'portfolio', 'UPDATE_CLIENTBILLMODE', 'CLIENTBILLMODE', 'UPDATE', '0');
