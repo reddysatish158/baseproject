@@ -29,7 +29,14 @@ public class AuthenticatedUserData {
     
     @SuppressWarnings("unused")
     private final Long unReadMessages;
-    
+    @SuppressWarnings("unused")
+    private final String ipAddress;
+    @SuppressWarnings("unused")
+    private final String session;
+    @SuppressWarnings("unused")
+    private final Integer maxTime;
+    @SuppressWarnings("unused")
+    private final Long loginHistoryId;
 
     public AuthenticatedUserData(final String username, final Collection<String> permissions) {
         this.username = username;
@@ -39,11 +46,15 @@ public class AuthenticatedUserData {
         this.roles = null;
         this.permissions = permissions;
         this.unReadMessages=null;
-        
+        this.ipAddress=null;
+        this.session=null;
+        this.maxTime=null;
+        this.loginHistoryId=null;
     }
 
     public AuthenticatedUserData(final String username, final Collection<RoleData> roles, final Collection<String> permissions,
-            final Long userId, final String base64EncodedAuthenticationKey,final Long unreadMessages) {
+            final Long userId, final String base64EncodedAuthenticationKey,final Long unreadMessages,final String remoteHost,
+            final String session, int maxTime,Long loginHistoryId) {
         this.username = username;
         this.userId = userId;
         this.base64EncodedAuthenticationKey = base64EncodedAuthenticationKey;
@@ -51,5 +62,9 @@ public class AuthenticatedUserData {
         this.roles = roles;
         this.permissions = permissions;
         this.unReadMessages=unreadMessages;
+        this.ipAddress = remoteHost;
+        this.session = session;
+        this.maxTime = maxTime;
+        this.loginHistoryId=loginHistoryId;
     }
 }
