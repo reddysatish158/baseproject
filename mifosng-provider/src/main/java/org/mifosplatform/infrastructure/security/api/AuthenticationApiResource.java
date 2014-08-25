@@ -7,13 +7,18 @@ package org.mifosplatform.infrastructure.security.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.mifosplatform.billing.loginhistory.domain.LoginHistory;
+import org.mifosplatform.billing.loginhistory.domain.LoginHistoryRepository;
 import org.mifosplatform.crm.userchat.service.UserChatReadplatformReadService;
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.data.AuthenticatedUserData;
@@ -40,28 +45,41 @@ public class AuthenticationApiResource {
     private final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService;
     private final RoleReadPlatformService roleReadPlatformService;
     private final UserChatReadplatformReadService userChatReadplatformReadService;
-
+    private final LoginHistoryRepository loginHistoryRepository;
+    
     @Autowired
     public AuthenticationApiResource(
             @Qualifier("customAuthenticationProvider") final DaoAuthenticationProvider customAuthenticationProvider,
             final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService, final RoleReadPlatformService roleReadPlatformService,
-            final  UserChatReadplatformReadService userChatReadplatformReadService) {
+            final  UserChatReadplatformReadService userChatReadplatformReadService,final LoginHistoryRepository loginHistoryRepository) {
         this.customAuthenticationProvider = customAuthenticationProvider;
         this.apiJsonSerializerService = apiJsonSerializerService;
         this.roleReadPlatformService = roleReadPlatformService;
         this.userChatReadplatformReadService=userChatReadplatformReadService;
+        this.loginHistoryRepository=loginHistoryRepository;
     }
 
     @POST
    
     @Produces({ MediaType.APPLICATION_JSON })
-    public String authenticate(@QueryParam("username") final String username, @QueryParam("password") final String password) {
-
+    public String authenticate(@QueryParam("username") final String username, @QueryParam("password") final String password,
+    		@Context HttpServletRequest req) {
+    	
+    	String ipAddress = req.getRemoteHost();
+    	String session = req.getSession().getId();
+    	int maxTime=req.getSession().getMaxInactiveInterval();
+    	
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authenticationCheck = customAuthenticationProvider.authenticate(authentication);
 
         Collection<String> permissions = new ArrayList<String>();
         AuthenticatedUserData authenticatedUserData = new AuthenticatedUserData(username, permissions);
+        if (req.getSession().isNew()) { 
+    	    LoginHistory loginHistory=new LoginHistory(ipAddress,null,session,new Date(),null);
+    		this.loginHistoryRepository.save(loginHistory);
+    		Long loginHistoryId=loginHistory.getId();
+    		req.getSession().setAttribute("lId", loginHistoryId);
+        }
 
         if (authenticationCheck.isAuthenticated()) {
             Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(authenticationCheck.getAuthorities());
@@ -75,7 +93,7 @@ public class AuthenticationApiResource {
             Long unreadMessages=this.userChatReadplatformReadService.getUnreadMessages(username);
 
             authenticatedUserData = new AuthenticatedUserData(username, roles, permissions, principal.getId(), new String(
-                    base64EncodedAuthenticationKey),unreadMessages);
+                    base64EncodedAuthenticationKey),unreadMessages,ipAddress,session,maxTime,(Long)req.getSession().getAttribute("lId"));
         }
 
         return this.apiJsonSerializerService.serialize(authenticatedUserData);
