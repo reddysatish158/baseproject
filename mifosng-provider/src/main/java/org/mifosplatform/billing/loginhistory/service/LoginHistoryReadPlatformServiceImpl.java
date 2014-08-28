@@ -58,6 +58,16 @@ public class LoginHistoryReadPlatformServiceImpl implements LoginHistoryReadPlat
 		}
 	}
 
+	@Override
+	public int retrieveNumberOfUsers(String username) {
+		try{
+	String sql = "select count(*) from b_login_history where username=? and status='ACTIVE'";
+		return this.jdbcTemplate.queryForObject(sql,Integer.class, new Object[]{username});
+		}catch(EmptyResultDataAccessException accessException){
+			return 0;
+		}
+	}
+
 
 }
 

@@ -1,10 +1,12 @@
 package org.mifosplatform.billing.selfcare.api;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -13,8 +15,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.http.HttpRequest;
+import org.mifosplatform.billing.loginhistory.data.LoginHistoryData;
+import org.mifosplatform.billing.loginhistory.domain.LoginHistory;
+import org.mifosplatform.billing.loginhistory.domain.LoginHistoryRepository;
+import org.mifosplatform.billing.loginhistory.service.LoginHistoryReadPlatformService;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.billing.selfcare.data.SelfCareData;
 import org.mifosplatform.billing.selfcare.domain.SelfCare;
@@ -87,6 +95,8 @@ public class SelfCareApiResource {
 	private final SelfCareWritePlatformService selfCareWritePlatformService;
 	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
 	private final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService;
+	private final LoginHistoryReadPlatformService loginHistoryReadPlatformService;
+	private final LoginHistoryRepository loginHistoryRepository;
 
 	@Autowired
 	public SelfCareApiResource(final PlatformSecurityContext context,final SelfCareRepository selfCareRepository,
@@ -100,7 +110,9 @@ public class SelfCareApiResource {
 			final GlobalConfigurationRepository configurationRepository,
 			final SelfCareWritePlatformService selfCareWritePlatformService,
 			final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
-			final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService) {
+			final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService,
+			final LoginHistoryReadPlatformService loginHistoryReadPlatformService,
+			final LoginHistoryRepository loginHistoryRepository) {
 		
 				this.context = context;
 				this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
@@ -119,6 +131,8 @@ public class SelfCareApiResource {
 				this.selfCareWritePlatformService=selfCareWritePlatformService;
 				this.ownedHardwareJpaRepository =ownedHardwareJpaRepository;
 				this.ownedHardwareReadPlatformService=ownedHardwareReadPlatformService;
+				this.loginHistoryReadPlatformService=loginHistoryReadPlatformService;
+				this.loginHistoryRepository=loginHistoryRepository;
 	}
 	
 	
@@ -150,7 +164,8 @@ public class SelfCareApiResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String logIn(@QueryParam("username") final String username, @QueryParam("password") final String password, @QueryParam("serialNo") final String serialNo){
+	public String logIn(@QueryParam("username")  String username, @QueryParam("password") final String password, 
+			@QueryParam("serialNo") final String serialNo,@Context HttpServletRequest request){
         
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
         
@@ -162,24 +177,34 @@ public class SelfCareApiResource {
         	   throw new BadCredentialsException(messages.getMessage(
                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
-        
-          /*SelfCare selfCare=this.selfCareRepository.findOneByClientId(clientId);
-        if(selfCare.getStatus().equalsIgnoreCase("ACTIVE")){
-        	throw new ClientStatusException(clientId);
-        }else{
-        	selfCare.setStatus("ACTIVE");
-        	this.selfCareRepository.saveAndFlush(selfCare);
-        }*/
+               
           GlobalConfigurationProperty viewers=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_ACTIVE_VIEWERS); 
           int maxViewersAllowed=Integer.parseInt(viewers.getValue());
-          int activeUsers=this.ownedHardwareReadPlatformService.retrieveNoOfActiveUsers(clientId);
+          int activeUsers=0;
+          if(username.contains("@")){
+        	  
+        	  SelfCare selfcare=this.selfCareRepository.findOneByEmail(username);
+        	  username=selfcare.getUserName();
+          }
+          activeUsers=this.loginHistoryReadPlatformService.retrieveNumberOfUsers(username);
+          
+          /*int activeUsers=this.ownedHardwareReadPlatformService.retrieveNoOfActiveUsers(clientId);*/
+          /**
+           * Condition
+           * for checking the number of active users
+           * */
           if(activeUsers >=maxViewersAllowed ){
          	 throw new ExceededNumberOfViewersException(clientId);
-         }else{
-        	 this.selfCareWritePlatformService.verifyActiveViewers(serialNo, clientId);
-         }
-        	        
+         } 	 
+        String ipAddress=request.getRemoteHost();
+        String sessionId=request.getSession().getId();
+        Long loginHistoryId=null;
         careData.setClientId(clientId);
+        if(request.getSession().isNew()){
+        	LoginHistory loginHistory=new LoginHistory(ipAddress, serialNo, sessionId, new Date(),null , username,"ACTIVE");
+        	this.loginHistoryRepository.save(loginHistory);
+        	loginHistoryId=loginHistory.getId();
+        }
         ClientData clientsData = this.clientReadPlatformService.retrieveOne(clientId);
         ClientBalanceData balanceData = this.clientBalanceReadPlatformService.retrieveBalance(clientId);
         List<AddressData> addressData = this.addressReadPlatformService.retrieveAddressDetails(clientId);
@@ -187,8 +212,7 @@ public class SelfCareApiResource {
         final List<FinancialTransactionsData> statementsData = this.billMasterReadPlatformService.retrieveStatments(clientId);
         List<PaymentData> paymentsData = paymentReadPlatformService.retrivePaymentsData(clientId);
         final List<TicketMasterData> ticketMastersData = this.ticketMasterReadPlatformService.retrieveClientTicketDetails(clientId);
-        
-        careData.setDetails(clientsData,balanceData,addressData,clientOrdersData,statementsData,paymentsData,ticketMastersData);
+        careData.setDetails(clientsData,balanceData,addressData,clientOrdersData,statementsData,paymentsData,ticketMastersData,loginHistoryId);
         
         //adding Is_paypal Global Data by Ashok
         GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
@@ -208,7 +232,7 @@ public class SelfCareApiResource {
     @Path("status/{clientId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    public String updateClientStatus(@PathParam("clientId")Long clientId,final String apiRequestBodyAsJson) {
+    public String updateLoginStatus(@PathParam("clientId")Long clientId,final String apiRequestBodyAsJson) {
 
         final CommandWrapper commandRequest = new CommandWrapperBuilder() //
                 .updateClientStatus(clientId) //

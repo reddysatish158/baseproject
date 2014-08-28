@@ -2,6 +2,9 @@ package org.mifosplatform.billing.selfcare.service;
 
 import java.util.Date;
 
+import org.mifosplatform.billing.loginhistory.domain.LoginHistory;
+import org.mifosplatform.billing.loginhistory.domain.LoginHistoryRepository;
+import org.mifosplatform.billing.loginhistory.exception.LoginHistoryNotFoundException;
 import org.mifosplatform.billing.selfcare.data.SelfCareData;
 import org.mifosplatform.billing.selfcare.domain.SelfCare;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -45,7 +48,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	private ClientRepository clientRepository;
 	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
 	private final BillingMessageTemplateRepository billingMessageTemplateRepository;
-	
+		
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(SelfCareWritePlatformServiceImp.class);
 	
 	@Autowired
@@ -66,7 +69,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		this.clientRepository=clientRepository;
 		this.ownedHardwareJpaRepository=ownedHardwareJpaRepository;
 		this.billingMessageTemplateRepository=billingMessageTemplateRepository;
-		
+				
 	}
 	
 	@Override
@@ -233,6 +236,6 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
        	this.ownedHardwareJpaRepository.saveAndFlush(ownedHardware);
        	
        }
-	
+
 	
 }

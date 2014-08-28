@@ -24,6 +24,9 @@ public class LoginHistory extends AbstractPersistable<Long> {
 
 	@Column(name = "device_id")
 	private String deviceId;
+	
+	@Column(name= "username")
+	private String userName;
 
 	@Column(name = "session_id")
 	private String sessionId;
@@ -35,7 +38,7 @@ public class LoginHistory extends AbstractPersistable<Long> {
 	private Date logoutTime;
 	
 	@Column(name = "status")
-	private char status;
+	private String status;
 
 
 	public LoginHistory() {
@@ -44,14 +47,15 @@ public class LoginHistory extends AbstractPersistable<Long> {
 	}
 	
 	public LoginHistory(String ipAddress, String deviceId,String sessionId,
-			Date loginTime,Date logoutTime) {
+			Date loginTime,Date logoutTime,String userName,String status) {
           
 		  this.ipAddress = ipAddress;
 		  this.deviceId = deviceId;
 		  this.sessionId = sessionId;
 		  this.loginTime = loginTime;
 		  this.logoutTime = logoutTime;
-		  this.status = 'N';
+		  this.status = status;
+		  this.userName=userName;
 	}
 	
 	public static LoginHistory fromJson(JsonCommand command) {
@@ -60,8 +64,10 @@ public class LoginHistory extends AbstractPersistable<Long> {
 		    final String sessionId = command.stringValueOfParameterNamed("sessionId");
 		    final Date loginTime = command.DateValueOfParameterNamed("loginTime");
 		   // final Date logoutTime= command.DateValueOfParameterNamed("logoutTime");
+		    final String userName= command.stringValueOfParameterNamed("userName");
+		    final String status=command.stringValueOfParameterNamed("status");
 		    
-		return new LoginHistory(ipAddress,deviceId,sessionId,loginTime,null);
+		return new LoginHistory(ipAddress,deviceId,sessionId,loginTime,null,userName,status);
 	}
 
 	public Map<String, Object> update() {
@@ -78,13 +84,10 @@ public class LoginHistory extends AbstractPersistable<Long> {
 				actualChanges.put(logoutTimeParamName, newValue);
 			}*/
 
-		       /* final String statusParamName = "status";
-				if (command.isChangeInStringParameterNamed(statusParamName,this.discountStatus)) {
-					final String newValue = command.stringValueOfParameterNamed(statusParamName);
-					actualChanges.put(statusParamName, newValue);
-					this.discountStatus=newValue;
-				}*/
-				
+		      final String statusParamName = "status";
+		      this.status="INACTIVE";
+		      actualChanges.put(statusParamName, "INACTIVE");
+					
 	        return actualChanges;
 
 	}

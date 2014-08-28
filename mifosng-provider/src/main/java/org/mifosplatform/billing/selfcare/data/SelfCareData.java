@@ -30,6 +30,7 @@ private Long clientId;
 	private List<TicketMasterData> ticketMastersData;
 	private GlobalConfigurationProperty paypalConfigData;
 	private GlobalConfigurationProperty paypalConfigDataForIos;
+	private Long loginHistoryId; 
 
 	public SelfCareData(Long clientId, String email) {
 		this.clientId = clientId;
@@ -115,7 +116,8 @@ private Long clientId;
 			List<OrderData> clientOrdersData,
 			List<FinancialTransactionsData> statementsData,
 			List<PaymentData> paymentsData,
-			List<TicketMasterData> ticketMastersData) {
+			List<TicketMasterData> ticketMastersData,
+			Long loginHistoryId) {
 		
 		
 		this.clientData = clientsData;
@@ -125,6 +127,7 @@ private Long clientId;
 		this.statementsData = statementsData;
 		this.paymentsData = paymentsData;
 		this.ticketMastersData = ticketMastersData;
+		this.loginHistoryId=loginHistoryId;
 		
 	}
 
