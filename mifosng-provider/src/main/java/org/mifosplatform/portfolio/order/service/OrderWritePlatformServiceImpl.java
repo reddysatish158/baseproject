@@ -566,6 +566,13 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
 				throw new NoOrdersFoundException(orderId);
 			}
 			
+			//Check for Custome_Validation
+			CustomValidationData customValidationData   = this.orderDetailsReadPlatformServices.checkForCustomValidations(orderDetails.getClientId(),"Renewal", command.json());
+			
+			if(customValidationData.getErrorCode() != 0 && customValidationData.getErrorMessage() != null){
+				throw new ActivePlansFoundException(customValidationData.getErrorMessage()); 
+			}
+			
 			List<OrderPrice>  orderPrices=orderDetails.getPrice();
 		    final Long contractPeriod = command.longValueOfParameterNamed("renewalPeriod");
 		    final String description=command.stringValueOfParameterNamed("description");
@@ -658,6 +665,10 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
     		    //For Order History
   				OrderHistory orderHistory=new OrderHistory(orderDetails.getId(),new LocalDate(),newStartdate,null,requstStatus,userId,description);
   				this.orderHistoryRepository.save(orderHistory);
+  				
+  				transactionHistoryWritePlatformService.saveTransactionHistory(orderDetails.getClientId(),"Order Renewal", orderDetails.getStartDate(),
+  						"Order NO:"+orderDetails.getOrderNo(),"Plan Id:"+orderDetails.getPlanId(),"Contarct Period:"+orderDetails.getContarctPeriod());
+  				
   		  	   return new CommandProcessingResult(Long.valueOf(orderDetails.getClientId()));
 		}catch (DataIntegrityViolationException dve) {
 			handleCodeDataIntegrityIssues(null,dve);
