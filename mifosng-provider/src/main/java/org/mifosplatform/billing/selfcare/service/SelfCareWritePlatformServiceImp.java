@@ -94,12 +94,12 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 				String unencodedPassword = passwordGenerator.generate();
 				selfCare.setPassword(unencodedPassword);
 				selfCareRepository.save(selfCare);
-				Client client= this.clientRepository.findOne(selfCare.getClientId());
+				Client client= this.clientRepository.findOne(clientId);
 				BillingMessageTemplate messageDetails=this.billingMessageTemplateRepository.findByTemplateDescription("SELF CARE");
 				String subject=messageDetails.getSubject();
 				String body=messageDetails.getBody();
 				String header=messageDetails.getHeader().replace("PARAM1", client.getDisplayName()+","+"\n");
-				body=body.replace("PARAM2"," "+client.getEmail() );
+				body=body.replace("PARAM2"," "+email );
 				body=body.replace("PARAM3",messageDetails.getFooter());
 				body=body.replace("PARAM4",selfCare.getUserName());
 				body=body.replace("PARAM5", unencodedPassword);
@@ -228,14 +228,14 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		
 	}
 
-	@Override
+	/*@Override
 	public void verifyActiveViewers(String serialNo, Long clientId) {
 	   		
        	OwnedHardware ownedHardware =this.ownedHardwareJpaRepository.findBySerialNumber(serialNo, clientId);
        	ownedHardware.setStatus("ACTIVE");
        	this.ownedHardwareJpaRepository.saveAndFlush(ownedHardware);
        	
-       }
+       }*/
 
 	
 }

@@ -58,13 +58,7 @@ private final Set<String> supportedParameters = new HashSet<String>(Arrays.asLis
         	baseDataValidator.reset().parameter("uniqueReference").value(uniqueReference).notBlank();
         }
         
-        if(fromApiJsonHelper.parameterExists("uniqueReference", element)){
-        	final String uniqueReference = fromApiJsonHelper.extractStringNamed("uniqueReference", element);
-        	baseDataValidator.reset().parameter("uniqueReference").value(uniqueReference).notBlank();
-        }
-        
-		
-
+       
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }
     
