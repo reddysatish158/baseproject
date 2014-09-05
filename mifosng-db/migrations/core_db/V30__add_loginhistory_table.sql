@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS `b_login_history` (
   `session_id` varchar(200) DEFAULT NULL,
   `login_time` datetime DEFAULT NULL,
   `logout_time` datetime DEFAULT NULL,
-  `status` char(1) NOT NULL DEFAULT 'N',
+  `status` char(10) NOT NULL DEFAULT 'INACTIVE',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=396 DEFAULT CHARSET=utf8 COMMENT='utf8_general_ci';
