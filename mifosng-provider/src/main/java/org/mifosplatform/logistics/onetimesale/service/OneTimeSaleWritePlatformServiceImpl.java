@@ -149,12 +149,18 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			this.context.authenticatedUser();
 			this.apiJsonDeserializer.validateForPrice(query.parsedJson());
 			final Integer quantity = fromJsonHelper.extractIntegerWithLocaleNamed("quantity", query.parsedJson());
+			final BigDecimal unitprice= fromJsonHelper.extractBigDecimalWithLocaleNamed("unitprice", query.parsedJson());
+			BigDecimal itemprice=null;
 			ItemMaster itemMaster=this.itemMasterRepository.findOne(itemId);
-			if(itemMaster == null)
-			{
-				throw new RuntimeException();
+/*				if(itemMaster == null){
+					throw new RuntimeException();
+			    }
+*/			if(unitprice !=null){
+			   itemprice=unitprice;
+			}else{
+				itemprice=itemMaster.getUnitPrice();
 			}
-			BigDecimal TotalPrice=itemMaster.getUnitPrice().multiply(new BigDecimal(quantity));
+			BigDecimal TotalPrice=itemprice.multiply(new BigDecimal(quantity));
 			List<ItemData> itemCodeData = this.oneTimeSaleReadPlatformService.retrieveItemData();
 			List<DiscountMasterData> discountdata = this.priceReadPlatformService.retrieveDiscountDetails();
 			ItemData itemData = this.itemReadPlatformService.retrieveSingleItemDetails(itemId);
