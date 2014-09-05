@@ -20,6 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.cms.eventmaster.data.EventDetailsData;
 import org.mifosplatform.cms.eventmaster.data.EventMasterData;
 import org.mifosplatform.cms.eventmaster.domain.EventMaster;
@@ -36,7 +37,6 @@ import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.logistics.item.data.ChargesData;
 import org.mifosplatform.logistics.item.service.ItemReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

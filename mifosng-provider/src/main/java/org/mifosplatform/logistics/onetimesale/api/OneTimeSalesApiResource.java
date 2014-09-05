@@ -145,7 +145,8 @@ public class OneTimeSalesApiResource {
 		List<ItemData> itemCodeData = this.oneTimeSaleReadPlatformService.retrieveItemData();
 		List<DiscountMasterData> discountdata = this.priceReadPlatformService.retrieveDiscountDetails();
 	    ItemData  itemData = this.itemMasterReadPlatformService.retrieveSingleItemDetails(itemId);
-		itemData=new ItemData(itemCodeData,itemData,null,null,discountdata);
+	    List<ChargesData> chargesDatas=this.itemMasterReadPlatformService.retrieveChargeCode();
+		itemData=new ItemData(itemCodeData,itemData,null,null,discountdata,chargesDatas);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return this.defaultToApiJsonSerializer.serialize(settings, itemData, RESPONSE_DATA_PARAMETERS);		
 	}

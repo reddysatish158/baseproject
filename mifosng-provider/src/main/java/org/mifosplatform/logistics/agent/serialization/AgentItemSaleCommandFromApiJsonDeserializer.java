@@ -32,7 +32,7 @@ public final class AgentItemSaleCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("agentId","itemId","purchaseDate","orderQuantity",
-    		"chargeAmount","taxPercantage","dateFormat","locale"));
+    		"chargeAmount","taxPercantage","dateFormat","locale","chargeCode","unitPrice"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -53,11 +53,16 @@ public final class AgentItemSaleCommandFromApiJsonDeserializer {
 
         final String agentId = fromApiJsonHelper.extractStringNamed("agentId", element);
         baseDataValidator.reset().parameter("agentId").value(agentId).notNull();
+        final String chargeCode = fromApiJsonHelper.extractStringNamed("chargeCode", element);
+        baseDataValidator.reset().parameter("chargeCode").value(chargeCode).notNull();
+
+        final BigDecimal unitPrice = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("unitPrice", element);
+        baseDataValidator.reset().parameter("unitPrice").value(unitPrice).notNull();
+
         final String itemId = fromApiJsonHelper.extractStringNamed("itemId", element);
         baseDataValidator.reset().parameter("itemId").value(itemId).notNull();
         final LocalDate purchaseDate = fromApiJsonHelper.extractLocalDateNamed("purchaseDate", element);
         baseDataValidator.reset().parameter("purchaseDate").value(purchaseDate).notBlank();
-        
         final Long orderQuantity = fromApiJsonHelper.extractLongNamed("orderQuantity", element);
         baseDataValidator.reset().parameter("orderQuantity").value(orderQuantity).notNull().integerGreaterThanZero();
         final BigDecimal chargeAmount = fromApiJsonHelper.extractBigDecimalWithLocaleNamed("chargeAmount", element);

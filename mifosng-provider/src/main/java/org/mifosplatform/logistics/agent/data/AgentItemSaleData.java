@@ -3,7 +3,7 @@ package org.mifosplatform.logistics.agent.data;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.mifosplatform.logistics.item.data.ChargesData;
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.organisation.office.data.OfficeData;
 

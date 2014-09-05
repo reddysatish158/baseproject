@@ -28,6 +28,9 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	
 	@Column(name="received_quantity")
 	private Long receivedQuantity=0L;
+	
+	@Column(name="charge_code")
+	private String chargeCode;
 
 	@Column(name="status")
 	private String status="New";
@@ -55,12 +58,13 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 	}
 
 
-	public ItemSale(Long itemId, Long agentId, Date purchaseDate,Long orderQuantity) {
+	public ItemSale(Long itemId, Long agentId, Date purchaseDate,Long orderQuantity, String chargeCode) {
 		
 		this.itemId=itemId;
 		this.agentId=agentId;
 		this.purchaseDate=purchaseDate;
 		this.orderQuantity=orderQuantity;
+		this.chargeCode=chargeCode;
 		
 	}
 
@@ -71,8 +75,9 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 		final Long agentId=command.longValueOfParameterNamed("agentId");
 		final Date purchaseDate =command.localDateValueOfParameterNamed("purchaseDate").toDate();
 		final Long orderQuantity=command.longValueOfParameterNamed("orderQuantity");
+		final String chargeCode=command.stringValueOfParameterNamed("chargeCode");
 		
-		return new ItemSale(itemId,agentId,purchaseDate,orderQuantity);
+		return new ItemSale(itemId,agentId,purchaseDate,orderQuantity,chargeCode);
 				
 		
 	}
@@ -102,6 +107,11 @@ public class ItemSale extends AbstractAuditableCustom<AppUser, Long>{
 
 	public void setReceivedQuantity(Long receivedQuantity) {
 		this.receivedQuantity = receivedQuantity;
+	}
+
+
+	public String getChargeCode() {
+		return chargeCode;
 	}
 
 

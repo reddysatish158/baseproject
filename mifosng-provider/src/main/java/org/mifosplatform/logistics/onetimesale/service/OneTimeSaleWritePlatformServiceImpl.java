@@ -3,6 +3,7 @@ package org.mifosplatform.logistics.onetimesale.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
 import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -39,7 +40,6 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 	private final PlatformSecurityContext context;
 	private final OneTimeSaleRepository  oneTimeSaleRepository;
 	private final ItemRepository itemMasterRepository;
-	
 	private final OneTimesaleCommandFromApiJsonDeserializer apiJsonDeserializer;
 	private final InvoiceOneTimeSale invoiceOneTimeSale;
 	private final ItemReadPlatformService itemReadPlatformService;
@@ -149,7 +149,7 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			this.context.authenticatedUser();
 			this.apiJsonDeserializer.validateForPrice(query.parsedJson());
 			final Integer quantity = fromJsonHelper.extractIntegerWithLocaleNamed("quantity", query.parsedJson());
-			final BigDecimal unitprice= fromJsonHelper.extractBigDecimalWithLocaleNamed("unitprice", query.parsedJson());
+			final BigDecimal unitprice= fromJsonHelper.extractBigDecimalWithLocaleNamed("unitPrice", query.parsedJson());
 			BigDecimal itemprice=null;
 			ItemMaster itemMaster=this.itemMasterRepository.findOne(itemId);
 /*				if(itemMaster == null){
@@ -164,7 +164,9 @@ public class OneTimeSaleWritePlatformServiceImpl implements OneTimeSaleWritePlat
 			List<ItemData> itemCodeData = this.oneTimeSaleReadPlatformService.retrieveItemData();
 			List<DiscountMasterData> discountdata = this.priceReadPlatformService.retrieveDiscountDetails();
 			ItemData itemData = this.itemReadPlatformService.retrieveSingleItemDetails(itemId);
-			return new ItemData(itemCodeData,itemData,TotalPrice,quantity,discountdata);
+			List<ChargesData> chargesDatas=this.itemReadPlatformService.retrieveChargeCode();
+			
+			return new ItemData(itemCodeData,itemData,TotalPrice,quantity,discountdata,chargesDatas);
 		}catch (DataIntegrityViolationException dve) {
 			 handleCodeDataIntegrityIssues(null, dve);
 			return null;

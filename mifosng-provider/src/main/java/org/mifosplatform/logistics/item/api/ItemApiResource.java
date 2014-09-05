@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -28,7 +30,6 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.logistics.item.data.ChargesData;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.item.service.ItemReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;

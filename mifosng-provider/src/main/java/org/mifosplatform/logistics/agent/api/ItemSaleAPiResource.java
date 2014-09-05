@@ -15,6 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -25,7 +26,6 @@ import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSeria
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
 import org.mifosplatform.logistics.agent.service.ItemSaleReadPlatformService;
-import org.mifosplatform.logistics.item.data.ChargesData;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.item.service.ItemReadPlatformService;
 import org.mifosplatform.organisation.office.data.OfficeData;

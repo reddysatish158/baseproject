@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
@@ -51,7 +52,8 @@ public class ItemData {
 		
 	}
 
-	public ItemData(List<ItemData> itemCodeData, ItemData itemData, BigDecimal totalPrice,Integer quantity, List<DiscountMasterData> discountdata) {
+	public ItemData(List<ItemData> itemCodeData, ItemData itemData, BigDecimal totalPrice,Integer quantity, 
+			     List<DiscountMasterData> discountdata, List<ChargesData> chargesDatas) {
 		this.itemDatas=itemCodeData;
 		this.id=itemData.getId();
 		this.itemCode=itemData.getItemCode();
@@ -60,7 +62,7 @@ public class ItemData {
 		this.unitPrice=itemData.getUnitPrice();
 		this.totalPrice=totalPrice;
 		this.quantity=quantity;
-		
+		this.chargesData=chargesDatas;
 		this.discountMasterDatas=discountdata;
 		
 	
