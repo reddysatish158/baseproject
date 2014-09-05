@@ -75,7 +75,7 @@ private static final class ItemSaleMapper implements RowMapper<AgentItemSaleData
 		BigDecimal chargeAmount=rs.getBigDecimal("chargeAmount");
 	    BigDecimal tax=rs.getBigDecimal("tax");
 	    BigDecimal invoiceAmount=rs.getBigDecimal("invoiceAmount");
-		return new AgentItemSaleData(id,itemId,agentId,itemName,agentName,orderQunatity,chargeAmount,tax,invoiceAmount,null,null);
+		return new AgentItemSaleData(id,itemId,agentId,itemName,agentName,orderQunatity,chargeAmount,tax,invoiceAmount,null,null,null);
 
 	}
 }
