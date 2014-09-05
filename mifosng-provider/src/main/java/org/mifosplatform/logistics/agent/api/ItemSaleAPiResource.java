@@ -25,6 +25,7 @@ import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSeria
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.logistics.agent.data.AgentItemSaleData;
 import org.mifosplatform.logistics.agent.service.ItemSaleReadPlatformService;
+import org.mifosplatform.logistics.item.data.ChargesData;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.item.service.ItemReadPlatformService;
 import org.mifosplatform.organisation.office.data.OfficeData;
@@ -98,10 +99,11 @@ private AgentItemSaleData handleAgenttemplateData(AgentItemSaleData  itemSaleDat
 	
 	List<OfficeData> officeDatas=this.officeReadPlatformService.retrieveAgentTypeData();
 	List<ItemData> itemDatas=this.itemReadPlatformService.retrieveAllItems();
+	List<ChargesData> chargeDatas = this.itemReadPlatformService.retrieveChargeCode();
 	if(itemSaleData == null){
-	return  AgentItemSaleData.withTemplateData(officeDatas,itemDatas);
+	return  AgentItemSaleData.withTemplateData(officeDatas,itemDatas,chargeDatas);
 	}else{
-		return AgentItemSaleData.instance(itemSaleData, officeDatas, itemDatas);
+		return AgentItemSaleData.instance(itemSaleData, officeDatas, itemDatas,chargeDatas);
 	}
 }
 
