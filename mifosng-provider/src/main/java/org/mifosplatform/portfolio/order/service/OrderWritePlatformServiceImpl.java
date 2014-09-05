@@ -622,6 +622,7 @@ public class OrderWritePlatformServiceImpl implements OrderWritePlatformService 
                   CommandProcessingResult processingResult=   this.prepareRequestWriteplatformService.prepareNewRequest(orderDetails,plan,UserActionStatusTypeEnum.ACTIVATION.toString());
            			
                   if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
+                	  
            				this.provisioningWritePlatformService.postOrderDetailsForProvisioning(orderDetails,plan.getPlanCode(),UserActionStatusTypeEnum.ACTIVATION.toString(),
            						processingResult.resourceId(),null,null);
            		   }
