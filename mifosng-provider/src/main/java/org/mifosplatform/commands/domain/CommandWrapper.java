@@ -25,8 +25,8 @@ public class CommandWrapper {
     private final String transactionId;
     private final String supportedEntityType;
     private final Long supportedEntityId;
-
-    public static CommandWrapper wrap(final String actionName, final String entityName, final Long resourceId, final Long subresourceId) {
+    
+    public static CommandWrapper wrap(final String actionName, final String entityName, final Long resourceId, final Long subresourceId, final Long loginId) {
         return new CommandWrapper(null, actionName, entityName, resourceId, subresourceId, null);
     }
 
@@ -59,7 +59,7 @@ public class CommandWrapper {
 
     public CommandWrapper(final Long officeId, final Long groupId, final Long clientId, final Long loanId, final Long savingsId,
             final String actionName, final String entityName, final Long entityId, final Long subentityId, final Long codeId,
-            final String supportedEntityType, final Long supportedEntityId, final String href, final String json, final String transactionId) {
+            final String supportedEntityType, final Long supportedEntityId, final String href, final String json, final String transactionId, final Long loginId) {
         this.commandId = null;
         this.officeId = officeId;
         this.groupId = groupId;
@@ -1046,5 +1046,8 @@ public class CommandWrapper {
 		public boolean isForgotSelfCareUDP() {
 			return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("MAIL");
 		}
+		public boolean isUpdateLoginStatus() {
+	        return this.entityName.equalsIgnoreCase("LOGINHISTORY") && this.actionName.equalsIgnoreCase("UPDATE");
+	}
 
 }

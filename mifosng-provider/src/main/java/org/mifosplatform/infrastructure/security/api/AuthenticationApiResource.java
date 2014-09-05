@@ -75,7 +75,7 @@ public class AuthenticationApiResource {
         Collection<String> permissions = new ArrayList<String>();
         AuthenticatedUserData authenticatedUserData = new AuthenticatedUserData(username, permissions);
         if (req.getSession().isNew()) { 
-    	    LoginHistory loginHistory=new LoginHistory(ipAddress,null,session,new Date(),null);
+    	    LoginHistory loginHistory=new LoginHistory(ipAddress,null,session,new Date(),null,username,"ACTIVE");
     		this.loginHistoryRepository.save(loginHistory);
     		Long loginHistoryId=loginHistory.getId();
     		req.getSession().setAttribute("lId", loginHistoryId);

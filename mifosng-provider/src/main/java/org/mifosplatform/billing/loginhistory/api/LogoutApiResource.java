@@ -48,7 +48,7 @@ public class LogoutApiResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public String createNewContract(final String apiRequestBodyAsJson,@QueryParam("id") final Long id,@Context HttpServletRequest req) {
+	public String logout(final String apiRequestBodyAsJson,@QueryParam("id") final Long id,@Context HttpServletRequest req) {
 				
         		LoginHistory loginHistory=this.loginHistoryRepository.findOne(id);
             	final Map<String, Object> changes = loginHistory.update();

@@ -58,8 +58,7 @@ private final Set<String> supportedParameters = new HashSet<String>(Arrays.asLis
         	baseDataValidator.reset().parameter("uniqueReference").value(uniqueReference).notBlank();
         }
         
-		
-
+       
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }
     
