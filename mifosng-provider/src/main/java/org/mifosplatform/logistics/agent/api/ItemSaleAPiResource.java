@@ -1,6 +1,7 @@
 package org.mifosplatform.logistics.agent.api;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -97,7 +98,7 @@ public String createOffice(final String apiRequestBodyAsJson) {
 
 private AgentItemSaleData handleAgenttemplateData(AgentItemSaleData  itemSaleData) {
 	
-	List<OfficeData> officeDatas=this.officeReadPlatformService.retrieveAgentTypeData();
+	Collection<OfficeData> officeDatas=this.officeReadPlatformService.retrieveAllOffices();
 	List<ItemData> itemDatas=this.itemReadPlatformService.retrieveAllItems();
 	List<ChargesData> chargeDatas = this.itemReadPlatformService.retrieveChargeCode();
 	if(itemSaleData == null){

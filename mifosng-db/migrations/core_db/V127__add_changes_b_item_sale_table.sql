@@ -30,3 +30,20 @@ CREATE TABLE `m_invoice` (
   `lastmodifiedby_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DELIMITER $$
+Drop procedure IF EXISTS addpurchaseby $$
+create procedure addpurchaseby() 
+Begin
+  IF NOT EXISTS (
+     SELECT * FROM information_schema.COLUMNS
+     WHERE COLUMN_NAME = 'purchase_by'
+     and TABLE_NAME = 'b_itemsale'
+     and TABLE_SCHEMA = DATABASE())THEN
+alter table b_itemsale add column purchase_by bigint(10) NOT NULL;
+END IF;
+END $$
+DELIMITER ;
+call addpurchaseby();
+
+alter table b_itemsale change  agent_id purchase_from int(10)  NOT NULL;

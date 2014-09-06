@@ -32,7 +32,7 @@ public final class AgentItemSaleCommandFromApiJsonDeserializer {
      * The parameters supported for this command.
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("agentId","itemId","purchaseDate","orderQuantity",
-    		"chargeAmount","taxPercantage","dateFormat","locale","chargeCode","unitPrice"));
+    		"chargeAmount","taxPercantage","dateFormat","locale","chargeCode","unitPrice","purchaseFrom","purchaseBy"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -51,8 +51,11 @@ public final class AgentItemSaleCommandFromApiJsonDeserializer {
 
         final JsonElement element = fromApiJsonHelper.parse(json);
 
-        final String agentId = fromApiJsonHelper.extractStringNamed("agentId", element);
-        baseDataValidator.reset().parameter("agentId").value(agentId).notNull();
+        final String purchaseFrom = fromApiJsonHelper.extractStringNamed("purchaseFrom", element);
+        baseDataValidator.reset().parameter("purchaseFrom").value(purchaseFrom).notNull();
+        
+        final String purchaseBy = fromApiJsonHelper.extractStringNamed("purchaseBy", element);
+        baseDataValidator.reset().parameter("purchaseBy").value(purchaseBy).notNull();
         final String chargeCode = fromApiJsonHelper.extractStringNamed("chargeCode", element);
         baseDataValidator.reset().parameter("chargeCode").value(chargeCode).notNull();
 

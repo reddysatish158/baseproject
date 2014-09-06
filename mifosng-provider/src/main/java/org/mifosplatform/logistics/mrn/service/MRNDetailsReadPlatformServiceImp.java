@@ -164,7 +164,7 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
             
             final String itemSql = "Union all Select Concat ("+"'Item Sale ' "+",its.id) as id,its.purchase_date as requestedDate," +
             		"(select item_description from b_item_master where id=its.item_id) as item,(select name from m_office where id=1) as " +
-            		" fromOffice,(select name from m_office where id = its.agent_id) as toOffice, its.order_quantity as orderdQuantity," +
+            		" fromOffice,(select name from m_office where id = its.purchase_by) as toOffice, its.order_quantity as orderdQuantity," +
             		"its.received_quantity as receivedQuantity, its.status as status  from b_itemsale its ";
             sqlBuilder.append(itemSql);
             sqlBuilder.append(" where its.status = 'Completed' | 'New' | 'Pending' ");
@@ -172,7 +172,7 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
     	    if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
     	    	extraCriteriaForItemsale = "and ((select item_description from b_item_master where id=its.item_id ) like  '%"+sqlSearch+"%' OR" +
-    	    			"(select name from m_office where id=its.agent_id ) like '%head%' OR its.status like  '%"+sqlSearch+"%') ";
+    	    			"(select name from m_office where id=its.purchase_by ) like '%head%' OR its.status like  '%"+sqlSearch+"%') ";
     	    }
                 sqlBuilder.append(extraCriteriaForItemsale);
                 sqlBuilder.append("order by 2 desc");
@@ -337,7 +337,7 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 
 	@Override
 	public MRNDetailsData retriveAgentId(Long itemsaleId) {
-		final String sql = "select agent_id as agentId from b_itemsale where id=?";
+		final String sql = "select purchase_by as agentId from b_itemsale where id=?";
 		final AgentDetailsMapper rowMapper = new AgentDetailsMapper(); 
 		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{itemsaleId});
 	}

@@ -163,7 +163,7 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			ItemSale mrnDetails = itemSaleRepository.findOne(itemId);
 			List<Long> itemMasterId = mrnDetailsReadPlatformService.retriveItemMasterIdForSale(itemId);
 			
-			final List<String> serialNumber = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(mrnDetails.getAgentId(),itemId);
+			final List<String> serialNumber = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(mrnDetails.getPurchaseBy(),itemId);
 			
 			if(!serialNumber.contains(mrnMoveDetailsData.getSerialNumber())){
 				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation", "invalid.serialnumber.allocation", "serialNumber","");
@@ -177,7 +177,7 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			/*if(details.getOfficeId().equals(mrnDetails.getAgentId())){
 				throw new PlatformDataIntegrityException("invalid.move.operation", "invalid.move.operation", "invalid.move.operation");
 			}*/
-			details.setOfficeId(mrnDetails.getAgentId());
+			details.setOfficeId(mrnDetails.getPurchaseBy());
 			if(mrnDetails.getReceivedQuantity() < mrnDetails.getOrderQuantity()){
 				mrnDetails.setReceivedQuantity(mrnDetails.getReceivedQuantity()+1);
 				mrnDetails.setStatus("Pending");
@@ -185,10 +185,10 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 				throw new PlatformDataIntegrityException("received.quantity.is.full", "received.quantity.is.full", "received.quantity.is.full");
 			}
 			
-			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), itemId,"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getAgentId(), mrnDetails.getAgentId());
+			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), itemId,"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getPurchaseBy(), mrnDetails.getPurchaseBy());
 			//InventoryTransactionHistory transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(),mrnMoveDetailsData.getMrnId(),"MRN",mrnMoveDetailsData.getSerialNumber(),mrnDetails.getFromOffice(),mrnDetails.getToOffice(),itemMasterId.get(0));
 			
-			details.setOfficeId(mrnDetails.getAgentId());
+			details.setOfficeId(mrnDetails.getPurchaseBy());
 			inventoryItemDetailsRepository.save(details);
 			inventoryTransactionHistoryJpaRepository.save(transactionHistory);
 			if(mrnDetails.getOrderQuantity().equals(mrnDetails.getReceivedQuantity())){

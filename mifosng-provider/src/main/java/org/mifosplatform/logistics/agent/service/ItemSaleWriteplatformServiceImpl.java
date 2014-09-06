@@ -59,6 +59,10 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
         	this.context.authenticatedUser();
         	this.apiJsonDeserializer.validateForCreate(command.json());
         	ItemSale itemSale=ItemSale.fromJson(command);
+        	if(itemSale.getPurchaseFrom().equals(itemSale.getPurchaseBy())){
+        		
+        		throw new PlatformDataIntegrityException("invalid.move.operation", "invalid.move.operation", "invalid.move.operation");
+        	}
             ItemMaster itemMaster=this.itemRepository.findOne(itemSale.getItemId());
             TaxMap taxMap=this.taxMapRepository.findOneByChargeCode(itemSale.getChargeCode());
           	ItemSaleInvoice invoice=ItemSaleInvoice.fromJson(command);
