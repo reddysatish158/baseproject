@@ -63,11 +63,13 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
             TaxMap taxMap=this.taxMapRepository.findOneByChargeCode(itemSale.getChargeCode());
           	ItemSaleInvoice invoice=ItemSaleInvoice.fromJson(command);
             BigDecimal taxAmount=BigDecimal.ZERO;
+            BigDecimal taxrate=BigDecimal.ZERO;
             if(taxMap != null){
+            	taxrate=taxMap.getRate();
             	if(taxMap.getType().equalsIgnoreCase("percentage")){
-            		taxAmount=invoice.getChargeAmount().multiply(taxMap.getRate().divide(new BigDecimal(100)));
+            		taxAmount=invoice.getChargeAmount().multiply(taxrate.divide(new BigDecimal(100)));
             	}else{
-            		taxAmount=invoice.getChargeAmount().add(taxMap.getRate());
+            		taxAmount=invoice.getChargeAmount().add(taxrate);
             	}
             }
             if(itemMaster == null){
@@ -75,9 +77,10 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
             }
           
       
-        	this.calculateTaxAmount(invoice.getChargeAmount(),invoice.getTaxPercantage());
-
+        	//this.calculateTaxAmount(invoice.getChargeAmount(),invoice.getTaxPercantage());
+ 
         	invoice.updateAmounts(taxAmount);
+        	invoice.setTaxpercentage(taxrate);
         	itemSale.setItemSaleInvoice(invoice);
         	
         	this.itemSaleRepository.save(itemSale);
@@ -100,7 +103,7 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
 		
 	}
 
-	private BigDecimal calculateTaxAmount(BigDecimal chargeAmount,BigDecimal taxPercantage) {
+	/*private BigDecimal calculateTaxAmount(BigDecimal chargeAmount,BigDecimal taxPercantage) {
 		
 		BigDecimal taxAmount=BigDecimal.ZERO;
 		taxAmount=chargeAmount.multiply(taxPercantage.divide(new BigDecimal(100)));
@@ -108,6 +111,6 @@ public class ItemSaleWriteplatformServiceImpl implements ItemSaleWriteplatformSe
 		
 		
 		
-	}
+	}*/
 
 }
