@@ -1,6 +1,7 @@
 package org.mifosplatform.logistics.mrn.service;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -158,34 +159,36 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 		InventoryTransactionHistory transactionHistory = null;
 		try {
 			final Long itemId = command.longValueOfParameterNamed("itemId");
-			MRNMoveDetailsData mrnMoveDetailsData = MRNMoveDetailsData.fromJson(command,itemId);
+			//MRNMoveDetailsData mrnMoveDetailsData = MRNMoveDetailsData.fromJson(command,itemId);
+			final String serialNumber= command.stringValueOfParameterNamed("serialNumber");
 			
 			ItemSale mrnDetails = itemSaleRepository.findOne(itemId);
 			List<Long> itemMasterId = mrnDetailsReadPlatformService.retriveItemMasterIdForSale(itemId);
 			
-			final List<String> serialNumber = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(mrnDetails.getPurchaseBy(),itemId);
-			
-			if(!serialNumber.contains(mrnMoveDetailsData.getSerialNumber())){
-				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation", "invalid.serialnumber.allocation", "serialNumber","");
+			final List<String> serialNumbers = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(mrnDetails.getPurchaseFrom(),itemId,serialNumber);
+			if(serialNumbers == null || serialNumbers.size() == 0){
+				
+				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation.or.serialnumber.does.not.exist", "invalid.serialnumber.allocation", "serialNumber","");
 			}
-			
-			List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0));
+			List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(serialNumber, itemMasterId.get(0));
 			InventoryItemDetails details = inventoryItemDetailsRepository.findOne(itemDetailsId.get(0));
-			
-			
 			
 			/*if(details.getOfficeId().equals(mrnDetails.getAgentId())){
 				throw new PlatformDataIntegrityException("invalid.move.operation", "invalid.move.operation", "invalid.move.operation");
 			}*/
+		
 			details.setOfficeId(mrnDetails.getPurchaseBy());
+			
 			if(mrnDetails.getReceivedQuantity() < mrnDetails.getOrderQuantity()){
 				mrnDetails.setReceivedQuantity(mrnDetails.getReceivedQuantity()+1);
 				mrnDetails.setStatus("Pending");
+			
+		
 			} else if(mrnDetails.getReceivedQuantity().equals(mrnDetails.getOrderQuantity())){
 				throw new PlatformDataIntegrityException("received.quantity.is.full", "received.quantity.is.full", "received.quantity.is.full");
 			}
 			
-			transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(), itemId,"MRN", mrnMoveDetailsData.getSerialNumber(), itemMasterId.get(0), mrnDetails.getPurchaseBy(), mrnDetails.getPurchaseBy());
+			transactionHistory = InventoryTransactionHistory.logTransaction(new Date(), itemId,"Move ItemSale",serialNumber, itemMasterId.get(0), mrnDetails.getPurchaseFrom(), mrnDetails.getPurchaseBy());
 			//InventoryTransactionHistory transactionHistory = InventoryTransactionHistory.logTransaction(mrnMoveDetailsData.getMovedDate(),mrnMoveDetailsData.getMrnId(),"MRN",mrnMoveDetailsData.getSerialNumber(),mrnDetails.getFromOffice(),mrnDetails.getToOffice(),itemMasterId.get(0));
 			
 			details.setOfficeId(mrnDetails.getPurchaseBy());
@@ -197,11 +200,14 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			itemSaleRepository.save(mrnDetails);
 			
 			
-		} catch (ParseException e) {
-			throw new PlatformDataIntegrityException("invalid.moved.date", "invalid.moved.date", "invalid.moved.date");
-		} catch (EmptyResultDataAccessException e) {
+		}/* catch (EmptyResultDataAccessException e) {
 			throw new PlatformDataIntegrityException("serial.number.doest.not.exist", "serial.number.doest.not.exist", "serial.number.doest.not.exist");
-		}
+		}*/
+		catch (DataIntegrityViolationException e) {
+			//throw new PlatformDataIntegrityException("invalid.moved.date", "invalid.moved.date", "invalid.moved.date");
+			handleDataIntegrityIssues(command, e);
+			//e.printStackTrace();
+		} 
 	
 		
 		/*

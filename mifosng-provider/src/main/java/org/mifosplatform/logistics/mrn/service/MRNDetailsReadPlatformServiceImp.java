@@ -15,6 +15,7 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.mrn.data.InventoryTransactionHistoryData;
 import org.mifosplatform.logistics.mrn.data.MRNDetailsData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -330,14 +331,16 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	}
 	@Override
 	public MRNDetailsData retriveSingleMrnDetail(Long mrnId) {
-		final String sql = "select mrn.id as mrnId, mrn.requested_date as requestedDate, (select item_description from b_item_master where id=mrn.item_master_id) as item,(select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice, mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn where mrn.id=?";
+		final String sql = "select mrn.id as id, mrn.requested_date as requestedDate, (select item_description from b_item_master where id=mrn.item_master_id) as item," +
+				          "  (select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice," +
+				          "   mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn where mrn.id=?";
 		final MRNDetailsMapper rowMapper = new MRNDetailsMapper();
 		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{mrnId});
 	}
 
 	@Override
 	public MRNDetailsData retriveAgentId(Long itemsaleId) {
-		final String sql = "select purchase_by as agentId from b_itemsale where id=?";
+		final String sql = "select purchase_from as agentId from b_itemsale where id=?";
 		final AgentDetailsMapper rowMapper = new AgentDetailsMapper(); 
 		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{itemsaleId});
 	}
@@ -352,10 +355,22 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	}
 	
 	@Override
-	public List<String> retriveSerialNumbersForItems(Long agentId, Long itemsaleId) {
-		final String sql = "select idt.serial_no as serialNumber from b_itemsale bi left join b_item_detail idt on idt.item_master_id = bi.item_id where bi.id = ? and idt.client_id is null and idt.office_id=?";//"select serial_no as serialNumber from b_item_detail where item_master_id=? and client_id is null";
+	public List<String> retriveSerialNumbersForItems(Long agentId, Long itemsaleId,String serialNumber) {
+		try{
+		 String sql = " select idt.serial_no as serialNumber from b_itemsale bi left join b_item_detail idt on" +
+				           " idt.item_master_id = bi.item_id where bi.id = ? and idt.client_id is null and idt.office_id=?";
+		
+		 if(serialNumber != null){
+			  sql = " select idt.serial_no as serialNumber from b_itemsale bi left join b_item_detail idt on" +
+			           " idt.item_master_id = bi.item_id where bi.id = ? and idt.client_id is null and idt.office_id=? and idt.serial_no='"+serialNumber+"'";
+		}
+		
 		final MRNDetailsSerialMapper rowMapper = new MRNDetailsSerialMapper();
 		return jdbcTemplate.query(sql,rowMapper,new Object[]{itemsaleId,agentId});
+
+		}catch(EmptyResultDataAccessException ex){
+			return null;
+		}
 	}
 	
 	@Override

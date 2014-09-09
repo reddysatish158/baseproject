@@ -128,7 +128,7 @@ public class MRNDetailsApiResource {
 		}
 		if(itemsaleId!=null && itemsaleId > 0){
 			final MRNDetailsData itemsaleDetails = mrnDetailsReadPlatformService.retriveAgentId(itemsaleId);
-			final List<String> serialNumberForItems = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(itemsaleDetails.getOfficeId(),itemsaleId);
+			final List<String> serialNumberForItems = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(itemsaleDetails.getOfficeId(),itemsaleId,null);
 			final MRNDetailsData mrnDetailsData = new MRNDetailsData(serialNumberForItems);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return apiJsonSerializer.serialize(settings,mrnDetailsData,RESPONSE_PARAMETERS);

@@ -2,8 +2,6 @@ package org.mifosplatform.logistics.agent.service;
 
 import java.math.BigDecimal;
 
-import org.mifosplatform.billing.chargecode.domain.ChargeCode;
-import org.mifosplatform.billing.chargecode.domain.ChargeCodeRepository;
 import org.mifosplatform.billing.taxmapping.domain.TaxMap;
 import org.mifosplatform.billing.taxmapping.domain.TaxMapRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;

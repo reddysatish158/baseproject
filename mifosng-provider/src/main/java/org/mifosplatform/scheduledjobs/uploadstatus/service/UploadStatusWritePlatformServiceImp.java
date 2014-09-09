@@ -529,6 +529,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			if(csvFileBufferedReader!=null){
 				try{
 					csvFileBufferedReader.close();
+					
 				}catch(Exception e){
 					e.printStackTrace();
 				}
@@ -537,6 +538,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		
 		
 		writeToFile(fileLocation,errorData);
+		
 		
 		}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
 			
@@ -624,13 +626,19 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				writeCSVData(fileLocation, errorData,uploadStatusForMrn);
 				processRecordCount=0L;totalRecordCount=0L;
 				uploadStatusForMrn=null;
-				
+				csvFileBufferedReader.close();
 			}catch (FileNotFoundException e) {
-				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
+				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");
 			}catch (Exception e) {
 				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
+				try {
+					csvFileBufferedReader.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
-			}finally{
+			}/*finally{
 				if(csvFileBufferedReader!=null){
 					try{
 						csvFileBufferedReader.close();
@@ -638,7 +646,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						e.printStackTrace();
 					}
 				}
-			}
+			}*/
 			
 			
 			writeToFile(fileLocation,errorData);

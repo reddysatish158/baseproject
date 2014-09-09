@@ -36,7 +36,7 @@ public interface MRNDetailsReadPlatformService {
 
 	MRNDetailsData retriveAgentId(Long itemsaleId);
 
-	List<String> retriveSerialNumbersForItems(Long officeId, Long itemsaleId);
+	List<String> retriveSerialNumbersForItems(Long officeId, Long itemsaleId, String serialNumber);
 
 	List<Long> retriveItemMasterIdForSale(Long mrnId);
 }
