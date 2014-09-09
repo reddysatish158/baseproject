@@ -67,6 +67,7 @@ import org.mifosplatform.logistics.item.exception.ItemNotFoundException;
 import org.mifosplatform.logistics.itemdetails.api.InventoryItemDetailsApiResource;
 import org.mifosplatform.logistics.itemdetails.data.InventoryItemDetailsData;
 import org.mifosplatform.logistics.itemdetails.exception.OrderQuantityExceedsException;
+import org.mifosplatform.logistics.itemdetails.exception.SerialNumberNotFoundException;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.scheduledjobs.importfile.data.MRNErrorData;
@@ -135,8 +136,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		this.adjustmentApiResource=adjustmentApiResource;
 	}
 	
-	//@Transactional
-	@Transactional
+
 	@Override
 	public CommandProcessingResult updateUploadStatus(Long orderId,int countno, ApiRequestJsonSerializationSettings settings) {
 		//processRecords=(long)0;
@@ -281,6 +281,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				String[] currentLineData = line.split(splitLineRegX);
 				
 				if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
+					
 					uploadStatusForMrn.setProcessRecords(processRecordCount);
 					uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
 					uploadStatusForMrn.setTotalRecords(totalRecordCount);
@@ -492,8 +493,9 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				
 				}catch(OrderQuantityExceedsException e){
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
-				}catch(NoGrnIdFoundException e){
+				}catch (SerialNumberNotFoundException e) {
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
+				
 				}catch (PlatformApiDataValidationException e) {
 					errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
 					
@@ -519,8 +521,10 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			writeCSVData(fileLocation, errorData,uploadStatusForMrn);
 			processRecordCount=0L;totalRecordCount=0L;
 			uploadStatusForMrn=null;
-			
+			csvFileBufferedReader.close();
+		
 		}catch (FileNotFoundException e) {
+			
 			throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
 		}catch (Exception e) {
 			errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
@@ -529,7 +533,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 			if(csvFileBufferedReader!=null){
 				try{
 					csvFileBufferedReader.close();
-					
 				}catch(Exception e){
 					e.printStackTrace();
 				}
@@ -538,7 +541,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		
 		
 		writeToFile(fileLocation,errorData);
-		
 		
 		}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
 			
@@ -626,19 +628,13 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				writeCSVData(fileLocation, errorData,uploadStatusForMrn);
 				processRecordCount=0L;totalRecordCount=0L;
 				uploadStatusForMrn=null;
-				csvFileBufferedReader.close();
+				
 			}catch (FileNotFoundException e) {
-				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");
+				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
 			}catch (Exception e) {
 				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
-				try {
-					csvFileBufferedReader.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
 				
-			}/*finally{
+			}finally{
 				if(csvFileBufferedReader!=null){
 					try{
 						csvFileBufferedReader.close();
@@ -646,7 +642,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 						e.printStackTrace();
 					}
 				}
-			}*/
+			}
 			
 			
 			writeToFile(fileLocation,errorData);
@@ -671,6 +667,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					line = csvFileBufferedReader.readLine();
 					while((line = csvFileBufferedReader.readLine()) != null){
 						try{
+							line=line.replace(";"," ");
 						String[] currentLineData = line.split(splitLineRegX);
 						
 						if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
@@ -791,6 +788,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					line = csvFileBufferedReader.readLine();
 					while((line = csvFileBufferedReader.readLine()) != null){
 						try{
+							line=line.replace(";"," ");
 						String[] currentLineData = line.split(splitLineRegX);
 						
 						if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
@@ -804,7 +802,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 							return new CommandProcessingResult(Long.valueOf(-1));
 						}
 						
-						if(currentLineData.length>=5){
+						if(currentLineData.length>=6){
 							paymodeDataList = this.paymodeReadPlatformService.retrievemCodeDetails("Payment Mode");
 						       
 				             if(paymodeDataList!=null && paymodeDataList.size()>0)
@@ -830,6 +828,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				                 jsonObject.put("remarks",  currentLineData[4]);
 				                 jsonObject.put("locale", "en");
 				                 jsonObject.put("dateFormat","dd MMMM yyyy");
+				                 jsonObject.put("receiptNo",currentLineData[4]);
 				                 totalRecordCount++;
 				                 final CommandWrapper commandRequest = new CommandWrapperBuilder().createPayment(Long.valueOf(currentLineData[0])).withJson(jsonObject.toString().toString()).build();
 				                 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
@@ -1096,6 +1095,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				line = csvFileBufferedReader.readLine();
 				while((line = csvFileBufferedReader.readLine()) != null){
 					try{
+						line=line.replace(";"," ");
 					String[] currentLineData = line.split(splitLineRegX);
 					
 					if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
@@ -1852,6 +1852,8 @@ public synchronized void writeXLSXFileMediaEpgMrn(final String excelFileName, fi
 
 private void writeCSVData(String fileLocation,
 		ArrayList<MRNErrorData> errorData, UploadStatus uploadStatusForMrn) {
+	
+	try{
 		
 		long processRecords = uploadStatusForMrn.getProcessRecords();
 		long totalRecords = uploadStatusForMrn.getTotalRecords();
@@ -1872,6 +1874,9 @@ private void writeCSVData(String fileLocation,
 		uploadStatusForMrn.setProcessDate(new LocalDate().toDate());
 		this.uploadStatusRepository.save(uploadStatusForMrn);
 		uploadStatusForMrn = null;
+	}catch(Exception  exception){
+		exception.printStackTrace();
+	}
 	}
 
 	public void writeToFile(String fileLocation,ArrayList<MRNErrorData> errorData){
@@ -1903,4 +1908,5 @@ private void writeCSVData(String fileLocation,
 		}
 	}
 }
+
 

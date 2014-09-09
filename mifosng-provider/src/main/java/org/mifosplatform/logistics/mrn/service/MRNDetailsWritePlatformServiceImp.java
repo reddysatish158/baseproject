@@ -13,6 +13,7 @@ import org.mifosplatform.logistics.agent.domain.ItemSale;
 import org.mifosplatform.logistics.agent.domain.ItemSaleRepository;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetails;
 import org.mifosplatform.logistics.itemdetails.domain.InventoryItemDetailsRepository;
+import org.mifosplatform.logistics.itemdetails.exception.SerialNumberNotFoundException;
 import org.mifosplatform.logistics.mrn.api.MRNDetailsJpaRepository;
 import org.mifosplatform.logistics.mrn.data.MRNMoveDetailsData;
 import org.mifosplatform.logistics.mrn.domain.InventoryTransactionHistory;
@@ -168,7 +169,7 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			final List<String> serialNumbers = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(mrnDetails.getPurchaseFrom(),itemId,serialNumber);
 			if(serialNumbers == null || serialNumbers.size() == 0){
 				
-				throw new PlatformDataIntegrityException("invalid.serialnumber.allocation.or.serialnumber.does.not.exist", "invalid.serialnumber.allocation", "serialNumber","");
+				throw new SerialNumberNotFoundException(serialNumber);
 			}
 			List<Long> itemDetailsId = mrnDetailsReadPlatformService.retriveItemDetailsId(serialNumber, itemMasterId.get(0));
 			InventoryItemDetails details = inventoryItemDetailsRepository.findOne(itemDetailsId.get(0));
@@ -203,9 +204,10 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 		}/* catch (EmptyResultDataAccessException e) {
 			throw new PlatformDataIntegrityException("serial.number.doest.not.exist", "serial.number.doest.not.exist", "serial.number.doest.not.exist");
 		}*/
-		catch (DataIntegrityViolationException e) {
+		catch (EmptyResultDataAccessException e) {
 			//throw new PlatformDataIntegrityException("invalid.moved.date", "invalid.moved.date", "invalid.moved.date");
-			handleDataIntegrityIssues(command, e);
+			throw new PlatformDataIntegrityException("serial.number.doest.not.exist", "serial.number.doest.not.exist", "serial.number.doest.not.exist");
+			//handleDataIntegrityIssues(command, e);
 			//e.printStackTrace();
 		} 
 	
