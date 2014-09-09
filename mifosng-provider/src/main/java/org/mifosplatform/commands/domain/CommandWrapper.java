@@ -907,7 +907,7 @@ public class CommandWrapper {
 		}
 
 		public boolean isUserChatResource() {
-			return this.entityName.equalsIgnoreCase("USERCHAT");
+			return this.entityName.equalsIgnoreCase("USERCHATMESSAGE");
 		}
 
 		public boolean isUpdatePaymentGateway() {

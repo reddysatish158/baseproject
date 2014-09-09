@@ -14,6 +14,7 @@ END $$
 DELIMITER ;
 call addchargecode();
 insert ignore into m_permission (id,grouping,code,entity_name,action_name,can_maker_checker) VALUES (null,'billing','CREATE_ITEMSALE','ITEMSALE','CREATE',0);
+insert ignore into m_permission values(null,'billing','CREATE_USERCHATMESSAGE','USERCHATMESSAGE','CREATE',0);
 
 drop table IF EXISTS `m_invoice`;
 CREATE TABLE `m_invoice` (
