@@ -115,7 +115,7 @@ public class OneTimeSalesApiResource {
 	}
 
 	private OneTimeSaleData handleTemplateRelatedData(OneTimeSaleData salesData) {
-		List<ChargesData> chargeDatas = this.priceReadPlatformService.retrieveChargeCode();
+		List<ChargesData> chargeDatas = this.itemMasterReadPlatformService.retrieveChargeCode();
 		List<ItemData> itemData = this.oneTimeSaleReadPlatformService.retrieveItemData();
 		final Collection<OfficeData> offices = officeReadPlatformService.retrieveAllOfficesForDropdown();
 		List<DiscountMasterData> discountdata = this.priceReadPlatformService.retrieveDiscountDetails();
