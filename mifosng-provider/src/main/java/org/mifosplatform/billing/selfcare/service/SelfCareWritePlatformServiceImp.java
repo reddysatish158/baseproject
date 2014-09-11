@@ -48,6 +48,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	private ClientRepository clientRepository;
 	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
 	private final BillingMessageTemplateRepository billingMessageTemplateRepository;
+	private final LoginHistoryRepository loginHistoryRepository;
 		
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(SelfCareWritePlatformServiceImp.class);
 	
@@ -57,7 +58,8 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			final SelfCareReadPlatformService selfCareReadPlatformService, final PlatformEmailService platformEmailService, 
 			final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final MessagePlatformEmailService messagePlatformEmailService,
 			ClientRepository clientRepository,final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
-			final BillingMessageTemplateRepository billingMessageTemplateRepository) {
+			final BillingMessageTemplateRepository billingMessageTemplateRepository,
+			final LoginHistoryRepository loginHistoryRepository) {
 		this.context = context;
 		this.selfCareRepository = selfCareRepository;
 		this.fromJsonHelper = fromJsonHelper;
@@ -69,6 +71,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		this.clientRepository=clientRepository;
 		this.ownedHardwareJpaRepository=ownedHardwareJpaRepository;
 		this.billingMessageTemplateRepository=billingMessageTemplateRepository;
+		this.loginHistoryRepository=loginHistoryRepository;
 				
 	}
 	
@@ -129,6 +132,10 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	public CommandProcessingResult createSelfCareUDPassword(JsonCommand command) {
 		SelfCare selfCare = null;
 		Long clientId = null;
+		String ipAddress=command.stringValueOfParameterNamed("ipAddress");
+		String session=command.stringValueOfParameterNamed("");
+		Long loginHistoryId=null;
+		
 		try{
 			context.authenticatedUser();
 			selfCareCommandFromApiJsonDeserializer.validateForCreateUDPassword(command);
@@ -140,7 +147,11 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			}
 			selfCare.setClientId(clientId);
 			selfCareRepository.save(selfCare);
-			transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Self Care user activation", new Date(), "USerName: "+selfCare.getUserName()+" ClientId"+selfCare.getClientId());
+			String username=selfCare.getUserName();
+			transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Self Care user activation", new Date(), "USerName: "+username+" ClientId"+selfCare.getClientId());
+			LoginHistory loginHistory=new LoginHistory(ipAddress,null,session,new Date(),null,username,"ACTIVE");
+    		this.loginHistoryRepository.save(loginHistory);
+    		loginHistoryId=loginHistory.getId();
 			}
 			catch(EmptyResultDataAccessException dve){
 				throw new PlatformDataIntegrityException("invalid.account.details","invalid.account.details","this user is not registered");
@@ -154,7 +165,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			throw new PlatformDataIntegrityException("empty.result.set", "empty.result.set");
 		}
 		
-		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
+		return new CommandProcessingResultBuilder().withEntityId(loginHistoryId).build();
 	}
 	@Override
 	public CommandProcessingResult updateSelfCareUDPassword(JsonCommand command) {

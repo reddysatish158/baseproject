@@ -74,7 +74,7 @@ final public class ClientData implements Comparable<ClientData> {
     private GlobalConfigurationProperty configurationPropertyforIos;
 	private  final String currency;
 	 private final Collection<CodeValueData> closureReasons;
-	 private final boolean balanceCheck;
+	 private boolean balanceCheck;
     public static ClientData template(final Long officeId, final LocalDate joinedDate, final Collection<OfficeData> officeOptions, Collection<ClientCategoryData> categoryDatas,
     		List<CodeValueData> closureReasons) {
 
@@ -282,6 +282,11 @@ final public class ClientData implements Comparable<ClientData> {
 	}
 	public void setConfigurationPropertyForIos(GlobalConfigurationProperty configurationPropertyforIos) {
 		this.configurationPropertyforIos = configurationPropertyforIos;
+	}
+
+	public void setBalanceCheck(boolean isEnabled) {
+
+		this.balanceCheck=isEnabled;
 	}
 	
 	
