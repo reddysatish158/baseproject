@@ -19,6 +19,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpRequest;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mifosplatform.billing.loginhistory.data.LoginHistoryData;
 import org.mifosplatform.billing.loginhistory.domain.LoginHistory;
 import org.mifosplatform.billing.loginhistory.domain.LoginHistoryRepository;
@@ -152,10 +154,15 @@ public class SelfCareApiResource {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String createSelfCareClientUDPassword(final String jsonRequestBody) {
+	public String createSelfCareClientUDPassword(final String jsonRequestBody,@Context HttpServletRequest request) throws JSONException {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCareUDP().withJson(jsonRequestBody).build();
-		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);	 
+		JSONObject json = new JSONObject(jsonRequestBody); 
+		json.put("session", request.getSession().getId());
+		json.put("ipAddress", request.getRemoteHost());
+		String jsonRequestBody1=json.toString();		
+		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCareUDP().withJson(jsonRequestBody1).build();
+		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+			
 	    return this.toApiJsonSerializerForItem.serialize(result);	
 	}	
    
@@ -213,7 +220,8 @@ public class SelfCareApiResource {
         List<PaymentData> paymentsData = paymentReadPlatformService.retrivePaymentsData(clientId);
         final List<TicketMasterData> ticketMastersData = this.ticketMasterReadPlatformService.retrieveClientTicketDetails(clientId);
         careData.setDetails(clientsData,balanceData,addressData,clientOrdersData,statementsData,paymentsData,ticketMastersData,loginHistoryId);
-        
+        GlobalConfigurationProperty balanceCheck=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+        clientsData.setBalanceCheck(balanceCheck.isEnabled());
         //adding Is_paypal Global Data by Ashok
         GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
         careData.setPaypalConfigData(paypalConfigData);

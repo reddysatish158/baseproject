@@ -161,6 +161,8 @@ public class MediaDeviceApiResource {
 			}
 			GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
 			datas.setPaypalConfigData(paypalConfigData);
+			GlobalConfigurationProperty paypalConfigDataForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
+			datas.setPaypalConfigDataForIos(paypalConfigDataForIos);
 			GlobalConfigurationProperty configurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
 			datas.setBalanceCheck(configurationProperty.isEnabled());
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
