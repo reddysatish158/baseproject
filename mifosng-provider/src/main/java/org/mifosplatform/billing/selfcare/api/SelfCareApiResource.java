@@ -220,7 +220,8 @@ public class SelfCareApiResource {
         List<PaymentData> paymentsData = paymentReadPlatformService.retrivePaymentsData(clientId);
         final List<TicketMasterData> ticketMastersData = this.ticketMasterReadPlatformService.retrieveClientTicketDetails(clientId);
         careData.setDetails(clientsData,balanceData,addressData,clientOrdersData,statementsData,paymentsData,ticketMastersData,loginHistoryId);
-        
+        GlobalConfigurationProperty balanceCheck=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
+        clientsData.setBalanceCheck(balanceCheck.isEnabled());
         //adding Is_paypal Global Data by Ashok
         GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
         careData.setPaypalConfigData(paypalConfigData);
