@@ -7,11 +7,13 @@ package org.mifosplatform.infrastructure.core.serialization;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -184,4 +186,24 @@ public class FromJsonHelper {
     public String extractDateFormatParameter(final JsonObject element) {
         return helperDelegator.extractDateFormatParameter(element);
     }
+
+	
+   public void checkForUnsupportedParameters(final JsonObject object, final Set<String> supportedParams) {
+	        if (object == null) { throw new InvalidParameterException(); }
+
+	        final Set<Entry<String, JsonElement>> entries = object.entrySet();
+	        final List<String> unsupportedParameterList = new ArrayList<String>();
+
+	        for (final Entry<String, JsonElement> providedParameter : entries) {
+	            if (!supportedParams.contains(providedParameter.getKey())) {
+	                unsupportedParameterList.add(providedParameter.getKey());
+	            }
+	        }
+
+	        if (!unsupportedParameterList.isEmpty()) { throw new UnsupportedParameterException(unsupportedParameterList); }
+	   }
+
+
+		
+	
 }

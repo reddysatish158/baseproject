@@ -19,5 +19,7 @@ public interface MessagePlatformEmailService {
 
 	String sendGeneralMessage(String emailId,String body,String subject);
 	
+	String sendMediaDeviceCrashEmailSending(String uniqueReference, String crashReportString);
+	
 	
 }

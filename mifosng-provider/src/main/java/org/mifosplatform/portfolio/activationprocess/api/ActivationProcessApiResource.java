@@ -40,7 +40,8 @@ public class ActivationProcessApiResource {
     }
 
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON })    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON }) 
+    @Produces({ MediaType.APPLICATION_JSON })
     public String create(final String apiRequestBodyAsJson) {
 
         final CommandWrapper commandRequest = new CommandWrapperBuilder() //

@@ -9,16 +9,18 @@ public class OrderHistoryData {
 	private final LocalDate actualDate;
 	private final LocalDate provisioningDate;
 	private final String transactioType;
-	private Long PrepareRequsetId;
+	private final Long PrepareRequsetId;
+	private final String userName;
 
-	public OrderHistoryData(Long id, LocalDate transDate, LocalDate actualDate,
-			LocalDate provisionongDate, String transactionType, Long prepareRequsetId) {
+	public OrderHistoryData(Long id, LocalDate transDate, LocalDate actualDate,LocalDate provisionongDate, 
+			String transactionType, Long prepareRequsetId, String userName) {
                this.id=id;
                this.transactionDate=transDate;
                this.actualDate=actualDate;
                this.provisioningDate=provisionongDate;
                this.transactioType=transactionType;
                this.PrepareRequsetId=prepareRequsetId;
+               this.userName=userName;
 	
 	}
 

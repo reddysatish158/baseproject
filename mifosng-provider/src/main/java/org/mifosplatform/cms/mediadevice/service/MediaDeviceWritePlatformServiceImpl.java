@@ -32,7 +32,7 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 	@Autowired
 	public MediaDeviceWritePlatformServiceImpl(final PlatformSecurityContext context,
 			final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
-			final MediaDeviceReadPlatformService mediaDeviceReadPlatformService,
+			final MediaDeviceReadPlatformService mediaDeviceReadPlatformService, 
 			final SelfCareRepository selfCareRepository, 
 			final MessagePlatformEmailService messagePlatformEmailService){
 		
@@ -99,7 +99,9 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 			String crashReportString = command.stringValueOfParameterNamed("crashReportString");
 			SelfCare selfCare = SelfCareRetrieveByClientId(clientId);
 			selfCare.setStatus("INACTIVE");		
-			String message = this.messagePlatformEmailService.sendGeneralMessage("shiva@openbillingsystem.com",crashReportString,"Crash Report");
+
+			String message = this.messagePlatformEmailService.sendGeneralMessage("shiva@openbillingsystem.com",crashReportString,"Crash Api Report");
+
 			if(message.equalsIgnoreCase("Success")){
 				message = clientId.toString();
 			}
@@ -109,7 +111,7 @@ public class MediaDeviceWritePlatformServiceImpl implements MediaDeviceWritePlat
 			return  CommandProcessingResult.empty();
 	  }
 	}
-	
+
 	private SelfCare SelfCareRetrieveByClientId(Long clientId) {
 		SelfCare selfCare = selfCareRepository.findOneByClientId(clientId);
 		if(selfCare==null){throw new SelfCareIdNotFoundException(clientId);}

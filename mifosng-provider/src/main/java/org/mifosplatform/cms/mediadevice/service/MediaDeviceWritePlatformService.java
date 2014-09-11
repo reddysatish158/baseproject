@@ -8,4 +8,6 @@ public interface MediaDeviceWritePlatformService {
 	CommandProcessingResult updateMediaDetailsStatus(JsonCommand command);
 
 	CommandProcessingResult updateMediaDetailsCrashStatus(Long entityId,JsonCommand command);
+	
+	
 }

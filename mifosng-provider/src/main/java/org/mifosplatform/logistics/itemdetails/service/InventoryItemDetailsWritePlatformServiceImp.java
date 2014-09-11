@@ -139,6 +139,7 @@ public class InventoryItemDetailsWritePlatformServiceImp implements InventoryIte
 			Long flag1 = command.longValueOfParameterNamed("flag");
 			InventoryGrn inventoryGrn = inventoryGrnRepository.findOne(inventoryItemDetails.getGrnId());
 			List<Long> itemMasterId = this.inventoryItemDetailsReadPlatformService.retriveSerialNumberForItemMasterId(inventoryItemDetails.getSerialNumber());
+			
 			if(itemMasterId.contains(inventoryItemDetails.getItemMasterId())){
 				
 				throw new PlatformDataIntegrityException("validation.error.msg.inventory.item.duplicate.serialNumber", "validation.error.msg.inventory.item.duplicate.serialNumber", "validation.error.msg.inventory.item.duplicate.serialNumber","validation.error.msg.inventory.item.duplicate.serialNumber");

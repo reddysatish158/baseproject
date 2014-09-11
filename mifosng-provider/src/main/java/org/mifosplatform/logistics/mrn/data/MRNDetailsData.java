@@ -9,7 +9,7 @@ import org.mifosplatform.organisation.office.data.OfficeData;
 
 public class MRNDetailsData {
 
-	private Long id;
+	private String id;
 	private LocalDate requestedDate;
 	private String fromOffice;
 	private String toOffice;
@@ -26,13 +26,15 @@ public class MRNDetailsData {
 	private String itemCode;
 	private String itemDescription;
 	private Collection<MRNDetailsData> mrnIds;
+	private List<MRNDetailsData> itemsaleIds;
 	private Long mrnId;
 	private List<String> serialNumber;
+	private List<String> serialNumberForItems;
 	private Long fromOfficeNum;
 	private Long toOfficeNum;
 	
 	
-	public MRNDetailsData(final Long id, final LocalDate requestedDate, final String fromOffice, final String toOffice, final Long orderdQuantity, final Long receivedQuantity, final String status, final String itemDescription){
+	public MRNDetailsData(final String id, final LocalDate requestedDate, final String fromOffice, final String toOffice, final Long orderdQuantity, final Long receivedQuantity, final String status, final String itemDescription){
 		this.id = id;
 		this.requestedDate = requestedDate;
 		this.fromOffice = fromOffice;
@@ -70,8 +72,9 @@ public class MRNDetailsData {
 		this.officeData = officeData;
 		this.itemMasterData = itemMasterData;
 	}
-	public MRNDetailsData(Collection<MRNDetailsData> mrnIds) {
+	public MRNDetailsData(Collection<MRNDetailsData> mrnIds,List<MRNDetailsData> itemsaleIds) {
 	this.mrnIds = mrnIds;
+	this.itemsaleIds=itemsaleIds;
 	}
 	public MRNDetailsData(Long mrnId,String itemDescription, Long itemId) {
 		this.mrnId = mrnId;
@@ -86,6 +89,19 @@ public class MRNDetailsData {
 	public MRNDetailsData(Long fromOffice, Long toOffice) {
 		this.fromOfficeNum = fromOffice;
 		this.toOfficeNum = toOffice;
+	}
+
+	public MRNDetailsData(String itemDescription, String itemsaleId,
+			Long itemMasterId) {
+		
+			this.id=itemsaleId;
+			this.itemId=itemMasterId;
+			this.itemDescription=itemDescription;
+	}
+
+	public MRNDetailsData(Long agentId) {
+		
+			this.officeId=agentId;
 	}
 
 	public LocalDate getRequestedDate() {
@@ -136,11 +152,11 @@ public class MRNDetailsData {
 		this.status = status;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

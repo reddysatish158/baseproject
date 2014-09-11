@@ -11,8 +11,12 @@ public interface ChargeCodeReadPlatformService {
 
 	
 	List<ChargeCodeData> getChargeCode();
+	
 	List<ChargeTypeData> getChargeType();
+	
 	List<DurationTypeData> getDurationType();
+	
 	List<BillFrequencyCodeData> getBillFrequency();
+	
 	ChargeCodeData getChargeCode(Long chargeCodeId);
 }

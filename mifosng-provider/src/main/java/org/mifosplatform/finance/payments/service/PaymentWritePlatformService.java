@@ -12,11 +12,5 @@ public interface PaymentWritePlatformService {
 	CommandProcessingResult cancelPayment(JsonCommand command,Long entityId);
 
 	CommandProcessingResult paypalEnquirey(JsonCommand command);
-	
-
-	
-	
-	
-	
 
 }

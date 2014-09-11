@@ -88,7 +88,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 			clientId = selfCareReadPlatformService.getClientId(selfCare.getUniqueReference());
 			email = selfCareReadPlatformService.getEmail(clientId);
 			}catch(EmptyResultDataAccessException erdae){
-				throw new PlatformDataIntegrityException("invalid.account.details","invalid.account.details");
+				throw new PlatformDataIntegrityException("this user is not registered","this user is not registered","");
 			}
 			
 			if(clientId !=null && clientId > 0 ){
@@ -110,6 +110,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 				body=new String(body1);
 				messagePlatformEmailService.sendGeneralMessage(email, body, subject);
 				/*platformEmailService.sendToUserAccount(new EmailDetail("Hugo Self Care Organisation ", "SelfCare",email, selfCare.getUserName()), unencodedPassword);*/
+
 				
 				transactionHistoryWritePlatformService.saveTransactionHistory(clientId, "Self Care user activation", new Date(), "USerName: "+selfCare.getUserName()+" ClientId"+selfCare.getClientId());
 			}else{
@@ -126,8 +127,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		return new CommandProcessingResultBuilder().withEntityId(selfCare.getClientId()).build();
 	}
 	
-	
-	
+
 	@Override
 	public CommandProcessingResult createSelfCareUDPassword(JsonCommand command) {
 		SelfCare selfCare = null;
@@ -199,7 +199,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 		messagePlatformEmailService.sendGeneralMessage(email, body, subject);
 		return new CommandProcessingResult(selfCare.getClientId());
 	}
-   
+
 	private void handleDataIntegrityIssues(JsonCommand command,DataIntegrityViolationException dve) {
 		 Throwable realCause = dve.getMostSpecificCause();
 		 logger.error(dve.getMessage(), dve);
@@ -208,7 +208,7 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
 	        }else if (realCause.getMessage().contains("unique_reference")){
 	        	throw new PlatformDataIntegrityException("validation.error.msg.selfcare.duplicate.email", "email: " + command.stringValueOfParameterNamed("uniqueReference")+ " already exists", "email", command.stringValueOfParameterNamed("uniqueReference"));
 	        }
-		
+
 	}
 	
 	@Override
@@ -236,7 +236,6 @@ public class SelfCareWritePlatformServiceImp implements SelfCareWritePlatformSer
             	return new CommandProcessingResult(Long.valueOf(-1));
             }
 
-		
 	}
 
 	/*@Override

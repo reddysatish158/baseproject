@@ -1,16 +1,17 @@
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.Socket;
+import org.mifosplatform.logistics.item.domain.StatusTypeEnum;
 
-import org.mifosplatform.portfolio.client.domain.ClientStatus;
 
-class TelnetClient
+class Jasper
 {
     public static void main(String args[]) throws Exception
     {
-    		
-    	
+
+		Long i=new Long(1);
+		Integer j=StatusTypeEnum.ACTIVE.getValue();
+		   if(i.equals(StatusTypeEnum.ACTIVE.getValue().longValue())){
+		System.out.println("tu");
+		   }else	
+			   System.out.println("false");
+
     }
 }

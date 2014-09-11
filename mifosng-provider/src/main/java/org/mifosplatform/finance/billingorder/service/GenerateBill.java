@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.mifosplatform.finance.billingorder.commands.BillingOrderCommand;
 import org.mifosplatform.finance.billingorder.commands.InvoiceTaxCommand;
 import org.mifosplatform.finance.billingorder.data.BillingOrderData;
+import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
 import org.mifosplatform.infrastructure.configuration.exception.GlobalConfigurationPropertyNotFoundException;
@@ -75,7 +75,7 @@ public class GenerateBill {
 		LocalDate nextbillDate = null;
 		startDate = new LocalDate(billingOrderData.getBillStartDate());
 		endDate = startDate.dayOfMonth().withMaximumValue();
-		
+
 		if (endDate.toDate().before(billingOrderData.getBillEndDate()) || endDate.toDate().equals(billingOrderData.getBillEndDate())) {
 			int currentDay = startDate.getDayOfMonth();
 			int endOfMonth = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
@@ -286,7 +286,7 @@ public class GenerateBill {
 			// please consider the contract start date over here
 			startDate = new LocalDate(billingOrderData.getBillStartDate());
 			endDate = startDate.plusWeeks(billingOrderData.getChargeDuration()).minusDays(1);
-			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));;
+			price = billingOrderData.getPrice().setScale(Integer.parseInt(roundingDecimal()));
 		 } else if (billingOrderData.getInvoiceTillDate() != null) {
 
 			startDate = new LocalDate(billingOrderData.getNextBillableDate());

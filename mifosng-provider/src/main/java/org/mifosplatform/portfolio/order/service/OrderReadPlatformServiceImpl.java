@@ -18,7 +18,6 @@ import org.mifosplatform.portfolio.order.data.OrderHistoryData;
 import org.mifosplatform.portfolio.order.data.OrderLineData;
 import org.mifosplatform.portfolio.order.data.OrderPriceData;
 import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
-import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.plan.data.PlanCodeData;
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +33,13 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 	
 	    private final JdbcTemplate jdbcTemplate;
 	    private final PlatformSecurityContext context;
-	    private OrderRepository orderRepository;
         private  static  PriceReadPlatformService priceReadPlatformService;
         
 	    @Autowired
 	    public OrderReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
-			final PriceReadPlatformService priceReadPlatformService,final OrderRepository repository) {
+			final PriceReadPlatformService priceReadPlatformService) {
 	        this.context = context;
 	        this.jdbcTemplate = new JdbcTemplate(dataSource);
-	        this.orderRepository=repository;
 	       OrderReadPlatformServiceImpl.priceReadPlatformService=priceReadPlatformService;
 
 	    }
@@ -160,10 +157,10 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 
 	      	        
 	        String sql = "SELECT p.id AS id,o.client_id AS clientId,p.order_id AS order_id,c.charge_description AS chargeDescription,"
-	        		+"s.service_description AS serviceDescription,p.charge_type AS charge_type,p.charge_duration AS chargeDuration, p.duration_type AS durationType,"
+	        		+"  if( p.service_id =0,'None',s.service_description) AS serviceDescription,p.charge_type AS charge_type,p.charge_duration AS chargeDuration, p.duration_type AS durationType,"
 	        		+"p.price AS price,p.bill_start_date as billStartDate,p.bill_end_date as billEndDate,p.next_billable_day as nextBillableDay,p.invoice_tilldate as invoiceTillDate,"
 	        		+"  o.billing_align as billingAlign, o.billing_frequency as billingFrequency FROM b_order_price p,b_charge_codes c,b_service s, b_orders o "
-	        		+"WHERE p.charge_code = c.charge_code AND p.service_id = s.id  AND o.id = p.order_id  AND p.order_id =?";
+	        		+" where p.charge_code = c.charge_code AND (p.service_id = s.id or p.service_id=0) AND o.id = p.order_id AND p.order_id = ? group by p.id";
 
 	        return this.jdbcTemplate.query(sql, rm, new Object[] { orderId });
 	}
@@ -199,7 +196,8 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 			final ClientOrderMapper mapper = new ClientOrderMapper();
 
 			final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.client_id= ? and o.is_deleted='n' and " +
-					"o.contract_period = co.id   order by o.id desc";
+					"o.contract_period = co.id and c.id=o.client_id order by o.id desc";
+
 			return jdbcTemplate.query(sql, mapper, new Object[] { clientId});
 			} catch (EmptyResultDataAccessException e) {
 			return null;
@@ -210,11 +208,12 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 			private static final class ClientOrderMapper implements RowMapper<OrderData> {
 
 			public String clientOrderLookupSchema() {
-			return "o.id AS id,o.plan_id AS plan_id, o.start_date AS start_date,o.order_status AS order_status,p.plan_code AS plan_code,"
-					+"o.end_date AS end_date,co.contract_period as contractPeriod,o.order_no as orderNo,o.user_action AS userAction," +
-					" o.active_date AS activeDate,p.is_prepaid as isprepaid,p.allow_topup as allowTopUp," +
-					"date_sub(o.next_billable_day,INTERVAL 1 DAY) as invoiceTillDate,(SELECT sum(ol.price) AS price FROM b_order_price ol"
-					+" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co";
+			return  " o.id AS id,o.plan_id AS plan_id, o.start_date AS start_date,o.order_status AS order_status,p.plan_code AS plan_code,"
+				   +" o.end_date AS end_date,co.contract_period as contractPeriod,o.order_no as orderNo,o.user_action AS userAction,o.active_date AS activeDate," +
+					" p.is_prepaid as isprepaid,p.allow_topup as allowTopUp, ifnull(g.group_name, p.plan_code) as groupName,  " +
+					" date_sub(o.next_billable_day,INTERVAL 1 DAY) as invoiceTillDate,(SELECT sum(ol.price) AS price FROM b_order_price ol"
+				   +" WHERE o.id = ol.order_id)  AS price,p.provision_sys as provSys  FROM b_orders o, b_plan_master p,b_contract_period co, m_client c " +
+				   "  left join b_group g on g.id=c.group_id ";
 			}
 
 			@Override
@@ -235,12 +234,12 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
             final String userAction=rs.getString("userAction");
             final String provSys=rs.getString("provSys");
             final String orderNo=rs.getString("orderNo");
-           
+            final String groupName=rs.getString("groupName");
 			EnumOptionData Enumstatus=OrderStatusEnumaration.OrderStatusType(statusId);
 			String status=Enumstatus.getValue();
 
 			return new OrderData(id, planId, plancode, status, startDate,endDate,price,contractPeriod,isprepaid,allowtopup,userAction,
-					provSys,orderNo,invoiceTillDate,activaDate);
+					provSys,orderNo,invoiceTillDate,activaDate,groupName);
 			}
 			}
 
@@ -262,8 +261,9 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					private static final class OrderHistoryMapper implements RowMapper<OrderHistoryData> {
 
 					public String clientOrderLookupSchema() {
-					return " h.id AS id,h.transaction_date AS transDate,h.actual_date AS actualDate,h.transaction_type AS transactionType," +
-							"h.prepare_id AS PrepareRequsetId  FROM b_orders_history h  where h.order_id =?";
+					return "  h.id AS id,h.transaction_date AS transDate,h.actual_date AS actualDate,h.transaction_type AS transactionType," +
+							" h.prepare_id AS PrepareRequsetId, ifnull(a.username,'by Scheduler job') as userName  FROM b_orders_history h" +
+							"  left join m_appuser a on a.id=h.createdby_id WHERE h.order_id = ? ";
 					}
 
 					@Override
@@ -275,8 +275,9 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					final LocalDate provisionongDate=JdbcSupport.getLocalDate(rs,"actualDate");
 					final String transactionType=rs.getString("transactionType");
 					final Long PrepareRequsetId=rs.getLong("PrepareRequsetId");
+					final String userName=rs.getString("userName");
 
-					return new OrderHistoryData(id,transDate,actualDate,provisionongDate,transactionType,PrepareRequsetId );
+					return new OrderHistoryData(id,transDate,actualDate,provisionongDate,transactionType,PrepareRequsetId,userName);
 					}
 			}
 
@@ -335,8 +336,9 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					public OrderData retrieveOrderDetails(Long orderId) {
 						try {
 							final ClientOrderMapper mapper = new ClientOrderMapper();
-							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.id=? and " +
-									" o.is_deleted='n' and o.contract_period = co.id order by o.id desc";
+							final String sql = "select " + mapper.clientOrderLookupSchema()+" where o.plan_id = p.id and o.id=? and o.is_deleted='n'" +
+									" and o.contract_period = co.id  and  c.id=o.client_id order by o.id desc";
+
 							return jdbcTemplate.queryForObject(sql, mapper, new Object[] { orderId});
 							} catch (EmptyResultDataAccessException e) {
 							return null;
@@ -407,7 +409,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					private static final class ClientOrderServiceMapper implements RowMapper<OrderLineData> {
 
 						public String orderServiceLookupSchema() {
-						return " ol.id as id,ol.order_id as orderId,s.service_code as serviceCode, s.service_description as serviceDescription,s.service_type as serviceType FROM b_order_line ol, b_service s" +
+						return " ol.id as id,s.id as serviceId,ol.order_id as orderId,s.service_code as serviceCode, s.service_description as serviceDescription,s.service_type as serviceType FROM b_order_line ol, b_service s" +
 								" WHERE order_id =? and ol.service_id=s.id and ol.is_deleted ='N'";
 						}
 
@@ -419,8 +421,8 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 						final String serviceCode=rs.getString("serviceCode");
 						final String serviceDescription=rs.getString("serviceDescription");
 						final String serviceType=rs.getString("serviceType");
-						
-						return new OrderLineData(id,orderId,serviceCode,serviceDescription,serviceType);
+						final Long serviceId=rs.getLong("serviceId");
+						return new OrderLineData(id,orderId,serviceCode,serviceDescription,serviceType,serviceId);
 						}
 				}
 
@@ -481,7 +483,7 @@ public class OrderReadPlatformServiceImpl implements OrderReadPlatformService
 					private static final class ClientActiveOrderMapper implements RowMapper<Long> {
 						
 						public String activeOrderLookupSchema() {
-							return "  ifnull(max(o.id),0) as orders from b_orders o, b_association a where  o.id = a.order_id and o.client_id = ? " +
+							return " ifnull(max(o.id),0) as orders from b_orders o, b_association a where  o.id = a.order_id and o.client_id = ? " +
 									" and  o.order_status=1 ";
 							}
 

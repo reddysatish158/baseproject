@@ -101,7 +101,7 @@ public class OwnedHardwareReadPlatformServiceImp implements	OwnedHardwareReadPla
 		public ItemData mapRow(ResultSet rs, int rowNum) throws SQLException {
 				Long id = rs.getLong("id");
 				String itemDesc = rs.getString("itemDescription");
-			return new ItemData(id, "", itemDesc, "", "", "", 0, new BigDecimal(0));
+			return new ItemData(id, "", itemDesc, "", "", "", 0, new BigDecimal(0),null,null,null);
 		}
 		
 		public String schema(){	

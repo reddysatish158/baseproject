@@ -38,7 +38,7 @@ public interface TicketMasterReadPlatformService {
 	List<ClientTicketData> retrieveAssignedTickets();
 
 	TicketMasterData retrieveTicket(Long clientId, Long ticketId);
-	Page<ClientTicketData> retrieveAssignedTicketsForNewClient(SearchSqlQuery searchTicketMaster);
+	Page<ClientTicketData> retrieveAssignedTicketsForNewClient(SearchSqlQuery searchTicketMaster, String statusType);
 	
 	
 }

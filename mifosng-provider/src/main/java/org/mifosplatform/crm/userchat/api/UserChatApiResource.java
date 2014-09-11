@@ -42,7 +42,7 @@ public class UserChatApiResource{
 
 	   private final Set<String> USER_CHAT_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "userName", "messageDate", "message","createdByUser"));
  
-	    private final String resourceNameForPermissions = "USERCHAT";
+	    private final String resourceNameForPermissions = "USERCHATMESSAGE";
 	    private final PlatformSecurityContext context;
 	    private final DefaultToApiJsonSerializer<UserChatData> toApiJsonSerializer;
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;
@@ -77,7 +77,8 @@ public class UserChatApiResource{
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String retrieveInboxMessageDetails(@Context final UriInfo uriInfo) {
-	  //  context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	  
+	    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	    
 	    final List<UserChatData> userChatDatas = this.userChatReadplatformReadService.getUserChatDetails();
 	    final Collection<AppUserData> appUserDatas = this.appUserReadPlatformService.retrieveAllUsers();
@@ -99,7 +100,7 @@ public class UserChatApiResource{
 		@Produces({MediaType.APPLICATION_JSON})
 		public String retrieveSentMessageDetails(@Context final UriInfo uriInfo) {
 
-	 //   context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+	    context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	    final List<UserChatData> userChatDatas = this.userChatReadplatformReadService.getUserSentMessageDetails();
 	    final Collection<AppUserData> appUserDatas = this.appUserReadPlatformService.retrieveAllUsers();
 	    Collection<AppUserData> userDatas=new ArrayList<AppUserData>();

@@ -37,11 +37,13 @@ public class MediaAssetData {
 	private Long catageoryId;
 	private String subject;
 	private String overview;
-	private String contentProvider;
+	private Long contentProvider;
 	private String rated;
 	private BigDecimal rating;
 	private String duration;
 	private Long ratingCount;
+	private List<McodeData> contentProviderData;
+	private BigDecimal cpShareValue;
 	
 public MediaAssetData(final Long mediaId,final String mediaTitle,final String image,final BigDecimal rating, Long eventId, String assetTag){
 	this.mediaId=mediaId;
@@ -62,7 +64,7 @@ public MediaAssetData(List<MediaAssetData> data, Long noOfPages, Long pageNo) {
 	this.pageNo=pageNo;
 }
 public MediaAssetData(MediaAssetData mediaAssetData, List<MediaassetAttributeData> mediaassetAttributes, List<MediaLocationData> mediaLocationData, List<EnumOptionData> status,List<MediaassetAttribute> data, List<MediaassetAttribute> mediaFormat,
-		List<MediaEnumoptionData> mediaTypeData, List<McodeData> mediaCategeorydata,List<McodeData> mediaLangauagedata) {
+		List<MediaEnumoptionData> mediaTypeData, List<McodeData> mediaCategeorydata,List<McodeData> mediaLangauagedata,List<McodeData> contentProviderData) {
 
 	this.mediaAssetData=mediaAssetData;
 	this.mediaStatus=status;
@@ -78,6 +80,8 @@ public MediaAssetData(MediaAssetData mediaAssetData, List<MediaassetAttributeDat
 	this.mediaLanguageData=mediaLangauagedata;
 	this.mediaLocationData=mediaLocationData;
 	this.mediaassetAttributes=mediaassetAttributes;
+	this.contentProviderData=contentProviderData;
+	
 	
 }
 public MediaAssetData(Long mediaId, String mediaTitle, String status,
@@ -93,8 +97,8 @@ public MediaAssetData(Long mediaId, String mediaTitle, String status,
 
 public MediaAssetData(Long mediaId, String mediatitle, String type,
 		String genre, Long catageoryId, LocalDate releaseDate, String subject,
-		String overview, String image, String contentProvider, String rated,
-		BigDecimal rating, Long ratingCount, String status, String duration) {
+		String overview, String image, Long contentProvider, String rated,
+		BigDecimal rating, Long ratingCount, String status, String duration,BigDecimal cpShareValue) {
 	// TODO Auto-generated constructor stub
 	 this.mediaId=mediaId;
      this.mediaTitle=mediatitle;
@@ -112,8 +116,8 @@ public MediaAssetData(Long mediaId, String mediatitle, String type,
      this.ratingCount=ratingCount;
      this.duration=duration;
      this.status=status;
-    
- 	this.eventId=null;
+     this.cpShareValue=cpShareValue;
+ 	 this.eventId=null;
 }
 public Long getMediaId() {
 	return mediaId;

@@ -20,6 +20,7 @@ public class DefaultPlatformPasswordEncoder implements PlatformPasswordEncoder {
     private final PasswordEncoder passwordEncoder;
     private final SaltSource      saltSource;
 
+    
     @Autowired
     public DefaultPlatformPasswordEncoder(final PasswordEncoder passwordEncoder, final SaltSource saltSource) {
         this.passwordEncoder = passwordEncoder;

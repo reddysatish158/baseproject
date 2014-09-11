@@ -34,6 +34,13 @@ public interface ClientReadPlatformService {
     Collection<ClientData> retrieveClientMembersOfGroup(Long groupId);
     
     Collection<ClientCategoryData> retrieveClientCategories();
+    
+    Collection<GroupData> retrieveGroupData();
 
 	ClientData retrieveAllClosureReasons(String clientClosureReason);
+
+	ClientCategoryData retrieveClientBillModes(Long clientId);
+
+
+	
 }

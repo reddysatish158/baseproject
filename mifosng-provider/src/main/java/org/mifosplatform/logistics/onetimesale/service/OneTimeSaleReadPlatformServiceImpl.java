@@ -60,7 +60,7 @@ public class OneTimeSaleReadPlatformServiceImpl implements	OneTimeSaleReadPlatfo
 			BigDecimal unitPrice = rs.getBigDecimal("unitPrice");
 
 			return new ItemData(id, itemCode, units, units, units, null, 0,
-					unitPrice);
+					unitPrice,null,null,null);
 
 		}
 

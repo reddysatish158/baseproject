@@ -6,6 +6,7 @@ import javax.persistence.Table;
 import org.mifosplatform.infrastructure.core.domain.AbstractAuditableCustom;
 import org.mifosplatform.portfolio.order.data.OrderStatusEnumaration;
 import org.mifosplatform.portfolio.plan.domain.StatusTypeEnum;
+import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.useradministration.domain.AppUser;
 
 @Entity
@@ -85,8 +86,8 @@ public class PrepareRequest extends AbstractAuditableCustom<AppUser, Long>{
 	}
 
 
-	public void updateProvisioning() {
-		this.isProvisioning='Y';
+	public void updateProvisioning(char status) {
+		this.isProvisioning=status;
 		this.status=StatusTypeEnum.ACTIVE.toString();
 		
 	}
@@ -128,6 +129,7 @@ public class PrepareRequest extends AbstractAuditableCustom<AppUser, Long>{
 	 * @param isProvisioning the isProvisioning to set
 	 */
 	public void setIsProvisioning(char isProvisioning) {
+		
 		this.isProvisioning = isProvisioning;
 	}
 

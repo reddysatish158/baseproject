@@ -66,7 +66,26 @@ public class ProcessRequest extends AbstractPersistable<Long>{
 	
 	
 	}
+	 public ProcessRequest(Long prepareRequestId, Long clientId,Long orderId, String provisioningSytem, String requestType) {
+		 	this.prepareRequestId = prepareRequestId;
+		 	this.clientId = clientId;
+		 	this.orderId = orderId;
+		 	this.provisioingSystem = provisioningSytem;
+		 	this.requestType = requestType;
+	 }
 
+
+	 public static ProcessRequest fromJson(JsonCommand command){
+
+		 	final Long prepareRequestId= command.entityId();
+		 	final Long clientId = command.longValueOfParameterNamed("clientId");
+		 	final Long orderId = command.longValueOfParameterNamed("orderId");
+		 	final String provisioningSytem = command.stringValueOfParameterNamed("provisioingSystem");
+		 	final String requestType = command.stringValueOfParameterNamed("requestType");
+		 	return new ProcessRequest(prepareRequestId,clientId,orderId,provisioningSytem,requestType);
+
+	 }
+	
 
 
 	public void add(ProcessRequestDetails processRequestDetails) {

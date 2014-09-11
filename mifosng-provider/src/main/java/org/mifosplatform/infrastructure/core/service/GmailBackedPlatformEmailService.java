@@ -34,7 +34,11 @@ public class GmailBackedPlatformEmailService implements PlatformEmailService {
         Email email = new SimpleEmail();
 /*<<<<<<< HEAD
 
+<<<<<<< HEAD
+        String authuserName ="Open Billing System Community";
+=======
         String authuserName = "Open Billing System Community";
+>>>>>>> obsplatform-1.01
 
         String authuser = "kiran@hugotechnologies.com";//"info@openbillingsystem.com";
         String authpwd ="kirankiran"; //"openbs@13";

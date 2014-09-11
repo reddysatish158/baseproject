@@ -7,7 +7,7 @@ package org.mifosplatform.commands.domain;
 
 public class CommandWrapper {
 
-    private final Long commandId;
+	private final Long commandId;
     @SuppressWarnings("unused")
     private final Long officeId;
     private final Long groupId;
@@ -106,6 +106,8 @@ public class CommandWrapper {
     public boolean isCreate() {
         return this.actionName.equalsIgnoreCase("CREATE");
     }
+    
+   
     
     public boolean isOwnUpdate() {
         return this.actionName.equalsIgnoreCase("UPDATE");
@@ -379,27 +381,6 @@ public class CommandWrapper {
 
     public boolean isBulkUpdateLoanOfficer() {
         return this.actionName.equalsIgnoreCase("BULKREASSIGN") && this.entityName.equalsIgnoreCase("LOAN");
-    }
-
-    public boolean isDatatableResource() {
-        return this.href.startsWith("/datatables/");
-    }
-
-    public boolean isDeleteOneToOne() {
-        /* also covers case of deleting all of a one to many */
-        return isDatatableResource() && isDeleteOperation() && this.subentityId == null;
-    }
-
-    public boolean isDeleteMultiple() {
-        return isDatatableResource() && isDeleteOperation() && this.subentityId != null;
-    }
-
-    public boolean isUpdateOneToOne() {
-        return isDatatableResource() && isUpdateOperation() && this.subentityId == null;
-    }
-
-    public boolean isUpdateMultiple() {
-        return isDatatableResource() && isUpdateOperation() && this.subentityId != null;
     }
 
     public boolean isUnassignStaff() {
@@ -782,6 +763,11 @@ public class CommandWrapper {
 			return this.entityName.equalsIgnoreCase("SELFCARE") && this.actionName.equalsIgnoreCase("CREATE");
 		}
 		
+
+		public boolean isSelfCareUDP() {
+			return this.entityName.equalsIgnoreCase("SELFCAREUDP");
+		}	
+
 		public boolean isDeleteRegion() {
 			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("REGION");
 		}
@@ -816,6 +802,10 @@ public class CommandWrapper {
 
 		public boolean moveMRN(){
 			   return this.actionName.equalsIgnoreCase("MOVE") && this.entityName.equalsIgnoreCase("MRN");
+		}
+		
+		public boolean isMoveItemSale(){
+			   return this.actionName.equalsIgnoreCase("MOVEITEM") && this.entityName.equalsIgnoreCase("MRN");
 		}
 
 		public boolean isSupplier() {
@@ -918,7 +908,7 @@ public class CommandWrapper {
 		}
 
 		public boolean isUserChatResource() {
-			return this.entityName.equalsIgnoreCase("USERCHAT");
+			return this.entityName.equalsIgnoreCase("USERCHATMESSAGE");
 		}
 
 		public boolean isUpdatePaymentGateway() {
@@ -987,16 +977,46 @@ public class CommandWrapper {
 		public boolean isOrderExtension() {
 			return this.actionName.equalsIgnoreCase("EXTENSION") && this.entityName.equalsIgnoreCase("ORDER");
 		}
+		public boolean isOrderTerminate() {
+			return this.actionName.equalsIgnoreCase("TERMINATE") && this.entityName.equalsIgnoreCase("ORDER");
+		}
+		public boolean isGroupDetailsResource(){
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("GROUPS");
+			
+		}
 
 		public boolean isCreateProvisioning() {
 			
 			return this.actionName.equalsIgnoreCase("ADD") && this.entityName.equalsIgnoreCase("PROVISIONINGSYSTEM");
 		}
 
+		public boolean isCreateIpPoolManagement() {
+			return this.entityName.equalsIgnoreCase("IPPOOLMANAGEMENT");
+
+		}
+
+		public boolean isProvisioningParams() {
+			return  this.entityName.equalsIgnoreCase("PROVISIONINGSERVICEPARAMS");
+		}
+
+		public boolean isItemSale() {
+			return  this.entityName.equalsIgnoreCase("ITEMSALE");
+		}
+
 		public boolean isProvisioningDetails() {
 			return  this.entityName.equalsIgnoreCase("PROVISIONINGDETAILS");
 		}
 
+		public boolean isOfficeAdjustmentResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEADJUSTMENT");
+		}
+
+		public boolean isOfficePaymentResource() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("OFFICEPAYMENT");
+
+		}
+
+		
 		public boolean isPaypalEnquirey() {
 			return this.actionName.equalsIgnoreCase("CREATEENQUIREY") && this.entityName.equalsIgnoreCase("PAYMENT");
 		}
@@ -1005,13 +1025,73 @@ public class CommandWrapper {
 			 return this.entityName.equals("CLIENTCARDDETAILS");
 		}
 
-		public boolean isProcessRandomGenerator() {
+		public boolean isGroupDetailsProvisionResource() {
+			
+			return this.entityName.equalsIgnoreCase("PROVISION");
+		}
+		
+		public boolean isTaxExemptionResource() {
+			
+			return this.entityName.equalsIgnoreCase("CLIENTTAXEXEMPTION");
+		}
+
+
+		public boolean isBillModeResource() {
+			
+			return this.entityName.equalsIgnoreCase("CLIENTBILLMODE");
+		}
+		
+		
+	   public boolean isDatatableResource() {
+		        return this.href.startsWith("/datatables/");
+		    }
+		
+		public boolean isCreateDatatable() {
+	        return this.actionName.equalsIgnoreCase("CREATE") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+
+	    public boolean isDeleteDatatable() {
+	        return this.actionName.equalsIgnoreCase("DELETE") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+
+	    public boolean isUpdateDatatable() {
+	        return this.actionName.equalsIgnoreCase("UPDATE") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+	    
+	    public boolean isRegisterDatatable() {
+	        return this.actionName.equalsIgnoreCase("REGISTER") && this.href.startsWith("/datatables/") && this.entityId == null;
+	    }
+	    
+	    public boolean isDeleteOneToOne() {
+	        /* also covers case of deleting all of a one to many */
+	        return isDatatableResource() && isDeleteOperation() && this.subentityId == null;
+	    }
+
+	    public boolean isDeleteMultiple() {
+	        return isDatatableResource() && isDeleteOperation() && this.subentityId != null;
+	    }
+
+	    public boolean isUpdateOneToOne() {
+	        return isDatatableResource() && isUpdateOperation() && this.subentityId == null;
+	    }
+
+	    public boolean isUpdateMultiple() {
+	        return isDatatableResource() && isUpdateOperation() && this.subentityId != null;
+	    }
+	    
+		public boolean isIpStatus() {
+			
+			return  this.entityName.equalsIgnoreCase("IPSTATUS");
+		}
+
+		public boolean isCreateStatment() {
+			return this.actionName.equalsIgnoreCase("CREATESTATMENT");
+		}
+			public boolean isProcessRandomGenerator() {
 			return this.actionName.equalsIgnoreCase("PROCESS") && this.entityName.equalsIgnoreCase("RANDAMGENERATOR");
 		}
 		
-		public boolean isSelfCareUDP() {
-			return this.entityName.equalsIgnoreCase("SELFCAREUDP");
-		}	
+	
 		 
 		public boolean isCreateSelfCareUDP() {
 		        return this.entityName.equalsIgnoreCase("SELFCAREUDP") && this.actionName.equalsIgnoreCase("CREATE");
@@ -1050,4 +1130,19 @@ public class CommandWrapper {
 	        return this.entityName.equalsIgnoreCase("LOGINHISTORY") && this.actionName.equalsIgnoreCase("UPDATE");
 	}
 
+
+		public boolean isIpDescription() {
+			return  this.entityName.equalsIgnoreCase("IPDESCRIPTION");
+		}
+
+	
+		public boolean isEventValidationResource() {
+			return this.entityName.equalsIgnoreCase("EVENTVALIDATION");
+		}
+		public boolean isCreateEventValidation() {
+			return this.actionName.equalsIgnoreCase("CREATE") && this.entityName.equalsIgnoreCase("EVENTVALIDATION");
+		}
+		public boolean isDeleteEventValidation() {
+			return this.actionName.equalsIgnoreCase("DELETE") && this.entityName.equalsIgnoreCase("EVENTVALIDATION");
+		}
 }

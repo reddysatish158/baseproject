@@ -59,12 +59,14 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 	@Column(name = "is_deleted", nullable = false)
 	private char isDeleted = 'N';
 	
+	@Column(name = "office_id")
+	private Long officeId;
 	
 	public OneTimeSale(){}
 	
 	public OneTimeSale(Long clientId, Long itemId,String units,String quantity,
 			 String chargeCode, BigDecimal unitPrice,
-			BigDecimal totalPrice, LocalDate saleDate, Long discountId) {
+			BigDecimal totalPrice, LocalDate saleDate, Long discountId, Long officeId,String saleType) {
 
 	this.clientId=clientId;
 	this.itemId=itemId;
@@ -75,7 +77,11 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 	this.quantity=quantity;
 	this.saleDate=saleDate.toDate();
 	this.discountId=discountId;
+	this.officeId=officeId;
+		if(saleType.equalsIgnoreCase("SecondSale")){
+			this.deleted='y';
 		}
+	}
 
 	public Long getClientId() {
 		return clientId;
@@ -131,6 +137,7 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 	}
 	
 	public static OneTimeSale fromJson(Long clientId, JsonCommand command, ItemMaster item) {
+			final String saleType = command.stringValueOfParameterNamed("saleType");
 		    final Long itemId=command.longValueOfParameterNamed("itemId");
 		    final String units = item.getUnits();
 		    final String chargeCode = command.stringValueOfParameterNamed("chargeCode");
@@ -139,13 +146,14 @@ public class OneTimeSale extends AbstractAuditableCustom<AppUser, Long> {
 		    final BigDecimal totalPrice=command.bigDecimalValueOfParameterNamed("totalPrice");
 		    final LocalDate saleDate=command.localDateValueOfParameterNamed("saleDate");
 		    final Long discountId=command.longValueOfParameterNamed("discountId");
-          return new OneTimeSale(clientId, itemId, units, quantity, chargeCode, unitPrice, totalPrice, saleDate,discountId);
+		    final Long officeId=command.longValueOfParameterNamed("officeId");
+          return new OneTimeSale(clientId, itemId, units, quantity, chargeCode, unitPrice, totalPrice, saleDate,discountId,officeId,saleType);
 		 
 	}
 	public String getHardwareAllocated() {
 		return hardwareAllocated;
 	}
-
+	
 	public void setHardwareAllocated(String hardwareAllocated) {
 		this.hardwareAllocated = hardwareAllocated;
 	}

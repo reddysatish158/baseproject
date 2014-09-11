@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
@@ -46,10 +47,11 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
     private static final class OfficeMapper implements RowMapper<OfficeData> {
 
         public String officeSchema() {
-            return " o.id as id, o.name as name, "
-                    + nameDecoratedBaseOnHierarchy
-                    + " as nameDecorated, o.external_id as externalId, o.opening_date as openingDate, o.hierarchy as hierarchy, parent.id as parentId, parent.name as parentName "
-                    + "from m_office o LEFT JOIN m_office AS parent ON parent.id = o.parent_id ";
+            return "o.id AS id,o.name AS name,"
+            	       +nameDecoratedBaseOnHierarchy+
+            	       "AS nameDecorated,o.external_id AS externalId,o.opening_date AS openingDate,o.hierarchy AS hierarchy," +
+            	       "parent.id AS parentId,parent.name AS parentName,c.code_value as officeType" +
+            	       " FROM m_office o LEFT JOIN m_office AS parent ON parent.id = o.parent_id left join m_code_value c on c.id=o.office_type ";
         }
 
         @Override
@@ -63,8 +65,9 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
             final String hierarchy = rs.getString("hierarchy");
             final Long parentId = JdbcSupport.getLong(rs, "parentId");
             final String parentName = rs.getString("parentName");
+            final String officeType = rs.getString("officeType");
 
-            return new OfficeData(id, name, nameDecorated, externalId, openingDate, hierarchy, parentId, parentName, null);
+            return new OfficeData(id, name, nameDecorated, externalId, openingDate, hierarchy, parentId, parentName, null,null,officeType);
         }
     }
 
@@ -173,7 +176,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
 
         context.authenticatedUser();
 
-        return OfficeData.template(null, new LocalDate());
+        return OfficeData.template(null,new LocalDate(),null);
     }
 
     @Override
@@ -223,4 +226,20 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
 
         return OfficeTransactionData.template(new LocalDate(), parentLookups, currencyOptions);
     }
+
+	@Override
+	public List<OfficeData> retrieveAgentTypeData() {
+
+        final AppUser currentUser = context.authenticatedUser();
+
+        final String hierarchy = currentUser.getOffice().getHierarchy();
+        final String hierarchySearchString = hierarchy + "%";
+
+        final OfficeDropdownMapper rm = new OfficeDropdownMapper();
+        final String sql = "select " + rm.schema() + ", m_code_value c  WHERE o.office_type = c.id AND c.code_value = 'agent' AND o.hierarchy LIKE ? " +
+        		" ORDER BY o.name";
+
+        return this.jdbcTemplate.query(sql, rm, new Object[] { hierarchySearchString });
+    
+	}
 }

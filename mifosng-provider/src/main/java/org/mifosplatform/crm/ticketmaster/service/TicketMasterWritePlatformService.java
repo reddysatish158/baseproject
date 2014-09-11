@@ -14,14 +14,9 @@ public interface TicketMasterWritePlatformService {
 	
 	CommandProcessingResult createTicketMaster(JsonCommand command);
 
-
-	Long upDateTicketDetails(
-			TicketMasterCommand ticketMasterCommand,
-			DocumentCommand documentCommand, Long ticketId,
-			InputStream inputStream);
+	Long upDateTicketDetails(TicketMasterCommand ticketMasterCommand,DocumentCommand documentCommand, Long ticketId,InputStream inputStream);
 
 	CommandProcessingResult closeTicket(JsonCommand command);
-
 
 	String retrieveTicketProblems(Long ticketId);
 

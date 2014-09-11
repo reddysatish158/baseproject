@@ -7,8 +7,15 @@ package org.mifosplatform.infrastructure.codes.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface CodeValueRepository extends JpaRepository<CodeValue, Long>, JpaSpecificationExecutor<CodeValue> {
 
-    CodeValue findByCodeNameAndId(String codeName, Long id);
+   
+	CodeValue findByCodeNameAndId(String codeName, Long id);
+    
+	@Query("from CodeValue codeValue where codeValue.label =:codeName")
+	CodeValue findOneByCodeValue(@Param("codeName") String codeName);
+
 }
