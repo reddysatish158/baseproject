@@ -113,22 +113,18 @@ public class EventOrderApiResource {
 		@GET
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
-		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType, @QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
-			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-			EventOrderData data = null;
-			try{
-				
-				final BigDecimal eventPrice = eventOrderReadplatformServie.retriveEventPrice(fType, oType, clientId);
-				data = new EventOrderData(eventPrice);
-				
-			}catch(EmptyResultDataAccessException accessException){
-				throw new NoEventPriceFoundException();
-			}
+		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType,
+				@QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
 			
+			List<EventOrderData> eventOrderDatas=this.eventOrderReadplatformServie.getTheClientEventOrders(clientId);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-			return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+			return this.toApiJsonSerializer.serialize(settings, eventOrderDatas, RESPONSE_DATA_PARAMETERS);
 		}
 		
+		
+		
+		
+	
 		/*@PUT
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})

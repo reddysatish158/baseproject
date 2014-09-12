@@ -141,7 +141,6 @@ this.globalConfigurationRepository=globalConfigurationRepository;
 }
 
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.INVOICE)
 public void processInvoice() {
@@ -207,7 +206,6 @@ try
 	private void handleCodeDataIntegrityIssues(Object object, Exception dve) {
 }
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.REQUESTOR)
 public void processRequest() {
@@ -353,7 +351,6 @@ exception.printStackTrace();
 }
 }*/
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.SIMULATOR)
 public void processSimulator() {
@@ -471,7 +468,6 @@ try {
 	}
 	}
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.MESSAGE_MERGE)
 public void processingMessages()
@@ -524,7 +520,7 @@ JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobNam
 	}
 	}
 
-@Transactional
+
 @Override
 @CronTarget(jobName = JobName.AUTO_EXIPIRY)
 public void processingAutoExipryOrders() {	
@@ -533,7 +529,6 @@ try {
 
        System.out.println("Processing Auto Exipiry Details.......");
        JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(JobName.AUTO_EXIPIRY.toString());
-        
         if(data!=null){
             MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
             final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
@@ -547,19 +542,15 @@ try {
             fw.append("Processing Auto Exipiry Details....... \r\n");
             List<ScheduleJobData> sheduleDatas = this.sheduleJobReadPlatformService.retrieveSheduleJobParameterDetails(data.getBatchName());
             LocalDate exipirydate=null;
-               
-               if(sheduleDatas.isEmpty()){
-                 fw.append("ScheduleJobData Empty \r\n");
-                }
-
-               if(data.isDynamic().equalsIgnoreCase("Y")){
-                exipirydate=new LocalDate();
-               }else{
-                 exipirydate=data.getExipiryDate();
-               }
-             
-              for (ScheduleJobData scheduleJobData : sheduleDatas)
-               {
+              if(sheduleDatas.isEmpty()){
+            	  fw.append("ScheduleJobData Empty \r\n");
+               	}
+              if(data.isDynamic().equalsIgnoreCase("Y")){
+            	  exipirydate=new LocalDate();
+              }else{
+               		exipirydate=data.getExipiryDate();
+              }
+              for (ScheduleJobData scheduleJobData : sheduleDatas){
                  fw.append("ScheduleJobData id= "+scheduleJobData.getId()+" ,BatchName= "+scheduleJobData.getBatchName()+
                     " ,query="+scheduleJobData.getQuery()+"\r\n");
                  List<Long> clientIds = this.sheduleJobReadPlatformService.getClientIds(scheduleJobData.getQuery());
@@ -567,88 +558,79 @@ try {
               if(clientIds.isEmpty()){
                 fw.append("no records are available for Auto Expiry \r\n");
               }
-             
-              for(Long clientId:clientIds)
-               {
+              for(Long clientId:clientIds){
+            	  
                 fw.append("processing client id :"+clientId+"\r\n");
                 List<OrderData> orderDatas = this.orderReadPlatformService.retrieveClientOrderDetails(clientId);
-               
-                if(orderDatas.isEmpty()){
-                   fw.append("No Orders are Found for :"+clientId+"\r\n");
-                 }	
-               for (OrderData orderData : orderDatas){
-                 this.scheduleJob.ProcessAutoExipiryDetails(orderData,fw,exipirydate,data,clientId);
-               }
-             }
+                	if(orderDatas.isEmpty()){
+                		fw.append("No Orders are Found for :"+clientId+"\r\n");
+                	}	
+                	for (OrderData orderData : orderDatas){
+                		this.scheduleJob.ProcessAutoExipiryDetails(orderData,fw,exipirydate,data,clientId);
+                	}
+              }
                 fw.append("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier()+" . \r\n");
                 fw.flush();
                 fw.close();
-       }
-            System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-     }
-   
-   }catch(IOException exception){
+              }
+              System.out.println("Auto Exipiry Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+        }
+}catch(IOException exception){
        System.out.println(exception);
-   
-   }catch (Exception dve) {
+}catch (Exception dve) {
      System.out.println(dve.getMessage());
     handleCodeDataIntegrityIssues(null, dve);
-    }
- }
+}
+}
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.PUSH_NOTIFICATION)
 public void processNotify() {
 
   try {
-   System.out.println("Processing Notify Details.......");
-    List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
-       
-     if(!billingMessageDataForProcessings.isEmpty()){
-        MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
-        final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
-        LocalTime date=new LocalTime(zone);
-        String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
-        String path=FileUtils.generateLogFileDirectory()+JobName.PUSH_NOTIFICATION.toString() + File.separator +"PushNotification_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
-        File fileHandler = new File(path.trim());
-        fileHandler.createNewFile();
-        FileWriter fw = new FileWriter(fileHandler);
-        FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
-        fw.append("Processing Notify Details....... \r\n");
+	  System.out.println("Processing Notify Details.......");
+	  List<BillingMessageDataForProcessing> billingMessageDataForProcessings=this.billingMesssageReadPlatformService.retrieveMessageDataForProcessing();
+	  
+	  	if(!billingMessageDataForProcessings.isEmpty()){
+	  		MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();	
+	  		final DateTimeZone zone = DateTimeZone.forID(tenant.getTimezoneId());
+	  		LocalTime date=new LocalTime(zone);
+	  		String dateTime=date.getHourOfDay()+"_"+date.getMinuteOfHour()+"_"+date.getSecondOfMinute();
+	  		String path=FileUtils.generateLogFileDirectory()+JobName.PUSH_NOTIFICATION.toString() + File.separator +"PushNotification_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".log";
+	  		File fileHandler = new File(path.trim());
+	  		fileHandler.createNewFile();
+	  		FileWriter fw = new FileWriter(fileHandler);
+	  		FileUtils.BILLING_JOB_PATH=fileHandler.getAbsolutePath();
+	  		fw.append("Processing Notify Details....... \r\n");
         
-         for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
-           fw.append("BillingMessageData id="+emailDetail.getId()+" ,MessageTo="+emailDetail.getMessageTo()+" ,MessageType="
-           +emailDetail.getMessageType()+" ,MessageFrom="+emailDetail.getMessageFrom()+" ,Message="+emailDetail.getBody()+"\r\n");
-             
-           if(emailDetail.getMessageType()=='E'){
-                String Result=this.messagePlatformEmailService.sendToUserEmail(emailDetail);
-                fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result :"+Result+" ... \r\n");
-            
-           }else if(emailDetail.getMessageType()=='M'){
-              String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
-              String Result=this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());	
-              fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result:"+Result+" ... \r\n");
-          
-           }else{
-              fw.append("Message Type Unknown ..\r\n");
-           }	
-       }
-        fw.append("Notify Job is Completed.... \r\n");
-        fw.flush();
-        fw.close();
-     }else{
+	  		for(BillingMessageDataForProcessing emailDetail : billingMessageDataForProcessings){
+	  			fw.append("BillingMessageData id="+emailDetail.getId()+" ,MessageTo="+emailDetail.getMessageTo()+" ,MessageType="
+	  					+emailDetail.getMessageType()+" ,MessageFrom="+emailDetail.getMessageFrom()+" ,Message="+emailDetail.getBody()+"\r\n");
+	  			if(emailDetail.getMessageType()=='E'){
+	  				String Result=this.messagePlatformEmailService.sendToUserEmail(emailDetail);
+	  				fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result :"+Result+" ... \r\n");
+	  			
+	  			}else if(emailDetail.getMessageType()=='M'){
+	  				String message = this.sheduleJobReadPlatformService.retrieveMessageData(emailDetail.getId());
+	  				String Result=this.messagePlatformEmailService.sendToUserMobile(message,emailDetail.getId());	
+	  				fw.append("b_message_data processing id="+emailDetail.getId()+"-- and Result:"+Result+" ... \r\n");
+	  			}else{
+	  				fw.append("Message Type Unknown ..\r\n");
+	  			}	
+	  		}
+	  		fw.append("Notify Job is Completed.... \r\n");
+	  		fw.flush();
+	  		fw.close();
+	  	}else{
              System.out.println("push Notification data is empty...");
-        }
-    System.out.println("Notify Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
-  } catch (DataIntegrityViolationException exception) {
-
-   } catch (Exception exception) {
-      System.out.println(exception.getMessage());
+	  	}
+	  	System.out.println("Notify Job is Completed..."+ ThreadLocalContextUtil.getTenant().getTenantIdentifier());
+  	} catch (DataIntegrityViolationException exception) {
+  	} catch (Exception exception) {
+  		System.out.println(exception.getMessage());
+  	}
 }
-}
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.Middleware)
 public void processMiddleware() {
@@ -1330,7 +1312,6 @@ this.transactionHistoryWritePlatformService.saveTransactionHistory(entitlementsD
  	}
 	}
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.EVENT_ACTION_PROCESSOR)
 public void eventActionProcessor() {
@@ -1366,7 +1347,6 @@ public void eventActionProcessor() {
 	}
 	}
 
-@Transactional
 @Override
 @CronTarget(jobName = JobName.REPORT_EMAIL)
 public void reportEmail() {
@@ -1430,7 +1410,6 @@ public void reportEmail() {
 public void processInstances() {
 System.out.println("Just Instance of Message......");
 }*/
-@Transactional
 @Override
 @CronTarget(jobName = JobName.REPORT_STATMENT)
 public void reportStatmentPdf() {

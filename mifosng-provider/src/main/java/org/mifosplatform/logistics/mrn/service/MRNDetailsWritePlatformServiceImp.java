@@ -69,7 +69,6 @@ public class MRNDetailsWritePlatformServiceImp implements MRNDetailsWritePlatfor
 			mrnDetails = MRNDetails.formJson(command);
 			mrnDetailsJpaRepository.save(mrnDetails);
 			
-			
 		}catch(DataIntegrityViolationException dve){
 			handleDataIntegrityIssues(command, dve);
 		}catch (ParseException e) {

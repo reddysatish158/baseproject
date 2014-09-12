@@ -106,8 +106,6 @@ public void ProcessAutoExipiryDetails(OrderData orderData, FileWriter fw, LocalD
                          boolean isSufficientAmountForRenewal=this.checkClientBalanceForOrderrenewal(orderData,clientId,orderPrice);
 
                           if(isSufficientAmountForRenewal){
-
-
 	                            List<SubscriptionData> subscriptionDatas=this.contractPeriodReadPlatformService.retrieveSubscriptionDatabyContractType("Month(s)",1);
 	                            jsonobject.put("renewalPeriod",subscriptionDatas.get(0).getId());	
 	                            jsonobject.put("description","Order Renewal By Scheduler");
@@ -144,7 +142,6 @@ public void ProcessAutoExipiryDetails(OrderData orderData, FileWriter fw, LocalD
 	                                  null,clientId, null, null, null,null, null, null,null);
 	                           this.orderWritePlatformService.disconnectOrder(command,	orderData.getId());
 	                           fw.append("Client Id"+clientId+" With this Orde"+orderData.getId()+" has been disconnected via Auto Exipiry on Dated"+exipirydate);
-
                   }
            }
        }
