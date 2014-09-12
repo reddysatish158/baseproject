@@ -82,10 +82,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         final Collection<OfficeData> offices = officeReadPlatformService.retrieveAllOfficesForDropdown();
         final Collection<ClientCategoryData> categoryDatas=this.retrieveClientCategories();
+        final Collection<GroupData> groupDatas = this.retrieveGroupData();
 
         final Long officeId = currentUser.getOffice().getId();
 
-        return ClientData.template(officeId, new LocalDate(), offices,categoryDatas,null);
+        return ClientData.template(officeId, new LocalDate(), offices,categoryDatas, groupDatas,null);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (searchParameters.isOrderByRequested()) {
             sqlBuilder.append(" order by ").append(searchParameters.getOrderBy()).append(' ').append(searchParameters.getSortOrder());
         }
-
+        
         if (searchParameters.isLimited()) {
             sqlBuilder.append(" limit ").append(searchParameters.getLimit());
         }
@@ -126,7 +127,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (searchParameters.isOffset()) {
             sqlBuilder.append(" offset ").append(searchParameters.getOffset());
         }
-
+         
         final String sqlCountRows = "SELECT FOUND_ROWS()";
         return this.paginationHelper.fetchPage(this.jdbcTemplate, sqlCountRows, sqlBuilder.toString(),
                 new Object[] { hierarchySearchString }, clientMapper);
@@ -141,12 +142,13 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         final String firstname = searchParameters.getFirstname();
         final String lastname = searchParameters.getLastname();
         final String hierarchy = searchParameters.getHierarchy();
+        final String groupName = searchParameters.getGroupName();
 
         String extraCriteria = "";
         if (sqlSearch != null) {
           //  extraCriteria = " and (" + sqlSearch + ")";
             
-        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%'"
+        	extraCriteria = " and ( display_name like '%" + sqlSearch + "%' OR c.account_no like '%"+sqlSearch+"%' OR g.group_name like '%"+sqlSearch+"%' "
         			+ " OR IFNULL(( Select min(serial_no) from b_allocation ba where c.id=ba.client_id),'No Hardware') LIKE '%"+sqlSearch+"%' )";
             
 /*        	display_name like '%undefined%' OR c.account_no LIKE '%undefined%' 
@@ -179,7 +181,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         if (hierarchy != null) {
             extraCriteria += " and o.hierarchy like " + ApiParameterHelper.sqlEncodeString(hierarchy + "%");
         }
-
+        
+        if (groupName != null) {
+            extraCriteria += " and g.group_name = " + ApiParameterHelper.sqlEncodeString(groupName);
+        }
+        
         if (StringUtils.isNotBlank(extraCriteria)) {
             extraCriteria = extraCriteria.substring(4);
         }
@@ -244,17 +250,18 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         private final String schema;
 
-        public ClientMembersOfGroupMapper() {
+        public ClientMembersOfGroupMapper() { 
             final StringBuilder sqlBuilder = new StringBuilder(200);
 
-            sqlBuilder.append("c.id as id, c.account_no as accountNo, c.external_id as externalId, ");
+            sqlBuilder.append("c.id as id, c.account_no as accountNo,g.group_name as groupName, c.external_id as externalId, ");
             sqlBuilder.append("c.office_id as officeId, o.name as officeName, ");
-            sqlBuilder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
+            sqlBuilder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname,c.is_indororp as entryType, ");
             sqlBuilder.append("c.fullname as fullname, c.display_name as displayName,c.category_type as categoryType, ");
-            sqlBuilder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey ");
+            sqlBuilder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey,c.exempt_tax as taxExemption ");
             sqlBuilder.append("from m_client c ");
             sqlBuilder.append("join m_office o on o.id = c.office_id ");
             sqlBuilder.append("join m_group_client pgc on pgc.client_id = c.id");
+            sqlBuilder.append(" left outer join b_group g on  g.id = c.group_id ");
 
             this.schema = sqlBuilder.toString();
         }
@@ -267,7 +274,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         public ClientData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
 
             final String accountNo = rs.getString("accountNo");
-
+            final String groupName = rs.getString("groupName");
             final EnumOptionData status = null;
 
             final Long officeId = JdbcSupport.getLong(rs, "officeId");
@@ -286,8 +293,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String phone = rs.getString("phone");
             final String homePhoneNumber = rs.getString("homePhoneNumber");
             final String currency = rs.getString("currency");
-            return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
-                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency);
+            final String taxExemption = rs.getString("taxExemption");
+            final String entryType=rs.getString("entryType");
+            return ClientData.instance(accountNo,groupName, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
+                    externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, null, null,null, null,null,null, null,null,currency,taxExemption,
+                    entryType);
         }
     }
 
@@ -299,12 +309,12 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         	
             StringBuilder builder = new StringBuilder(400);
 
-            builder.append("c.id as id, c.account_no as accountNo, c.external_id as externalId, c.status_enum as statusEnum, ");
+            builder.append("c.id as id, c.account_no as accountNo,g.group_name as groupName, c.external_id as externalId, c.status_enum as statusEnum, ");
             builder.append("c.office_id as officeId, o.name as officeName, ");
             builder.append("c.office_id as officeId, o.name as officeName, ");
-            builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname, ");
+            builder.append("c.firstname as firstname, c.middlename as middlename, c.lastname as lastname,c.is_indororp as entryType, ");
             builder.append("c.fullname as fullname, c.display_name as displayName,mc.code_value as categoryType, ");
-            builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey, ");
+            builder.append("c.email as email,c.phone as phone,c.home_phone_number as homePhoneNumber,c.activation_date as activationDate, c.image_key as imagekey,c.exempt_tax as taxExemption, ");
             builder.append("a.address_no as addrNo,a.street as street,a.city as city,a.state as state,a.country as country, ");
             builder.append(" a.zip as zipcode,b.balance_amount as balanceAmount,bc.currency as currency,");
             
@@ -318,6 +328,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("from m_client c ");
             builder.append("join m_office o on o.id = c.office_id ");
             builder.append("left outer join b_client_balance b on  b.client_id = c.id ");
+            builder.append("left outer join b_group g on  g.id = c.group_id ");
             builder.append("left outer join  m_code_value mc on  mc.id =c.category_type  ");
             builder.append("left outer join b_client_address a on  a.client_id = c.id ");
             builder.append("left outer join b_country_currency bc on  bc.country = a.country ");
@@ -334,7 +345,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         public ClientData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
 
             final String accountNo = rs.getString("accountNo");
-
+            final String groupName = rs.getString("groupName");
             final Integer statusEnum = JdbcSupport.getInteger(rs, "statusEnum");
             final EnumOptionData status = ClientEnumerations.status(statusEnum);
 
@@ -362,11 +373,13 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             final String hwSerial = rs.getString("HW_Serial");
             final BigDecimal clientBalance = rs.getBigDecimal("balanceAmount");
             final String currency=rs.getString("currency");
+            final String taxExemption=rs.getString("taxExemption");
+            final String entryType=rs.getString("entryType");
            
 
-            return ClientData.instance(accountNo, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
+            return ClientData.instance(accountNo,groupName, status, officeId, officeName, id, firstname, middlename, lastname, fullname, displayName,
                     externalId, activationDate, imageKey,categoryType,email,phone,homePhoneNumber, addressNo, street, city, state, country, zipcode,
-                    clientBalance,hwSerial,currency);
+                    clientBalance,hwSerial,currency,taxExemption,entryType);
         }
     }
 
@@ -634,9 +647,39 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	            final String codeValue = rs.getString("codeValue");
 
 	            
-                    return new ClientCategoryData(id,codeValue);
+                    return new ClientCategoryData(id,codeValue,null);
 	            
 	        }
+	    }
+	    @Override
+	    public Collection<GroupData> retrieveGroupData(){
+	    	try{
+	    		
+	    		final GroupDataMapper mapper = new GroupDataMapper();
+	    		
+	    		String sql = "select "+mapper.GroupDataSchema();
+	    		
+	    		return jdbcTemplate.query(sql,mapper,new Object[]{});
+	    		
+	    	}catch(EmptyResultDataAccessException e){
+	    		return null;
+	    	}
+	    }
+	    private static final class GroupDataMapper implements RowMapper<GroupData>{
+	    	
+	    	public String GroupDataSchema(){
+	    		
+	    		return "bg.id as id,bg.group_name as groupName from b_group bg";
+	    	}
+	    	
+	    	@Override
+	    	public GroupData mapRow(final ResultSet rs,@SuppressWarnings("unused") final int rowNum)throws SQLException{
+	    		
+	    		final Long id = rs.getLong("id");
+	    		final String groupName = rs.getString("groupName");
+	    		
+	    		return new GroupData(id,groupName);
+	    	}
 }
 
 	    @Override
@@ -645,4 +688,34 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 	                this.codeValueReadPlatformService.retrieveCodeValuesByCode(clientClosureReason));
 	        return ClientData.template(null, null, null, null, closureReasons);
 	    }
+	    
+	    
+	    @Override
+		public ClientCategoryData retrieveClientBillModes(Long clientId) {
+			
+			context.authenticatedUser();
+			try{
+				BillModeMapper mapper=new BillModeMapper();
+				final String sql="select id as id , bill_mode as billMode from m_client where id=?";
+				return this.jdbcTemplate.queryForObject(sql, mapper,new Object[]{clientId});
+				
+			}catch(EmptyResultDataAccessException e){
+				return null;
+			}
+			
+		}
+		
+		private static final class BillModeMapper implements RowMapper<ClientCategoryData> {
+		
+		  @Override
+	      public ClientCategoryData mapRow(final ResultSet rs,final int rowNum) throws SQLException {
+
+	        
+	          final Long id = rs.getLong("id");
+	          final String billMode = rs.getString("billMode");
+	         return new  ClientCategoryData(id,null, billMode);
+	          
+	      }
+	}
+
 }

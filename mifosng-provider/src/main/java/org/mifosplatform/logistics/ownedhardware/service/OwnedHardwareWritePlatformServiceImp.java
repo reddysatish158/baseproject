@@ -39,7 +39,6 @@ public class OwnedHardwareWritePlatformServiceImp implements OwnedHardwareWriteP
 
 	
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(OwnedHardwareWritePlatformServiceImp.class);
-	
 	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
 	private final PlatformSecurityContext context;
 	private final OwnedHardwareFromApiJsonDeserializer apiJsonDeserializer;

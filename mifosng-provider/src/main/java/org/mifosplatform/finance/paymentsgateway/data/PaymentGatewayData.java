@@ -19,6 +19,8 @@ public class PaymentGatewayData {
 	private String clientName;
 	private List<MediaEnumoptionData> statusData;
 	private String remarks;
+	private LocalDate paymendDate;
+	private Object phoneMSISDN;
 
 	public PaymentGatewayData(Long id, String serialNo, String phoneNo,
 			LocalDate paymentDate, BigDecimal amountPaid, String receiptNo,
@@ -35,6 +37,8 @@ public class PaymentGatewayData {
 		this.remarks=remarks;
 		
 	}
+
+	
 
 	public Long getId() {
 		return id;

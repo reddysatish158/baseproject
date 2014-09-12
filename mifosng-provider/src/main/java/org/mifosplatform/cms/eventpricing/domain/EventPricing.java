@@ -10,8 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.mifosplatform.cms.eventmaster.domain.EventMaster;
 import org.mifosplatform.annotation.ComparableFields;
+import org.mifosplatform.cms.eventmaster.domain.EventMaster;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 
 

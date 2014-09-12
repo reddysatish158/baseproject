@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.joda.time.LocalDate;
+import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.provisioning.entitlements.data.ClientEntitlementData;
 import org.mifosplatform.provisioning.entitlements.data.EntitlementsData;
@@ -69,16 +71,23 @@ public class EntitlementReadPlatformServiceImpl implements
 			Long clientId = rs.getLong("clientId");
 			Long planId= rs.getLong("planId");
 			String orderNo= rs.getString("orderNo");
+			Long orderId=rs.getLong("orderId");
+			LocalDate startDate=JdbcSupport.getLocalDate(rs, "startDate");
+		    LocalDate endDate=JdbcSupport.getLocalDate(rs, "endDate");
 
-			return new EntitlementsData(id, prdetailsId, requestType,hardwareId, provisioingSystem, product, serviceId, clientId,planId,orderNo,servicetype);
+			return new EntitlementsData(id, prdetailsId, requestType,hardwareId, provisioingSystem, product, serviceId, clientId,planId,
+					orderNo,orderId,startDate,endDate,servicetype);
+
 
 		}
 
 		public String schema() {
-			return " p.id AS id,p.client_id AS clientId,p.provisioing_system AS provisioingSystem,pr.service_id AS serviceId,pr.id AS prdetailsId,pr.service_type as servicetype," +
-					"pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId,o.order_no as orderNo " +
-					"FROM b_process_request_detail pr,b_process_request p left join b_orders o on o.id=p.order_id where p.id = pr.processrequest_id" +
-					" AND p.is_processed = 'N'";
+
+			return "  p.id AS id,p.client_id AS clientId,p.provisioing_system AS provisioingSystem,pr.service_id AS serviceId,pr.id AS prdetailsId,pr.service_type as servicetype," +
+					"pr.sent_message AS sentMessage,pr.hardware_id AS hardwareId,pr.request_type AS requestType,o.plan_id AS planId,o.order_no AS orderNo," +
+					"o.id as orderId,o.start_date as startDate,o.end_date as endDate FROM b_process_request_detail pr, b_process_request p LEFT JOIN b_orders o" +
+					" ON o.id = p.order_id WHERE p.id = pr.processrequest_id AND p.is_processed = 'N'";
+
 		}
 
 	}
@@ -109,6 +118,7 @@ public class EntitlementReadPlatformServiceImpl implements
 		
 		public String schema() {
 			return "c.email as EmailId,c.display_name as fullName,ifnull(c.login,c.id) as login,ifnull(c.password,'0000') as password from m_client c where c.id=?";
+
 		}
 		
 		}

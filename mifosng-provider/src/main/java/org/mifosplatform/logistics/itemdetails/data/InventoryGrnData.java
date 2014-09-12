@@ -36,7 +36,8 @@ public class InventoryGrnData {
 	private String supplierName;
 	private String officeName;
 	private List<McodeData> quality;
-	
+	private String purchaseNo;
+	private Long officeId;
 	
 	public InventoryGrnData(){
 		this.id=null;
@@ -69,7 +70,7 @@ public class InventoryGrnData {
 		this.balanceQuantity = orderedQuantity-receivedQuantity;
 	}
 	
-	public InventoryGrnData(Long id,LocalDate purchaseDate,Long supplierId,Long itemMasterId,Long orderedQuantity,Long receivedQuantity,String itemDescription, String supplierName){
+	public InventoryGrnData(Long id,LocalDate purchaseDate,Long itemMasterId,Long orderedQuantity,Long receivedQuantity,String itemDescription, String supplierName,String purchaseNo,Long supplierId,Long officeId){
 		this.id=id;
 		this.itemMasterId=itemMasterId;
 		this.orderdQuantity=orderedQuantity;
@@ -79,10 +80,12 @@ public class InventoryGrnData {
 		this.balanceQuantity = orderedQuantity-receivedQuantity;
 		this.itemDescription = itemDescription;
 		this.supplierName = supplierName;
+		this.purchaseNo = purchaseNo;
+		this.officeId=officeId;
 	}
 	
 	
-	public InventoryGrnData(final Long id,final LocalDate purchaseDate,final Long supplierId,final Long itemMasterId,final Long orderedQuantity,final Long receivedQuantity,final String itemDescription, final String supplierName,final String officeName){
+	public InventoryGrnData(final Long id,final LocalDate purchaseDate,final Long supplierId,final Long itemMasterId,final Long orderedQuantity,final Long receivedQuantity,final String itemDescription, final String supplierName,final String officeName,final String purchaseNo){
 		this.id=id;
 		this.itemMasterId=itemMasterId;
 		this.orderdQuantity=orderedQuantity;
@@ -93,6 +96,7 @@ public class InventoryGrnData {
 		this.itemDescription = itemDescription;
 		this.supplierName = supplierName;
 		this.officeName = officeName;
+		this.purchaseNo = purchaseNo;
 	}
 	
 	public InventoryGrnData(List<ItemData> itemData,Collection<OfficeData> officeData, List<SupplierData> supplierData) {

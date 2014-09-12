@@ -3,6 +3,7 @@ package org.mifosplatform.portfolio.order.service;
 import java.util.List;
 
 import org.mifosplatform.billing.pricing.data.PriceData;
+import org.mifosplatform.portfolio.order.data.CustomValidationData;
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 
 public interface OrderDetailsReadPlatformServices {
@@ -13,6 +14,6 @@ public interface OrderDetailsReadPlatformServices {
 
 	List<PriceData> retrieveDefaultPrices(Long planId, String billingFrequency,Long clientId);
 
-	int checkForCustomValidations(Long clientId, String eventCreateOrder);
+	CustomValidationData checkForCustomValidations(Long clientId, String eventCreateOrder, String strjson);
 
 }

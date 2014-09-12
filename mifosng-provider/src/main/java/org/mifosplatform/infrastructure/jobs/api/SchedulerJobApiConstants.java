@@ -49,6 +49,7 @@ public class SchedulerJobApiConstants {
     public static final String JOB_URL="URL";
     public static final String JOB_Username="Username";
     public static final String JOB_Password="Password";
+    public static final String JOB_REPORT_STATMENT="Report Statement";
     
     
     

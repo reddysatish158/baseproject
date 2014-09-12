@@ -10,6 +10,7 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.finance.paymentsgateway.data.PaymentEnum;
 import org.mifosplatform.finance.paymentsgateway.data.PaymentGatewayData;
+import org.mifosplatform.finance.paymentsgateway.data.PaymentGatewayDownloadData;
 import org.mifosplatform.finance.paymentsgateway.domain.PaymentEnumClass;
 import org.mifosplatform.infrastructure.core.data.MediaEnumoptionData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
@@ -40,15 +41,23 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	public Long retrieveClientIdForProvisioning(String serialNum) {
 		try{
 			this.context.authenticatedUser();
+			//String serialNumber=null;
+			serialNum=serialNum.trim();
+			/*if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
+=======
 			String serialNumber=null;
 			if(serialNum.charAt(0) == 'N' ||serialNum.charAt(0) == 'n'){
+>>>>>>> obsplatform-1.01:mifosng-provider/src/main/java/org/mifosplatform/finance/paymentsgateway/service/PaymentGatewayReadPlatformServiceImpl.java
 				serialNumber=serialNum;
 			}else{
 				
 				serialNumber="N"+serialNum;
-			}
-		String sql = "select client_id as clientId from b_item_detail where serial_no = '"+serialNumber+"' ";
-		return jdbcTemplate.queryForLong(sql);
+<<<<<<< HEAD:mifosng-provider/src/main/java/org/mifosplatform/finance/paymentsgateway/service/PaymentGatewayReadPlatformServiceImpl.java
+			}*/
+		String sql = " select client_id as clientId from b_item_detail  " +
+				" where serial_no = ? or provisioning_serialno = ? and client_id is not null  limit 1";
+		
+		return jdbcTemplate.queryForLong(sql, new Object[] {serialNum,serialNum});
 		} catch(EmptyResultDataAccessException e){
 			return null;
 		}
@@ -104,8 +113,8 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	}
 
 	@Override
-	public Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchPaymentDetail
-			,String tabType) {	
+	public Page<PaymentGatewayData> retrievePaymentGatewayData(SearchSqlQuery searchPaymentDetail,String tabType,String source) {	
+
 		// TODO Auto-generated method stub
 		context.authenticatedUser();
 		PaymentMapper mapper=new PaymentMapper();
@@ -115,25 +124,35 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 		StringBuilder sqlBuilder = new StringBuilder(200);
         sqlBuilder.append("select ");
         sqlBuilder.append(mapper.schema());
-       
+        sqlBuilder.append(" where p.id is not null  ");
+        
+       if(source != null && !source.equalsIgnoreCase("all")){
+    	   
+    	   sqlBuilder.append(" and  p.source like '%"+source+"%'  ");
+       }
+
           
         if (tabType!=null ) {
         	
 		        	tabType=tabType.trim();
-		        	sqlBuilder.append(" where p.status like '"+tabType+"' order by payment_date desc ");
+		        	sqlBuilder.append(" and  p.status like '"+tabType+"'  ");
 		  
 		    	    if (sqlSearch != null) {
 		    	    	sqlSearch=sqlSearch.trim();
-		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc";
+		    	    	extraCriteria = " and (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') ";
 		    	    }
 		                sqlBuilder.append(extraCriteria);
+		                
 	    }else if (sqlSearch != null) {
     	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteria = " where (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%') order by payment_date desc ";
-    	}else {
-    		extraCriteria = " order by payment_date desc ";
+    	    	extraCriteria = " and    (p.key_id like '%"+sqlSearch+"%' OR p.receipt_no like '%"+sqlSearch+"%')  ";
     	}
-                sqlBuilder.append(extraCriteria);
+        
+       // extraCriteria = " order by payment_date desc ";
+        sqlBuilder.append(extraCriteria);
+        sqlBuilder.append(" order by payment_date desc ");
+                
+
         
         
         if (searchPaymentDetail.isLimited()) {
@@ -187,4 +206,70 @@ public class PaymentGatewayReadPlatformServiceImpl implements PaymentGatewayRead
 	}
 	
 	
+	@Override
+	public List<PaymentGatewayDownloadData> retriveDataForDownload(String source,String startDate, String endDate,String status){
+		
+		StringBuilder builder = new StringBuilder(200);
+		builder.append("select pg.id as id, pg.receipt_no as receiptNo, pg.key_id as serialNumber, pg.payment_date as paymentDate, pg.amount_paid as amountPaid," +
+					"pg.party_id as PhoneMSISDN, pg.Remarks as remarks, pg.obs_id as paymentId, pg.status as status from b_paymentgateway pg ");
+		
+		if(!source.equalsIgnoreCase("All")){
+			builder.append("where source='"+source+"' and ");
+			
+			if(!status.equalsIgnoreCase("All")){
+				builder.append(" status='"+status+"' and ");
+			}
+		}else{
+			if(!status.equalsIgnoreCase("All")){
+				builder.append("where status='"+status+"' and ");
+			}else{
+				builder.append("where ");
+			}
+		}
+		
+		builder.append("payment_date between '"+startDate+"' and '"+endDate+"' order by id asc");
+		
+		
+		DownloadPaymentGatewayMapper mapper = new DownloadPaymentGatewayMapper();
+			
+		return jdbcTemplate.query(builder.toString(),mapper,new Object[]{});
+		
+
+			/*final String sql = "select pg.id as id, pg.receipt_no as receiptNo, pg.party_id as serialNumber, pg.payment_date as paymentDate, pg.amount_paid as amountPaid," +
+					"pg.party_id as PhoneMSISDN, pg.Remarks as remarks, pg.status as status from b_paymentgateway pg " +
+					"where source=? and payment_date between ? and ? order by id asc";
+			DownloadPaymentGatewayMapper mapper = new DownloadPaymentGatewayMapper();
+			
+			return jdbcTemplate.query(sql,mapper,source,startDate,endDate);*/
+		
+		
+		
+	}
+	
+	private static final class DownloadPaymentGatewayMapper implements RowMapper<PaymentGatewayDownloadData>{
+		/* (non-Javadoc)
+		 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
+		 */
+		@Override
+		public PaymentGatewayDownloadData mapRow(ResultSet rs, int rowNum)
+				throws SQLException {
+			//final Long Id = rs.getLong("id");
+			final String SerialNumber = rs.getString("serialNumber");
+			final LocalDate PaymentDate = JdbcSupport.getLocalDate(rs, "paymentDate");
+			final BigDecimal AmountPaid = rs.getBigDecimal("amountPaid");
+			final String PhoneMSISDN = rs.getString("PhoneMSISDN");
+			final String Remarks = rs.getString("remarks");
+			final String Status = rs.getString("status");
+			final String ReceiptNo = rs.getString("receiptNo");
+			final String paymentId = rs.getString("paymentId");
+			return new PaymentGatewayDownloadData(SerialNumber,PaymentDate,AmountPaid,PhoneMSISDN,Remarks,Status,ReceiptNo,paymentId);
+		}
+	}
+	
 }
+	
+/**
+ * 
+ * 
+ */
+

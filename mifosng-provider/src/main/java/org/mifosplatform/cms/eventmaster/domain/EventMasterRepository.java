@@ -1,6 +1,6 @@
 package org.mifosplatform.cms.eventmaster.domain;
 
-import org.mifosplatform.cms.eventmaster.domain.EventMaster;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

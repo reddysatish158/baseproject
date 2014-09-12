@@ -87,11 +87,11 @@ public class RedemptionWritePlatformServiceImpl implements
 				 
 				 BigDecimal pinValue = new BigDecimal(randomGenerator.getPinValue());
 				 JsonObject json = new JsonObject();
-				 json.addProperty("adjustment_type", "DEBIT");json.addProperty("adjustment_code", 123);
+				 json.addProperty("adjustment_type", "CREDIT");json.addProperty("adjustment_code", 123);
 				 json.addProperty("amount_paid",pinValue);json.addProperty("Remarks", "Adjustment Post By Redemption");
 				 json.addProperty("locale", "en");json.addProperty("dateFormat","dd MMMM yyyy");
 				 json.addProperty("adjustment_date", new SimpleDateFormat("dd MMMM yyyy").format(new Date()));
-				 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, clientId, null, null, clientId, null, null, null, null, null, null);
+				 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, clientId, null, null, clientId, null, null, null, null, null, null,null);
 		          this.adjustmentWritePlatformService.createAdjustments(commd);
 			 }
 			 if(pinType.equalsIgnoreCase("PRODUCT")){
@@ -107,7 +107,7 @@ public class RedemptionWritePlatformServiceImpl implements
 					 json.addProperty("contractPeriod", subscriptionDatas.get(0).getId());json.addProperty("isNewplan", true);
 					 json.addProperty("paytermCode", "Monthly");json.addProperty("locale", "en");
 					 json.addProperty("dateFormat","dd MMMM yyyy"); json.addProperty("start_date", new SimpleDateFormat("dd MMMM yyyy").format(new Date()));
-					 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null,clientId, null, null, null, null, null, null, null, null, null);
+					 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null,clientId, null, null, null, null, null, null, null, null, null,null);
 					    this.orderWritePlatformService.createOrder(clientId, commd);
 				 }else {
 					 
@@ -124,7 +124,7 @@ public class RedemptionWritePlatformServiceImpl implements
 							
 							 json.addProperty("renewalPeriod", subscriptionDatas.get(0).getId());
 							 json.addProperty("description", "Order Renewal By Redemption");
-							 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, clientId, null, null, clientId, null, null, null, null, null, null);
+							 JsonCommand commd = new JsonCommand(null, json.toString(), json, fromJsonHelper, null, clientId, null, null, clientId, null, null, null, null, null, null,null);
 						   this.orderWritePlatformService.renewalClientOrder(commd, orderId);
 						}
 				 }

@@ -104,6 +104,8 @@ public final class Client extends AbstractPersistable<Long> {
     private String login;
     @Column(name = "password", length = 100)
     private String password;
+    @Column(name = "group_Id", length = 100)
+    private Long groupId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "closure_reason_cv_id", nullable = true)
@@ -124,6 +126,18 @@ public final class Client extends AbstractPersistable<Long> {
     @Column(name = "closedon_date", nullable = true)
     @Temporal(TemporalType.DATE)
     private Date closureDate;
+    
+    
+    @Column(name = "exempt_tax",nullable = false)
+	private char taxExemption='N';
+    
+
+    @Column(name = "bill_mode",nullable = true)
+   	private String billMode;
+
+    @Column(name = "is_indororp",nullable = false)
+ 	private String entryType;
+
 
 
     public static Client createNew(final Office clientOffice, final Group clientParentGroup, final JsonCommand command) {
@@ -138,12 +152,12 @@ public final class Client extends AbstractPersistable<Long> {
         final Long categoryType=command.longValueOfParameterNamed(ClientApiConstants.clientCategoryParamName);
         final String phone = command.stringValueOfParameterNamed(ClientApiConstants.phoneParamName);
         final String homePhoneNumber = command.stringValueOfParameterNamed(ClientApiConstants.homePhoneNumberParamName);
-        
 	    String email = command.stringValueOfParameterNamed(ClientApiConstants.emailParamName);
-
 	    String login=command.stringValueOfParameterNamed(ClientApiConstants.loginParamName);
+	    String entryType = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
 
 	    final String password=command.stringValueOfParameterNamed(ClientApiConstants.passwordParamName);
+	     Long groupName=command.longValueOfParameterNamed(ClientApiConstants.groupParamName);
 
 	    if(email.isEmpty()){
 	    	email=null;
@@ -151,7 +165,10 @@ public final class Client extends AbstractPersistable<Long> {
 	    if(login.isEmpty()){
 	    	login=null;
 	    }
-        ClientStatus status =  ClientStatus.NEW;
+	   /* if(groupName.isEmpty()){
+	    	groupName=null;
+	    }*/
+	    ClientStatus status =  ClientStatus.NEW;
         boolean active = true;
        
 
@@ -162,7 +179,7 @@ public final class Client extends AbstractPersistable<Long> {
         }
 
         return new Client(status, clientOffice, clientParentGroup, accountNo, firstname, middlename, lastname, fullname, activationDate,
-                externalId,categoryType,email,phone,homePhoneNumber,login,password);
+                externalId,categoryType,email,phone,homePhoneNumber,login,password,groupName,entryType);
     }
 
     protected Client() {
@@ -171,8 +188,9 @@ public final class Client extends AbstractPersistable<Long> {
 
     private Client(final ClientStatus status, final Office office, final Group clientParentGroup, final String accountNo,
             final String firstname, final String middlename, final String lastname, final String fullname, final LocalDate activationDate,
-            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password) {
-        if (StringUtils.isBlank(accountNo)) {
+            final String externalId, Long categoryType, String email, String phone,String homePhoneNumber, String login, String password,Long groupName,String entryType) {
+        
+    	if (StringUtils.isBlank(accountNo)) {
             this.accountNumber = new RandomPasswordGenerator(19).generate();
             this.accountNumberRequiresAutoGeneration = true;
         } else {
@@ -186,6 +204,8 @@ public final class Client extends AbstractPersistable<Long> {
         this.homePhoneNumber=homePhoneNumber;
         this.login=login;
         this.password=password;
+        this.groupId = groupName;
+        this.entryType=entryType;
         if (StringUtils.isNotBlank(externalId)) {
             this.externalId = externalId.trim();
         } else {
@@ -223,7 +243,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.groups.add(clientParentGroup);
         }
 
-        deriveDisplayName();
+        deriveDisplayName(entryType);
         validateNameParts();
     }
 
@@ -377,7 +397,17 @@ public final class Client extends AbstractPersistable<Long> {
             actualChanges.put(ClientApiConstants.passwordParamName, newValue);
             this.password = StringUtils.defaultIfEmpty(newValue,null);
         }
-
+        if (command.isChangeInLongParameterNamed(ClientApiConstants.groupParamName, this.groupId)) {
+            final Long newValue = command.longValueOfParameterNamed(ClientApiConstants.groupParamName);
+            actualChanges.put(ClientApiConstants.groupParamName, newValue);
+            this.groupId = newValue;
+        }
+        
+        if (command.isChangeInStringParameterNamed(ClientApiConstants.entryTypeParamName, this.entryType)) {
+            final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.entryTypeParamName);
+            actualChanges.put(ClientApiConstants.entryTypeParamName, newValue);
+            this.entryType = StringUtils.defaultIfEmpty(newValue,null);
+        }
         validateNameParts();
 
         final String dateFormatAsInput = command.dateFormat();
@@ -393,8 +423,7 @@ public final class Client extends AbstractPersistable<Long> {
             this.activationDate = newValue.toDate();
         }
 
-        deriveDisplayName();
-
+        deriveDisplayName(this.entryType);
         return actualChanges;
     }
 
@@ -437,25 +466,30 @@ public final class Client extends AbstractPersistable<Long> {
         if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException(dataValidationErrors); }
     }
 
-    private void deriveDisplayName() {
+    private void deriveDisplayName(String entryType) {
+    	 
+    	StringBuilder nameBuilder = new StringBuilder();
+    	
+    	if(entryType.equalsIgnoreCase("IND")){
+    	    
+    		if (StringUtils.isNotBlank(this.firstname)) {
+    	       nameBuilder.append(this.firstname).append(' ');
+    	    }
+    	    if (StringUtils.isNotBlank(this.lastname)) {
+    	            nameBuilder.append(this.lastname);
+    	    }
+    	    if (StringUtils.isNotBlank(this.middlename)) {
+    	            nameBuilder.append(this.middlename).append(' ');
+    	    }
+    	}else{
 
-        StringBuilder nameBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(this.firstname)) {
-            nameBuilder.append(this.firstname).append(' ');
-        }
-
-        if (StringUtils.isNotBlank(this.middlename)) {
-            nameBuilder.append(this.middlename).append(' ');
-        }
-
-        if (StringUtils.isNotBlank(this.lastname)) {
-            nameBuilder.append(this.lastname);
-        }
-
+    		if (StringUtils.isNotBlank(this.firstname)) {
+     	       nameBuilder.append(this.firstname).append(' ');
+     	    }
+    	}
         if (StringUtils.isNotBlank(this.fullname)) {
             nameBuilder = new StringBuilder(this.fullname);
         }
-
         this.displayName = nameBuilder.toString();
     }
 
@@ -558,7 +592,10 @@ public final class Client extends AbstractPersistable<Long> {
 	public String getPassword() {
 		return password;
 	}
-
+	public Long getGroupName(){
+		return groupId;
+	}
+	
 	public Set<Group> getGroups() {
 		return groups;
 	}
@@ -570,7 +607,24 @@ public final class Client extends AbstractPersistable<Long> {
 		this.status=status;
 		
 	}
-	   public void close(final AppUser currentUser, final CodeValue closureReason, final Date closureDate) {
+	
+   public char getTaxExemption() {
+		return taxExemption;
+	}
+
+	public void setTaxExemption(char taxExemption) {
+		this.taxExemption = taxExemption;
+	}
+	
+	public String getBillMode() {
+		return billMode;
+	}
+
+	public void setBillMode(String billMode) {
+		this.billMode = billMode;
+	}
+
+	public void close(final AppUser currentUser, final CodeValue closureReason, final Date closureDate) {
 	        this.closureReason = closureReason;
 	        this.closureDate = closureDate;
 	        this.closeddBy = currentUser;

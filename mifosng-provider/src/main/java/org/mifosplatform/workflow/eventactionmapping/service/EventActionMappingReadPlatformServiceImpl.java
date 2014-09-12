@@ -48,8 +48,13 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 
 		public String schema() {
 			return "em.id as id, em.event_name as eventName, em.action_name as actionName," +
-				 " em.process as process from b_eventaction_mapping em  where em.is_deleted='N' ";
+				 " em.process as process,em.is_deleted as isDeleted from b_eventaction_mapping em order by em.is_deleted";
 
+		}
+		
+		public String schemaForSingle() {
+			return " em.id as id, em.event_name as eventName, em.action_name as actionName,em.process as process," +
+					" em.is_deleted as isDeleted from b_eventaction_mapping em ";
 		}
 	
 
@@ -62,11 +67,11 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 			String eventName = rs.getString("eventName");
 			String actionName = rs.getString("actionName");
 			String process = rs.getString("process");
+			String isDeleted = rs.getString("isDeleted");
 			//BigDecimal discountRate = rs.getBigDecimal("discountRate");
 			//LocalDate startDate = JdbcSupport.getLocalDate(rs,"startDate");
 			//String status = rs.getString("status");
-			return new EventActionMappingData(id, eventName, actionName, process,null,null,null);
-
+			return new EventActionMappingData(id, eventName, actionName, process,isDeleted);
 		}
 	}
 
@@ -107,8 +112,8 @@ public class EventActionMappingReadPlatformServiceImpl implements EventActionMap
 			context.authenticatedUser();
 			EventActionMapper mapper = new EventActionMapper();
 
-			String sql = "select " + mapper.schema()+" and em.id=?";
-
+			String sql = "select " + mapper.schemaForSingle()+" where em.id=?";
+			
 			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { discountId });
 		}catch(EmptyResultDataAccessException accessException){
 			return null;

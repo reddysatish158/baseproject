@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.mifosplatform.cms.eventorder.service.PrepareRequestWriteplatformService;
 import org.mifosplatform.infrastructure.codes.domain.CodeValue;
 import org.mifosplatform.infrastructure.codes.domain.CodeValueRepository;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
@@ -26,9 +27,12 @@ import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityExce
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.documentmanagement.exception.DocumentManagementException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.item.domain.StatusTypeEnum;
 import org.mifosplatform.logistics.itemdetails.exception.ActivePlansFoundException;
 import org.mifosplatform.organisation.address.domain.Address;
 import org.mifosplatform.organisation.address.domain.AddressRepository;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetails;
+import org.mifosplatform.organisation.groupsDetails.domain.GroupsDetailsRepository;
 import org.mifosplatform.organisation.office.domain.Office;
 import org.mifosplatform.organisation.office.domain.OfficeRepository;
 import org.mifosplatform.organisation.office.exception.OfficeNotFoundException;
@@ -42,11 +46,17 @@ import org.mifosplatform.portfolio.client.domain.ClientStatus;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.client.exception.InvalidClientStateTransitionException;
 import org.mifosplatform.portfolio.group.domain.Group;
-import org.mifosplatform.portfolio.group.domain.GroupRepository;
-import org.mifosplatform.portfolio.group.exception.GroupNotFoundException;
 import org.mifosplatform.portfolio.order.data.OrderData;
+import org.mifosplatform.portfolio.order.domain.Order;
+import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderReadPlatformService;
+import org.mifosplatform.portfolio.plan.domain.Plan;
+import org.mifosplatform.portfolio.plan.domain.PlanRepository;
+import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
+import org.mifosplatform.provisioning.provisioning.domain.ServiceParameters;
+import org.mifosplatform.provisioning.provisioning.domain.ServiceParametersRepository;
+import org.mifosplatform.provisioning.provisioning.service.ProvisioningWritePlatformService;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.service.ActionDetailsReadPlatformService;
@@ -67,8 +77,10 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private final PlatformSecurityContext context;
     private final ClientRepositoryWrapper clientRepository;
     private final OfficeRepository officeRepository;
-  //  private final NoteRepository noteRepository;
-    private final GroupRepository groupRepository;
+    private final GroupsDetailsRepository groupsDetailsRepository;
+    private final PlanRepository planRepository;
+    private final OrderRepository orderRepository;
+    private final ServiceParametersRepository serviceParametersRepository;
     private final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService;
     private final ClientDataValidator fromApiJsonDeserializer;
     private final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory;
@@ -77,28 +89,38 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
     private final AddressRepository addressRepository;
     private final CodeValueRepository codeValueRepository;
     private final OrderReadPlatformService orderReadPlatformService;
+    private final PrepareRequestWriteplatformService prepareRequestWriteplatformService;
+    private final ProvisioningWritePlatformService ProvisioningWritePlatformService;
+    
    
 
     @Autowired
     public ClientWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context,final AddressRepository addressRepository,
-            final ClientRepositoryWrapper clientRepository, final OfficeRepository officeRepository, 
-            final ClientDataValidator fromApiJsonDeserializer, final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,
-            final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,final GroupRepository groupRepository,
-            final ActiondetailsWritePlatformService actiondetailsWritePlatformService,final ActionDetailsReadPlatformService actionDetailsReadPlatformService,
-            final CodeValueRepository codeValueRepository,final OrderReadPlatformService orderReadPlatformService) {
+            final ClientRepositoryWrapper clientRepository, final OfficeRepository officeRepository,final ClientDataValidator fromApiJsonDeserializer, 
+            final AccountNumberGeneratorFactory accountIdentifierGeneratorFactory,final TransactionHistoryWritePlatformService transactionHistoryWritePlatformService,
+            final ServiceParametersRepository serviceParametersRepository,final ActiondetailsWritePlatformService actiondetailsWritePlatformService,
+            final ActionDetailsReadPlatformService actionDetailsReadPlatformService,final CodeValueRepository codeValueRepository,
+            final OrderReadPlatformService orderReadPlatformService,final ProvisioningWritePlatformService  ProvisioningWritePlatformService,
+            final GroupsDetailsRepository groupsDetailsRepository,final OrderRepository orderRepository,final PlanRepository planRepository,
+            final PrepareRequestWriteplatformService prepareRequestWriteplatformService) {
     	
         this.context = context;
         this.clientRepository = clientRepository;
         this.officeRepository = officeRepository;
+        this.orderRepository=orderRepository;
         this.fromApiJsonDeserializer = fromApiJsonDeserializer;
         this.codeValueRepository=codeValueRepository;
         this.accountIdentifierGeneratorFactory = accountIdentifierGeneratorFactory;
-        this.groupRepository = groupRepository;
+        this.serviceParametersRepository = serviceParametersRepository;
+        this.prepareRequestWriteplatformService=prepareRequestWriteplatformService;
         this.transactionHistoryWritePlatformService = transactionHistoryWritePlatformService;
         this.actiondetailsWritePlatformService=actiondetailsWritePlatformService;
         this.actionDetailsReadPlatformService=actionDetailsReadPlatformService;
         this.addressRepository=addressRepository;
         this.orderReadPlatformService=orderReadPlatformService;
+        this.ProvisioningWritePlatformService=ProvisioningWritePlatformService;
+        this.groupsDetailsRepository=groupsDetailsRepository;
+        this.planRepository=planRepository;
     }
 
     @Transactional
@@ -219,10 +241,10 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final Long groupId = command.longValueOfParameterNamed(ClientApiConstants.groupIdParamName);
 
             Group clientParentGroup = null;
-            if (groupId != null) {
+           /* if (groupId != null) {
                 clientParentGroup = this.groupRepository.findOne(groupId);
                 if (clientParentGroup == null) { throw new GroupNotFoundException(groupId); }
-            }
+            }*/
 
             final Client newClient = Client.createNew(clientOffice, clientParentGroup, command);
             this.clientRepository.save(newClient);
@@ -266,7 +288,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             context.authenticatedUser();
 
             this.fromApiJsonDeserializer.validateForUpdate(command.json());
-
+            
             final Client clientForUpdate = this.clientRepository.findOneWithNotFoundDetection(clientId);
             final Long officeId = command.longValueOfParameterNamed(ClientApiConstants.officeIdParamName);
             final Office clientOffice = this.officeRepository.findOne(officeId);
@@ -274,6 +296,36 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final Map<String, Object> changes = clientForUpdate.update(command);
             clientForUpdate.setOffice(clientOffice);
             this.clientRepository.saveAndFlush(clientForUpdate);
+            
+            if (changes.containsKey(ClientApiConstants.groupParamName)) {
+            	
+            	   List<ServiceParameters> serviceParameters=this.serviceParametersRepository.findGroupNameByclientId(clientId);
+            	   String newGroup=null;
+            	   if(clientForUpdate.getGroupName() != null){
+            		   GroupsDetails groupsDetails=this.groupsDetailsRepository.findOne(clientForUpdate.getGroupName());
+            		   newGroup=groupsDetails.getGroupName();
+            	   }
+            		   for(ServiceParameters serviceParameter:serviceParameters){
+            		   
+            		   Order  order=this.orderRepository.findOne(serviceParameters.get(0).getOrderId());
+            		   
+            		   Plan plan=this.planRepository.findOne(order.getPlanId());
+            		   String oldGroup=serviceParameter.getParameterValue();
+            		   if(newGroup == null){
+            			   newGroup=plan.getPlanCode();
+            		   }
+            		   serviceParameter.setParameterValue(newGroup);
+            		   this.serviceParametersRepository.saveAndFlush(serviceParameter);
+            		   
+                      if(order.getStatus().equals(StatusTypeEnum.ACTIVE.getValue().longValue())){
+            		    CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order, plan, UserActionStatusTypeEnum.CHANGE_GROUP.toString());
+               	        this.ProvisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getCode(),UserActionStatusTypeEnum.CHANGE_GROUP.toString(),
+               			processingResult.resourceId(),oldGroup,null);
+                      }
+            	   }
+            		
+            	}
+           
             transactionHistoryWritePlatformService.saveTransactionHistory(clientForUpdate.getId(), "Update Client", clientForUpdate.getActivationDate(),
             		"Changes:"+changes.toString(),"Name:"+clientForUpdate.getName(),"ImageKey:"+clientForUpdate.imageKey(),"AccountNumber:"+clientForUpdate.getAccountNo());
             return new CommandProcessingResultBuilder() //
@@ -390,5 +442,49 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
         logger.error(dve.getMessage(), dve);
     }
 
+	@Override
+	public CommandProcessingResult updateClientTaxExemption(Long clientId,JsonCommand command) {
+		
+		Client clientTaxStatus=null;
+		
+		try{
+			 clientTaxStatus = this.clientRepository.findOneWithNotFoundDetection(clientId);
+			 char taxValue=clientTaxStatus.getTaxExemption();
+			 final boolean taxStatus=command.booleanPrimitiveValueOfParameterNamed("taxExemption");
+			 if(taxStatus){
+				  taxValue='Y';
+				  clientTaxStatus.setTaxExemption(taxValue);
+			 }else{
+				 taxValue='N';
+				 clientTaxStatus.setTaxExemption(taxValue);
+			 }
+		}catch(DataIntegrityViolationException dve){
+			 handleDataIntegrityIssues(command, dve);
+	            return CommandProcessingResult.empty();
+		}
+		return new CommandProcessingResultBuilder().withEntityId(clientTaxStatus.getId()).build();
+	}
+
+	@Override
+	public CommandProcessingResult updateClientBillMode(Long clientId,JsonCommand command) {
+		
+		Client clientBillMode=null;
 	
+		try{
+			 this.fromApiJsonDeserializer.ValidateBillMode(command);
+			 clientBillMode=this.clientRepository.findOneWithNotFoundDetection(clientId);
+			 final String billMode=command.stringValueOfParameterNamed("billMode");
+			 if(billMode.equals(clientBillMode.getBillMode())==false){
+				 clientBillMode.setBillMode(billMode);
+			 }else{
+				 
+			 }
+		}catch(DataIntegrityViolationException dve){
+			 handleDataIntegrityIssues(command, dve);
+	            return CommandProcessingResult.empty();
+		}
+		
+		return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(clientBillMode.getId()).build();
+	}
+
 }

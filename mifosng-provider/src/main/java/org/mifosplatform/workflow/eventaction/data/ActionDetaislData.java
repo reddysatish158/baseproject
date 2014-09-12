@@ -6,13 +6,15 @@ public class ActionDetaislData {
 	private final String procedureName;
 	private final String actionName;
 	private final String isSynchronous;
+	private final String eventName;
 
-	public ActionDetaislData(Long id, String procedureName, String actionName, String isSynchronous) {
+	public ActionDetaislData(Long id, String procedureName, String actionName, String isSynchronous,String eventName) {
             
 		this.id=id;
 		this.procedureName=procedureName;
 		this.actionName=actionName;
 		this.isSynchronous=isSynchronous;
+		this.eventName=eventName;
 
 	}
 
@@ -33,16 +35,17 @@ public class ActionDetaislData {
 	/**
 	 * @return the actionType
 	 */
-	public String getaActionName() {
-		return actionName;
-	}
-
 	public String getActionName() {
 		return actionName;
 	}
 
+
 	public String IsSynchronous() {
 		return isSynchronous;
+	}
+
+	public String getEventName() {
+		return eventName;
 	}
 	
 	

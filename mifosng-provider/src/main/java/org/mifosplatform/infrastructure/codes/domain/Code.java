@@ -28,7 +28,10 @@ public class Code extends AbstractPersistable<Long> {
 
     @Column(name = "code_name", length = 100)
     private String name;
-
+    
+    @Column(name = "code_description", length = 1000)
+	private String description;
+    
     @Column(name = "is_system_defined")
     private final boolean systemDefined;
 
@@ -37,15 +40,17 @@ public class Code extends AbstractPersistable<Long> {
 
     public static Code fromJson(final JsonCommand command) {
         final String name = command.stringValueOfParameterNamed("name");
-        return new Code(name);
+        final String description = command.stringValueOfParameterNamed("description");
+        return new Code(name,description);
     }
 
     protected Code() {
         this.systemDefined = false;
     }
 
-    private Code(final String name) {
+    private Code(final String name,String description) {
         this.name = name;
+        this.description=description;
         this.systemDefined = false;
     }
 
@@ -76,4 +81,14 @@ public class Code extends AbstractPersistable<Long> {
     public boolean remove(final CodeValue codeValueToDelete) {
         return this.values.remove(codeValueToDelete);
     }
+
+	public String getName() {
+		return name;
+	}
+
+	public Set<CodeValue> getValues() {
+		return values;
+	}
+    
+    
 }

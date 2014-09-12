@@ -84,7 +84,7 @@ public class HardwarePlanReadPlatformServiceImpl implements HardwarePlanReadPlat
             Long id=rs.getLong("id");
 			String itemCode = rs.getString("itemCode");
 			String itemDescription = rs.getString("itemDescription");
-			return new ItemData(id,itemCode,itemDescription, null, null, null, 0, null);
+			return new ItemData(id,itemCode,itemDescription, null, null, null, 0, null,null,null,null);
 
 		}
 	}

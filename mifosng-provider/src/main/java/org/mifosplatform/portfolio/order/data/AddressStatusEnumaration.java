@@ -12,7 +12,7 @@ public class AddressStatusEnumaration {
 	}
 
 	public static EnumOptionData enumOptionData(final AddressEnum addressEnum) {
-		final String codePrefix = "deposit.interest.compounding.period.";
+		final String codePrefix = "address.CategoryType.";
 		EnumOptionData optionData = null;
 		switch (addressEnum) {
 		case PRIMARY:

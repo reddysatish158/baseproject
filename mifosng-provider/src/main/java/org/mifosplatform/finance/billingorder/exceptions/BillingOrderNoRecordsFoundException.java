@@ -17,4 +17,10 @@ public class BillingOrderNoRecordsFoundException extends AbstractPlatformDomainR
 		 super("error.msg.no.active.price.available.for.this.plan", "No Active Prices Available For This Plan ", planCode);
 		 
 	}
+	
+	public BillingOrderNoRecordsFoundException(String msg,Long billId) {
+		 super("error.msg.no.generate.pdf.file.for.this.statement", "No Generate Pdf File For This Statement ", billId);
+		 
+	}
+	
 }

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
+import org.mifosplatform.finance.data.DiscountMasterData;
 
 public class BillingOrderCommand {
 

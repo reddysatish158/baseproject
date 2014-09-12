@@ -124,6 +124,7 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 	    this.startDate=startdate.toDate();
 	    this.activeDate=startdate.toDate();
 	}
+
 	public Long getClientId() {
 		return clientId;
 	}
@@ -327,6 +328,5 @@ public Order(Long clientId, Long planId, Long contractPeriod, String paytermCode
 	 
 		
 	}
-	
-	
+
 }

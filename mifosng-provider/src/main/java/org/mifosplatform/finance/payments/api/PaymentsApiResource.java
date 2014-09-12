@@ -22,6 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.json.JSONObject;
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
@@ -149,7 +150,59 @@ public class PaymentsApiResource {
 			final CommandWrapper commandRequest = new CommandWrapperBuilder().cancelPayment(paymentId).withJson(apiRequestBodyAsJson).build();
 			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
 			return this.toApiJsonSerializer.serialize(result);
-		}
+		}	
+	 
+
+	 @POST
+	 @Path("dalpay")
+	 @Consumes({ MediaType.APPLICATION_JSON })
+	 @Produces({ MediaType.TEXT_HTML})
+	 public String dalpayCheckout(final String apiRequestBodyAsJson){
+	   try {
+		   	  JSONObject json= new JSONObject(apiRequestBodyAsJson);
+		   	  String orderNumber = json.getString("order_num");
+		   	  Long clientId = json.getLong("user1");
+		   	  String amount = json.getString("total_amount");
+		   	  BigDecimal totalAmount = new BigDecimal(amount);
+		   	  
+			  String date=new SimpleDateFormat("dd MMMM yyyy").format(new Date());
+			  JsonObject object=new JsonObject();
+			  
+			  object.addProperty("txn_id", orderNumber);
+			  object.addProperty("dateFormat","dd MMMM yyyy");
+			  object.addProperty("locale","en");
+			  object.addProperty("paymentDate",date);
+			  object.addProperty("amountPaid",totalAmount);
+			  object.addProperty("isChequeSelected","no");
+			  object.addProperty("receiptNo",orderNumber);
+			  object.addProperty("remarks","Updated with Dalpay");
+			  object.addProperty("paymentCode",27);
+		   	 
+		    final CommandWrapper commandRequest = new CommandWrapperBuilder().createPayment(clientId).withJson(object.toString()).build();
+			final CommandProcessingResult result = this.writePlatformService.logCommandSource(commandRequest);
+			return "<!-- success--> <span>Order Accepted Successfully</span>"+"OBS Payment Id:"+result.resourceId()+"<br>"
+					+ "<a href='https://49.205.106.79:5560/Clientapp/app/index.html#/viewclient/"+clientId+"'>"
+					+ "<strong>CLICK HERE</strong> to return to your account</a>";
+	  } 
+	   catch(Exception e){
+	    return e.getMessage();
+	   }
+	 }
+	 
+	 @POST
+	 @Path("authorizeNet")
+	 @Consumes("application/x-www-form-urlencoded")
+	 @Produces({ MediaType.TEXT_HTML})
+	 public String authorizeNetCheckout(@FormParam("x_email") String email,
+			 @FormParam("x_invoice_num") String invoiceNumber){
+	   try {
+		   	  System.out.println(invoiceNumber);
+			return "<!-- success--> <span>Order Accepted Successfully</span>";
+	  } 
+	   catch(Exception e){
+	    return e.getMessage();
+	   }
+	 }
 	 
 	 @POST
 	 @Path("paypalEnquirey/{clientId}")

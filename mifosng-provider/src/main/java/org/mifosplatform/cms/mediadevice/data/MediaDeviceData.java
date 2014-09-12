@@ -85,6 +85,7 @@ public class MediaDeviceData {
 	public void setBalanceCheck(boolean isCheck) {
 		this.balanceCheck =isCheck;
 	}
+
 	public void setPaypalConfigData(GlobalConfigurationProperty paypalConfigData) {
 		this.paypalConfigData = paypalConfigData;
 	}

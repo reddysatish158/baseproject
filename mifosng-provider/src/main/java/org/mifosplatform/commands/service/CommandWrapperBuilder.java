@@ -366,40 +366,6 @@ public class CommandWrapperBuilder {
 		return this;
 	}
 
-	public CommandWrapperBuilder createDatatable(final String datatable,
-			final Long apptableId, final Long datatableId) {
-		this.actionName = "CREATE";
-		commonDatatableSettings(datatable, apptableId, datatableId);
-		return this;
-	}
-
-	public CommandWrapperBuilder updateDatatable(final String datatable,
-			final Long apptableId, final Long datatableId) {
-		this.actionName = "UPDATE";
-		commonDatatableSettings(datatable, apptableId, datatableId);
-		return this;
-	}
-
-	public CommandWrapperBuilder deleteDatatable(final String datatable,
-			final Long apptableId, final Long datatableId) {
-		this.actionName = "DELETE";
-		commonDatatableSettings(datatable, apptableId, datatableId);
-		return this;
-	}
-
-	private void commonDatatableSettings(final String datatable,
-			final Long apptableId, final Long datatableId) {
-
-		this.entityName = datatable;
-		this.entityId = apptableId;
-		this.subentityId = datatableId;
-		if (datatableId == null) {
-			this.href = "/datatables/" + datatable + "/" + apptableId;
-		} else {
-			this.href = "/datatables/" + datatable + "/" + apptableId + "/"
-					+ datatableId;
-		}
-	}
 
 	public CommandWrapperBuilder createLoanCharge(final Long loanId) {
 		this.actionName = "CREATE";
@@ -1626,6 +1592,14 @@ public CommandWrapperBuilder createSelfCare() {
 	return this;
 }
 
+public CommandWrapperBuilder createSelfCareUDP() {
+	this.actionName = "CREATE";
+	this.entityName = "SELFCAREUDP";
+	this.entityId = null;
+	this.href = "/selfcare";
+	return this;
+}
+
 public CommandWrapperBuilder updateRegion(Long regionId) {
 	this.actionName="UPDATE";
 	this.entityName="REGION";
@@ -1707,7 +1681,6 @@ public CommandWrapperBuilder updateJobDetail(final Long jobId) {
 public CommandWrapperBuilder addNewJob() {
 	this.actionName = "CREATE";
     this.entityName = "SCHEDULER";
-    
     this.href = "/job";
     return this;
 }
@@ -2075,6 +2048,50 @@ public CommandWrapperBuilder extensionOrder(Long orderId) {
     return this;
 }
 
+
+
+public CommandWrapperBuilder addNewProvisioning(Long clientId) {
+	
+	this.actionName = "ADD";
+    this.entityName = "PROVISIONINGSYSTEM";
+    this.entityId=clientId;
+    this.href = "/provisionings/"+clientId;
+    return this;
+}
+
+public CommandWrapperBuilder createGroupsDetails() {
+	this.actionName = "CREATE";
+	this.entityName = "GROUPS";
+	this.entityId = null;
+	this.href = "/groups";
+	return this;
+}
+
+
+public CommandWrapperBuilder createIpPoolManagement() {
+	
+	this.actionName = "CREATE";
+    this.entityName = "IPPOOLMANAGEMENT";
+    this.href = "/ippooling";
+	return this;
+
+}
+
+public CommandWrapperBuilder updateprovisiongServiceParams(Long id) {
+
+	this.actionName = "UPDATE";
+    this.entityName = "PROVISIONINGSERVICEPARAMS";
+    this.entityId=id;
+    this.href = "/serviceparams/"+clientId;
+	return this;
+}
+
+public CommandWrapperBuilder createItemSale() {
+	this.actionName = "CREATE";
+    this.entityName = "ITEMSALE";
+    this.href = "/agents/";
+	return this;
+}
 public CommandWrapperBuilder updateprovisiongDetails(Long processrequestId) {
 
 	this.actionName = "UPDATE";
@@ -2098,6 +2115,56 @@ public CommandWrapperBuilder PaypalPayment(Long clientId) {
 	this.entityId = clientId;
 	this.href = "/payments/paypalEnquirey" + clientId;
 	return this;
+}
+
+public CommandWrapperBuilder updateMediaStatus(String deviceId) {
+	
+	this.actionName = "UPDATE";
+	this.entityName = "MEDIADEVICE";
+	this.supportedEntityType = deviceId;
+	this.href = "/mediadevices/"+deviceId;
+	return this;
+}
+
+
+public CommandWrapperBuilder updateClientStatus(Long clientId) {
+	this.actionName = "UPDATESTATUS";
+	this.entityName = "CLIENT";
+	this.entityId=clientId;
+	this.href = "/clients/"+clientId;
+	return this;
+}
+
+
+public CommandWrapperBuilder createOfficeAdjustment(Long officeId) {
+	this.actionName = "CREATE";
+	this.entityName = "OFFICEADJUSTMENT";
+	this.entityId = officeId;
+	this.href = "/officeadjustments/"+officeId;
+	return this;
+}
+
+public CommandWrapperBuilder createOfficePayment(Long officeId) {
+	this.actionName = "CREATE";
+	this.entityName = "OFFICEPAYMENT";
+	this.entityId = officeId;
+	this.href = "/officepayments/"+officeId;
+	return this;
+}
+public CommandWrapperBuilder createRedemption() {
+	this.actionName = "CREATE";
+	this.entityName = "REDEMPTION";
+	this.entityId = clientId;
+	this.href = "/redemption/"+clientId+"/";
+	return this;
+}
+
+public CommandWrapperBuilder moveItemSale() {
+	 this.actionName = "MOVEITEM";
+	 this.entityName = "MRN";
+	 this.entityId = null;
+	 this.href = "/mrndetails/movemrn/itemsale"+clientId;
+	 return this;
 }
 
 public CommandWrapperBuilder createClientCardDetails(Long clientId) {
@@ -2128,45 +2195,70 @@ public CommandWrapperBuilder deleteClientCardDetails(Long id, Long clientId) {
 	return this;	
 }
 
+public CommandWrapperBuilder createprovisioningDetails(Long prepareRequestId) {
+	this.actionName = "CREATE";
+	this.entityName = "PROVISION";
+	this.entityId = prepareRequestId;
+	this.href = "/provision/"+prepareRequestId;
+	return this;
+}
+
+public CommandWrapperBuilder updateClientTaxExemption(Long clientId) {
+	this.actionName = "UPDATE";
+	this.entityName = "CLIENTTAXEXEMPTION";
+	this.entityId = clientId;
+	this.href = "/taxexemption/" +clientId;
+	return this;
+}
+
 public CommandWrapperBuilder processRandomGeneraror(Long batchId) {
-	
 	this.actionName = "PROCESS";
 	this.entityName = "RANDAMGENERATOR";
 	this.entityId = batchId;
 	this.href = "/randomgenerators/" + batchId;
 	return this;
-	
 }
 
-public CommandWrapperBuilder createSelfCareUDP() {
-	this.actionName = "CREATE";
-	this.entityName = "SELFCAREUDP";
-	this.entityId = null;
-	this.href = "/selfcare";
-	return this;
-}
-
-public CommandWrapperBuilder updateMediaStatus(String deviceId) {
-	
+public CommandWrapperBuilder updateIpPoolManagement(Long id) {
 	this.actionName = "UPDATE";
-	this.entityName = "MEDIADEVICE";
-	this.supportedEntityType = deviceId;
-	this.href = "/mediadevices/"+deviceId;
+	this.entityName = "IPPOOLMANAGEMENT";
+	this.entityId = id;
+	this.href = "/ippooling/"+id;
 	return this;
 }
 
-public CommandWrapperBuilder createRedemption() {
-	this.actionName = "CREATE";
-	this.entityName = "REDEMPTION";
-	this.href = "/redemption/";
+
+public CommandWrapperBuilder updateBillMode(Long clientId) {
+	this.actionName = "UPDATE";
+	this.entityName = "CLIENTBILLMODE";
+	this.entityId = clientId;
+	this.href = "/billmode/" +clientId;
 	return this;
 }
 
-public CommandWrapperBuilder updateClientStatus(Long clientId) {
-	this.actionName = "UPDATESTATUS";
-	this.entityName = "CLIENT";
-	this.entityId=clientId;
-	this.href = "/clients/"+clientId;
+public CommandWrapperBuilder updateIpStatus(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "IPSTATUS";
+	this.entityId=id;
+	this.href = "/ippooling/status";
+	return this;
+}
+
+public CommandWrapperBuilder terminateOrder(Long orderId) {
+	
+	this.actionName = "TERMINATE";
+	this.entityName = "ORDER";
+	this.entityId=orderId;
+	this.href = "/orders/terminate/"+orderId;
+	return this;
+}
+
+public CommandWrapperBuilder createGroupsStatment(Long clientId) {
+	
+	this.actionName = "CREATESTATMENT";
+	this.entityName = "GROUPS";
+	this.entityId = clientId;
+	this.href = "/groups/statment/"+clientId;
 	return this;
 }
 
@@ -2184,14 +2276,112 @@ public CommandWrapperBuilder updateProvisioningPlanMapping(Long planMappingId) {
 	this.href = "/planmapping/" + planMappingId ;
 	return this;	
 }
+	
+
+public CommandWrapperBuilder createDBDatatable(final String json) {
+    this.actionName = "CREATE";
+    this.entityName = "DATATABLE";
+    this.entityId = null;
+    this.href = "/datatables/";
+    this.json = json;
+    return this;
+}
+
+public CommandWrapperBuilder updateDBDatatable(final String datatable, final String json) {
+    this.actionName = "UPDATE";
+    this.entityName = "DATATABLE";
+    this.entityId = null;
+    this.href = "/datatables/" + datatable;
+    this.json = json;
+    return this;
+}
+
+public CommandWrapperBuilder deleteDBDatatable(final String datatable, final String json) {
+    this.actionName = "DELETE";
+    this.entityName = "DATATABLE";
+    this.entityId = null;
+    this.href = "/datatables/" + datatable;
+    this.json = json;
+    return this;
+}
+
+public CommandWrapperBuilder registerDBDatatable(final String datatable, final String apptable) {
+    this.actionName = "REGISTER";
+    this.entityName = "DATATABLE";
+    this.entityId = null;
+    this.href = "/datatables/register/" + datatable + "/" + apptable;
+    return this;
+}
+
+ public CommandWrapperBuilder createDatatable(final String datatable, final Long apptableId, final Long datatableId) {
+    this.actionName = "CREATE";
+    commonDatatableSettings(datatable, apptableId, datatableId);
+    return this;
+ }
+
+ public CommandWrapperBuilder updateDatatable(final String datatable, final Long apptableId, final Long datatableId) {
+    this.actionName = "UPDATE";
+    commonDatatableSettings(datatable, apptableId, datatableId);
+    return this;
+ }
+
+ public CommandWrapperBuilder deleteDatatable(final String datatable, final Long apptableId, final Long datatableId) {
+    this.actionName = "DELETE";
+    commonDatatableSettings(datatable, apptableId, datatableId);
+    return this;
+ }
+
+ private void commonDatatableSettings(final String datatable, final Long apptableId, final Long datatableId) {
+
+    this.entityName = datatable;
+    this.entityId = apptableId;
+    this.subentityId = datatableId;
+    if (datatableId == null) {
+        this.href = "/datatables/" + datatable + "/" + apptableId;
+    } else {
+        this.href = "/datatables/" + datatable + "/" + apptableId + "/" + datatableId;
+    }
+ }
+ 
+ public CommandWrapperBuilder updateIpPoolDescription() {
+		
+		this.actionName = "UPDATE";
+	    this.entityName = "IPDESCRIPTION";
+	    this.href = "/ippooling/description";
+		return this;
+
+	}
 
 public CommandWrapperBuilder updateMediaCrashDetails(Long clientId) {
+	
 	this.actionName = "UPDATECRASH";
 	this.entityName = "MEDIADEVICE";
 	this.entityId = clientId;
 	this.href = "/mediadevices/client/"+clientId;
 	return this;
 }
+public CommandWrapperBuilder createEventValidation() {
+	this.actionName = "CREATE";
+	this.entityName = "EVENTVALIDATION";
+	this.entityId = null;
+	this.href = "/eventvalidation";
+	return this;
+}
+public CommandWrapperBuilder deleteEventValidation(Long id) {
+	this.actionName = "DELETE";
+	this.entityName = "EVENTVALIDATION";
+	this.entityId = id;
+	this.href = "/eventvalidation";
+	return this;
+}
+public CommandWrapperBuilder editGrn(Long id) {
+	this.actionName = "UPDATE";
+	this.entityName = "GRN";
+	this.entityId = id;
+	this.href = "itemdetails/editgrn";
+	return this;
+}
+
 
 public CommandWrapperBuilder updateSelfCareUDPassword() {
 	this.actionName = "UPDATE";
@@ -2208,3 +2398,21 @@ public CommandWrapperBuilder forgetSelfCareUDPassword() {
 }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
