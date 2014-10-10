@@ -9,11 +9,8 @@ import static org.mifosplatform.portfolio.client.api.SavingsApiConstants.activat
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
@@ -34,7 +31,6 @@ import com.google.gson.reflect.TypeToken;
 public final class ClientDataValidator {
 
     private final FromJsonHelper fromApiJsonHelper;
-    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("billMode"));
 
     @Autowired
     public ClientDataValidator(final FromJsonHelper fromApiJsonHelper) {
@@ -161,7 +157,7 @@ public final class ClientDataValidator {
         final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
         fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, ClientApiConstants.CLIENT_UPDATE_REQUEST_DATA_PARAMETERS);
         final JsonElement element = fromApiJsonHelper.parse(json);
-        
+
         final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
 
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
@@ -300,25 +296,4 @@ public final class ClientDataValidator {
 
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }
-
-	public void ValidateBillMode(JsonCommand command) {
-		
-		 final String json = command.json();
-		
-		 if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
-
-	        final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
-	        fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, supportedParameters);
-
-	        final List<ApiParameterError> dataValidationErrors = new ArrayList<ApiParameterError>();
-	        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("billMode");
-
-	        final JsonElement element = fromApiJsonHelper.parse(json);
-	        
-	        final String billMode=this.fromApiJsonHelper.extractStringNamed("billMode", element);
-	        baseDataValidator.reset().parameter("billMode").value(billMode).notBlank();
-	        
-	
-		throwExceptionIfValidationWarningsExist(dataValidationErrors);
-	}
 }

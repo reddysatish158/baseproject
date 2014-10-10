@@ -24,8 +24,6 @@ import javax.ws.rs.core.UriInfo;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
-import org.mifosplatform.infrastructure.codes.data.CodeValueData;
-import org.mifosplatform.infrastructure.codes.service.CodeValueReadPlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
@@ -47,7 +45,7 @@ public class OfficesApiResource {
      * {@link OfficeData}.
      */
     private final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "name", "nameDecorated", "externalId",
-            "openingDate", "hierarchy", "parentId", "parentName", "allowedParents","officeTypes"));
+            "openingDate", "hierarchy", "parentId", "parentName", "allowedParents"));
 
     private final String resourceNameForPermissions = "OFFICE";
 
@@ -56,19 +54,16 @@ public class OfficesApiResource {
     private final DefaultToApiJsonSerializer<OfficeData> toApiJsonSerializer;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
-    private final CodeValueReadPlatformService codeValueReadPlatformService;
-    public static final String OFFICE_TYPE="Office Type";
 
     @Autowired
     public OfficesApiResource(final PlatformSecurityContext context, final OfficeReadPlatformService readPlatformService,
             final DefaultToApiJsonSerializer<OfficeData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper,
-            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,final CodeValueReadPlatformService codeValueReadPlatformService) {
+            final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
         this.context = context;
         this.readPlatformService = readPlatformService;
         this.toApiJsonSerializer = toApiJsonSerializer;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
-        this.codeValueReadPlatformService=codeValueReadPlatformService;
     }
 
     @GET
@@ -79,9 +74,6 @@ public class OfficesApiResource {
         context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 
         final Collection<OfficeData> offices = this.readPlatformService.retrieveAllOffices();
-        //final Collection<CodeValueData> officeTypes=this.codeValueReadPlatformService.retrieveCodeValuesByCode(OFFICE_TYPE);
-        
-        //OfficeData  office = OfficeData.template(offices, null,officeTypes);
 
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, offices, RESPONSE_DATA_PARAMETERS);
@@ -98,8 +90,7 @@ public class OfficesApiResource {
         OfficeData office = this.readPlatformService.retrieveNewOfficeTemplate();
 
         final Collection<OfficeData> allowedParents = this.readPlatformService.retrieveAllOfficesForDropdown();
-        final Collection<CodeValueData> officeTypes=this.codeValueReadPlatformService.retrieveCodeValuesByCode(OFFICE_TYPE);
-        office = OfficeData.appendedTemplate(office, allowedParents,officeTypes);
+        office = OfficeData.appendedTemplate(office, allowedParents);
 
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, office, RESPONSE_DATA_PARAMETERS);
@@ -131,11 +122,9 @@ public class OfficesApiResource {
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 
         OfficeData office = this.readPlatformService.retrieveOffice(officeId);
-        
         if (settings.isTemplate()) {
             Collection<OfficeData> allowedParents = this.readPlatformService.retrieveAllowedParents(officeId);
-            final Collection<CodeValueData> codeValueDatas=this.codeValueReadPlatformService.retrieveCodeValuesByCode(OFFICE_TYPE);
-            office = OfficeData.appendedTemplate(office, allowedParents,codeValueDatas);
+            office = OfficeData.appendedTemplate(office, allowedParents);
         }
 
         return this.toApiJsonSerializer.serialize(settings, office, RESPONSE_DATA_PARAMETERS);

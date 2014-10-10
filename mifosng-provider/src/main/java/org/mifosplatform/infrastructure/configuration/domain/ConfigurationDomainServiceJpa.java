@@ -60,12 +60,4 @@ public class ConfigurationDomainServiceJpa implements ConfigurationDomainService
 
         this.cacheTypeRepository.save(cache);
     }
-    
-    @Override
-    public boolean isConstraintApproachEnabledForDatatables() {
-        final String propertyName = "constraint_approach_for_datatables";
-        final GlobalConfigurationProperty property = this.globalConfigurationRepository.findOneByName(propertyName);
-        return property.isEnabled();
-    }
-    
 }

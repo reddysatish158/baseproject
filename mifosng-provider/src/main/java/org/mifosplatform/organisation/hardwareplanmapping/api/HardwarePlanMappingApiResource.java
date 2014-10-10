@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 public class HardwarePlanMappingApiResource {
 
 	private  final Set<String> RESPONSE_DATA_PARAMETERS = new HashSet<String>(Arrays.asList("id", "planCode", "itemCode"));
-	 private final String resourceNameForPermissions = "PLANMAPPING";
+	 private final String resourceNameForPermissions = "PLAN";
 	  private final PlatformSecurityContext context;
 	    private final DefaultToApiJsonSerializer<HardwarePlanData> toApiJsonSerializer;
 	    private final ApiRequestParameterHelper apiRequestParameterHelper;

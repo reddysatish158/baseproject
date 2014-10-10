@@ -7,11 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
-import org.mifosplatform.infrastructure.core.service.Page;
-import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.scheduledjobs.uploadstatus.data.UploadStatusData;
@@ -26,8 +23,7 @@ public class UploadStatusReadPlatformServiceImpl implements UploadStatusReadPlat
 
     private final JdbcTemplate jdbcTemplate;
     private final PlatformSecurityContext context;
-    private final PaginationHelper<UploadStatusData> paginationHelper = new PaginationHelper<UploadStatusData>();
-    
+
     @Autowired
     public UploadStatusReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
         this.context = context;
@@ -48,9 +44,11 @@ public class UploadStatusReadPlatformServiceImpl implements UploadStatusReadPlat
          final Long id = rs.getLong("Id");
         final String uploadProcess=rs.getString("uploadProcess");
        	 final String uploadFilePath=rs.getString("uploadFilePath");
+       	 System.out.println(uploadFilePath );
        	 File  uploadFile=new File(uploadFilePath);
        	 String fileName=uploadFile.getName();
        	 String filePath=uploadFilePath.substring(0,11).concat("......").concat(File.separator+fileName);
+       	 System.out.println(filePath);
       
          final LocalDate processDate= JdbcSupport.getLocalDate(rs,"processDate");
        	 final String processStatus=rs.getString("processStatus");
@@ -76,26 +74,13 @@ public class UploadStatusReadPlatformServiceImpl implements UploadStatusReadPlat
     }
     
     @Override
-    public Page<UploadStatusData> retrieveAllUploadStatusData(SearchSqlQuery searchUploads) {
+    public List<UploadStatusData> retrieveAllUploadStatusData() {
         context.authenticatedUser();
 
         final UploadStatusMapper rm = new UploadStatusMapper();
-       
-    	StringBuilder sqlBuilder = new StringBuilder(200);
-    	sqlBuilder.append("select ");
-    	sqlBuilder.append(rm.schema());
-    	sqlBuilder.append(" order by u.id desc");
-        //final String sql = "select " + rm.schema() + " order by u.id desc";
-    	if (searchUploads.isLimited()) {
-            sqlBuilder.append(" limit ").append(searchUploads.getLimit());
-        }
+        final String sql = "select " + rm.schema() + " order by u.id desc";
 
-        if (searchUploads.isOffset()) {
-            sqlBuilder.append(" offset ").append(searchUploads.getOffset());
-        }
-        //return this.jdbcTemplate.query(sql, rm, new Object[] {});
-        return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
-	            new Object[] {}, rm);
+        return this.jdbcTemplate.query(sql, rm, new Object[] {});
     }
 
 

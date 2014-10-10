@@ -2,47 +2,31 @@ package org.mifosplatform.provisioning.provisioning.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.mifosplatform.billing.paymode.data.McodeData;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
-import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
-import org.mifosplatform.infrastructure.dataqueries.data.ResultsetColumnHeaderData;
-import org.mifosplatform.infrastructure.dataqueries.data.ResultsetRowData;
-import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.organisation.ippool.data.IpPoolData;
-import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.provisioning.provisioning.data.ProcessRequestData;
 import org.mifosplatform.provisioning.provisioning.data.ProvisioningCommandParameterData;
 import org.mifosplatform.provisioning.provisioning.data.ProvisioningData;
-import org.mifosplatform.provisioning.provisioning.data.ServiceParameterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlatformService {
 	
 	   private final JdbcTemplate jdbcTemplate;
 	   private final PlatformSecurityContext context;
-	   private final ReadReportingService readReportingService;
 	   
 	   @Autowired
-	    public ProvisioningReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
-	    		final ReadReportingService readReportingService) {
-	        
-		    this.context = context;
+	    public ProvisioningReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
+	        this.context = context;
 	        this.jdbcTemplate = new JdbcTemplate(dataSource);
-	        this.readReportingService=readReportingService;
 
 	    }
 	   
@@ -157,108 +141,6 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 		       }
 		}
 
-		 @Transactional
-		 @Override
-		public List<ServiceParameterData> getSerivceParameters(Long orderId) {
-				
-				Map<String, String> queryParams=new HashMap<String, String>();
-				queryParams.put("${orderId}", orderId.toString());
-				   List<ServiceParameterData> parameterDatas=new ArrayList<ServiceParameterData>();
-				final GenericResultsetData resultsetData=this.readReportingService.retrieveGenericResultset("Service", "parameter", queryParams);
-				   List<ResultsetRowData> datas = resultsetData.getData();
-				   List<String> row;
-				    Integer rSize;
-				   for (int i = 0; i < datas.size(); i++) {
-		               row = datas.get(i).getRow();
-		               rSize = row.size();
-		               for (int j = 0; j < rSize-1; j++) {
-
-		            	   String  id=datas.get(i).getRow().get(j);
-		            	   j++;
-		            	   String paramName=datas.get(i).getRow().get(j);
-		            	   j++;
-		            	   String paramValue=datas.get(i).getRow().get(j);
-		            	   j=j++;
-		            	   parameterDatas.add(new ServiceParameterData(new Long(id), paramName, paramValue,null));
-		               }
-		           }
-				 /*  for(int i=0;i<columnHeaderDatas.size();i++){
-					   for(int j=0;j<datas.size();j++){
-						  String id=null;
-						  String paramName=null;
-						  String paramValue=null;
-						   if(columnHeaderDatas.get(i).getColumnName().equalsIgnoreCase("id")){
-							 
-							  id=datas.get(i).getRow().get(i);
-							   
-						   }else if(columnHeaderDatas.get(i).getColumnName().equalsIgnoreCase("paramName")){
-							   
-							   paramName=datas.get(i).getRow().get(i);
-						   }else{
-							   paramValue=datas.get(i).getRow().get(i);
-						   }
-						   parameterDatas.add(new ServiceParameterData(new Long(id), paramName, paramValue));
-					   }
-				   }*/
-				   
-				   return parameterDatas;
-			 
-			 /*
-			
-			try{
-				this.context.authenticatedUser();
-				ServiceParameterMapper mapper=new ServiceParameterMapper();
-				final String sql="select "+mapper.schema();
-				return this.jdbcTemplate.query(sql, mapper,new Object[] {orderId});
-				
-			}catch(EmptyResultDataAccessException exception){
-				return null;
-			}
-			
-		*/}
-		
-		 private static final class ServiceParameterMapper implements RowMapper<ServiceParameterData> {
-
-			    public String schema() {
-					return " sd.id as id,sd.service_identification as paramName,sd.image as paramValue FROM b_orders o, b_plan_master p,b_service s," +
-							" b_plan_detail pd,b_prov_service_details sd WHERE  o.id= ? AND p.id = o.plan_id AND pd.plan_id = p.id AND " +
-							" pd.service_code = s.service_code and sd.service_id=s.id";
-				}
-			    
-			    
-			    public String provisionedschema() {
-					return "  s.id AS id,s.parameter_name AS paramName,s.parameter_value AS paramValue  FROM b_service_parameters s " +
-							"  WHERE s.order_id = ? and status='ACTIVE'";
-				}
-			    
-		        @Override
-		        public ServiceParameterData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-		        	
-				  Long id = rs.getLong("id");
-				  String paramName=rs.getString("paramName");
-				  String paramValue=rs.getString("paramValue");
-				  return new ServiceParameterData(id,paramName,paramValue,null);
-		       }
-		}
-		 
-		 
-		 @Transactional
-		 @Override
-		public List<ServiceParameterData> getProvisionedSerivceParameters(Long orderId) {
-			
-			try{
-				this.context.authenticatedUser();
-				ServiceParameterMapper mapper=new ServiceParameterMapper();
-				final String sql="select "+mapper.provisionedschema();
-				return this.jdbcTemplate.query(sql, mapper,new Object[] {orderId});
-				
-			}catch(EmptyResultDataAccessException exception){
-				return null;
-			}
-			
-		}
-
-	
 		@Override
 		public Long getHardwareDetails(String oldHardWare, Long clientId,String name) {
 			try {
@@ -303,7 +185,7 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 			    	return " p.id as id,p.client_id as clientId, p.order_id as orderId,p.order_id as orderNo,p.request_type as requestType,p.is_processed as isProcessed, " +
 							" pr.hardware_id as hardwareId, pr.receive_message as receiveMessage, pr.sent_message as sentMessage " +
 							" from b_process_request p inner join b_process_request_detail pr on pr.processrequest_id=p.id where" +
-							" p.order_id=? group by p.id ";
+							" p.id=? group by p.id ";
 			    }
 		        @Override
 		        public ProcessRequestData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
@@ -331,44 +213,9 @@ public class ProvisioningReadPlatformServiceImpl implements ProvisioningReadPlat
 
 			return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] {id});
 		}
+		
+		
 
-		@Override
-		public Collection<MCodeData> retrieveVlanDetails(String string) {
-			
-			Map<String, String> queryParams=new HashMap<String, String>();
-			   Collection<MCodeData> codeDatas=new ArrayList<MCodeData>();
-			   queryParams.put("${codeName}", string);
-			final GenericResultsetData resultsetData=this.readReportingService.retrieveGenericResultset("VLAN_ID", "parameter", queryParams);
-			   List<ResultsetColumnHeaderData> columnHeaderDatas=resultsetData.getColumnHeaders();
-			   List<ResultsetRowData> datas = resultsetData.getData();
-			   
-			   List<String> row;
-			    Integer rSize;
-			   for (int i = 0; i < datas.size(); i++) {
-	               row = datas.get(i).getRow();
-	               rSize = row.size();
-	               for (int j = 0; j < rSize-1; j++) {
 
-	            	   String  id=datas.get(i).getRow().get(j);
-	            	   j++;
-	            	   String paramValue=datas.get(i).getRow().get(j);
-	            	   j=j++;
-	            	   codeDatas.add(new MCodeData(new Long(id), paramValue));
-	               }
-	           }
-			   
-			/*   for(int i=0;i<columnHeaderDatas.size();i++){
-				   for(int j=0;j<datas.size();j++){
-					   MCodeData codeData=new MCodeData();
-					   if(columnHeaderDatas.get(i).getColumnName().equalsIgnoreCase("id")){
-						   codeData.setmCodeValue(datas.get(i).getRow().get(i));
-					   }else{
-						   codeData.setmCodeValue(datas.get(i).getRow().get(i));
-					   }
-					   codeDatas.add(codeData);
-				   }
-			   }*/
-			   
-			   return codeDatas;
-		}
+
 }

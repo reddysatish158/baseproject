@@ -1,15 +1,13 @@
 package org.mifosplatform.logistics.onetimesale.data;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.chargecode.data.ChargesData;
+import org.mifosplatform.billing.charge.data.ChargesData;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.cms.eventorder.data.EventOrderData;
-import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.logistics.item.data.ItemData;
-import org.mifosplatform.organisation.office.data.OfficeData;
 
 public class OneTimeSaleData {
 	
@@ -36,15 +34,14 @@ public class OneTimeSaleData {
 	private List<OneTimeSaleData> oneTimeSaleData;
 	private List<EventOrderData> eventOrdersData;
 	private String serialNo;
-	private Collection<OfficeData> officesData;
 	
-	public OneTimeSaleData(List<ChargesData> chargeDatas,List<ItemData> itemData, OneTimeSaleData salesData, List<DiscountMasterData> discountdata, Collection<OfficeData> officesData) {
+	
+	public OneTimeSaleData(List<ChargesData> chargeDatas,List<ItemData> itemData, OneTimeSaleData salesData, List<DiscountMasterData> discountdata) {
 		
 		this.chargesDatas=chargeDatas;
 		this.itemDatas=itemData;
 		this.salesData=salesData;
 		this.discountMasterDatas=discountdata;
-		this.officesData=officesData;
 		
 	}
 

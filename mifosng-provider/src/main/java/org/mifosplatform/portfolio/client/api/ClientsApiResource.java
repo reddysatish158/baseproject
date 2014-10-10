@@ -48,7 +48,6 @@ import org.mifosplatform.portfolio.allocation.service.AllocationReadPlatformServ
 import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.client.service.ClientCategoryData;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;
-import org.mifosplatform.portfolio.client.service.GroupData;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -125,11 +124,11 @@ public class ClientsApiResource {
             @QueryParam("firstName") final String firstname, @QueryParam("lastName") final String lastname,
             @QueryParam("underHierarchy") final String hierarchy, @QueryParam("offset") final Integer offset,
             @QueryParam("limit") final Integer limit, @QueryParam("orderBy") final String orderBy,
-            @QueryParam("sortOrder") final String sortOrder,@QueryParam("groupName") final String groupName) {
+            @QueryParam("sortOrder") final String sortOrder) {
 
         context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
         final SearchParameters searchParameters = SearchParameters.forClients(sqlSearch, officeId, externalId, displayName, firstname,
-                lastname, hierarchy, offset, limit, orderBy, sortOrder,groupName);
+                lastname, hierarchy, offset, limit, orderBy, sortOrder);
         final Page<ClientData> clientData = this.clientReadPlatformService.retrieveAll(searchParameters);
         return this.toApiJsonSerializer.serialize(clientData);
     }
@@ -153,13 +152,12 @@ public class ClientsApiResource {
         if (settings.isTemplate()) {
             final List<OfficeData> allowedOffices = new ArrayList<OfficeData>(officeReadPlatformService.retrieveAllOfficesForDropdown());
             final Collection<ClientCategoryData> categoryDatas=this.clientReadPlatformService.retrieveClientCategories();
-            final Collection<GroupData> groupDatas = this.clientReadPlatformService.retrieveGroupData();
             List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,groupDatas,allocationDetailsDatas,null);
+            clientData = ClientData.templateOnTop(clientData, allowedOffices,categoryDatas,allocationDetailsDatas,null);
+
         }else{
         	 List<String> allocationDetailsDatas=this.allocationReadPlatformService.retrieveHardWareDetails(clientId);
-             clientData = ClientData.templateOnTop(clientData, null,null,null,allocationDetailsDatas,balanceCheck);
-
+             clientData = ClientData.templateOnTop(clientData, null,null,allocationDetailsDatas,balanceCheck);
         }
         
         GlobalConfigurationProperty paypalconfigurationProperty=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);

@@ -9,6 +9,4 @@ public interface MRNDetailsWritePlatformService {
 
 	CommandProcessingResult moveMRN(JsonCommand command);
 
-	CommandProcessingResult moveItemSale(JsonCommand command);
-
 }

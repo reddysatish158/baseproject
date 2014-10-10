@@ -72,7 +72,7 @@ public class PortfolioCommandSourceWritePlatformServiceImpl implements
 					wrapper.getGroupId(), wrapper.getClientId(),
 					wrapper.getLoanId(), wrapper.getSavingsId(),
 					wrapper.getCodeId(), wrapper.getSupportedEntityType(),
-					wrapper.getSupportedEntityId(), wrapper.getTransactionId(),wrapper.getHref());
+					wrapper.getSupportedEntityId(), wrapper.getTransactionId());
 
 			result = this.processAndLogCommandService.processAndLogCommand(
 					wrapper, command, isApprovedByChecker);

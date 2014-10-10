@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.mifosplatform.finance.billingorder.data.BillingOrderData;
 import org.mifosplatform.finance.billingorder.data.GenerateInvoiceData;
-import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.portfolio.order.data.OrderPriceData;
@@ -396,28 +396,4 @@ public String discountOrderSchema() {
 	  }
 
 	 }
-	 
-	 @Override
-		public TaxMappingRateData retriveExemptionTaxDetails(Long clientId) {
-		 try{
-			taxMapper mapper=new taxMapper();
-			final String sql= "select exempt_tax as taxExemption from m_client where id=?";
-			return this.jdbcTemplate.queryForObject(sql, mapper,new Object[]{clientId});
-		   }catch(EmptyResultDataAccessException e){
-			 return null;
-		   }
-		 }
-		private final static class taxMapper implements RowMapper<TaxMappingRateData>
-		{
-
-			@Override
-			public TaxMappingRateData mapRow(ResultSet rs, int rowNum)
-					throws SQLException {
-				final String taxExemption=rs.getString("taxExemption");
-				return new TaxMappingRateData(taxExemption);
-			}
-			
-		}
-
-	 
 }

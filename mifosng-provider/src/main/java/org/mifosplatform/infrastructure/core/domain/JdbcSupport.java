@@ -72,6 +72,4 @@ public class JdbcSupport {
         }
         return result;
     }
-
-
 }

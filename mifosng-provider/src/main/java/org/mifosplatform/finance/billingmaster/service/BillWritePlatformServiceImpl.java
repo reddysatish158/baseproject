@@ -3,26 +3,21 @@ package org.mifosplatform.finance.billingmaster.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 
-import org.joda.time.LocalDate;
 import org.mifosplatform.finance.adjustment.domain.Adjustment;
 import org.mifosplatform.finance.adjustment.domain.AdjustmentRepository;
 import org.mifosplatform.finance.billingmaster.domain.BillDetail;
 import org.mifosplatform.finance.billingmaster.domain.BillDetailRepository;
 import org.mifosplatform.finance.billingmaster.domain.BillMaster;
 import org.mifosplatform.finance.billingmaster.domain.BillMasterRepository;
-import org.mifosplatform.finance.billingmaster.service.BillWritePlatformService;
 import org.mifosplatform.finance.billingorder.data.BillDetailsData;
 import org.mifosplatform.finance.billingorder.domain.BillingOrder;
 import org.mifosplatform.finance.billingorder.domain.BillingOrderRepository;
@@ -37,11 +32,6 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.portfolio.client.domain.Client;
-import org.mifosplatform.portfolio.client.domain.ClientRepository;
-import org.mifosplatform.portfolio.client.service.ClientWritePlatformServiceJpaRepositoryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -59,10 +49,8 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-
 @Service
 public class BillWritePlatformServiceImpl implements BillWritePlatformService {
-	private final static Logger logger = LoggerFactory.getLogger(BillWritePlatformServiceImpl.class);
 	private final PlatformSecurityContext context;
 	private final BillMasterRepository billMasterRepository;
 	private final BillDetailRepository billDetailRepository;
@@ -72,26 +60,22 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 	private final InvoiceTaxRepository invoiceTaxRepository;
 	private final InvoiceRepository invoiceRepository;
 	private final TenantAwareRoutingDataSource dataSource;
-	private final ClientRepository clientRepository;
 	
 	@Autowired
 	public BillWritePlatformServiceImpl(final PlatformSecurityContext context,final BillMasterRepository billMasterRepository,
 			final BillDetailRepository billDetailRepository,final PaymentRepository paymentRepository,final AdjustmentRepository adjustmentRepository,
 			final BillingOrderRepository billingOrderRepository,final InvoiceTaxRepository invoiceTaxRepository,final InvoiceRepository invoiceRepository,
-			final TenantAwareRoutingDataSource dataSource,final ClientRepository  clientRepository) {
+			final TenantAwareRoutingDataSource dataSource) {
 
 		this.context = context;
-		this.dataSource = dataSource;
-		this.invoiceRepository=invoiceRepository;
-		this.paymentRepository = paymentRepository;
-		this.clientRepository=clientRepository;
 		this.billMasterRepository = billMasterRepository;
 		this.billDetailRepository = billDetailRepository;
 		this.adjustmentRepository = adjustmentRepository;
-		this.invoiceTaxRepository = invoiceTaxRepository;
 		this.billingOrderRepository = billingOrderRepository;
-		
-		
+		this.invoiceTaxRepository = invoiceTaxRepository;
+		this.paymentRepository = paymentRepository;
+		this.invoiceRepository=invoiceRepository;
+		this.dataSource = dataSource;
 	}
 
 	@Override
@@ -124,7 +108,6 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 		BigDecimal dueAmount = BigDecimal.ZERO;
 		BigDecimal taxAmount = BigDecimal.ZERO;
 		BigDecimal adjustMentsAndPayments = BigDecimal.ZERO;
-		BigDecimal OneTimeSaleAmount =BigDecimal.ZERO;
 		for (BillDetail billDetail : billDetails) {
 			if (billDetail.getTransactionType().equalsIgnoreCase("SERVICE_CHARGES")) {
 				if (billDetail.getAmount() != null)
@@ -140,21 +123,15 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 				if (billDetail.getAmount() != null)
 					paymentAmount = paymentAmount.add(billDetail.getAmount());
 
-			} else if (billDetail.getTransactionType().contains("ONETIME_CHARGES")) {
-				if (billDetail.getAmount() != null)
-					OneTimeSaleAmount =OneTimeSaleAmount.add(billDetail.getAmount());
-
 			}
-			
-			
 			dueAmount = chargeAmount.add(taxAmount).add(adjustmentAmount)
-					    .subtract(paymentAmount).add(OneTimeSaleAmount).add(clientBalance);
+					.subtract(paymentAmount).add(clientBalance);
 			billMaster.setChargeAmount(chargeAmount);
 			billMaster.setAdjustmentAmount(adjustmentAmount);
 			billMaster.setTaxAmount(taxAmount);
 			billMaster.setPaidAmount(paymentAmount);
 			billMaster.setDueAmount(dueAmount);
-			billMaster.setAdjustmentsAndPayments(paymentAmount.subtract(adjustmentAmount));
+			billMaster.setAdjustmentsAndPayments(paymentAmount.add(adjustmentAmount));
 			billMaster.setPreviousBalance(clientBalance);
 			this.billMasterRepository.save(billMaster);
 
@@ -503,37 +480,36 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 				adjustment.updateBillId(billId);
 				this.adjustmentRepository.save(adjustment);
 			}
-			else if (transIds.getTransactionType().equalsIgnoreCase("TAXES")) {
+			if (transIds.getTransactionType().equalsIgnoreCase("TAXES")) {
 				InvoiceTax invoice = this.invoiceTaxRepository.findOne(transIds.getTransactionId());
 				invoice.updateBillId(billId);
 				this.invoiceTaxRepository.save(invoice);
 			}
-			else if (transIds.getTransactionType().contains("PAYMENT")) {
+			if (transIds.getTransactionType().contains("PAYMENT")) {
 				Payment payment = this.paymentRepository.findOne(transIds.getTransactionId());
 				payment.updateBillId(billId);
 				this.paymentRepository.save(payment);
 			}
-			else if (transIds.getTransactionType().equalsIgnoreCase("SERVICE_CHARGES")) {
+			if (transIds.getTransactionType().equalsIgnoreCase("SERVICE_CHARGES")) {
 				BillingOrder billingOrder = this.billingOrderRepository.findOne(transIds.getTransactionId());
 				billingOrder.updateBillId(billId);
 				this.billingOrderRepository.save(billingOrder);
-				Invoice invoice = this.invoiceRepository.findOne(billingOrder.getInvoice().getId());
-				invoice.updateBillId(billId);
-				this.invoiceRepository.save(invoice);
-			}
-			else if (transIds.getTransactionType().equalsIgnoreCase("INVOICE")) {
 				Invoice invoice = this.invoiceRepository.findOne(transIds.getTransactionId());
 				invoice.updateBillId(billId);
 				this.invoiceRepository.save(invoice);
 			}
-			else if (transIds.getTransactionType().equalsIgnoreCase("ONETIME_CHARGES")) {
+			
+			if (transIds.getTransactionType().equalsIgnoreCase("INVOICE")) {
+				Invoice invoice = this.invoiceRepository.findOne(transIds.getTransactionId());
+				invoice.updateBillId(billId);
+				this.invoiceRepository.save(invoice);
+			}
+			
+
+            if (transIds.getTransactionType().equalsIgnoreCase("ONETIME_CHARGES")) {
             	BillingOrder billingOrder = this.billingOrderRepository.findOne(transIds.getTransactionId());
 				billingOrder.updateBillId(billId);
 				this.billingOrderRepository.save(billingOrder);
-				Invoice invoice = this.invoiceRepository.findOne(billingOrder.getInvoice().getId());
-				invoice.updateBillId(billId);
-				this.invoiceRepository.save(invoice);
-				
             }
 
 		}
@@ -547,7 +523,7 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 
 	@Transactional
 	@Override
-	public void ireportPdf(Long billId) throws SQLException {
+	public void ireportPdf(Long billId) {
 		try {
 			String fileLocation = FileUtils.MIFOSX_BASE_DIR;
 
@@ -555,44 +531,41 @@ public class BillWritePlatformServiceImpl implements BillWritePlatformService {
 			if (!new File(fileLocation).isDirectory()) {
 				new File(fileLocation).mkdirs();
 			}
-			BillMaster billMaster=this.billMasterRepository.findOne(billId);
+			
 			String jpath = fileLocation+File.separator+"jasper"; //System.getProperty("user.home") + File.separator + "billing";
-			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billMaster.getId()+ ".pdf";
+			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
+			//InputStream input = new FileInputStream(new File("/usr/hugotest/EmployeeReport.jasper"));
+			//JasperDesign jasperDesign = JRXmlLoader.load(input);
+
+			//String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
+			BillMaster billMaster = this.billMasterRepository.findOne(billId);
 			billMaster.setFileName(printInvoicedetailsLocation);
 			this.billMasterRepository.save(billMaster);
+			//FileInputStream inputStream = new FileInputStream(jpath +File.separator +"Bill_Mainreport.jasper");
 			String jfilepath =jpath+File.separator+"Bill_Mainreport.jasper";
-			Long billNo=null;
-			Client client=this.clientRepository.findOne(billMaster.getClientId());
-			
-				if(client.getGroupName() != null){
-					billNo=client.getGroupName();
-				}else{
-					billNo=billMaster.getId();
-				}
-				
 			Map<String, Object> parameters = new HashMap();
-			String id = String.valueOf(billMaster.getId());
+			String id = String.valueOf(billId);
+				parameters.put("param1", id);
+				parameters.put("SUBREPORT_DIR",jpath+""+File.separator);
+			   JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, this.dataSource.getConnection());
+				JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);
+			
+			/*String jpath =  System.getProperty("user.home") + File.separator + "billing";
+			String printInvoicedetailsLocation = fileLocation + File.separator + "Bill_" +billId + ".pdf";
+			BillMaster billMaster = this.billMasterRepository.findOne(billId);
+			billMaster.setFileName(printInvoicedetailsLocation);
+			this.billMasterRepository.save(billMaster);
+			FileInputStream inputStream = new FileInputStream(jpath +File.separator +"Bill_Mainreport.jrxml");
+			Map parameters = new HashMap();
+			String id = String.valueOf(billId);
 			parameters.put("param1", id);
-			//parameters.put("param1",new LocalDate(billMaster.getBillDate())+"/"+billNo);
 			parameters.put("SUBREPORT_DIR",jpath+""+File.separator);
-			Connection connection=this.dataSource.getConnection();
-			try{
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jfilepath,parameters, connection);
-			JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);
-			}finally{
-	            try {
-	            	connection.close();
-	            } catch (SQLException e) {
-	                e.printStackTrace();
-	            }
-			}
-		} catch (DataIntegrityViolationException exception) {
+			JasperDesign jasperDesign = JRXmlLoader.load(inputStream);
+			JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, this.dataSource.getConnection());
+			JasperExportManager.exportReportToPdfFile(jasperPrint,printInvoicedetailsLocation);*/
+		} catch (Exception exception) {
 			exception.printStackTrace();
-		} catch (JRException e) {
-		 logger.error("unable to generate pdf"+e.getLocalizedMessage());
-			e.printStackTrace();
-		} catch (SQLException e) {
-			logger.error("unable to retrieve data"+e.getLocalizedMessage());
 		}
 	}
 

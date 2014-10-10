@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -65,6 +64,7 @@ public class MediaDeviceApiResource {
 		        this.mediaDeviceReadPlatformService=mediaDeviceReadPlatformService;
 		        this.toApiJsonSerializerForPlanData = toApiJsonSerializerForPlanData;
 		        this.configurationRepository=configurationRepository;
+
 		    }	
 
 		@SuppressWarnings("unused")
@@ -79,7 +79,7 @@ public class MediaDeviceApiResource {
 			if(datas == null){
 				throw new NoMediaDeviceFoundException();
 			}
-	
+			
 			 GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
 			 datas.setPaypalConfigData(paypalConfigData);
 			 GlobalConfigurationProperty paypalConfigDataForIos=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK_IOS);
@@ -133,6 +133,7 @@ public class MediaDeviceApiResource {
 			}
 	        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 	        return this.toApiJsonSerializerForPlanData.serialize(settings,planData, RESPONSE_DATA_PARAMETERS_FOR_PLAN);
+		
 		
 		}
 	

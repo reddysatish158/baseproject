@@ -6,9 +6,7 @@
 package org.mifosplatform.portfolio.group.service;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.mifosplatform.portfolio.client.service.GroupData;
 import org.mifosplatform.portfolio.group.data.GroupAccountSummaryCollectionData;
 import org.mifosplatform.portfolio.group.data.GroupAccountSummaryData;
 import org.mifosplatform.portfolio.group.data.GroupGeneralData;
@@ -25,6 +23,4 @@ public interface GroupReadPlatformService {
     GroupAccountSummaryCollectionData retrieveGroupAccountDetails(Long groupId);
 
     Collection<GroupAccountSummaryData> retrieveGroupLoanAccountsByLoanOfficerId(Long groupId, Long loanOfficerId);
-
-	Collection<GroupData> retrieveGroupServiceDetails(Long orderId);
 }

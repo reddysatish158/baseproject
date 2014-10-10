@@ -1,6 +1,8 @@
 package org.mifosplatform.finance.adjustment.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,7 @@ import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.finance.adjustment.data.AdjustmentCodeData;
 import org.mifosplatform.finance.adjustment.data.AdjustmentData;
+import org.mifosplatform.finance.adjustment.domain.Discount;
 import org.mifosplatform.finance.adjustment.service.AdjustmentReadPlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;

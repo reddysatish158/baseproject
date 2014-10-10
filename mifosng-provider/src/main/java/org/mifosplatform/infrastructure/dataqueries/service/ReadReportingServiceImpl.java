@@ -210,7 +210,7 @@ public class ReadReportingServiceImpl implements ReadReportingService {
 
     }
 
-    public String getSql(final String name, final String type) {
+    private String getSql(final String name, final String type) {
 
         final String inputSql = "select " + type + "_sql as the_sql from stretchy_" + type + " where " + type + "_name = '" + name + "'";
         final String inputSqlWrapped = genericDataService.wrapSQL(inputSql);

@@ -36,6 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+
+
+
 @Path("/servicemasters")
 @Component
 @Scope("singleton")
@@ -56,14 +59,14 @@ public class ServiceMasterApiResource {
 	    		final ApiRequestParameterHelper apiRequestParameterHelper,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 	    		final ServiceMasterReadPlatformService serviceMasterReadPlatformService,final PlanReadPlatformService planReadPlatformService,
 	    		final EnumReadplaformService enumReadplaformService) {
-
+		        
 			    this.context = context;
 		        this.toApiJsonSerializer = toApiJsonSerializer;
 		        this.enumReadplaformService=enumReadplaformService;
 		        this.planReadPlatformService=planReadPlatformService;
 		        this.apiRequestParameterHelper = apiRequestParameterHelper;
-		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        this.serviceMasterReadPlatformService=serviceMasterReadPlatformService;
+		        this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		        
 		        
 		    }		
@@ -99,7 +102,6 @@ public class ServiceMasterApiResource {
 		}
 
 	 private ServiceMasterOptionsData handleTemplateData() {
-
 		 Collection<EnumValuesData> serviceType = this.enumReadplaformService.getEnumValues("service_type");
 		 List<EnumOptionData> status = this.planReadPlatformService.retrieveNewStatus();
 		 List<EnumOptionData> serviceUnitType = this.serviceMasterReadPlatformService.retrieveServiceUnitType();

@@ -15,7 +15,6 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.logistics.mrn.data.InventoryTransactionHistoryData;
 import org.mifosplatform.logistics.mrn.data.MRNDetailsData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 		@Override
 		public MRNDetailsData mapRow(ResultSet rs, int rowNum)
 				throws SQLException {
-			final String id = rs.getString("id");
+			final Long id = rs.getLong("mrnId");
 			final LocalDate requestedDate =JdbcSupport.getLocalDate(rs,"requestedDate");
 			final String fromOffice = rs.getString("fromOffice");
 			final String toOffice = rs.getString("toOffice");
@@ -142,13 +141,16 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	
 	@Override
 	public Page<MRNDetailsData> retriveMRNDetails(SearchSqlQuery searchMRNDetails) {
-		final String sql = "Select Concat("+"'MRN '"+",mrn.id) as id, mrn.requested_date as requestedDate," +
-				"(select item_description from b_item_master where id=mrn.item_master_id) as item," +
-				" (select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice," +
-				"mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn ";
-		
+		final String sql = "SQL_CALC_FOUND_ROWS mrn.id as mrnId, mrn.requested_date as requestedDate, "
+				+ "(select item_description from b_item_master where id=mrn.item_master_id) as item,"
+				+ "(select name from m_office where id=mrn.from_office) as fromOffice, "
+				+ "(select name from m_office where id = mrn.to_office) as toOffice, "
+				+ "mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, "
+				+ "mrn.status as status from b_mrn mrn ";
 		MRNDetailsMapper rowMapper = new MRNDetailsMapper();
+		
 		StringBuilder sqlBuilder = new StringBuilder(200);
+        sqlBuilder.append("select ");
         sqlBuilder.append(sql);
         sqlBuilder.append(" where mrn.status = 'Completed' | 'New' | 'Pending' ");
         
@@ -162,21 +164,6 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	    				+ " mrn.status like '%"+sqlSearch+"%')" ;
 	    }
             sqlBuilder.append(extraCriteria);
-            
-            final String itemSql = "Union all Select Concat ("+"'Item Sale ' "+",its.id) as id,its.purchase_date as requestedDate," +
-            		"(select item_description from b_item_master where id=its.item_id) as item,(select name from m_office where id=1) as " +
-            		" fromOffice,(select name from m_office where id = its.purchase_by) as toOffice, its.order_quantity as orderdQuantity," +
-            		"its.received_quantity as receivedQuantity, its.status as status  from b_itemsale its ";
-            sqlBuilder.append(itemSql);
-            sqlBuilder.append(" where its.status = 'Completed' | 'New' | 'Pending' ");
-            String extraCriteriaForItemsale = "";
-    	    if (sqlSearch != null) {
-    	    	sqlSearch=sqlSearch.trim();
-    	    	extraCriteriaForItemsale = "and ((select item_description from b_item_master where id=its.item_id ) like  '%"+sqlSearch+"%' OR" +
-    	    			"(select name from m_office where id=its.purchase_by ) like '%head%' OR its.status like  '%"+sqlSearch+"%') ";
-    	    }
-                sqlBuilder.append(extraCriteriaForItemsale);
-                sqlBuilder.append("order by 2 desc");
         
         /*if (StringUtils.isNotBlank(extraCriteria)) {
             sqlBuilder.append(extraCriteria);
@@ -331,53 +318,9 @@ public class MRNDetailsReadPlatformServiceImp implements MRNDetailsReadPlatformS
 	}
 	@Override
 	public MRNDetailsData retriveSingleMrnDetail(Long mrnId) {
-		final String sql = "select mrn.id as id, mrn.requested_date as requestedDate, (select item_description from b_item_master where id=mrn.item_master_id) as item," +
-				          "  (select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice," +
-				          "   mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn where mrn.id=?";
+		final String sql = "select mrn.id as mrnId, mrn.requested_date as requestedDate, (select item_description from b_item_master where id=mrn.item_master_id) as item,(select name from m_office where id=mrn.from_office) as fromOffice, (select name from m_office where id = mrn.to_office) as toOffice, mrn.orderd_quantity as orderdQuantity, mrn.received_quantity as receivedQuantity, mrn.status as status from b_mrn mrn where mrn.id=?";
 		final MRNDetailsMapper rowMapper = new MRNDetailsMapper();
 		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{mrnId});
-	}
-
-	@Override
-	public MRNDetailsData retriveAgentId(Long itemsaleId) {
-		final String sql = "select purchase_from as agentId from b_itemsale where id=?";
-		final AgentDetailsMapper rowMapper = new AgentDetailsMapper(); 
-		return jdbcTemplate.queryForObject(sql,rowMapper,new Object[]{itemsaleId});
-	}
-	
-	private final class AgentDetailsMapper implements RowMapper<MRNDetailsData>{
-		@Override
-		public MRNDetailsData mapRow(ResultSet rs, int rowNum)
-				throws SQLException {
-			final Long agentId = rs.getLong("agentId");
-			return new MRNDetailsData(agentId);
-		}
-	}
-	
-	@Override
-	public List<String> retriveSerialNumbersForItems(Long agentId, Long itemsaleId,String serialNumber) {
-		try{
-		 String sql = " select idt.serial_no as serialNumber from b_itemsale bi left join b_item_detail idt on" +
-				           " idt.item_master_id = bi.item_id where bi.id = ? and idt.client_id is null and idt.office_id=?";
-		
-		 if(serialNumber != null){
-			  sql = " select idt.serial_no as serialNumber from b_itemsale bi left join b_item_detail idt on" +
-			           " idt.item_master_id = bi.item_id where bi.id = ? and idt.client_id is null and idt.office_id=? and idt.serial_no='"+serialNumber+"'";
-		}
-		
-		final MRNDetailsSerialMapper rowMapper = new MRNDetailsSerialMapper();
-		return jdbcTemplate.query(sql,rowMapper,new Object[]{itemsaleId,agentId});
-
-		}catch(EmptyResultDataAccessException ex){
-			return null;
-		}
-	}
-	
-	@Override
-	public List<Long> retriveItemMasterIdForSale(Long itemId) {
-		final String sql = "select item_id as itemMasterId from b_itemsale where id = ?";
-		final MRNDetailsItemMasterId rowMapper = new MRNDetailsItemMasterId();
-		return jdbcTemplate.query(sql,rowMapper,new Object[]{itemId});
 	}
 	
 }

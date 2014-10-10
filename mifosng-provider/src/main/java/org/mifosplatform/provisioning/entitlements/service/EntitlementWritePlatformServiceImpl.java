@@ -7,14 +7,13 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequest;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestDetails;
 import org.mifosplatform.provisioning.processrequest.domain.ProcessRequestRepository;
-import org.mifosplatform.provisioning.processrequest.service.ProcessRequestWriteplatformService;
+import org.mifosplatform.scheduledjobs.scheduledjobs.service.ProcessRequestWriteplatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class EntitlementWritePlatformServiceImpl implements EntitlementWritePlatformService{
-
 
 private final ProcessRequestRepository entitlementRepository;
 private final ProcessRequestWriteplatformService processRequestWriteplatformService;

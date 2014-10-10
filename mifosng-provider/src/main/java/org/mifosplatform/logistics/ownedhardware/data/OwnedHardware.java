@@ -161,7 +161,6 @@ public class OwnedHardware extends AbstractAuditableCustom<AppUser, Long>{
 		
 		if(this.isDeleted == 'N'){
 			this.isDeleted='Y';
-			this.serialNumber="DEL_"+this.serialNumber;
 		}
 		
 	}

@@ -22,14 +22,11 @@ public class RandomGeneratorData {
     private List<EnumOptionData> pinCategoryData;
 	private List<EnumOptionData> pinTypeData;
 	private String isProcessed;
-	private String planCode;
-
 	
 	public RandomGeneratorData(String batchName, String batchDescription,
 			Long length, String pinCategory, String pinType, Long quantity,
 			String serial, Date expiryDate, String beginWith,
-			String pinValue, Long id, String planCode, String isProcessed) {
-
+			String pinValue, Long id, String isProcessed) {
 		// TODO Auto-generated constructor stub
 		this.batchName=batchName;
 		this.batchDescription=batchDescription;
@@ -42,7 +39,6 @@ public class RandomGeneratorData {
 		this.expiryDate=new LocalDate(expiryDate);
 		this.pinValue=pinValue;
 		this.id=id;
-		this.planCode=planCode;
 		this.isProcessed=isProcessed;
 	}
 

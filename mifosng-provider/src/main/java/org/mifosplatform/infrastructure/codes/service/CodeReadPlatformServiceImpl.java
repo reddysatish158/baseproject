@@ -9,11 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.codes.data.CodeData;
 import org.mifosplatform.infrastructure.codes.exception.CodeNotFoundException;
-import org.mifosplatform.infrastructure.core.service.Page;
-import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +24,7 @@ public class CodeReadPlatformServiceImpl implements CodeReadPlatformService {
 
     private final JdbcTemplate jdbcTemplate;
     private final PlatformSecurityContext context;
-    private final PaginationHelper<CodeData> paginationHelper = new PaginationHelper<CodeData>();
-    
+
     @Autowired
     public CodeReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
         this.context = context;
@@ -38,7 +34,7 @@ public class CodeReadPlatformServiceImpl implements CodeReadPlatformService {
     private static final class CodeMapper implements RowMapper<CodeData> {
 
         public String schema() {
-            return " c.id as id, c.code_name as code_name, c.code_description as codeDescription,c.is_system_defined as systemDefined from m_code c ";
+            return " c.id as id, c.code_name as code_name, c.is_system_defined as systemDefined from m_code c ";
         }
 
         @Override
@@ -46,32 +42,20 @@ public class CodeReadPlatformServiceImpl implements CodeReadPlatformService {
 
             final Long id = rs.getLong("id");
             final String code_name = rs.getString("code_name");
-            final String codeDescription = rs.getString("codeDescription");
             final boolean systemDefined = rs.getBoolean("systemDefined");
 
-            return CodeData.instance(id, code_name,codeDescription, systemDefined);
+            return CodeData.instance(id, code_name, systemDefined);
         }
     }
 
     @Override
-    public Page<CodeData> retrieveAllCodes(SearchSqlQuery searchCodes) {
+    public Collection<CodeData> retrieveAllCodes() {
         context.authenticatedUser();
 
         final CodeMapper rm = new CodeMapper();
-        StringBuilder sqlBuilder = new StringBuilder(200);
-        sqlBuilder.append("select ");
-        sqlBuilder.append(rm.schema());
-        sqlBuilder.append(" order by c.code_name");
-        //final String sql = "select " + rm.schema() + " order by c.code_name";
-        if (searchCodes.isLimited()) {
-            sqlBuilder.append(" limit ").append(searchCodes.getLimit());
-        }
-        if (searchCodes.isOffset()) {
-            sqlBuilder.append(" offset ").append(searchCodes.getOffset());
-        }
-        //return this.jdbcTemplate.query(sql, rm, new Object[] {});
-        return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
-	            new Object[] {}, rm);
+        final String sql = "select " + rm.schema() + " order by c.code_name";
+
+        return this.jdbcTemplate.query(sql, rm, new Object[] {});
     }
 
     @Override
@@ -87,19 +71,4 @@ public class CodeReadPlatformServiceImpl implements CodeReadPlatformService {
             throw new CodeNotFoundException(codeId);
         }
     }
-    
-    @Override
-    public CodeData retriveCode(final String codeName) {
-        try {
-            this.context.authenticatedUser();
-
-            final CodeMapper rm = new CodeMapper();
-            final String sql = "select " + rm.schema() + " where c.code_name = ?";
-
-            return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { codeName });
-        } catch (final EmptyResultDataAccessException e) {
-            throw new CodeNotFoundException(codeName);
-        }
-    }
-    
 }

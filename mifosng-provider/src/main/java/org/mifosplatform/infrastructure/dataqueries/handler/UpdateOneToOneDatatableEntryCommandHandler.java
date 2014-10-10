@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UpdateOneToOneDatatableEntryCommandHandler implements NewCommandSourceHandler {
 
-	private final ReadWriteNonCoreDataService writePlatformService;
+    private final ReadWriteNonCoreDataService writePlatformService;
 
     @Autowired
     public UpdateOneToOneDatatableEntryCommandHandler(final ReadWriteNonCoreDataService writePlatformService) {

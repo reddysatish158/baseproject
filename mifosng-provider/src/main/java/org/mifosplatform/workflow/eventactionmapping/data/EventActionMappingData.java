@@ -16,8 +16,6 @@ public class EventActionMappingData {
 	 String codeValue;
 	 private List<McodeData> actionData;
 	 private List<McodeData> eventData;
-	 String isDeleted;
-	 
 	public EventActionMappingData(Long id,String eventName,String actionName,String process,String codeValue,List<EventActionMappingData> actionData,List<EventActionMappingData> eventData) {
 		// TODO Auto-generated constructor stub
 		this.id=id;
@@ -45,15 +43,6 @@ public class EventActionMappingData {
 		// TODO Auto-generated constructor stub
 		this.actionData=actionData;
 		this.eventData=eventData;
-	}
-
-	public EventActionMappingData(Long id, String eventName,
-			String actionName, String process, String isDeleted) {
-		this.id=id;
-		this.eventName=eventName;
-		this.actionName=actionName;
-		this.process=process;
-		this.isDeleted=isDeleted;
 	}
 
 	public String getBatchName() {

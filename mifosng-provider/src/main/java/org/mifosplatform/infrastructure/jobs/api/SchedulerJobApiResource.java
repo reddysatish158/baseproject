@@ -38,7 +38,6 @@ import org.mifosplatform.infrastructure.jobs.exception.NoLogFileFoundException;
 import org.mifosplatform.infrastructure.jobs.service.JobName;
 import org.mifosplatform.infrastructure.jobs.service.JobRegisterService;
 import org.mifosplatform.infrastructure.jobs.service.SchedulerJobRunnerReadService;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.message.data.BillingMessageData;
 import org.mifosplatform.organisation.message.service.BillingMesssageReadPlatformService;
 import org.mifosplatform.portfolio.group.service.SearchParameters;
@@ -54,7 +53,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SchedulerJobApiResource {
 
-	private final String resourceNameForPermission = "SCHEDULERJOB";
     private final SchedulerJobRunnerReadService schedulerJobRunnerReadService;
     private final JobRegisterService jobRegisterService;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
@@ -65,15 +63,13 @@ public class SchedulerJobApiResource {
     private final SheduleJobReadPlatformService sheduleJobReadPlatformService;
     private final BillingMesssageReadPlatformService billingMesssageReadPlatformService;
     private final PlanReadPlatformService planReadPlatformService;
-    private final PlatformSecurityContext context;
 
     @Autowired
     public SchedulerJobApiResource(final SchedulerJobRunnerReadService schedulerJobRunnerReadService,final JobRegisterService jobRegisterService,
     		final ToApiJsonSerializer<JobDetailData> toApiJsonSerializer,final ApiRequestParameterHelper apiRequestParameterHelper,
     		final ToApiJsonSerializer<ScheduleJobData> serializer,final ToApiJsonSerializer<JobDetailHistoryData> jobHistoryToApiJsonSerializer,
     		final SheduleJobReadPlatformService sheduleJobReadPlatformService,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-    		final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final PlanReadPlatformService planReadPlatformService,
-    		final PlatformSecurityContext context) {
+    		final BillingMesssageReadPlatformService billingMesssageReadPlatformService,final PlanReadPlatformService planReadPlatformService) {
     	
         this.schedulerJobRunnerReadService = schedulerJobRunnerReadService;
         this.jobRegisterService = jobRegisterService;
@@ -85,7 +81,6 @@ public class SchedulerJobApiResource {
         this.sheduleJobReadPlatformService=sheduleJobReadPlatformService;
         this.billingMesssageReadPlatformService=billingMesssageReadPlatformService;
         this.planReadPlatformService=planReadPlatformService;
-        this.context = context;
     }
     @Autowired
 	private ScheduledJobRunHistoryRepository scheduledJobRunHistoryRepository;
@@ -106,7 +101,6 @@ public class SchedulerJobApiResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveAll(@Context final UriInfo uriInfo) {
-    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
         List<JobDetailData> jobDetailDatas = this.schedulerJobRunnerReadService.findAllJobDeatils();
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, jobDetailDatas, SchedulerJobApiConstants.JOB_DETAIL_RESPONSE_DATA_PARAMETERS);
@@ -117,7 +111,6 @@ public class SchedulerJobApiResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveOne(@PathParam(SchedulerJobApiConstants.JOB_ID) final Long jobId, @Context final UriInfo uriInfo) {
-    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
         JobDetailData jobDetailData = this.schedulerJobRunnerReadService.retrieveOne(jobId);
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, jobDetailData, SchedulerJobApiConstants.JOB_DETAIL_RESPONSE_DATA_PARAMETERS);
@@ -127,7 +120,6 @@ public class SchedulerJobApiResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveTemplateData(@Context final UriInfo uriInfo) {
-    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
          List<ScheduleJobData> jobDetailData = this.schedulerJobRunnerReadService.retrieveJobDetails();
         ScheduleJobData jobData=new ScheduleJobData(jobDetailData);
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -140,7 +132,6 @@ public class SchedulerJobApiResource {
     public String retrieveHistory(@Context final UriInfo uriInfo, @PathParam(SchedulerJobApiConstants.JOB_ID) final Long jobId,
             @QueryParam("offset") final Integer offset, @QueryParam("limit") final Integer limit,
             @QueryParam("orderBy") final String orderBy, @QueryParam("sortOrder") final String sortOrder) {
-    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
         final SearchParameters searchParameters = SearchParameters.forPagination(offset, limit, orderBy, sortOrder);
         Page<JobDetailHistoryData> jobhistoryDetailData = this.schedulerJobRunnerReadService.retrieveJobHistory(jobId, searchParameters);
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
@@ -185,7 +176,6 @@ public class SchedulerJobApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
     public String retrieveJobParameters(@Context final UriInfo uriInfo, @PathParam(SchedulerJobApiConstants.JOB_ID) final Long jobId) {
         
-    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermission);
     	JobDetailData jobDetailData = this.schedulerJobRunnerReadService.retrieveOne(jobId);
         JobParameterData data=this.sheduleJobReadPlatformService.getJobParameters(jobDetailData.getDisplayName());
         List<SystemData> provisionSysData = this.planReadPlatformService.retrieveSystemData();

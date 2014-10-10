@@ -16,21 +16,14 @@ public class CodeData {
     private final String name;
     @SuppressWarnings("unused")
     private final boolean systemDefined;
-    @SuppressWarnings("unused")
-	private final String description;
-    
-    public static CodeData instance(final Long id, final String name, final String description,final boolean systemDefined) {
-        return new CodeData(id, name, description,systemDefined);
+
+    public static CodeData instance(final Long id, final String name, final boolean systemDefined) {
+        return new CodeData(id, name, systemDefined);
     }
 
-    private CodeData(final Long id, final String name, final String description,final boolean systemDefined) {
+    private CodeData(final Long id, final String name, final boolean systemDefined) {
         this.id = id;
         this.name = name;
-        this.description = description;
         this.systemDefined = systemDefined;
     }
-
-	public Long getCodeId() {
-		 return this.id;       
-   }
 }

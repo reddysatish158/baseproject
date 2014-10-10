@@ -12,6 +12,7 @@ import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.mifosplatform.portfolio.plan.domain.Plan;
 import org.mifosplatform.portfolio.plan.domain.PlanDetails;
+import org.mifosplatform.portfolio.plan.domain.PlanHardWareDetailsRepository;
 import org.mifosplatform.portfolio.plan.domain.PlanRepository;
 import org.mifosplatform.portfolio.plan.domain.VolumeDetails;
 import org.mifosplatform.portfolio.plan.domain.VolumeDetailsRepository;
@@ -40,9 +41,10 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
 	private final PlanReadPlatformService planReadPlatformService;
 	private final VolumeDetailsRepository volumeDetailsRepository;
 	private final EventActionReadPlatformService eventActionReadPlatformService;
+	private final PlanHardWareDetailsRepository planHardWareDetailsRepository;
 	
 	@Autowired
-	public PlanWritePlatformServiceImpl(final PlatformSecurityContext context,
+	public PlanWritePlatformServiceImpl(final PlatformSecurityContext context,PlanHardWareDetailsRepository planHardWareDetailsRepository,
 			final PlanRepository planRepository,final PlanReadPlatformService planReadPlatformService,
 			final ServiceMasterRepository serviceMasterRepository,final VolumeDetailsRepository volumeDetailsRepository,
 			final PlanCommandFromApiJsonDeserializer fromApiJsonDeserializer,final EventActionReadPlatformService eventActionReadPlatformService) {
@@ -53,6 +55,7 @@ public class PlanWritePlatformServiceImpl implements PlanWritePlatformService {
 		this.planReadPlatformService=planReadPlatformService;
 		this.volumeDetailsRepository=volumeDetailsRepository;
 		this.eventActionReadPlatformService=eventActionReadPlatformService;
+		this.planHardWareDetailsRepository=planHardWareDetailsRepository;
 
 	}
      @Transactional

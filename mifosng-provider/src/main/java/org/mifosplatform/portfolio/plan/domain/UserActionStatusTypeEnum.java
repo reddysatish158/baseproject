@@ -12,10 +12,7 @@ public enum UserActionStatusTypeEnum {
 	DEVICE_SWAP(7,"CategoryType.device swap"),
 	CHANGE_PLAN(8,"CategoryType.change plan"),
 	EXTENSION(9,"CategoryType.extension"),
-	CHANGE_GROUP(10,"CategoryType.extension"),
-	TERMINATION(11,"CategoryType.extension"),
-	RETRACK(12,"CategoryType.retrack"),
-	INVALID(13, "CategoryType.invalid");
+	INVALID(10, "CategoryType.invalid");
 
 
     private final Integer value;
@@ -65,15 +62,6 @@ public enum UserActionStatusTypeEnum {
 			actionStatusTypeEnum = UserActionStatusTypeEnum.CHANGE_PLAN;
 		case 9:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.EXTENSION;
-			
-		case 10:
-			actionStatusTypeEnum = UserActionStatusTypeEnum.CHANGE_GROUP;
-			
-		case 11:
-			actionStatusTypeEnum = UserActionStatusTypeEnum.TERMINATION;
-			
-		case 12:
-			actionStatusTypeEnum = UserActionStatusTypeEnum.RETRACK;	
 			
 		default:
 			actionStatusTypeEnum = UserActionStatusTypeEnum.INVALID;

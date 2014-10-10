@@ -84,31 +84,6 @@ public class HardwareAssociation extends AbstractAuditableCustom<AppUser, Long> 
 	}
 
 
-	public Long getClientId() {
-		return clientId;
-	}
-
-
-	public Long getPlanId() {
-		return planId;
-	}
-
-
-	public String getSerialNo() {
-		return serialNo;
-	}
-
-
-	public Long getOrderId() {
-		return orderId;
-	}
-
-
-	public String getIsDeleted() {
-		return isDeleted;
-	}
-
-
 	public void updateserailNum(String serialNumber) {
 		this.serialNo=serialNumber;
 		

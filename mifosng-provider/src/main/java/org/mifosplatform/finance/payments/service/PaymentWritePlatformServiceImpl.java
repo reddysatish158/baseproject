@@ -297,10 +297,8 @@ public class PaymentWritePlatformServiceImpl implements PaymentWritePlatformServ
 				String entityName = "PAYMENT";
 				
 				final JsonElement element1 = fromApiJsonHelper.parse(paymentobject.toString());
-				Long id = null;
-				
 				JsonCommand comm = new JsonCommand(null,paymentobject.toString(), element1,fromApiJsonHelper, entityName, 
-						paypalEnquirey.getClientId(),null, null, null, null, null, null, null, null,null,null);
+						paypalEnquirey.getClientId(),null, null, null, null, null, null, null, null,null);
 
 				CommandProcessingResult result = createPayment(comm);
 

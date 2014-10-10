@@ -34,4 +34,3 @@ public abstract class AbstractPlatformResourceNotFoundException extends RuntimeE
         return defaultUserMessageArgs;
     }
 }
-

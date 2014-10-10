@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -17,7 +18,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,14 +27,14 @@ import javax.ws.rs.core.UriInfo;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
+import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiConstants;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
-import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.scheduledjobs.uploadstatus.command.UploadStatusCommand;
 import org.mifosplatform.scheduledjobs.uploadstatus.data.UploadStatusData;
@@ -68,22 +68,33 @@ public class UploadStatusApiResource {
 	private UploadStatusWritePlatformService uploadStatusWritePlatformService;
 	@Autowired
 	private UploadStatusRepository uploadStatusRepository;
+	
+	
+	//@Autowired
+	//private PortfolioApiJsonBillingSerializerService apiJsonSerializerService;
+	
+	//private final DefaultToApiJsonSerializer<UploadStatusData> toApiJsonSerializerForItem;
+	
+	 private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 
+	private final ToApiJsonSerializer<UploadStatus> toApiJsonSerializer;
 	private final PlatformSecurityContext context;
 	@Autowired
     private final UploadStatusReadPlatformService readPlatformService;
     private final DefaultToApiJsonSerializer< UploadStatusData> defaulttoApiJsonSerializerforUploadStatus;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
 	
+    //ApiRequestJsonSerializationSettings settings
 	 @Autowired
 	    public UploadStatusApiResource(PlatformSecurityContext context, final UploadStatusReadPlatformService readPlatformService,
-	            final DefaultToApiJsonSerializer<UploadStatusData> defaulttoApiJsonSerializerforUploadStatus, 
-	            final ApiRequestParameterHelper apiRequestParameterHelper) {
+	            final DefaultToApiJsonSerializer<UploadStatusData> defaulttoApiJsonSerializerforUploadStatus, final ApiRequestParameterHelper apiRequestParameterHelper,final ToApiJsonSerializer<UploadStatus> toApiJsonSerializer
+	            ,PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService) {
 	        this.context = context;
 	        this.readPlatformService = readPlatformService;
 	        this.defaulttoApiJsonSerializerforUploadStatus = defaulttoApiJsonSerializerforUploadStatus;
 	        this.apiRequestParameterHelper = apiRequestParameterHelper;
-	      
+	        this.toApiJsonSerializer=toApiJsonSerializer;
+	        this.commandsSourceWritePlatformService=commandsSourceWritePlatformService;
 
 	    }
 	
@@ -94,17 +105,16 @@ public class UploadStatusApiResource {
 	 @Path("/getData")
 	    @Consumes({ MediaType.APPLICATION_JSON })
 	    @Produces({ MediaType.APPLICATION_JSON })
-	    public String retrieveUploadFiles( @Context final UriInfo uriInfo,@QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit,
-				@QueryParam("offset") final Integer offset) {
+	    public String retrieveUploadFiles( @Context final UriInfo uriInfo) {
 		 context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 /*
 	        final Collection<UploadStatusData> codes = this.readPlatformService.retrieveAllCodes();
 		 final Set<String> responseParameters = ApiParameterHelper.extractFieldsForResponseIfProvided(uriInfo.getQueryParameters());
 			final boolean prettyPrint = ApiParameterHelper.prettyPrint(uriInfo.getQueryParameters());*/
-		 	final SearchSqlQuery searchUploads =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
-			final Page<UploadStatusData> uploadstatusdata= this.readPlatformService.retrieveAllUploadStatusData(searchUploads);	
+
+			final List<UploadStatusData> uploadstatusdata= this.readPlatformService.retrieveAllUploadStatusData();			
 			ApiRequestJsonSerializationSettings  settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-			return this.defaulttoApiJsonSerializerforUploadStatus.serialize(uploadstatusdata);
+			return this.defaulttoApiJsonSerializerforUploadStatus.serialize(settings, uploadstatusdata, UPLOAD_STATUS_PARAMETERS);
 			//return this.apiJsonSerializerService.serializeUploadStatusDataToJson(prettyPrint,responseParameters,uploadstatusdata);
 	 
 	    }
@@ -115,7 +125,6 @@ public class UploadStatusApiResource {
 	    @Produces({ MediaType.APPLICATION_JSON })
 	    public String retrieveFileDetails(@PathParam("uploadfileId") final Long fileId,@Context final UriInfo uriInfo) {
 	    	
-	    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 	    	final UploadStatusData uploadstatusdata= this.readPlatformService.retrieveSingleFileDetails(fileId);			
 			ApiRequestJsonSerializationSettings  settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return this.defaulttoApiJsonSerializerforUploadStatus.serialize(settings, uploadstatusdata, UPLOAD_STATUS_PARAMETERS);

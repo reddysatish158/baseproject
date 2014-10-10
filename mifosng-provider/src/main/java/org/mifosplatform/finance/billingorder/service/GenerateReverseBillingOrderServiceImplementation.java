@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMaster;
 import org.mifosplatform.billing.discountmaster.domain.DiscountMasterRepository;
-import org.mifosplatform.billing.taxmaster.data.TaxMappingRateData;
 import org.mifosplatform.finance.billingorder.commands.BillingOrderCommand;
 import org.mifosplatform.finance.billingorder.commands.InvoiceTaxCommand;
 import org.mifosplatform.finance.billingorder.data.BillingOrderData;
@@ -15,7 +15,6 @@ import org.mifosplatform.finance.billingorder.domain.BillingOrder;
 import org.mifosplatform.finance.billingorder.domain.Invoice;
 import org.mifosplatform.finance.billingorder.domain.InvoiceRepository;
 import org.mifosplatform.finance.billingorder.domain.InvoiceTax;
-import org.mifosplatform.finance.data.DiscountMasterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,7 +91,7 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 
 	@Override
 	public Invoice generateNegativeInvoice(List<BillingOrderCommand> billingOrderCommands) {
-		//BigDecimal totalChargeAmountForServices = BigDecimal.ZERO;
+		BigDecimal totalChargeAmountForServices = BigDecimal.ZERO;
 		//BigDecimal totalTaxAmountForServices = BigDecimal.ZERO;
 		
 		BigDecimal invoiceAmount = BigDecimal.ZERO;
@@ -101,8 +100,6 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 		
 		LocalDate invoiceDate = new LocalDate();
 		List<BillingOrder> charges = new ArrayList<BillingOrder>();
-		
-		TaxMappingRateData tax=this.billingOrderReadPlatformService.retriveExemptionTaxDetails(billingOrderCommands.get(0).getClientId());
 		
 		Invoice invoice = new Invoice(billingOrderCommands.get(0).getClientId(), new LocalDate().toDate(), invoiceAmount, invoiceAmount, 
 				netTaxAmount, "active");
@@ -124,8 +121,6 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 			BillingOrder charge = new BillingOrder(billingOrderCommand.getClientId(), billingOrderCommand.getClientOrderId(), billingOrderCommand.getOrderPriceId(),
 					billingOrderCommand.getChargeCode(),billingOrderCommand.getChargeType(),discountMaster.getDiscountCode(), billingOrderCommand.getPrice(), discountAmount,
 					netChargeAmount, billingOrderCommand.getStartDate(), billingOrderCommand.getEndDate());
-			//client taxExemption
-			if(tax.getTaxExemption().equalsIgnoreCase("N")){
 			
 			for(InvoiceTaxCommand invoiceTaxCommand : invoiceTaxCommands){
 				
@@ -145,7 +140,6 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 					charge.setNetChargeAmount(netChargeAmount.negate());
 				}
 			}
-			}
 			netTaxAmount = netTaxAmount.add(netChargeTaxAmount);
 			totalChargeAmount = totalChargeAmount.add(netChargeAmount);
 			
@@ -153,17 +147,8 @@ public class GenerateReverseBillingOrderServiceImplementation implements
 			
 		}
 
-		if(billingOrderCommands.get(0).getTaxInclusive()!=null){
-			if(isTaxInclusive(billingOrderCommands.get(0).getTaxInclusive())){
-			invoiceAmount = totalChargeAmount;
-			}else{
-
-				invoiceAmount = totalChargeAmount.add(netTaxAmount);
-			}
-			}else{
-				invoiceAmount = totalChargeAmount.add(netTaxAmount);
-			}
-		//invoiceAmount = totalChargeAmount.add(netTaxAmount);
+		
+		invoiceAmount = totalChargeAmount.add(netTaxAmount);
 		invoice.setNetChargeAmount(totalChargeAmount.negate());
 		invoice.setTaxAmount(netTaxAmount.negate());
 		invoice.setInvoiceAmount(invoiceAmount.negate());

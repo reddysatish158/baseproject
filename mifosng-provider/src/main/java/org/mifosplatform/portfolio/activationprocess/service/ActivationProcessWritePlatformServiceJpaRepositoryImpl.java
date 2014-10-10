@@ -99,29 +99,69 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
 	       
 	        for(JsonElement j:clientData){
            
-	        	JsonCommand comm=new JsonCommand(null, j.toString(),j, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
+	        	JsonCommand comm=new JsonCommand(null, j.toString(),j, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+	        	//final JsonElement element1 = fromJsonHelper.parse(comm.json());
+	        
 	        	resultClient=this.clientWritePlatformService.createClient(comm);
+	        	
 	        }
-
+	        
 	        GlobalConfigurationProperty configuration=configurationRepository.findOneByName(ConfigurationConstants.CPE_TYPE);
+	        
 	        if(configuration.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_SALE)){
 	             
 	        	for(JsonElement sale:saleData){
-	        	  JsonCommand comm=new JsonCommand(null, sale.toString(),sale, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
+	        	  JsonCommand comm=new JsonCommand(null, sale.toString(),sale, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
 	        	  resultSale=this.oneTimeSaleWritePlatformService.createOneTimeSale(comm,resultClient.getClientId());
 	           }
 	        }else if(configuration.getValue().equalsIgnoreCase(ConfigurationConstants.CONFIR_PROPERTY_OWN)){
+	        	
 	        	for(JsonElement ownDevice:owndevices){
 	        		
-	        		  JsonCommand comm=new JsonCommand(null, ownDevice.toString(),ownDevice, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
+	        		  JsonCommand comm=new JsonCommand(null, ownDevice.toString(),ownDevice, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
 		        	  resultSale=this.ownedHardwareWritePlatformService.createOwnedHardware(comm,resultClient.getClientId());
+	        		
 	        	}
 	        	
 	        }
-	       
+	        /* for(JsonElement allocate:allocateData){
+	        	 
+	        	  JsonObject jsonObject =new JsonObject();
+	        	  Long itemMasterId=fromJsonHelper.extractLongNamed("itemMasterId",allocate);
+	        	  Long quantity=fromJsonHelper.extractLongNamed("quantity",allocate);
+	        	 JsonArray serialData = fromJsonHelper.extractJsonArrayNamed("serialNumber", allocate);
+	        	 
+	        	 for(JsonElement je:serialData){
+	        		String serialNsumber1=fromJsonHelper.extractStringNamed("serialNumber", je);
+	        		 String status=fromJsonHelper.extractStringNamed("status", je);
+	        		 Long itemMasterId=fromJsonHelper.extractLongNamed("itemMasterId", je);
+	        		 String isNewHw=fromJsonHelper.extractStringNamed("isNewHw", je);
+	        		 
+	        		 JsonObject serialNsumber=new JsonObject();
+	        		 serialNsumber.addProperty("serialNumber", serialNsumber1);
+	        		 serialNsumber.addProperty("status", status);
+	        		 serialNsumber.addProperty("itemMasterId", itemMasterId);
+	        		 serialNsumber.addProperty("isNewHw", isNewHw);
+	        		 
+	        		 JsonObject serialNumber=je.getAsJsonObject();
+	        		 serialNumber.addProperty("clientId", resultClient.getClientId());
+	        		 serialNumber.addProperty("orderId", resultSale.resourceId());
+	        		 //JsonElement serialNumber1 = fromJsonHelper.parse(serialNumber.toString());
+	        	     
+	        	 }
+	        	 jsonObject.addProperty("itemMasterId", itemMasterId);
+	        	 jsonObject.addProperty("quantity", quantity);
+	        	 jsonObject.add("serialNumber", serialData);
+	        	 
+	        	 
+	        	 
+	        	 JsonCommand comm=new JsonCommand(null, jsonObject.toString(),allocate, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
+	        	 
+	        	 resultAllocate=this.inventoryItemDetailsWritePlatformService.allocateHardware(comm);
+	         }*/
 	         for(JsonElement order:bookOrder){
 		        	
-		        	JsonCommand comm=new JsonCommand(null, order.toString(),order, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null,null);
+		        	JsonCommand comm=new JsonCommand(null, order.toString(),order, fromJsonHelper, null, null, null, null, null, null, null, null, null, null, null);
 		        	resultOrder=this.orderWritePlatformService.createOrder(resultClient.getClientId(),comm);
 		        
 		        }
@@ -130,7 +170,7 @@ public class ActivationProcessWritePlatformServiceJpaRepositoryImpl implements A
            
         } catch (DataIntegrityViolationException dve) {
             handleDataIntegrityIssues(command, dve);
-            return new CommandProcessingResult(-1l).empty();
+            return new CommandProcessingResult(1l).empty();
         }
 	
     }

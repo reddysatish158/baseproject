@@ -28,7 +28,7 @@ import com.google.gson.JsonElement;
 public class MRNDetailsCommandFromApiJsonDeserializer {
 
 	private FromJsonHelper fromJsonHelper;
-	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("requestedDate","requestedTime","fromOffice","toOffice","itemDescription","orderdQuantity","status","locale","dateFormat","mrnId","serialNumber","movedDate","itemId","type"));
+	private final Set<String> supportedParams = new HashSet<String>(Arrays.asList("requestedDate","requestedTime","fromOffice","toOffice","itemDescription","orderdQuantity","status","locale","dateFormat","mrnId","serialNumber","movedDate"));
 	@Autowired
 	public MRNDetailsCommandFromApiJsonDeserializer(final FromJsonHelper fromJsonHelper) {
 		this.fromJsonHelper = fromJsonHelper;
@@ -92,15 +92,12 @@ public void validateForMove(String json){
 		final DataValidatorBuilder baseValidatorBuilder = new DataValidatorBuilder(dataValidationErrors);
 		
 		final JsonElement element = fromJsonHelper.parse(json);
-		final String type = fromJsonHelper.extractStringNamed("type", element);
-		if(type.equalsIgnoreCase("mrn")){
-			final Integer md = fromJsonHelper.extractIntegerWithLocaleNamed("mrnId", element);
+		
+		
+		final Integer md = fromJsonHelper.extractIntegerWithLocaleNamed("mrnId", element);
+		
 			baseValidatorBuilder.reset().parameter("mrnId").value(md).notNull();
-		}
-		if(type.equalsIgnoreCase("sale")){
-			final Integer itemId = fromJsonHelper.extractIntegerWithLocaleNamed("itemId", element);
-			baseValidatorBuilder.reset().parameter("itemId").value(itemId).notNull();
-		}
+		
 		final String serialNumber = fromJsonHelper.extractStringNamed("serialNumber", element);
 		baseValidatorBuilder.reset().parameter("serialNumber").value(serialNumber).notBlank().notExceedingLengthOf(100);
         throwExceptionIfValidationWarningsExist(dataValidationErrors);

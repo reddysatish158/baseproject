@@ -34,19 +34,19 @@ public class EntitlementsData {
 
 	private String deviceId;
 	private String ipAddress;
+
 	private String serviceType;
+	
 	private Long orderId;
 	private LocalDate startDate;
 	private LocalDate endDate;
-	private StakerData stalkerData;
 
 	public EntitlementsData() {
 
 	}
 	
 	public EntitlementsData(Long id,Long prdetailsId, String requestType, String hardwareId, String provisioingSystem, String product,
-
-			Long serviceId, Long clientId, Long planId, String orderNo, Long orderId, LocalDate startDate, LocalDate endDate,String servicetype) {
+			Long serviceId, Long clientId, Long planId, String orderNo, Long orderId, LocalDate startDate, LocalDate endDate, String servicetype) {
 
 		
           this.id=id;
@@ -83,8 +83,6 @@ public class EntitlementsData {
 		this.serviceType = servicetype;
 	}
 
-	
-
 	public EntitlementsData(Long id, Long prdetailsId,String provisioingSystem, Long serviceId, String product,String hardwareId, 
 			String requestType, String itemCode,String itemDescription, Long clientId, String accountNo,String firstName, String lastName,
 			String officeUId, String branch,String regionCode, String regionName, String deviceId,String ipAddress) {
@@ -94,6 +92,7 @@ public class EntitlementsData {
 		this.provisioingSystem = provisioingSystem;
 		this.serviceId = serviceId;
 		this.product = product;
+
 		this.hardwareId = hardwareId;
 		this.requestType = requestType;
 		this.itemCode = itemCode;
@@ -154,13 +153,19 @@ public class EntitlementsData {
 
 	public String getAccountNo() {
 		return accountNo;
-
 	}
 
 	public String getFirstName() {
 		return firstName;
 	}
 
+	public String getLastName() {
+		return lastName;
+	}
+
+	public String getOfficeUId() {
+		return officeUId;
+	}
 
 	public String getBranch() {
 		return branch;
@@ -202,30 +207,12 @@ public class EntitlementsData {
 		this.status = status;
 	}
 
-	public String getLastName() {
-		return lastName;
+	public StakerData getResults() {
+		return results;
 	}
 
-	public String getOfficeUId() {
-		return officeUId;
+	public void setResults(StakerData results) {
+		this.results = results;
 	}
 
-
-	public Long getOrderId() {
-		return orderId;
-	}
-
-	public LocalDate getStartDate() {
-		return startDate;
-	}
-
-	public LocalDate getEndDate() {
-		return endDate;
-	}
-
-	public void setResults(StakerData data) {
-		this.stalkerData=data;
-		
-	}
-	
 }

@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.mifosplatform.billing.discountmaster.data.DiscountMasterData;
 import org.mifosplatform.billing.discountmaster.service.DiscountReadPlatformService;
-import org.mifosplatform.finance.data.DiscountMasterData;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;

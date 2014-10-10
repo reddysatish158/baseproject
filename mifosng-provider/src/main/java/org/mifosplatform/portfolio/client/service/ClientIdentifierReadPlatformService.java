@@ -15,5 +15,4 @@ public interface ClientIdentifierReadPlatformService {
 
     ClientIdentifierData retrieveClientIdentifier(Long clientId, Long clientIdentifierId);
 
-    
 }

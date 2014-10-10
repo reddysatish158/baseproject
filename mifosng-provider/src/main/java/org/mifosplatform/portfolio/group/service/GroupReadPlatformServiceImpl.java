@@ -9,27 +9,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.mifosplatform.infrastructure.core.api.ApiParameterHelper;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
-import org.mifosplatform.infrastructure.dataqueries.data.GenericResultsetData;
-import org.mifosplatform.infrastructure.dataqueries.data.ResultsetColumnHeaderData;
-import org.mifosplatform.infrastructure.dataqueries.data.ResultsetRowData;
-import org.mifosplatform.infrastructure.dataqueries.service.ReadReportingService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.organisation.office.data.OfficeData;
 import org.mifosplatform.organisation.office.service.OfficeReadPlatformService;
 import org.mifosplatform.organisation.staff.data.StaffData;
 import org.mifosplatform.organisation.staff.service.StaffReadPlatformService;
 import org.mifosplatform.portfolio.client.data.ClientData;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;
-import org.mifosplatform.portfolio.client.service.GroupData;
 import org.mifosplatform.portfolio.client.service.LoanStatusMapper;
 import org.mifosplatform.portfolio.group.data.CenterData;
 import org.mifosplatform.portfolio.group.data.GroupAccountSummaryCollectionData;
@@ -54,23 +46,19 @@ public class GroupReadPlatformServiceImpl implements GroupReadPlatformService {
     private final OfficeReadPlatformService officeReadPlatformService;
     private final StaffReadPlatformService staffReadPlatformService;
     private final CenterReadPlatformService centerReadPlatformService;
-    private final ReadReportingService readReportingService;
 
     private final AllGroupTypesDataMapper allGroupTypesDataMapper = new AllGroupTypesDataMapper();
 
     @Autowired
     public GroupReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource,
             final CenterReadPlatformService centerReadPlatformService, final ClientReadPlatformService clientReadPlatformService,
-            final OfficeReadPlatformService officeReadPlatformService, final StaffReadPlatformService staffReadPlatformService,
-            final ReadReportingService readReportingService) {
-        
-    	this.context = context;
+            final OfficeReadPlatformService officeReadPlatformService, final StaffReadPlatformService staffReadPlatformService) {
+        this.context = context;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.centerReadPlatformService = centerReadPlatformService;
         this.clientReadPlatformService = clientReadPlatformService;
         this.officeReadPlatformService = officeReadPlatformService;
         this.staffReadPlatformService = staffReadPlatformService;
-        this.readReportingService=readReportingService;
     }
 
     @Override
@@ -294,44 +282,4 @@ public class GroupReadPlatformServiceImpl implements GroupReadPlatformService {
             return new GroupAccountSummaryData(id, externalId, productId, loanProductName, loanStatusId, accountNo);
         }
     }
-
-	@Override
-	public Collection<GroupData> retrieveGroupServiceDetails(Long orderId) {
-		
-		Map<String, String> queryParams=new HashMap<String, String>();
-		   Collection<GroupData> codeDatas=new ArrayList<GroupData>();
-		   queryParams.put("${orderId}", orderId.toString());
-		final GenericResultsetData resultsetData=this.readReportingService.retrieveGenericResultset("GROUP_NAME", "parameter", queryParams);
-		   List<ResultsetColumnHeaderData> columnHeaderDatas=resultsetData.getColumnHeaders();
-		   List<ResultsetRowData> datas = resultsetData.getData();
-		   
-		   List<String> row;
-		    Integer rSize;
-		   for (int i = 0; i < datas.size(); i++) {
-               row = datas.get(i).getRow();
-               rSize = row.size();
-               for (int j = 0; j < rSize-1; j++) {
-
-            	   String  id=datas.get(i).getRow().get(j);
-            	   j++;
-            	   String paramValue=datas.get(i).getRow().get(j);
-            	   j=j++;
-            	   codeDatas.add(new GroupData(new Long(id), paramValue));
-               }
-           }
-		   
-		/*   for(int i=0;i<columnHeaderDatas.size();i++){
-			   for(int j=0;j<datas.size();j++){
-				   MCodeData codeData=new MCodeData();
-				   if(columnHeaderDatas.get(i).getColumnName().equalsIgnoreCase("id")){
-					   codeData.setmCodeValue(datas.get(i).getRow().get(i));
-				   }else{
-					   codeData.setmCodeValue(datas.get(i).getRow().get(i));
-				   }
-				   codeDatas.add(codeData);
-			   }
-		   }*/
-		   
-		   return codeDatas;
-	}
 }

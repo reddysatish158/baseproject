@@ -17,6 +17,7 @@ public final class ResultsetColumnHeaderData {
 
     private final String columnName;
     private final String columnType;
+    @SuppressWarnings("unused")
     private final Long columnLength;
     private final String columnDisplayType;
     private final boolean isColumnNullable;
@@ -24,7 +25,6 @@ public final class ResultsetColumnHeaderData {
     private final boolean isColumnPrimaryKey;
 
     private final List<ResultsetColumnValueData> columnValues;
-    private final String columnCode;
 
     public static ResultsetColumnHeaderData basic(final String columnName, final String columnType) {
 
@@ -32,38 +32,31 @@ public final class ResultsetColumnHeaderData {
         final boolean columnNullable = false;
         final boolean columnIsPrimaryKey = false;
         final List<ResultsetColumnValueData> columnValues = new ArrayList<ResultsetColumnValueData>();
-        final String columnCode = null;
-        return new ResultsetColumnHeaderData(columnName, columnType, columnLength, columnNullable, columnIsPrimaryKey, columnValues,columnCode);
+        return new ResultsetColumnHeaderData(columnName, columnType, columnLength, columnNullable, columnIsPrimaryKey, columnValues);
     }
-    
+
     public static ResultsetColumnHeaderData detailed(final String columnName, final String columnType, final Long columnLength,
-            final boolean columnNullable, final boolean columnIsPrimaryKey, final List<ResultsetColumnValueData> columnValues,
-            final String columnCode) {
-        return new ResultsetColumnHeaderData(columnName, columnType, columnLength, columnNullable, columnIsPrimaryKey, columnValues,
-                columnCode);
+            final boolean columnNullable, final boolean columnIsPrimaryKey, final List<ResultsetColumnValueData> columnValues) {
+        return new ResultsetColumnHeaderData(columnName, columnType, columnLength, columnNullable, columnIsPrimaryKey, columnValues);
     }
 
     private ResultsetColumnHeaderData(final String columnName, final String columnType, final Long columnLength,
-            final boolean columnNullable, final boolean columnIsPrimaryKey, final List<ResultsetColumnValueData> columnValues,
-            final String columnCode) {
+            final boolean columnNullable, final boolean columnIsPrimaryKey, final List<ResultsetColumnValueData> columnValues) {
         this.columnName = columnName;
         this.columnType = columnType;
         this.columnLength = columnLength;
         this.isColumnNullable = columnNullable;
         this.isColumnPrimaryKey = columnIsPrimaryKey;
         this.columnValues = columnValues;
-        this.columnCode = columnCode;
 
         String displayType = null;
-        if (this.columnCode == null) {
+        if (this.columnValues.isEmpty()) {
             if (isString()) {
                 displayType = "STRING";
             } else if (isAnyInteger()) {
                 displayType = "INTEGER";
             } else if (isDate()) {
                 displayType = "DATE";
-            } else if (isDateTime()) {
-                displayType = "DATETIME";
             } else if (isDecimal()) {
                 displayType = "DECIMAL";
             } else if (isAnyText()) {
@@ -119,11 +112,7 @@ public final class ResultsetColumnHeaderData {
         return "date".equalsIgnoreCase(this.columnType);
     }
 
-    private boolean isDateTime() {
-        return "datetime".equalsIgnoreCase(this.columnType);
-    }
-
-    public boolean isString() {
+    private boolean isString() {
         return isVarchar() || isChar();
     }
 
@@ -136,7 +125,7 @@ public final class ResultsetColumnHeaderData {
     }
 
     private boolean isAnyInteger() {
-        return isInt() || isSmallInt() || isTinyInt() || isMediumInt() || isBigInt() || isBit();
+        return isInt() || isSmallInt() || isTinyInt() || isMediumInt() || isBigInt();
     }
 
     private boolean isInt() {
@@ -159,20 +148,12 @@ public final class ResultsetColumnHeaderData {
         return "bigint".equalsIgnoreCase(this.columnType);
     }
 
-    private boolean isBit() {
-        return "bit".equalsIgnoreCase(this.columnType);
-    }
-
     public String getColumnName() {
         return this.columnName;
     }
 
     public String getColumnType() {
         return this.columnType;
-    }
-
-    public Long getColumnLength() {
-        return this.columnLength;
     }
 
     public String getColumnDisplayType() {
@@ -213,7 +194,7 @@ public final class ResultsetColumnHeaderData {
 
     public boolean isColumnValueAllowed(final String match) {
         boolean allowed = false;
-        for (final ResultsetColumnValueData allowedValue : this.columnValues) {
+        for (ResultsetColumnValueData allowedValue : this.columnValues) {
             if (allowedValue.matches(match)) {
                 allowed = true;
             }
@@ -231,36 +212,11 @@ public final class ResultsetColumnHeaderData {
 
     public boolean isColumnCodeAllowed(final Integer match) {
         boolean allowed = false;
-        for (final ResultsetColumnValueData allowedValue : this.columnValues) {
+        for (ResultsetColumnValueData allowedValue : this.columnValues) {
             if (allowedValue.codeMatches(match)) {
                 allowed = true;
             }
         }
         return allowed;
     }
-
-    public String getColumnCode() {
-        return this.columnCode;
-    }
 }
-
-   
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-   

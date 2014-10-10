@@ -329,7 +329,7 @@ public class PlanReadPlatformServiceImpl implements PlanReadPlatformService {
 		@Override
 		public List<EnumOptionData> retrieveVolumeTypes() {
 			EnumOptionData iptv = VolumeTypeEnumaration.VolumeTypeEnum(VolumeTypeEnum.IPTV);
-			EnumOptionData vod = VolumeTypeEnumaration.VolumeTypeEnum(VolumeTypeEnum.VOD);
+					EnumOptionData vod = VolumeTypeEnumaration.VolumeTypeEnum(VolumeTypeEnum.VOD);
 			List<EnumOptionData> categotyType = Arrays.asList(iptv,vod);
 				return categotyType;
 		}

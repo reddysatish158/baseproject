@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -17,8 +18,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.http.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mifosplatform.billing.loginhistory.data.LoginHistoryData;
 import org.mifosplatform.billing.loginhistory.domain.LoginHistory;
 import org.mifosplatform.billing.loginhistory.domain.LoginHistoryRepository;
 import org.mifosplatform.billing.loginhistory.service.LoginHistoryReadPlatformService;
@@ -28,6 +31,7 @@ import org.mifosplatform.billing.selfcare.domain.SelfCare;
 import org.mifosplatform.billing.selfcare.service.ExceededNumberOfViewersException;
 import org.mifosplatform.billing.selfcare.service.SelfCareReadPlatformService;
 import org.mifosplatform.billing.selfcare.service.SelfCareRepository;
+import org.mifosplatform.billing.selfcare.service.SelfCareWritePlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -41,10 +45,14 @@ import org.mifosplatform.finance.payments.data.PaymentData;
 import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationProperty;
 import org.mifosplatform.infrastructure.configuration.domain.GlobalConfigurationRepository;
+import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.exception.PlatformDataIntegrityException;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.ownedhardware.data.OwnedHardware;
+import org.mifosplatform.logistics.ownedhardware.domain.OwnedHardwareJpaRepository;
+import org.mifosplatform.logistics.ownedhardware.service.OwnedHardwareReadPlatformService;
 import org.mifosplatform.organisation.address.data.AddressData;
 import org.mifosplatform.organisation.address.service.AddressReadPlatformService;
 import org.mifosplatform.portfolio.client.data.ClientData;
@@ -59,6 +67,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 
+import com.sun.jersey.multipart.FormDataParam;
+
 @Path("selfcare")
 @Component
 @Scope("singleton")
@@ -70,7 +80,11 @@ public class SelfCareApiResource {
 	private final String resourceNameForPermissions = "SELFCARE";
 	private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
 	private final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem;
+	private final ApiRequestParameterHelper apiRequestParameterHelper;
+	
 	private final SelfCareReadPlatformService selfCareReadPlatformService;
+	
+	
 	private final ClientReadPlatformService clientReadPlatformService;
 	private final AddressReadPlatformService addressReadPlatformService;
 	private final ClientBalanceReadPlatformService clientBalanceReadPlatformService;
@@ -80,22 +94,32 @@ public class SelfCareApiResource {
 	private final TicketMasterReadPlatformService ticketMasterReadPlatformService;
 	private final GlobalConfigurationRepository configurationRepository;
 	private final SelfCareRepository selfCareRepository;
+	private final SelfCareWritePlatformService selfCareWritePlatformService;
+	private final OwnedHardwareJpaRepository ownedHardwareJpaRepository;
+	private final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService;
 	private final LoginHistoryReadPlatformService loginHistoryReadPlatformService;
 	private final LoginHistoryRepository loginHistoryRepository;
 
 	@Autowired
 	public SelfCareApiResource(final PlatformSecurityContext context,final SelfCareRepository selfCareRepository,
-			final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService,final LoginHistoryRepository loginHistoryRepository, 
-			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem,final AddressReadPlatformService addressReadPlatformService,  
-			final SelfCareReadPlatformService selfCareReadPlatformService,final PaymodeReadPlatformService paymentReadPlatformService,  
+			final PortfolioCommandSourceWritePlatformService commandSourceWritePlatformService, 
+			final DefaultToApiJsonSerializer<SelfCareData> toApiJsonSerializerForItem, 
+			final ApiRequestParameterHelper apiRequestParameterHelper, final SelfCareReadPlatformService selfCareReadPlatformService, 
+			final PaymodeReadPlatformService paymentReadPlatformService, final AddressReadPlatformService addressReadPlatformService, 
 			final ClientBalanceReadPlatformService balanceReadPlatformService, final ClientReadPlatformService clientReadPlatformService, 
 			final OrderReadPlatformService  orderReadPlatformService, final BillMasterReadPlatformService billMasterReadPlatformService,
-			final TicketMasterReadPlatformService ticketMasterReadPlatformService,final GlobalConfigurationRepository configurationRepository,
-			final LoginHistoryReadPlatformService loginHistoryReadPlatformService) {
+			final TicketMasterReadPlatformService ticketMasterReadPlatformService, 
+			final GlobalConfigurationRepository configurationRepository,
+			final SelfCareWritePlatformService selfCareWritePlatformService,
+			final OwnedHardwareJpaRepository ownedHardwareJpaRepository,
+			final OwnedHardwareReadPlatformService ownedHardwareReadPlatformService,
+			final LoginHistoryReadPlatformService loginHistoryReadPlatformService,
+			final LoginHistoryRepository loginHistoryRepository) {
 		
 				this.context = context;
 				this.commandsSourceWritePlatformService = commandSourceWritePlatformService;
 				this.toApiJsonSerializerForItem = toApiJsonSerializerForItem;
+				this.apiRequestParameterHelper = apiRequestParameterHelper;
 				this.selfCareReadPlatformService = selfCareReadPlatformService;
 				this.paymentReadPlatformService = paymentReadPlatformService;
 				this.addressReadPlatformService = addressReadPlatformService;
@@ -106,11 +130,14 @@ public class SelfCareApiResource {
 				this.ticketMasterReadPlatformService = ticketMasterReadPlatformService;
 				this.configurationRepository=configurationRepository;
 				this.selfCareRepository=selfCareRepository;
+				this.selfCareWritePlatformService=selfCareWritePlatformService;
+				this.ownedHardwareJpaRepository =ownedHardwareJpaRepository;
+				this.ownedHardwareReadPlatformService=ownedHardwareReadPlatformService;
 				this.loginHistoryReadPlatformService=loginHistoryReadPlatformService;
 				this.loginHistoryRepository=loginHistoryRepository;
 	}
 	
-
+	
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -118,11 +145,11 @@ public class SelfCareApiResource {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
 		final CommandWrapper commandRequest = new CommandWrapperBuilder().createSelfCare().withJson(jsonRequestBody).build();
 		final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+		 
 	    return this.toApiJsonSerializerForItem.serialize(result);	
 	}
 	
-
-
+	
 	@Path("password")
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
@@ -139,7 +166,6 @@ public class SelfCareApiResource {
 	    return this.toApiJsonSerializerForItem.serialize(result);	
 	}	
    
-
 	
 	@Path("/login")
 	@POST
@@ -158,8 +184,9 @@ public class SelfCareApiResource {
         	   throw new BadCredentialsException(messages.getMessage(
                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
-               
+         
           GlobalConfigurationProperty viewers=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_ACTIVE_VIEWERS); 
+          if(viewers.isEnabled()){
           int maxViewersAllowed=Integer.parseInt(viewers.getValue());
           int activeUsers=0;
           if(username.contains("@")){
@@ -176,7 +203,8 @@ public class SelfCareApiResource {
            * */
           if(activeUsers >=maxViewersAllowed ){
          	 throw new ExceededNumberOfViewersException(clientId);
-         } 	 
+         } 	
+          }
         String ipAddress=request.getRemoteHost();
         String sessionId=request.getSession().getId();
         Long loginHistoryId=null;
@@ -194,10 +222,8 @@ public class SelfCareApiResource {
         List<PaymentData> paymentsData = paymentReadPlatformService.retrivePaymentsData(clientId);
         final List<TicketMasterData> ticketMastersData = this.ticketMasterReadPlatformService.retrieveClientTicketDetails(clientId);
         careData.setDetails(clientsData,balanceData,addressData,clientOrdersData,statementsData,paymentsData,ticketMastersData,loginHistoryId);
-      
         GlobalConfigurationProperty balanceCheck=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_BALANCE_CHECK);
         clientsData.setBalanceCheck(balanceCheck.isEnabled());
-        
         //adding Is_paypal Global Data by Ashok
         GlobalConfigurationProperty paypalConfigData=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_PROPERTY_IS_PAYPAL_CHECK);
         careData.setPaypalConfigData(paypalConfigData);

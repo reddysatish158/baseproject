@@ -25,8 +25,7 @@ import com.google.gson.reflect.TypeToken;
 public class ItemCommandFromApiJsonDeserializer {
 	 
 	
-	 	Set<String> supportedParameters = new HashSet<String>(Arrays.asList("itemCode","itemDescription","units","chargeCode","locale","unitPrice","warranty","itemClass",
-	 			"reorderLevel","chargeCode"));
+	 	Set<String> supportedParameters = new HashSet<String>(Arrays.asList("itemCode","itemDescription","units","chargeCode","locale","unitPrice","warranty","itemClass"));
 	    private final FromJsonHelper fromApiJsonHelper;
 
 	    @Autowired
@@ -35,7 +34,6 @@ public class ItemCommandFromApiJsonDeserializer {
 	    }
 
 	    public void validateForCreate(final String json) {
-	    	
 	        if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
 
 	        final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();

@@ -72,7 +72,7 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
 		GrnMapperForDetails grn = new GrnMapperForDetails();
 		String sql = "SQL_CALC_FOUND_ROWS g.id as id, f.name as officeName, g.purchase_date as purchaseDate, "
 				+ "g.supplier_id as supplierId, g.item_master_id as itemMasterId, g.orderd_quantity as orderdQuantity, "
-				+ "g.received_quantity as receivedQuantity, g.po_no as purchaseNo, im.item_description as itemDescription, "
+				+ "g.received_quantity as receivedQuantity, im.item_description as itemDescription, "
 				+ "s.supplier_description as supplierDescription "
 				+ "from b_grn g left outer join m_office f on g.office_id=f.id "
 				+ "left outer join b_item_master im on g.item_master_id = im.id left outer join b_supplier s on g.supplier_id=s.id ";
@@ -115,9 +115,9 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
 	
 	@Override
 	public InventoryGrnData retriveGrnDetailTemplate(final Long grnId){
-		
+	
 		GrnMapperForTemplate grn = new GrnMapperForTemplate();
-		String sql = "select g.id as id, g.purchase_date as purchaseDate, g.supplier_id as supplierId, g.item_master_id as itemMasterId, g.po_no as purchaseNo,g.office_id as officeId,g.orderd_quantity as orderdQuantity, g.received_quantity as receivedQuantity, im.item_description as itemDescription, s.supplier_description as supplierDescription from b_grn g left outer join b_item_master im on g.item_master_id = im.id left outer join b_supplier s on g.supplier_id = s.id where g.id = ?";
+		String sql = "select g.id as id, g.purchase_date as purchaseDate, g.supplier_id as supplierId, g.item_master_id as itemMasterId, g.orderd_quantity as orderdQuantity, g.received_quantity as receivedQuantity, im.item_description as itemDescription, s.supplier_description as supplierDescription from b_grn g left outer join b_item_master im on g.item_master_id = im.id left outer join b_supplier s on g.supplier_id = s.id where g.id = ?";
 		return jdbcTemplate.queryForObject(sql,grn,new Object[]{grnId});
 	}
 
@@ -144,11 +144,10 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
 			Long itemMasterId = rs.getLong("itemMasterId");
 			Long orderedQuantity = rs.getLong("orderdQuantity");
 			Long receivedQuantity = rs.getLong("receivedQuantity");
-			String purchaseNo = rs.getString("purchaseNo");
 			String itemDescription = rs.getString("itemDescription");
 			String supplierName = rs.getString("supplierDescription");
 			String officeName = rs.getString("officeName");
-			return new InventoryGrnData(id,purchaseDate,supplierId,itemMasterId,orderedQuantity,receivedQuantity,itemDescription,supplierName,officeName,purchaseNo);
+			return new InventoryGrnData(id,purchaseDate,supplierId,itemMasterId,orderedQuantity,receivedQuantity,itemDescription,supplierName,officeName);
 			
 		}
 		
@@ -168,9 +167,7 @@ public Page<InventoryGrnData> retriveGrnDetails(SearchSqlQuery searchGrn) {
 			Long receivedQuantity = rs.getLong("receivedQuantity");
 			String itemDescription = rs.getString("itemDescription");
 			String supplierName = rs.getString("supplierDescription");
-			String purchaseNo = rs.getString("purchaseNo");
-			Long officeId = rs.getLong("officeId");
-			return new InventoryGrnData(id,purchaseDate,itemMasterId,orderedQuantity,receivedQuantity,itemDescription,supplierName,purchaseNo,supplierId,officeId);
+			return new InventoryGrnData(id,purchaseDate,supplierId,itemMasterId,orderedQuantity,receivedQuantity,itemDescription,supplierName);
 			
 		}
 		

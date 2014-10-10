@@ -7,15 +7,11 @@ package org.mifosplatform.infrastructure.codes.service;
 
 import java.util.Collection;
 
-import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.codes.data.CodeData;
-import org.mifosplatform.infrastructure.core.service.Page;
 
 public interface CodeReadPlatformService {
 
-    Page<CodeData> retrieveAllCodes(SearchSqlQuery searchCodes);
+    Collection<CodeData> retrieveAllCodes();
 
     CodeData retrieveCode(Long codeId);
-    
-    CodeData retriveCode(String codeName);
 }

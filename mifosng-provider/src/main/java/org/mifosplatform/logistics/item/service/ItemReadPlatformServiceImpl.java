@@ -4,16 +4,15 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.crm.clientprospect.service.SearchSqlQuery;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.item.data.ChargesData;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.item.data.ItemTypeData;
 import org.mifosplatform.logistics.item.data.UniteTypeData;
@@ -91,7 +90,7 @@ public List<ItemData> retrieveAllItems() {
 
 	SalesDataMapper mapper = new SalesDataMapper();
 
-	String sql = "select " + mapper.schema()+" where  a.is_deleted='n'";
+	String sql = "select " + mapper.schema()+" where  i.is_deleted='n'";
 
 	return this.jdbcTemplate.query(sql, mapper, new Object[] {  });
 }
@@ -103,23 +102,10 @@ private static final class SalesDataMapper implements
 		/*return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,i.item_class as itemClass,i.units AS units, "
 			+" i.charge_code as chargeCode,i.unit_price as unitPrice,i.warranty as warranty FROM b_item_master i ";
 */
-		/*return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,"
+		return "SQL_CALC_FOUND_ROWS i.id AS id,i.item_code as itemCode,i.item_description AS itemDescription,"
 		+ "i.item_class as itemClass,i.units AS units, "
 	+" i.charge_code as chargeCode,i.unit_price as unitPrice,i.warranty as warranty "
-	+ "FROM b_item_master i ";*/
-		
-		return " a.id as id,a.item_code as itemCode,a.item_description as itemDescription,a.item_class as itemClass,a.units as units,a.charge_code as chargeCode,round(a.unit_price,2) price,a.warranty as warranty,"+
-				"b.Used as used,b.Available as available,b.Total_items as totalItems from b_item_master a "+
-				"left join ( Select item_master_id,Sum(Case When Client_id IS NULL "+
-                "        Then 1 "+
-                "        Else 0 "+
-                " End) Available,"+
-                "Sum(Case When Client_id Is Not NULL "+
-                "         Then 1 "+
-                "        Else 0 "+
-                " End) Used,"+
-                "Count(1) Total_items "+
-                "From b_item_detail group by item_master_id ) b on a.id=b.item_master_id ";
+	+ "FROM b_item_master i ";
 
 	}
 
@@ -133,13 +119,10 @@ private static final class SalesDataMapper implements
 		String itemClass = rs.getString("itemClass");
 		String units = rs.getString("units");
 		String chargeCode = rs.getString("chargeCode");
-		BigDecimal unitPrice = rs.getBigDecimal("price");
+		BigDecimal unitPrice = rs.getBigDecimal("unitPrice");
 		int warranty = rs.getInt("warranty");
-		Long used = rs.getLong("used");
-		Long available = rs.getLong("available");
-		Long totalItems = rs.getLong("totalItems");
 		
-		return new ItemData(id,itemCode,itemDescription,itemClass,units,chargeCode,warranty,unitPrice,used,available,totalItems);
+		return new ItemData(id,itemCode,itemDescription,itemClass,units,chargeCode,warranty,unitPrice);
 
 
 	}
@@ -152,7 +135,7 @@ public ItemData retrieveSingleItemDetails(Long itemId) {
 
 	SalesDataMapper mapper = new SalesDataMapper();
 
-	String sql = "select " + mapper.schema()+" where a.id=? and  a.is_deleted='n'";
+	String sql = "select " + mapper.schema()+" where i.id=? and  i.is_deleted='n'";
 
 	return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { itemId });
 }
@@ -167,14 +150,14 @@ public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
 	StringBuilder sqlBuilder = new StringBuilder(200);
     sqlBuilder.append("select ");
     sqlBuilder.append(mapper.schema());
-    sqlBuilder.append(" where a.is_deleted='n' ");
+    sqlBuilder.append(" where i.is_deleted='n' ");
     
     String sqlSearch = searchItems.getSqlSearch();
     String extraCriteria = "";
     if (sqlSearch != null) {
     	sqlSearch=sqlSearch.trim();
-    	extraCriteria = " and (a.item_description like '%"+sqlSearch+"%' OR" 
-    			+ " a.item_code like '%"+sqlSearch+"%' )";
+    	extraCriteria = " and (i.item_description like '%"+sqlSearch+"%' OR" 
+    			+ " i.item_code like '%"+sqlSearch+"%' )";
     			
     			
     }
@@ -196,35 +179,6 @@ public Page<ItemData> retrieveAllItems(SearchSqlQuery searchItems) {
 	return this.paginationHelper.fetchPage(this.jdbcTemplate, "SELECT FOUND_ROWS()",sqlBuilder.toString(),
             new Object[] {}, mapper);
 }
-
-
-
-@Override
-public List<ItemData> retrieveAuditDetails(Long itemId) {
-	
-	String sql="select bia.id as id,bia.itemmaster_id as itemMasterId,bia.item_code as itemCode,bia.unit_price as unitPrice,"+
-				"bia.changed_date as changedDate from b_item_audit bia where itemmaster_id=?";
-	
-	RowMapper<ItemData> rm = new AuditMapper();
-
-    return this.jdbcTemplate.query(sql, rm, new Object[] {itemId});
-	
-}
-private static final class AuditMapper implements RowMapper<ItemData> {
-
-    @Override
-    public ItemData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
-    	
-    	Long id = rs.getLong("id");
-    	Long itemMasterId = rs.getLong("itemMasterId");
-        String itemCode = rs.getString("itemCode");
-        BigDecimal unitPrice = rs.getBigDecimal("unitPrice");
-        Date changedDate = rs.getDate("changedDate");
-
-        return new ItemData(id,itemMasterId,itemCode,unitPrice,changedDate);
-    }
-}
-
 }
 
 

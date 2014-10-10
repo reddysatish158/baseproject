@@ -109,7 +109,7 @@ public class AutoPostingReadPlatformServiceImpl implements AutoPostingReadPlatfo
                // chargeData = ChargeData.lookup(chargeId, chargeName, chargeIsPenalty);
             }
 
-            CodeData event = CodeData.instance(eventId, eventName, null, true);
+            CodeData event = CodeData.instance(eventId, eventName, true);
 
             CodeValueData eventAttribute = null;
             if (eventAttributeId != null) {

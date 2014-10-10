@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -30,6 +29,7 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.logistics.item.data.ChargesData;
 import org.mifosplatform.logistics.item.data.ItemData;
 import org.mifosplatform.logistics.item.service.ItemReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +112,7 @@ public class ItemApiResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String retrieveAllItems(@Context final UriInfo uriInfo,  @QueryParam("sqlSearch") final String sqlSearch, @QueryParam("limit") final Integer limit, @QueryParam("offset") final Integer offset) {
 		context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
-		
+
 		final SearchSqlQuery searchItems =SearchSqlQuery.forSearch(sqlSearch, offset,limit );
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		Page<ItemData> itemData=this.itemReadPlatformService.retrieveAllItems(searchItems);
@@ -131,9 +131,9 @@ public class ItemApiResource {
 		List<EnumOptionData> itemClassdata = this.itemReadPlatformService.retrieveItemClassType();
    		List<EnumOptionData> unitTypeData = this.itemReadPlatformService.retrieveUnitTypes();
    		List<ChargesData> chargeDatas = this.itemReadPlatformService.retrieveChargeCode();
-   		List<ItemData> auditDetails = this.itemReadPlatformService.retrieveAuditDetails(itemId);
+   		
    		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-   		itemData=new ItemData(itemData,itemClassdata,unitTypeData,chargeDatas,auditDetails);
+   		itemData=new ItemData(itemData,itemClassdata,unitTypeData,chargeDatas);
    		return this.toApiJsonSerializer.serialize(settings, itemData, RESPONSE_ITEM_DATA_PARAMETERS);
    		
 	}

@@ -18,7 +18,4 @@ public interface ContractPeriodReadPlatformService {
 
 	List<SubscriptionData> retrieveSubscriptionDatabyContractType(String string, int i);
 
-	List<SubscriptionData> retrieveSubscriptionDatabyOrder(Long orderId);
-	
-
 }

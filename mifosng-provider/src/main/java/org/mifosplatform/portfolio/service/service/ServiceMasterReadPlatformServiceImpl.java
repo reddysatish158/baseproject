@@ -130,7 +130,6 @@ public class ServiceMasterReadPlatformServiceImpl implements  ServiceMasterReadP
 
 	@Override
 	public List<EnumOptionData> retrieveServicesTypes() {
-		
 		EnumOptionData tv = ServiceStatusEnumaration.serviceType(ServiceTypeEnum.TV);
 		EnumOptionData bb= ServiceStatusEnumaration.serviceType(ServiceTypeEnum.BB);
 		EnumOptionData voId= ServiceStatusEnumaration.serviceType(ServiceTypeEnum.VOIP);

@@ -32,8 +32,6 @@ public class FileUtils {
 
     public static final String MIFOSX_BASE_DIR = System.getProperty("user.home") + File.separator + ".obs";
     public static final String BILLING_BASE_DIR = System.getProperty("user.home") + File.separator + "billing";
-    
-    
 
     public static String BILLING_JOB_PATH;
     

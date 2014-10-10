@@ -335,13 +335,13 @@ private final class SerialNumberForValidation implements RowMapper<String>{
 	}
 	
 	@Override
-	public List<String> retriveSerialNumbersOnKeyStroke(final Long oneTimeSaleId, final String query,final Long officeId) {
+	public List<String> retriveSerialNumbersOnKeyStroke(final Long oneTimeSaleId, final String query) {
 		
 		context.authenticatedUser();
 		SerialNumberMapper rowMapper = new SerialNumberMapper();
-		String sql = "SELECT idt.serial_no AS serialNumber  FROM b_item_detail idt  where idt.item_master_id=? AND idt.office_id=? AND idt.client_id IS NULL" +
+		String sql = "SELECT idt.serial_no AS serialNumber  FROM b_item_detail idt  where idt.item_master_id=?  AND idt.client_id IS NULL" +
     "  AND idt.serial_no like '%"+query+"%'  AND quality = 'Good' ORDER BY idt.id  LIMIT 20";
-		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{oneTimeSaleId,officeId});
+		return this.jdbcTemplate.query(sql,rowMapper,new Object[]{oneTimeSaleId});
 	}
 	@Override
 	public InventoryItemSerialNumberData retriveAllocationData(List<String> itemSerialNumbers){

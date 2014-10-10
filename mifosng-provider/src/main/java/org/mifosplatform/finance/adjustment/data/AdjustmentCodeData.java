@@ -1,10 +1,12 @@
 package org.mifosplatform.finance.adjustment.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.discountmaster.commands.DiscountValues;
+import org.mifosplatform.finance.adjustment.domain.Discount;
+import org.mifosplatform.finance.adjustment.domain.DiscountValues;
 
 public class AdjustmentCodeData {
 

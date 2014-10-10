@@ -12,5 +12,4 @@ public interface ConfigurationDomainService {
     boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
     boolean isEhcacheEnabled();
     void updateCache(CacheType cacheType);
-	boolean isConstraintApproachEnabledForDatatables();
 }

@@ -7,18 +7,16 @@ public class OrderLineData {
 	private final String servicecode;
 	private final String serviceDescription;
 	private final String serviceType;
-	private final Long serviceId;
 	
 
 	public OrderLineData(Long id, Long orderId, String serviceCode,String serviceDescription,
-			String serviceType, Long serviceId) {
+			String serviceType) {
 		
 		this.id=id;
 		this.orderId=orderId;
 		this.servicecode=serviceCode;
 		this.serviceDescription=serviceDescription;
 		this.serviceType=serviceType;
-		this.serviceId=serviceId;
 	}
 
 

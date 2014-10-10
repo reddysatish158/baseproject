@@ -19,8 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.quartz.CronExpression;
 import org.springframework.util.ObjectUtils;
 
-import com.google.gson.JsonArray;
-
 public class DataValidatorBuilder {
 
     public static final String VALID_INPUT_SEPERATOR = "_";
@@ -704,83 +702,6 @@ public class DataValidatorBuilder {
 	    	
 			}
 		}
-
-		 public DataValidatorBuilder isOneOfTheseStringValues(final Object... values) {
-		        if (this.value == null && this.ignoreNullValue) { return this; }
-
-		        final List<Object> valuesList = Arrays.asList(values);
-		        final String valuesListStr = StringUtils.join(valuesList, ", ");
-
-		        if (this.value == null || !valuesList.contains(this.value.toString().toLowerCase())) {
-		            final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
-		                    .append(this.parameter).append(".is.not.one.of.expected.enumerations");
-		            final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter)
-		                    .append(" must be one of [ ").append(valuesListStr).append(" ] ").append(".");
-
-		            final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
-		                    defaultEnglishMessage.toString(), this.parameter, this.value, values);
-
-		            this.dataValidationErrors.add(error);
-		        }
-
-		        return this;
-		    }
-     
-		 public DataValidatorBuilder jsonArrayNotEmpty() {
-		        if (this.value == null && this.ignoreNullValue) { return this; }
-
-		        final JsonArray array = (JsonArray) this.value;
-		        if (this.value != null && !array.iterator().hasNext()) {
-		            final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
-		                    .append(this.parameter).append(".cannot.be.empty");
-		            final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter).append(
-		                    " cannot be empty. You must select at least one.");
-		            final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
-		                    defaultEnglishMessage.toString(), this.parameter);
-		            this.dataValidationErrors.add(error);
-		        }
-		        return this;
-		    }
-		 
-		 public DataValidatorBuilder matchesRegularExpression(final String expression) {
-
-		    if (this.value == null && this.ignoreNullValue) { return this; }
-
-	        if (this.value != null && !this.value.toString().matches(expression)) {
-	            final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
-	                    .append(this.parameter).append(".does.not.match.regexp");
-	            final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter)
-	                    .append(" must match the provided regular expression [ ").append(expression).append(" ] ").append(".");
-
-	            final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
-	                    defaultEnglishMessage.toString(), this.parameter, this.value, expression);
-
-	            this.dataValidationErrors.add(error);
-	        }
-
-	        return this;
-	    }
-		 public DataValidatorBuilder isNotOneOfTheseValues(final Object... values) {
-		        if (this.value == null && this.ignoreNullValue) { return this; }
-
-		        if (this.value != null) {
-		            final List<Object> valuesList = Arrays.asList(values);
-		            final String valuesListStr = StringUtils.join(valuesList, ", ");
-
-		            if (valuesList.contains(this.value)) {
-		                final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
-		                        .append(this.parameter).append(".is.one.of.unwanted.enumerations");
-		                final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter)
-		                        .append(" must not be any of [ ").append(valuesListStr).append(" ] ").append(".");
-
-		                final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
-		                        defaultEnglishMessage.toString(), this.parameter, this.value, values);
-
-		                this.dataValidationErrors.add(error);
-		            }
-		        }
-		        return this;
-		    }
-		
+	 
     
 }

@@ -19,10 +19,9 @@ public class MCodeReadPlatformServiceImp implements MCodeReadPlatformService {
 	private PlatformSecurityContext context;
 	
 	@Autowired
-	public MCodeReadPlatformServiceImp(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
-		
-		 this.context = context;
-		 this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public MCodeReadPlatformServiceImp(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource ) {
+		this.context = context;
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 	
 	
@@ -30,12 +29,8 @@ public class MCodeReadPlatformServiceImp implements MCodeReadPlatformService {
 	public Collection<MCodeData> getCodeValue(String codeName) {
 		
 		MCodeDataMapper rowMapper = new MCodeDataMapper();
-		
-		  
 		String sql = "select " + rowMapper.codeScheme()+" and code_name=? order by id";
 		return jdbcTemplate.query(sql, rowMapper,new Object[]{codeName});
-	  
-		
 	}
 	
 	private final class MCodeDataMapper implements RowMapper<MCodeData>{

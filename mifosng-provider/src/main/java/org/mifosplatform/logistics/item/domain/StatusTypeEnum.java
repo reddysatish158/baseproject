@@ -6,7 +6,7 @@ public enum StatusTypeEnum {
 	ACTIVE(1, "CategoryType.direct"), //
 	INACTIVE(2, "CategoryType.cash"),
 	CANCELLED(3, "CategoryType.cash"),
-	INVALID(4, "CategoryType.invalid");
+	  INVALID(4, "CategoryType.invalid");
 
 
     private final Integer value;

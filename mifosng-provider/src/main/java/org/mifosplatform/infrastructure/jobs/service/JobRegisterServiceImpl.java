@@ -283,7 +283,6 @@ public class JobRegisterServiceImpl implements JobRegisterService {
     }
 
     private JobDetail createJobDetail(final ScheduledJobDetail scheduledJobDetail) throws Exception {
-    	
         MifosPlatformTenant tenant = ThreadLocalContextUtil.getTenant();
         String[] jobDetails = CronMethodParser.findTargetMethodDetails(scheduledJobDetail.getJobName());
         Object targetObject = getBeanObject(Class.forName(jobDetails[CronMethodParser.CLASS_INDEX]));

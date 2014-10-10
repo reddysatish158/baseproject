@@ -9,7 +9,6 @@ import java.util.List;
 
 public class ResultsetRowData {
 
-
     private final List<String> row;
 
     public static ResultsetRowData create(final List<String> rowValues) {
@@ -21,6 +20,6 @@ public class ResultsetRowData {
     }
 
     public List<String> getRow() {
-        return this.row;
+        return row;
     }
 }

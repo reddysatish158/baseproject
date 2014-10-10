@@ -115,15 +115,6 @@ public List<SubscriptionData> retrieveSubscriptionDatabyContractType(String cont
 }
 
 
-@Override
-public List<SubscriptionData> retrieveSubscriptionDatabyOrder(Long orderId) {
-	//this.context.authenticatedUser();
-    SuscriptionMapper depositProductMapper= new SuscriptionMapper();
-	String sql="select "+depositProductMapper.contractPeriodSchema ()+" , b_orders o where o.contract_period = dp.id and o.id=? and dp.is_deleted='N'";
-	return this.jdbcTemplate.query(sql,depositProductMapper, new Object[]{ orderId });
-}
-
-
 
 
 }

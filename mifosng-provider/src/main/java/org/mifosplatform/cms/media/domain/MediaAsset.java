@@ -60,7 +60,7 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 	private String duration;
 	
 	@Column(name = "content_provider")
-	private Long contentProvider;
+	private String contentProvider;
 
 	@Column(name = "rated")
 	private String rated;
@@ -70,9 +70,6 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 
 	@Column(name = "rating", scale = 6, precision = 19, nullable = false)
 	private BigDecimal rating;
-
-	@Column(name = "cp_share",  nullable = false)
-	private BigDecimal cpShareValue;
 
 	
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -92,8 +89,8 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 	 public MediaAsset(String mediaTitle, String mediaType,
 				Long mediaCategoryId, Date releaseDate, String genre, Long ratingCount,
 				String overview, String subject, String image, String duration,
-				Long contentProvider, String rated, BigDecimal rating,
-				String status,BigDecimal cpShareValue) {
+				String contentProvider, String rated, BigDecimal rating,
+				String status) {
 		 
 		this.title=mediaTitle;
 		this.type=mediaType;
@@ -109,9 +106,7 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 		this.rating=rating;
 		this.status=status;
 		this.subject=subject;
-		this.cpShareValue=cpShareValue;
-
-	 }
+	}
 
 	public Long getCategoryId() {
 		return categoryId;
@@ -150,7 +145,7 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 		return duration;
 	}
 
-	public Long getContentProvider() {
+	public String getContentProvider() {
 		return contentProvider;
 	}
 
@@ -165,7 +160,7 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 	public BigDecimal getRating() {
 		return rating;
 	}
-	
+
 	public List<MediaassetAttributes> getMediaassetAttributes() {
 		return mediaassetAttributes;
 	}
@@ -176,10 +171,6 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 
 	public String getGenre() {
 		return genre;
-	}
-	
-	public BigDecimal getCpShareValue() {
-		return cpShareValue;
 	}
 	
 	public static MediaAsset fromJson(JsonCommand command) {
@@ -194,13 +185,12 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 		 final String subject=command.stringValueOfParameterNamed("subject");
 		 final String image=command.stringValueOfParameterNamed("mediaImage");
 		 final String duration=command.stringValueOfParameterNamed("duration");
-		 final Long contentProvider=command.longValueOfParameterNamed("contentProvider");
+		 final String contentProvider=command.stringValueOfParameterNamed("contentProvider");
 		 final String rated=command.stringValueOfParameterNamed("rated");
 		 final BigDecimal rating=command.bigDecimalValueOfParameterNamed("mediaRating");
 		 final String status=command.stringValueOfParameterNamed("status");
-		 final BigDecimal cpShareValue=command.bigDecimalValueOfParameterNamed("cpShareValue");
 		 return new MediaAsset(mediaTitle,mediaType,mediaCategoryId,releaseDate.toDate(),genre,ratingCount,overview,subject,
-					image,duration,contentProvider,rated,rating,status,cpShareValue);
+					image,duration,contentProvider,rated,rating,status);
 	}
 
 	public void add(MediaassetAttributes attributes) {
@@ -239,10 +229,10 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 		}
 		
 		final String contentProvider = "contentProvider";
-		if (command.isChangeInLongParameterNamed(contentProvider,this.contentProvider)) {
-			final Long newValue=command.longValueOfParameterNamed("contentProvider");
+		if (command.isChangeInStringParameterNamed(contentProvider,this.contentProvider)) {
+			final String newValue=command.stringValueOfParameterNamed("contentProvider");
 			actualChanges.put(contentProvider, newValue);
-			this.contentProvider =newValue ;
+			this.contentProvider = StringUtils.defaultIfEmpty(newValue, null);
 		}
 		final String duration = "duration";
 		if (command.isChangeInStringParameterNamed(duration,this.duration)) {
@@ -311,12 +301,6 @@ public class MediaAsset extends  AbstractPersistable<Long> {
 			final Long newValue=command.longValueOfParameterNamed("catageoryId");
 			actualChanges.put(mediaCategoryId, newValue);
 			this.categoryId=newValue;
-		}
-		final String cpShareValue="cpShareValue";
-		if(command.isChangeInBigDecimalParameterNamed(cpShareValue, this.cpShareValue)){
-			final BigDecimal newValue=command.bigDecimalValueOfParameterNamed("cpShareValue");
-			actualChanges.put(cpShareValue, newValue);
-			this.cpShareValue=newValue;
 		}
 		return actualChanges;
 	}

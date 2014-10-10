@@ -129,26 +129,28 @@ public class SchedularWritePlatformServiceJpaRepositoryImpl implements Schedular
 
     @Transactional
     @Override
-    public boolean processJobDetailForExecution(String jobKey, String triggerType) {    
-    	
-    	boolean isStopExecution = false;
-    final ScheduledJobDetail scheduledJobDetail = this.scheduledJobDetailsRepository.findByJobKeyWithLock(jobKey);
-    if (scheduledJobDetail.isCurrentlyRunning()
-            || (triggerType == SchedulerServiceConstants.TRIGGER_TYPE_CRON && (scheduledJobDetail.getNextRunTime().after(new Date())))) {
-        isStopExecution = true;
+    public boolean processJobDetailForExecution(String jobKey, String triggerType) {
+        boolean isStopExecution = false;
+        final ScheduledJobDetail scheduledJobDetail = scheduledJobDetailsRepository.findByJobKeyWithLock(jobKey);
+        if(scheduledJobDetail!=null){
+        if (scheduledJobDetail.isCurrentlyRunning()
+                || (triggerType == SchedulerServiceConstants.TRIGGER_TYPE_CRON && (scheduledJobDetail.getNextRunTime().after(new Date())))) {
+            isStopExecution = true;
+        }
+        final SchedulerDetail schedulerDetail = retriveSchedulerDetail();
+        if (triggerType == SchedulerServiceConstants.TRIGGER_TYPE_CRON && schedulerDetail.isSuspended()) {
+            scheduledJobDetail.updateTriggerMisfired(true);
+            isStopExecution = true;
+        } else if (!isStopExecution) {
+            scheduledJobDetail.updateCurrentlyRunningStatus(true);
+        }
+        scheduledJobDetailsRepository.save(scheduledJobDetail);
+        return isStopExecution;
+        
+        }else{
+        	return isStopExecution;
+        }
     }
-    final SchedulerDetail schedulerDetail = retriveSchedulerDetail();
-    if (triggerType == SchedulerServiceConstants.TRIGGER_TYPE_CRON && schedulerDetail.isSuspended()) {
-        scheduledJobDetail.updateTriggerMisfired(true);
-        isStopExecution = true;
-    } else if (!isStopExecution) {
-        scheduledJobDetail.updateCurrentlyRunningStatus(true);
-    }
-    this.scheduledJobDetailsRepository.save(scheduledJobDetail);
-    return isStopExecution;
-}
-
-
 
 	@Override
 	public CommandProcessingResult createNewJob(JsonCommand command) {

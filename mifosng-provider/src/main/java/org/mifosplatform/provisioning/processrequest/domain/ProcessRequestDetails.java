@@ -87,49 +87,7 @@ public class ProcessRequestDetails extends
 
 	}
 
-	public ProcessRequestDetails(JsonCommand command) {
-		// TODO Auto-generated constructor stub
-
-	}
 	
-	public ProcessRequestDetails(ProcessRequest processRequest,Long orderlinId, Long serviceId,
-			String sentMessage, String receiveMessage, String requestType,
-			String hardwareId, Date startDate, Date endDate,
-			Date sentDate, Date receivedDate,String receivedStatus) {
-		
-		this.orderlinId = orderlinId;
-		this.serviceId = serviceId;
-		this.sentMessage = sentMessage;
-		this.receiveMessage = receiveMessage;
-		this.requestType = requestType;
-		this.hardwareId = hardwareId;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.sentDate = sentDate;
-		this.receivedDate = receivedDate;
-		this.receivedStatus = receivedStatus;
-		this.processRequest = processRequest;
-
-	}
-
-	public static ProcessRequestDetails fromJson(ProcessRequest processRequest,JsonCommand command){
-		
-		ProcessRequest processReq = processRequest;
-		Long orderlinId = command.longValueOfParameterNamed("orderlinId");
-		Long serviceId = command.longValueOfParameterNamed("serviceId");
-		String sentMessage = command.stringValueOfParameterNamed("sentMessage");
-		String receiveMessage = command.stringValueOfParameterNamed("recievedMessage");
-		String requestType = command.stringValueOfParameterNamed("requestType");
-		String hardwareId = command.stringValueOfParameterNamed("hardwareId");
-		Date startDate = command.DateValueOfParameterNamed("startDate");
-		Date endDate = command.DateValueOfParameterNamed("endDate");
-		Date sentDate = command.DateValueOfParameterNamed("sentDate");
-		Date receivedDate = command.DateValueOfParameterNamed("receivedDate");
-		String receivedStatus = command.stringValueOfParameterNamed("receivedStatus");
-
-		return new ProcessRequestDetails(processReq,orderlinId,serviceId,sentMessage,receiveMessage,requestType,
-											hardwareId,startDate,endDate,sentDate,receivedDate,receivedStatus);
-	}
 	public void update(ProcessRequest processRequest) {
 
 		this.processRequest = processRequest;

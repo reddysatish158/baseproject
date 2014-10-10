@@ -5,6 +5,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface TaxMapRepository extends JpaRepository<TaxMap, Long>,JpaSpecificationExecutor<TaxMap> {
 
-	TaxMap findOneByChargeCode(String chargeCode);
-
 }

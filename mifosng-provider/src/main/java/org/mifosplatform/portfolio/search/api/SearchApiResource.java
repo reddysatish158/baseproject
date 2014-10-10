@@ -15,7 +15,6 @@ import javax.ws.rs.core.UriInfo;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
-import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.portfolio.search.SearchConstants.SEARCH_RESPONSE_PARAMETERS;
 import org.mifosplatform.portfolio.search.data.SearchConditions;
 import org.mifosplatform.portfolio.search.data.SearchData;
@@ -31,22 +30,17 @@ public class SearchApiResource {
 
     private final Set<String> searchResponseParameters = SEARCH_RESPONSE_PARAMETERS.getAllValues();
 
-    private final String resourceNameForPermissions = "LOCATION";
-   	private final PlatformSecurityContext context;
     private final SearchReadPlatformService searchReadPlatformService;
     private final ToApiJsonSerializer<SearchData> toApiJsonSerializer;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
 
     @Autowired
     public SearchApiResource(final SearchReadPlatformService searchReadPlatformService,
-            final ToApiJsonSerializer<SearchData> toApiJsonSerializer,
-            final ApiRequestParameterHelper apiRequestParameterHelper,
-            final PlatformSecurityContext context) {
+            final ToApiJsonSerializer<SearchData> toApiJsonSerializer, final ApiRequestParameterHelper apiRequestParameterHelper) {
 
         this.searchReadPlatformService = searchReadPlatformService;
         this.toApiJsonSerializer = toApiJsonSerializer;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
-        this.context = context;
 
     }
 
@@ -55,7 +49,6 @@ public class SearchApiResource {
     @Produces({ MediaType.APPLICATION_JSON })
     public String searchData(@Context final UriInfo uriInfo, @QueryParam("query") final String query,@QueryParam("resource") final String resource) {
 
-    	context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
         final SearchConditions searchConditions = new SearchConditions(query, resource);
 
         final Collection<SearchData> searchResults = this.searchReadPlatformService.retriveMatchingData(searchConditions);

@@ -6,7 +6,7 @@ import org.mifosplatform.portfolio.plan.domain.Plan;
 
 public interface PrepareRequestWriteplatformService {
 
-	CommandProcessingResult prepareNewRequest(Order order,Plan plan, String requstStatus);
+	CommandProcessingResult prepareNewRequest(Order order,Plan provisioningStatus, String requstStatus);
 
 
 

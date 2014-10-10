@@ -57,11 +57,10 @@ public class AllocationReadPlatformServiceImpl implements AllocationReadPlatform
 
 			public String clientAssociationLookupSchema() {
 			return " a.id AS id,a.order_id AS orderId,id.provisioning_serialno AS serialNum,a.client_id AS clientId FROM b_association a, b_item_detail id" +
-					" WHERE a.order_id =? and id.serial_no=a.hw_serial_no and a.is_deleted='N' limit 1";
+					" WHERE a.order_id =? and id.serial_no=a.hw_serial_no and a.is_deleted='N'";
 			}
 			
 			public String clientOwnHwAssociationLookupSchema() {
-
 				return "  a.id AS id,a.order_id AS orderId,o.provisioning_serial_number AS serialNum,a.client_id AS clientId" +
 						" FROM b_association a, b_owned_hardware o WHERE a.order_id =?  AND o.serial_number = a.hw_serial_no   " +
 						" AND a.is_deleted = 'N' and o.is_deleted = 'N' limit 1";

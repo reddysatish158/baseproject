@@ -46,10 +46,9 @@ import org.springframework.stereotype.Component;
 public class EntitlementsApiResource {
 
 	private final static Logger logger = LoggerFactory.getLogger(EntitlementsApiResource.class);
-	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id,prepareReqId,product,requestType,hardwareId,provisioingSystem,serviceId," +
-			"results,error,status","orderId","startDate","endDate","serviceType"));
-
-	private final String resourceNameForPermissions = "CREATE_ENTITLEMENT";
+	private  final Set<String> RESPONSE_DATA_PARAMETERS=new HashSet<String>(Arrays.asList("id","prepareReqId","product","requestType","hardwareId","provisioingSystem",
+			"serviceId","results","error","status","serviceType"));
+    private final String resourceNameForPermissions = "CREATE_ENTITLEMENT";
 	private final PlatformSecurityContext context;
 	private final DefaultToApiJsonSerializer<EntitlementsData> toApiJsonSerializer;
 	private final DefaultToApiJsonSerializer<ClientEntitlementData> toSerializer;

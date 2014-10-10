@@ -1,5 +1,7 @@
 package org.mifosplatform.organisation.message.data;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class BillingMessageDataForProcessing {
 
@@ -64,11 +66,10 @@ public class BillingMessageDataForProcessing {
 	public char getMessageType() {
 		return messageType;
 	}
-
-
 	public String getAttachment() {
 		return attachment;
 	}
+
 	
 	
 }

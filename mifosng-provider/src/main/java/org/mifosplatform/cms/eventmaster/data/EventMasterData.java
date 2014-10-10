@@ -6,10 +6,10 @@ package org.mifosplatform.cms.eventmaster.data;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.mifosplatform.billing.chargecode.data.ChargesData;
 import org.mifosplatform.cms.eventmaster.domain.EventMaster;
 import org.mifosplatform.cms.media.data.MediaAssetData;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
+import org.mifosplatform.logistics.item.data.ChargesData;
 
 /**
  * POJO for {@link EventMaster}

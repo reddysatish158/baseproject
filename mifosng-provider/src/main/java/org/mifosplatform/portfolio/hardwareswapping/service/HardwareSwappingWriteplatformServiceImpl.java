@@ -39,8 +39,6 @@ import org.mifosplatform.portfolio.plan.domain.PlanRepository;
 import org.mifosplatform.portfolio.plan.domain.StatusTypeEnum;
 import org.mifosplatform.portfolio.plan.domain.UserActionStatusTypeEnum;
 import org.mifosplatform.portfolio.transactionhistory.service.TransactionHistoryWritePlatformService;
-import org.mifosplatform.provisioning.provisioning.api.ProvisioningApiConstants;
-import org.mifosplatform.provisioning.provisioning.service.ProvisioningWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +60,6 @@ public class HardwareSwappingWriteplatformServiceImpl implements HardwareSwappin
 	private final OwnedHardwareJpaRepository hardwareJpaRepository;
 	private final HardwareAssociationReadplatformService associationReadplatformService;
 	private final ItemRepository itemRepository;
-	private final ProvisioningWritePlatformService provisioningWritePlatformService;
 	  
 	@Autowired
 	public HardwareSwappingWriteplatformServiceImpl(final PlatformSecurityContext context,final HardwareAssociationWriteplatformService associationWriteplatformService,
@@ -70,8 +67,7 @@ public class HardwareSwappingWriteplatformServiceImpl implements HardwareSwappin
 			final OrderRepository orderRepository,final PlanRepository planRepository,final TransactionHistoryWritePlatformService historyWritePlatformService,
 			final HardwareSwappingCommandFromApiJsonDeserializer apiJsonDeserializer,final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 			final OrderHistoryRepository orderHistoryRepository,final GlobalConfigurationRepository configurationRepository,final OwnedHardwareJpaRepository hardwareJpaRepository,
-			final HardwareAssociationReadplatformService associationReadplatformService,final ItemRepository itemRepository,
-			final ProvisioningWritePlatformService provisioningWritePlatformService) {
+			final HardwareAssociationReadplatformService associationReadplatformService,final ItemRepository itemRepository) {
  
 		this.context=context;
 		this.associationWriteplatformService=associationWriteplatformService;
@@ -87,7 +83,6 @@ public class HardwareSwappingWriteplatformServiceImpl implements HardwareSwappin
 		this.hardwareJpaRepository=hardwareJpaRepository;
 		this.associationReadplatformService=associationReadplatformService;
 		this.itemRepository=itemRepository;
-		this.provisioningWritePlatformService = provisioningWritePlatformService;
 
 	}
 	
@@ -172,19 +167,13 @@ public CommandProcessingResult dohardWareSwapping(Long entityId,JsonCommand comm
 		}
 			//for Reassociation With New SerialNumber
 			//this.associationWriteplatformService.createAssociation(command);
-		
 			if(!plan.getProvisionSystem().equalsIgnoreCase("None")){
 			requstStatus =UserActionStatusTypeEnum.DEVICE_SWAP.toString();
 			CommandProcessingResult processingResult=this.prepareRequestWriteplatformService.prepareNewRequest(order,plan,requstStatus);
 			order.setStatus( OrderStatusEnumaration.OrderStatusType(StatusTypeEnum.PENDING).getId());
-			
-	            if(plan.getProvisionSystem().equalsIgnoreCase(ProvisioningApiConstants.PROV_PACKETSPAN)){
-					
-					this.provisioningWritePlatformService.postOrderDetailsForProvisioning(order,plan.getPlanCode(),UserActionStatusTypeEnum.DEVICE_SWAP.toString(),
-							processingResult.resourceId(),null,serialNo);
-				}
 			}
-					
+			
+			
 			this.orderRepository.save(order);
 				//For Transaction History
 				transactionHistoryWritePlatformService.saveTransactionHistory(order.getClientId(), "Hardware Swap",new Date(),"Old Serial No:"+serialNo

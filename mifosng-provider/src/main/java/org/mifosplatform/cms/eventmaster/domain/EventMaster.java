@@ -13,8 +13,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.joda.time.LocalDate;
-import org.mifosplatform.annotation.ComparableFields;
 import org.mifosplatform.cms.eventpricing.domain.EventPricing;
+import org.mifosplatform.annotation.ComparableFields;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 

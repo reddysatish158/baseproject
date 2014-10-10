@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -43,6 +42,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.mifosplatform.billing.paymode.data.McodeData;
+import org.mifosplatform.billing.paymode.exception.PaymodeNotFoundException;
 import org.mifosplatform.billing.paymode.service.PaymodeReadPlatformService;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
@@ -63,11 +63,11 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.FileUtils;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.logistics.item.exception.ItemNotFoundException;
 import org.mifosplatform.logistics.itemdetails.api.InventoryItemDetailsApiResource;
+import org.mifosplatform.logistics.itemdetails.command.ItemDetailsCommand;
 import org.mifosplatform.logistics.itemdetails.data.InventoryItemDetailsData;
 import org.mifosplatform.logistics.itemdetails.exception.OrderQuantityExceedsException;
-import org.mifosplatform.logistics.itemdetails.exception.SerialNumberNotFoundException;
+import org.mifosplatform.logistics.itemdetails.service.InventoryItemDetailsWritePlatformService;
 import org.mifosplatform.portfolio.client.exception.ClientNotFoundException;
 import org.mifosplatform.portfolio.order.exceptions.NoGrnIdFoundException;
 import org.mifosplatform.scheduledjobs.importfile.data.MRNErrorData;
@@ -136,7 +136,8 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		this.adjustmentApiResource=adjustmentApiResource;
 	}
 	
-
+	//@Transactional
+	
 	@Override
 	public CommandProcessingResult updateUploadStatus(Long orderId,int countno, ApiRequestJsonSerializationSettings settings) {
 		//processRecords=(long)0;
@@ -281,7 +282,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				String[] currentLineData = line.split(splitLineRegX);
 				
 				if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
-					
 					uploadStatusForMrn.setProcessRecords(processRecordCount);
 					uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
 					uploadStatusForMrn.setTotalRecords(totalRecordCount);
@@ -296,7 +296,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					
 					jsonObject.put("mrnId",currentLineData[0]);
 					jsonObject.put("serialNumber",currentLineData[1]);
-					jsonObject.put("type",currentLineData[2]);
 					jsonObject.put("locale","en");
 					totalRecordCount++;
 					context.authenticatedUser().validateHasReadPermission(MRN_RESOURCE_TYPE);
@@ -359,7 +358,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 		
 		writeToFile(fileLocation,errorData);
 		
-		}/*else if(uploadProcess.equalsIgnoreCase("Mrn")){
+		}else if(uploadProcess.equalsIgnoreCase("Mrn")){/*
 			Integer cellNumber = 2;
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			Workbook wb = null;
@@ -441,108 +440,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-		  }*/else if(uploadProcess.equalsIgnoreCase("Move Itemsale") && new File(fileLocation).getName().contains(".csv")){
-			
-		ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
-		BufferedReader csvFileBufferedReader = null;
-		String line = null;
-		String splitLineRegX = ",";
-		int i=1;
-		Long processRecordCount=0L;
-		Long totalRecordCount=0L;
-		JSONObject jsonObject = new JSONObject();
-		UploadStatus uploadStatusForMrn = this.uploadStatusRepository.findOne(orderId);
-		uploadStatusForMrn.setProcessStatus("Running...");
-		this.uploadStatusRepository.save(uploadStatusForMrn);
-		try{
-			csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
-			line = csvFileBufferedReader.readLine();
-			while((line = csvFileBufferedReader.readLine()) != null){
-				try{
-				String[] currentLineData = line.split(splitLineRegX);
-				
-				if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
-					uploadStatusForMrn.setProcessRecords(processRecordCount);
-					uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
-					uploadStatusForMrn.setTotalRecords(totalRecordCount);
-					writeCSVData(fileLocation, errorData,uploadStatusForMrn);
-					processRecordCount=0L;totalRecordCount=0L;
-					uploadStatusForMrn=null;
-					writeToFile(fileLocation,errorData);
-					return new CommandProcessingResult(Long.valueOf(-1));
-				}
-				
-				if(currentLineData.length>=2){
-					
-					jsonObject.put("itemId",currentLineData[0]);
-					jsonObject.put("serialNumber",currentLineData[1]);
-					jsonObject.put("type",currentLineData[2]);
-					jsonObject.put("locale","en");
-					totalRecordCount++;
-					context.authenticatedUser().validateHasReadPermission(MRN_RESOURCE_TYPE);
-					final CommandWrapper commandRequest = new CommandWrapperBuilder().moveItemSale().withJson(jsonObject.toString().toString()).build();
-					final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-					 if(result!=null){
-					    	//Long rsId = result.resourceId();
-					    	processRecordCount++;
-					    	errorData.add(new MRNErrorData((long)i, "Success."));
-					 }
-				}else{
-					errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
-				}
-				
-				}catch(OrderQuantityExceedsException e){
-					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
-				}catch (SerialNumberNotFoundException e) {
-					errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
-				
-				}catch (PlatformApiDataValidationException e) {
-					errorData.add(new MRNErrorData((long)i, "Error: "+e.getErrors().get(0).getParameterName()+" : "+e.getErrors().get(0).getDefaultUserMessage()));
-					
-				}catch (PlatformDataIntegrityException e) {
-					errorData.add(new MRNErrorData((long)i, "Error: "+e.getParameterName()+" : "+e.getDefaultUserMessage()));
-					
-				}catch (NullPointerException e) {
-					errorData.add(new MRNErrorData((long)i, "Error: value cannot be null"));
-					
-				}catch (IllegalStateException e) {
-					errorData.add(new MRNErrorData((long)i,e.getMessage()));
-					
-				}catch (Exception e) {
-					errorData.add(new MRNErrorData((long)i, "Error: "+e.getMessage()));
-					
-				}
-				i++;
-			}
-			
-			uploadStatusForMrn.setProcessRecords(processRecordCount);
-			uploadStatusForMrn.setUnprocessedRecords(totalRecordCount-processRecordCount);
-			uploadStatusForMrn.setTotalRecords(totalRecordCount);
-			writeCSVData(fileLocation, errorData,uploadStatusForMrn);
-			processRecordCount=0L;totalRecordCount=0L;
-			uploadStatusForMrn=null;
-			csvFileBufferedReader.close();
-		
-		}catch (FileNotFoundException e) {
-			
-			throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
-		}catch (Exception e) {
-			errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
-			
-		}finally{
-			if(csvFileBufferedReader!=null){
-				try{
-					csvFileBufferedReader.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		
-		writeToFile(fileLocation,errorData);
-		
-		}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
+		*/}else if(uploadProcess.equalsIgnoreCase("Epg") && new File(fileLocation).getName().contains(".csv")){
 			
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
 			BufferedReader csvFileBufferedReader = null;
@@ -667,7 +565,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					line = csvFileBufferedReader.readLine();
 					while((line = csvFileBufferedReader.readLine()) != null){
 						try{
-							line=line.replace(";"," ");
 						String[] currentLineData = line.split(splitLineRegX);
 						
 						if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
@@ -724,6 +621,11 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								}else{
 									errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
 								}
+
+				        	
+				        		  
+				        
+						
 						}catch(AdjustmentCodeNotFoundException e){
 							errorData.add(new MRNErrorData((long)i, "Error: "+e.getDefaultUserMessage()));
 
@@ -788,7 +690,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 					line = csvFileBufferedReader.readLine();
 					while((line = csvFileBufferedReader.readLine()) != null){
 						try{
-							line=line.replace(";"," ");
 						String[] currentLineData = line.split(splitLineRegX);
 						
 						if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
@@ -802,7 +703,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 							return new CommandProcessingResult(Long.valueOf(-1));
 						}
 						
-						if(currentLineData.length>=6){
+						if(currentLineData.length>=5){
 							paymodeDataList = this.paymodeReadPlatformService.retrievemCodeDetails("Payment Mode");
 						       
 				             if(paymodeDataList!=null && paymodeDataList.size()>0)
@@ -828,7 +729,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				                 jsonObject.put("remarks",  currentLineData[4]);
 				                 jsonObject.put("locale", "en");
 				                 jsonObject.put("dateFormat","dd MMMM yyyy");
-				                 jsonObject.put("receiptNo",currentLineData[4]);
 				                 totalRecordCount++;
 				                 final CommandWrapper commandRequest = new CommandWrapperBuilder().createPayment(Long.valueOf(currentLineData[0])).withJson(jsonObject.toString().toString()).build();
 				                 final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
@@ -889,7 +789,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 								
 				writeToFile(fileLocation,errorData);
 				
-			}/*else if(uploadProcess.equalsIgnoreCase("Epg")){
+			}else if(uploadProcess.equalsIgnoreCase("Epg")){/*
 			Integer cellNumber = 11;
 			UploadStatus uploadStatusForEpg = this.uploadStatusRepository.findOne(orderId);
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
@@ -966,7 +866,7 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 			
-			}*/else if(uploadProcess.equalsIgnoreCase("MediaAssets")){
+		*/}else if(uploadProcess.equalsIgnoreCase("MediaAssets")){
 			Integer cellNumber = 15;
 			UploadStatus uploadStatusForMediaAsset = this.uploadStatusRepository.findOne(orderId);
 			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
@@ -1074,108 +974,6 @@ public class UploadStatusWritePlatformServiceImp implements UploadStatusWritePla
 				e.getStackTrace();
 			}
 	
-			
-		}else if(uploadProcess.equalsIgnoreCase("ItemSale") && new File(fileLocation).getName().contains(".csv")){
-
-			//ArrayList<ItemDetailsCSVData> CSVData = new ArrayList<ItemDetailsCSVData>();
-			ArrayList<MRNErrorData> errorData = new ArrayList<MRNErrorData>();
-			BufferedReader csvFileBufferedReader = null;
-			String line = null;
-			String splitLineRegX = ",";
-			int i=1;
-			Long processRecordCount=0L;
-			Long totalRecordCount=0L;
-			JSONObject jsonObject = new JSONObject();
-			UploadStatus uploadStatusForItemSale = this.uploadStatusRepository.findOne(orderId);
-			uploadStatusForItemSale.setProcessStatus("Running...");
-			this.uploadStatusRepository.save(uploadStatusForItemSale);
-			
-			try{
-				csvFileBufferedReader = new BufferedReader(new FileReader(filePath));
-				line = csvFileBufferedReader.readLine();
-				while((line = csvFileBufferedReader.readLine()) != null){
-					try{
-						line=line.replace(";"," ");
-					String[] currentLineData = line.split(splitLineRegX);
-					
-					if(currentLineData!=null && currentLineData[0].equalsIgnoreCase("EOF")){
-						uploadStatusForItemSale.setProcessRecords(processRecordCount);
-						uploadStatusForItemSale.setUnprocessedRecords(totalRecordCount-processRecordCount);
-						uploadStatusForItemSale.setTotalRecords(totalRecordCount);
-						writeCSVData(fileLocation, errorData,uploadStatusForItemSale);
-						processRecordCount=0L;totalRecordCount=0L;
-						uploadStatusForItemSale=null;
-						writeToFile(fileLocation,errorData);
-						return new CommandProcessingResult(Long.valueOf(-1));
-					}
-					
-					if(currentLineData.length>=6){
-						
-						jsonObject.put("agentId",currentLineData[0]);
-						jsonObject.put("itemId",currentLineData[1]);
-						jsonObject.put("orderQuantity",currentLineData[2]);
-						jsonObject.put("chargeAmount",currentLineData[3]);
-						jsonObject.put("taxPercantage", currentLineData[4]);
-						
-						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMMM-yy");
-				    	Date date=formatter.parse(currentLineData[5]);
-				    	SimpleDateFormat formatter1 = new SimpleDateFormat("dd MMMM yyyy");
-				    	   
-						     jsonObject.put("locale", "en");
-			                 jsonObject.put("dateFormat","dd MMMM yyyy");
-			                 jsonObject.put("purchaseDate",formatter1.format(date));
-						//jsonObject.put("clientId", 1);
-						//jsonObject.put("officeId", 1);
-						totalRecordCount++;
-						final CommandWrapper commandRequest = new CommandWrapperBuilder().createItemSale().withJson(jsonObject.toString().toString()).build();
-						final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-						 if(result!=null){
-						    	//Long rsId = result.resourceId();
-						    	processRecordCount++;
-						    	errorData.add(new MRNErrorData((long)i, "Success."));
-						 }
-					}else{
-						errorData.add(new MRNErrorData((long)i, "Improper Data in this line"));
-						totalRecordCount++;
-					}
-					
-					}catch(ItemNotFoundException e){
-						errormessage ="Invalid Item id";
-						errorData.add(new MRNErrorData((long)i,errormessage));
-					}
-					catch(Exception e){
-						if(e.toString().contains("PlatformApiDataValidationException")){
-							errormessage ="missing some value in this record";
-							errorData.add(new MRNErrorData((long)i, errormessage));
-						}
-					}
-					i++;
-				}
-				
-				uploadStatusForItemSale.setProcessRecords(processRecordCount);
-				uploadStatusForItemSale.setUnprocessedRecords(totalRecordCount-processRecordCount);
-				uploadStatusForItemSale.setTotalRecords(totalRecordCount);
-				writeCSVData(fileLocation, errorData,uploadStatusForItemSale);
-				processRecordCount=0L;totalRecordCount=0L;
-				uploadStatusForItemSale=null;
-				
-			}catch (FileNotFoundException e) {
-				throw new PlatformDataIntegrityException("file.not.found", "file.not.found", "file.not.found", "file.not.found");					
-			}catch (Exception e) {
-				errorData.add(new MRNErrorData((long)i, "Error: "+e.getCause().getLocalizedMessage()));
-				
-			}finally{
-				if(csvFileBufferedReader!=null){
-					try{
-						csvFileBufferedReader.close();
-					}catch(Exception e){
-						e.printStackTrace();
-					}
-				}
-			}
-			
-			
-			writeToFile(fileLocation,errorData);
 			
 		}else{
 		try {
@@ -1852,8 +1650,6 @@ public synchronized void writeXLSXFileMediaEpgMrn(final String excelFileName, fi
 
 private void writeCSVData(String fileLocation,
 		ArrayList<MRNErrorData> errorData, UploadStatus uploadStatusForMrn) {
-	
-	try{
 		
 		long processRecords = uploadStatusForMrn.getProcessRecords();
 		long totalRecords = uploadStatusForMrn.getTotalRecords();
@@ -1874,9 +1670,6 @@ private void writeCSVData(String fileLocation,
 		uploadStatusForMrn.setProcessDate(new LocalDate().toDate());
 		this.uploadStatusRepository.save(uploadStatusForMrn);
 		uploadStatusForMrn = null;
-	}catch(Exception  exception){
-		exception.printStackTrace();
-	}
 	}
 
 	public void writeToFile(String fileLocation,ArrayList<MRNErrorData> errorData){
@@ -1908,5 +1701,4 @@ private void writeCSVData(String fileLocation,
 		}
 	}
 }
-
 

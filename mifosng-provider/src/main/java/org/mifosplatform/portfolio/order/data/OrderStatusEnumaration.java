@@ -29,10 +29,6 @@ public class OrderStatusEnumaration {
 		case PENDING:
 			optionData =new EnumOptionData(StatusTypeEnum.PENDING.getValue().longValue(),codePrefix+StatusTypeEnum.PENDING,"PENDING");
 			break;
-			
-		case TERMINATED:
-			optionData =new EnumOptionData(StatusTypeEnum.TERMINATED.getValue().longValue(),codePrefix+StatusTypeEnum.TERMINATED,"TERMINATED");
-			break;	
 
 		default:
 			optionData = new EnumOptionData(StatusTypeEnum.INVALID.getValue().longValue(), StatusTypeEnum.INVALID.getCode(), "INVALID");

@@ -34,7 +34,7 @@ public final class CodeCommandFromApiJsonDeserializer {
     /**
      * The parameters supported for this command.
      */
-    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("name","description"));
+    private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("name"));
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -55,10 +55,7 @@ public final class CodeCommandFromApiJsonDeserializer {
 
         final String name = fromApiJsonHelper.extractStringNamed("name", element);
         baseDataValidator.reset().parameter("name").value(name).notBlank().notExceedingLengthOf(100);
-        
-        final String description = fromApiJsonHelper.extractStringNamed("description", element);
-    	baseDataValidator.reset().parameter("description").value(description).notExceedingLengthOf(1000);
-    	
+
         throwExceptionIfValidationWarningsExist(dataValidationErrors);
     }
 

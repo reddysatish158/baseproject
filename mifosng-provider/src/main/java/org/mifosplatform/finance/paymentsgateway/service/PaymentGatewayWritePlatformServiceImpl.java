@@ -80,8 +80,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 
 				Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
 
-				if (clientId != null && clientId>0) {
-		
+				if (clientId != null) {
 					Long paymodeId = this.paymodeReadPlatformService.getOnlinePaymode();
 					if (paymodeId == null) {
 						paymodeId = new Long(83);
@@ -101,7 +100,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 					String entityName = "PAYMENT";
 					final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
 					JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper,entityName,
-							                            clientId,null, null, null, null, null, null, null, null, null,null);
+							                            clientId,null, null, null, null, null, null, null, null, null);
 					
 					result = this.paymentWritePlatformService.createPayment(comm);
 					if (result.resourceId() != null) {
@@ -139,7 +138,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 
 			Long clientId = this.readPlatformService.retrieveClientIdForProvisioning(serialNumberId);
 
-			if (clientId != null && clientId>0) {
+			if (clientId != null) {
 				Long paymodeId = this.paymodeReadPlatformService.getOnlinePaymode();
 				if (paymodeId == null) {
 					paymodeId = new Long(83);
@@ -161,7 +160,7 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 				String entityName = "PAYMENT";
 				final JsonElement element1 = fromApiJsonHelper.parse(object.toString());
 				JsonCommand comm = new JsonCommand(null, object.toString(),element1, fromApiJsonHelper,entityName,
-						                            clientId,null, null, null, null, null, null, null, null, null,null);
+						                            clientId,null, null, null, null, null, null, null, null, null);
 				
 				result = this.paymentWritePlatformService.createPayment(comm);
 				if (result.resourceId() != null) {
@@ -185,12 +184,10 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 			  JsonElement element=null;
 			  Long resourceId = null;
 			  String OBSPAYMENTTYPE = null;
-			  element= fromApiJsonHelper.parse(command.json());
 			try {
 				   context.authenticatedUser();
 				   this.paymentGatewayCommandFromApiJsonDeserializer.validateForCreate(command.json());
-				  
-
+				   element= fromApiJsonHelper.parse(command.json());
 				   if(element!=null){  
 					   OBSPAYMENTTYPE  = fromApiJsonHelper.extractStringNamed("OBSPAYMENTTYPE", element);
 					   if(OBSPAYMENTTYPE.equalsIgnoreCase("MPesa")){
@@ -224,18 +221,20 @@ public class PaymentGatewayWritePlatformServiceImpl implements PaymentGatewayWri
 		    		   return null;
 		    	  }
 			   } catch (Exception dve) {
-				    handleCodeDataIntegrityIssues(command, dve);
+				    handleCodeDataIntegrityIssues(element, dve);
 					return new CommandProcessingResult(Long.valueOf(-1));
 	        }		
 			
 		}
 
-		private void handleCodeDataIntegrityIssues(JsonCommand command,Exception dve) {
+		private void handleCodeDataIntegrityIssues(JsonElement element,
+				Exception dve) {
 			String realCause=dve.toString();
-			  final String receiptNo=command.stringValueOfParameterNamed("receipt");//fromApiJsonHelper.extractStringNamed("receipt", command);
+			  final String receiptNo=fromApiJsonHelper.extractStringNamed("receipt", element);
 		        if (realCause.contains("reference")) {
 		        	
-		            final String name =command.stringValueOfParameterNamed("reference");// fromApiJsonHelper.extractStringNamed("reference", command);
+		            final String name = fromApiJsonHelper.extractStringNamed("reference", element);
+		          
 		            throw new PlatformDataIntegrityException("error.msg.code.reference", "A reference with this value '" + name + "' does not exists");
 		        }else if(realCause.contains("receiptNo")){
 		        	

@@ -11,7 +11,6 @@ import org.mifosplatform.billing.pricing.data.PriceData;
 import org.mifosplatform.billing.pricing.service.PriceReadPlatformService;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.portfolio.order.data.CustomValidationData;
 import org.mifosplatform.portfolio.plan.data.ServiceData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -82,7 +81,7 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 
 			String sql = "select " + mapper1.schema()+" and da.plan_id = '"+plan_code+"' and (c.billfrequency_code='"+billingFreq+"'  or c.billfrequency_code='Once')" +
 					" AND ca.client_id = ?  AND da.price_region_id =pd.priceregion_id AND s.state_name = ca.state And s.parent_code=pd.country_id" +
-					" AND pd.state_id = s.id group by da.id";
+					" AND pd.state_id = s.id";
 			return this.jdbcTemplate.query(sql, mapper1, new Object[] { clientId });
 
 		} 
@@ -90,11 +89,11 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 		private static final class PriceMapper implements RowMapper<PriceData> {
 
 			public String schema() {
-				return " da.id AS id,if(da.service_code ='None',0, se.id) AS serviceId, da.service_code AS service_code,da.charge_code AS charge_code,da.charging_variant AS charging_variant," +
+				return " da.id AS id,se.id AS serviceId,da.service_code AS service_code,da.charge_code AS charge_code,da.charging_variant AS charging_variant," +
 						"c.charge_type AS charge_type,c.charge_duration AS charge_duration,c.duration_type AS duration_type,da.discount_id AS discountId," +
 						"c.tax_inclusive AS taxInclusive,da.price AS price,da.price_region_id,s.id AS stateId,s.parent_code AS countryId,pd.state_id AS regionState," +
 						"pd.country_id AS regionCountryId FROM b_plan_pricing da,b_charge_codes c,b_service se,b_client_address ca,b_state s,b_priceregion_detail pd" +
-						" WHERE  da.charge_code = c.charge_code  AND ( da.service_code = se.service_code or da.service_code ='None') AND da.is_deleted = 'n' AND ca.address_key='PRIMARY'" ;
+						" WHERE  da.charge_code = c.charge_code  AND da.service_code = se.service_code AND da.is_deleted = 'n' AND ca.address_key='PRIMARY'" ;
 					   
 
 			}
@@ -132,33 +131,28 @@ public class OrderDetailsReadPlatformServicesImpl implements OrderDetailsReadPla
 			PriceMapper mapper1 = new PriceMapper();
 			String sql = "select " + mapper1.schema()+" and da.plan_id = '"+planId+"' and (c.billfrequency_code='"+billingFrequency+"'  or c.billfrequency_code='Once')" +
 					" AND ca.client_id = ?  AND da.price_region_id =pd.priceregion_id AND s.state_name = ca.state And s.parent_code=pd.country_id" +
-					" AND pd.state_id =0 group by da.id";
+					" AND pd.state_id =0";
 			return this.jdbcTemplate.query(sql, mapper1, new Object[] { clientId });
 		}
 
 
 
 		@Override
-		public CustomValidationData checkForCustomValidations(Long clientId,String eventName,String strjson) {
+		public int checkForCustomValidations(Long clientId,String eventName) {
 		       
 			
 					  jdbcCall.setProcedureName("custom_validation");
 					  MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 					  parameterSource.addValue("p_clientid", clientId, Types.INTEGER);
-					  parameterSource.addValue("jsonstr", strjson, Types.VARCHAR);
+					  parameterSource.addValue("keyid", clientId, Types.INTEGER);
 					  parameterSource.addValue("event_name", eventName, Types.VARCHAR);
 					  Map<String, Object> out = jdbcCall.execute(parameterSource);
+					  int errCode=(Integer)out.get("err_code");
+					  String errMsg=(String)out.get("err_msg");
 					  
-					  Integer errCode=0;
-					  String errMsg=null;
-					  if(out != null){
-					   errCode=(Integer)out.get("err_code");
-					   errMsg=(String)out.get("err_msg");
-					  }
+					  return errCode;
 					  
-					  return new CustomValidationData(errCode.longValue() ,errMsg);
-					  
-			 		
+					
 			}
 
 	}

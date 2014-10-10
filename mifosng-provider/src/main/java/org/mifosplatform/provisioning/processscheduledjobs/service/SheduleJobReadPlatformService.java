@@ -24,8 +24,6 @@ public interface SheduleJobReadPlatformService {
 	String retrieveMessageData(Long id);
 	
 	List<ScheduleJobData> retrieveSheduleJobDetails(String paramValue);
-
-	List<Long> getBillIds(String query);
 	
 
 }

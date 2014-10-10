@@ -1,6 +1,5 @@
 package org.mifosplatform.workflow.eventactionmapping.service;
 
-
 import java.util.Date;
 import java.util.List;
 
@@ -10,6 +9,7 @@ import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.serialization.FromJsonHelper;
 import org.mifosplatform.portfolio.association.data.HardwareAssociationData;
 import org.mifosplatform.portfolio.association.service.HardwareAssociationReadplatformService;
+import org.mifosplatform.portfolio.order.domain.Order;
 import org.mifosplatform.portfolio.order.domain.OrderHistoryRepository;
 import org.mifosplatform.portfolio.order.domain.OrderRepository;
 import org.mifosplatform.portfolio.order.service.OrderWritePlatformService;
@@ -77,7 +77,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				String jsonObject=eventActionData.getJsonData();
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
 				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"RenewalOrder",eventActionData.getClientId(), null,
-						null,eventActionData.getClientId(), null, null, null,null, null, null,null);
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
 				
 			    	this.orderWritePlatformService.renewalClientOrder(command,eventActionData.getOrderId());
 			    	/*OrderHistory orderHistory=new OrderHistory(eventActionData.getOrderId(),new LocalDate(),new LocalDate(),null,"Renewal",Long.valueOf(0),null);
@@ -90,7 +90,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 */
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_ACTIVE)){
 				
-				//Order order=this.orderRepository.findOne(eventActionData.getOrderId());
+				Order order=this.orderRepository.findOne(eventActionData.getOrderId());
 				this.orderWritePlatformService.reconnectOrder(eventActionData.getOrderId());
 			/*	
 				transactionHistoryWritePlatformService.saveTransactionHistory(eventActionData.getClientId(),"ORDER_"+UserActionStatusTypeEnum.RECONNECTION.toString(), order.getStartDate(),
@@ -102,7 +102,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				String jsonObject=eventActionData.getJsonData();
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
 				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"DissconnectOrder",eventActionData.getClientId(), null,
-						null,eventActionData.getClientId(), null, null, null,null, null, null,null);
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
 				this.orderWritePlatformService.disconnectOrder(command,	eventActionData.getOrderId());
 				
 			}else if(eventActionData.getActionName().equalsIgnoreCase(EventActionConstants.ACTION_NEW)){
@@ -110,7 +110,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				String jsonObject=eventActionData.getJsonData();
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
 				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateOrder",eventActionData.getClientId(), null,
-						null,eventActionData.getClientId(), null, null, null,null, null, null,null);
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
 			
 				CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
 				/*//For Transaction History
@@ -124,7 +124,7 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 				String jsonObject=eventActionData.getJsonData();
 				final JsonElement parsedCommand = this.fromApiJsonHelper.parse(jsonObject);
 				final JsonCommand command = JsonCommand.from(jsonObject,parsedCommand,this.fromApiJsonHelper,"CreateInvoice",eventActionData.getClientId(), null,
-						null,eventActionData.getClientId(), null, null, null,null, null, null,null);
+						null,eventActionData.getClientId(), null, null, null,null, null, null);
 
 				//CommandProcessingResult commandProcessingResult=this.orderWritePlatformService.createOrder(eventActionData.getClientId(), command);
 			   this.invoiceClient.createInvoiceBill(command);
@@ -160,13 +160,11 @@ public class ProcessEventActionServiceImpl implements ProcessEventActionService 
 	    	this.eventActionRepository.save(eventAction);
 	    	
 		}catch(DataIntegrityViolationException exception){
-			eventAction.updateStatus('F');
-	    	this.eventActionRepository.save(eventAction);
 			exception.printStackTrace();
 		}catch (Exception exception) {
-	//EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
-	    	eventAction.updateStatus('F');
-	    	this.eventActionRepository.save(eventAction);
+		//	EventAction eventAction=this.eventActionRepository.findOne(eventActionData.getId());
+	    	/*eventAction.updateStatus('F');
+	    	this.eventActionRepository.save(eventAction);*/
 			
 		}
 		

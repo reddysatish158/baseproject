@@ -123,7 +123,4 @@ public class MRNDetails extends AbstractAuditableCustom<AppUser, Long>{
 	}
 	
 	
-	public Long getItemMasterId() {
-		return itemMasterId;
-	}
 }

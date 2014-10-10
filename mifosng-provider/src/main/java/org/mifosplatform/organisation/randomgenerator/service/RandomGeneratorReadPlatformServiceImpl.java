@@ -117,10 +117,7 @@ private static final class retrieveMapper implements RowMapper<String> {
 				return "m.id as id, m.batch_name as batchName,m.batch_description as batchDescription,m.length as length," +
 						"m.begin_with as beginWith,m.pin_category as pinCategory,m.quantity as quantity," +
 						"m.serial_no as serialNo,m.pin_type as pinType,m.pin_value as pinValue,m.expiry_date as expiryDate, " +
-						"case m.pin_type when 'VALUE' then p.plan_code=null when 'PRODUCT' then p.plan_code end as planCode, "+
-						"m.is_processed as isProcessed from b_pin_master m  "+
-						"left join b_plan_master p on m.pin_value=p.id";
-
+						"m.is_processed as isProcessed from b_pin_master m;";
 			
 			}
 			
@@ -138,11 +135,9 @@ private static final class retrieveMapper implements RowMapper<String> {
 				 Date expiryDate=rs.getDate("expiryDate");
 				 String beginWith=rs.getString("beginWith");
 				 String pinValue=rs.getString("pinValue");
-				 String planCode=rs.getString("planCode");
 				 String isProcessed=rs.getString("isProcessed");	
 				 
-				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id,planCode,isProcessed);
-
+				return new RandomGeneratorData(batchName,batchDescription,length,pinCategory,pinType,quantity,serial,expiryDate,beginWith,pinValue,id,isProcessed);
 			}
 		}
 	

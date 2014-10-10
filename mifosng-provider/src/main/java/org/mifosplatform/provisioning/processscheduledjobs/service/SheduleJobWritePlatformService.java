@@ -7,7 +7,7 @@ public interface SheduleJobWritePlatformService {
 	
 	void processRequest();
 	
-	//void processResponse();
+	void processResponse();
 	
 	void processSimulator();
 	
@@ -24,8 +24,6 @@ public interface SheduleJobWritePlatformService {
 	void eventActionProcessor();
 	
 	void reportEmail();
-	
-	void reportStatmentPdf();
     
 
 

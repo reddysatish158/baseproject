@@ -1,6 +1,5 @@
 package org.mifosplatform.cms.eventorder.api;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,7 +12,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -25,7 +23,6 @@ import org.mifosplatform.cms.eventorder.data.EventOrderDeviceData;
 import org.mifosplatform.cms.eventorder.service.EventOrderReadplatformServie;
 import org.mifosplatform.cms.eventpricing.data.ClientTypeData;
 import org.mifosplatform.cms.eventpricing.service.EventPricingReadPlatformService;
-import org.mifosplatform.cms.media.exceptions.NoEventPriceFoundException;
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -40,7 +37,6 @@ import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.organisation.mcodevalues.service.MCodeReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 @Path("/eventorder")
@@ -98,7 +94,8 @@ public class EventOrderApiResource {
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
 		public String getEventOrder(@PathParam("clientId") final Long clientId, @Context final UriInfo uriInfo){			
-			context.authenticatedUser().validateHasReadPermission(resourceNameForPermissions);
+			context.authenticatedUser();
+			
 			final List<EventOrderDeviceData> devices = eventOrderReadplatformServie.getDevices(clientId);
 			//final List<EventMasterData> events = eventOrderReadplatformServie.getEvents();
 			final List<EventMasterData> events = this.eventMasterReadPlatformService.retrieveEventMasterDataForEventOrders();
@@ -110,21 +107,25 @@ public class EventOrderApiResource {
 	        return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
 		}
 		
-		@GET
+		/*@GET
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})
-		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType,
-				@QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
+		public String gteEventPrice(@QueryParam("clientId") final Long clientId,@QueryParam("ftype") final String fType, @QueryParam("otype")final String oType, @Context final UriInfo uriInfo){
+			context.authenticatedUser();
+			EventOrderData data = null;
+			try{
+				
+				final BigDecimal eventPrice = eventOrderReadplatformServie.retriveEventPrice(fType, oType, clientId);
+				data = new EventOrderData(eventPrice);
+				
+			}catch(EmptyResultDataAccessException accessException){
+				throw new NoEventPriceFoundException();
+			}
 			
-			List<EventOrderData> eventOrderDatas=this.eventOrderReadplatformServie.getTheClientEventOrders(clientId);
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-			return this.toApiJsonSerializer.serialize(settings, eventOrderDatas, RESPONSE_DATA_PARAMETERS);
-		}
+			return this.toApiJsonSerializer.serialize(settings, data, RESPONSE_DATA_PARAMETERS);
+		}*/
 		
-		
-		
-		
-	
 		/*@PUT
 		@Consumes({MediaType.APPLICATION_JSON})
 		@Produces({MediaType.APPLICATION_JSON})

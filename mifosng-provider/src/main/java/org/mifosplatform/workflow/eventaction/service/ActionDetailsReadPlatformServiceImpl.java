@@ -8,12 +8,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
+import net.sf.json.JSONException;
+
 import org.joda.time.LocalDate;
 import org.json.JSONObject;
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSource;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
+import org.mifosplatform.portfolio.contract.domain.Contract;
+import org.mifosplatform.portfolio.contract.domain.SubscriptionRepository;
 import org.mifosplatform.portfolio.order.data.SchedulingOrderData;
+import org.mifosplatform.portfolio.plan.domain.Plan;
+import org.mifosplatform.portfolio.plan.domain.PlanRepository;
+import org.mifosplatform.portfolio.planservice.data.PlanServiceData;
 import org.mifosplatform.scheduledjobs.scheduledjobs.data.EventActionData;
 import org.mifosplatform.workflow.eventaction.data.ActionDetaislData;
 import org.mifosplatform.workflow.eventaction.data.EventActionProcedureData;
@@ -25,20 +34,22 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+
 @Service
 public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPlatformService{
 	
 	
-	private final SimpleJdbcCall jdbcCall;
 	private final JdbcTemplate jdbcTemplate;
 	private final PlatformSecurityContext context;
+	private final SimpleJdbcCall jdbcCall;
 	
 	@Autowired
 	public  ActionDetailsReadPlatformServiceImpl(final PlatformSecurityContext context, final TenantAwareRoutingDataSource dataSource) {
-		
 		this.context = context;
-		this.jdbcCall= new SimpleJdbcCall(dataSource);
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.jdbcCall= new SimpleJdbcCall(dataSource);
 		
 	}
 
@@ -47,23 +58,24 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 	public List<ActionDetaislData> retrieveActionDetails(String eventType) {
    
 		try{
-			EventMappingMapper mapper = new EventMappingMapper();
-			String sql = "select " + mapper.schema();
-			return this.jdbcTemplate.query(sql, mapper, new Object[] { eventType });
-			
+
+		EventMappingMapper mapper = new EventMappingMapper();
+		String sql = "select " + mapper.schema();
+		return this.jdbcTemplate.query(sql, mapper, new Object[] { eventType });
 		}catch(EmptyResultDataAccessException accessException){
 			return null;
 		}
+
 	}
 
 	private static final class EventMappingMapper implements RowMapper<ActionDetaislData> {
 
 		public String schema() {
-			return "em.id as actionId,em.action_name as actionName,em.process as processName,em.is_synchronous as isSync,em.event_name as eventName " +
+			return "em.id as actionId,em.action_name as actionName,em.process as processName,em.is_synchronous as isSync" +
 					" from b_eventaction_mapping em where em.event_name=? and em.is_deleted='N'";
 
 		}
-		
+
 		@Override
 		public ActionDetaislData mapRow(final ResultSet rs,
 				@SuppressWarnings("unused") final int rowNum)
@@ -72,8 +84,7 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			String procedureName = rs.getString("processName");
 			String procedureType = rs.getString("actionName");
 			String isSynchronous = rs.getString("isSync");
-			String eventName = rs.getString("eventName");
-			return new ActionDetaislData(id,procedureName,procedureType,isSynchronous,eventName);
+			return new ActionDetaislData(id,procedureName,procedureType,isSynchronous);
 
 		}
 	}
@@ -90,40 +101,36 @@ public class ActionDetailsReadPlatformServiceImpl implements ActionDetailsReadPl
 			  parameterSource.addValue("resourceid", resourceId, Types.VARCHAR);
 			    
 			  Map<String, Object> out = jdbcCall.execute(parameterSource);
-			  
+			     
 			  String result=(String)out.get("result");
 			  String resource=(String)out.get("strjson");
 			  
 			  boolean isCheck=false;
 			  String orderresource=null;
-			  String contractResource=null;
 			  String actionName=null;
 			  Long orderId=null;
 			  String planId=null;
-			  String emailId=null;
-			  Long contractId=null;
-			  	if(result.equalsIgnoreCase("true") && resource != null){
-			  		isCheck=true;
-			  		String[] resultdatas=resource.split(" ");
-			  		Map<String,String> map=new HashMap<String, String>();
+			  if(result.equalsIgnoreCase("true") && resource != null){
 
-			  			for(String resultData:resultdatas){
-			  				String[] data=resultData.split(":");
-			  				map.put(data[0],data[1]);
-			  			}
-				  emailId=map.get("Email_Id");
+				  isCheck=true;
+				  String[] resultdatas=resource.split(" ");
+				  Map<String,String> map=new HashMap<String, String>();
+				   
+				  for(String resultData:resultdatas){
+					   String[] data=resultData.split(":");
+					   map.put(data[0],data[1]);
+					   
+				   }
+				  
 				  actionName=map.get("action");
 				  orderresource=map.get("orderid");
-				  contractResource=map.get("contractperiod");
 				  planId=map.get("planid");
-			  	}
-			  	if(orderresource !=null){
-			  		orderId=Long.parseLong(orderresource);
-			  	}
-			  	if(contractResource != null){
-			  		contractId=Long.parseLong(contractResource);
-			  	}
-  		return new EventActionProcedureData(isCheck,orderId,actionName,planId,emailId,contractId);
+			  }
+			  if(orderresource !=null){
+  		   orderId=Long.parseLong(orderresource);
+			  }
+			  
+  		return new EventActionProcedureData(isCheck,orderId,actionName,planId);
 	}
 
 

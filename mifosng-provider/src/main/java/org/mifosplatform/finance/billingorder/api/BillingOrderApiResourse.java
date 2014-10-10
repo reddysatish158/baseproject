@@ -76,7 +76,7 @@ public class BillingOrderApiResourse {
 						wrapper.getGroupId(), wrapper.getClientId(),
 						wrapper.getLoanId(), wrapper.getSavingsId(),
 						wrapper.getCodeId(), wrapper.getSupportedEntityType(),
-						wrapper.getSupportedEntityId(), wrapper.getTransactionId(),null);
+						wrapper.getSupportedEntityId(), wrapper.getTransactionId());
 		this.invoiceClient.createInvoiceBill(command); 
 		return this.toApiJsonSerializer.serialize(result);
 	}

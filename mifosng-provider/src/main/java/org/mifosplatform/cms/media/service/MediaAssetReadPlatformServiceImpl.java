@@ -275,25 +275,25 @@ public class MediaAssetReadPlatformServiceImpl implements MediaAssetReadPlatform
 		final String subject = rs.getString("subject");
 		final String overview = rs.getString("overview");
 		final String image = rs.getString("image");
-		final Long contentProvider = rs.getLong("contentProvider");
+		final String contentProvider = rs.getString("contentProvider");
 		final String rated=rs.getString("rated");
 		final BigDecimal rating=rs.getBigDecimal("rating");
 		final Long ratingCount=rs.getLong("ratingCount");
 		final String status=rs.getString("status");
 		final String duration=rs.getString("duration");
-		final BigDecimal cpShareValue=rs.getBigDecimal("cpShareValue");
-
+		
 		return new MediaAssetData(mediaId,mediatitle,type,genre,catageoryId,releaseDate,subject,overview,image,contentProvider,
-				rated,rating,ratingCount,status,duration,cpShareValue);
+				rated,rating,ratingCount,status,duration);
 	}
 	public String scheme() {
 
 		return " m.id as id,m.title as title,m.type as type,m.category_id as catageoryId,m.genre as genre,m.release_date as releaseDate,"
 			  +"m.overview as overview,m.subject as subject,m.image as image,m.content_provider as contentProvider,m.rated as rated, "
-			 +"m.rating as rating,m.rating_count as ratingCount,m.status as status,m.duration as duration,m.cp_share as cpShareValue FROM b_media_asset m where m.is_deleted='N' and ";
+			 +"m.rating as rating,m.rating_count as ratingCount,m.status as status,m.duration as duration FROM b_media_asset m where m.is_deleted='N' and ";
 
 
 	}
+
 
 		}
 
@@ -424,14 +424,7 @@ private static final class MediaLocationDataMapper implements RowMapper<MediaLoc
 				return new MediaLocationData(languageId,formatType,location);
 			}
 			
+			
 		}
-
-     @Override
-      public List<McodeData> retrieveContentProviders() {
-	         context.authenticatedUser();
-	           SystemDataMapper mapper = new SystemDataMapper();
-	           String sql = "select " + mapper.schema();
-	           return this.jdbcTemplate.query(sql, mapper, new Object[] { "Content Provider" });
-  }
 
 }

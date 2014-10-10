@@ -33,35 +33,33 @@ public class SchedulerTriggerListener implements TriggerListener {
     }
 
     @Override
-    public void triggerFired(@SuppressWarnings("unused") final Trigger trigger,
-            @SuppressWarnings("unused") final JobExecutionContext context) {
+    public void triggerFired(@SuppressWarnings("unused") Trigger trigger, @SuppressWarnings("unused") JobExecutionContext context) {
 
     }
 
     @Override
-    public boolean vetoJobExecution(final Trigger trigger, final JobExecutionContext context) {
+    public boolean vetoJobExecution(Trigger trigger, JobExecutionContext context) {
 
-        final String tenantIdentifier = trigger.getJobDataMap().getString(SchedulerServiceConstants.TENANT_IDENTIFIER);
-        final MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantIdentifier);
+        String tenantIdentifier = trigger.getJobDataMap().getString(SchedulerServiceConstants.TENANT_IDENTIFIER);
+        MifosPlatformTenant tenant = this.tenantDetailsService.loadTenantById(tenantIdentifier);
         ThreadLocalContextUtil.setTenant(tenant);
-        final JobKey key = trigger.getJobKey();
-        final String jobKey = key.getName() + SchedulerServiceConstants.JOB_KEY_SEPERATOR + key.getGroup();
+        JobKey key = trigger.getJobKey();
+        String jobKey = key.getName() + SchedulerServiceConstants.JOB_KEY_SEPERATOR + key.getGroup();
         String triggerType = SchedulerServiceConstants.TRIGGER_TYPE_CRON;
         if (context.getMergedJobDataMap().containsKey(SchedulerServiceConstants.TRIGGER_TYPE_REFERENCE)) {
             triggerType = context.getMergedJobDataMap().getString(SchedulerServiceConstants.TRIGGER_TYPE_REFERENCE);
         }
-        return this.schedularService.processJobDetailForExecution(jobKey, triggerType);
+        return schedularService.processJobDetailForExecution(jobKey, triggerType);
     }
 
     @Override
-    public void triggerMisfired(@SuppressWarnings("unused") final Trigger trigger) {
+    public void triggerMisfired(@SuppressWarnings("unused") Trigger trigger) {
 
     }
 
     @Override
-    public void triggerComplete(@SuppressWarnings("unused") final Trigger trigger,
-            @SuppressWarnings("unused") final JobExecutionContext context,
-            @SuppressWarnings("unused") final CompletedExecutionInstruction triggerInstructionCode) {
+    public void triggerComplete(@SuppressWarnings("unused") Trigger trigger, @SuppressWarnings("unused") JobExecutionContext context,
+            @SuppressWarnings("unused") CompletedExecutionInstruction triggerInstructionCode) {
 
     }
 

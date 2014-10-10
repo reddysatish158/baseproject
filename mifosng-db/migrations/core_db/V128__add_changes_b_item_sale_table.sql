@@ -47,4 +47,19 @@ END $$
 DELIMITER ;
 call addpurchaseby();
 
+
+
+DELIMITER $$
+Drop procedure IF EXISTS addpurchasefrom $$
+create procedure addpurchasefrom() 
+Begin
+  IF NOT EXISTS (
+     SELECT * FROM information_schema.COLUMNS
+     WHERE COLUMN_NAME = 'purchase_from'
+     and TABLE_NAME = 'b_itemsale'
+     and TABLE_SCHEMA = DATABASE())THEN
 alter table b_itemsale change  agent_id purchase_from int(10)  NOT NULL;
+END IF;
+END $$
+DELIMITER ;
+call addpurchasefrom();

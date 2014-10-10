@@ -188,7 +188,6 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 		}
 	}
 
-
 	@Override
 	public String sendToUserEmail(BillingMessageDataForProcessing emailDetail) {
 				
@@ -265,6 +264,7 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 			
 		}
 		
+            
 		
 	}
 
@@ -334,7 +334,6 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 			Date date=new Date();
 			String dateTime=date.getHours()+""+date.getMinutes();
 		    String fileName="ReportEmail_"+new LocalDate().toString().replace("-","")+"_"+dateTime+".pdf";
-
 		    Properties props = new Properties();
 		    props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
@@ -366,7 +365,6 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 			    multipart.addBodyPart(messageBodyPart);
 			    message.setContent(multipart);
 			    System.out.println("Sending");
-
 				Transport.send(message);
 			    System.out.println("Done");
 			    return "Success";
@@ -421,53 +419,6 @@ public class MessageGmailBackedPlatformEmailService implements MessagePlatformEm
 				return sendGeneralMessage(emailId,body,subject);
 			}
 		}
-		}
 		       
-	public String sendMediaDeviceCrashEmailSending(String emailId, String crashReportString) {
-		
-		        Email email = new SimpleEmail();
-				GlobalConfigurationProperty configuration=repository.findOneByName("SMTP");
-		        String value= configuration.getValue();
-		       
-		        try {
-					JSONObject object =new JSONObject(value);
-					authuser=(String) object.get("mailId");
-					encodedPassword=(String) object.get("password");
-					authpwd=new String(Base64.decodeBase64(encodedPassword));
-					hostName=(String) object.get("hostName");
-					String port=object.getString("port");
-					if(port.isEmpty()){
-						portNumber=Integer.parseInt("25");
-					}else{
-						portNumber=Integer.parseInt(port);
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				// Very Important, Don't use email.setAuthentication()
-				email.setAuthenticator(new DefaultAuthenticator(authuser, authpwd));
-				email.setDebug(false); // true if you want to debug
-				email.setHostName(hostName);
-				try {
-					email.getMailSession().getProperties()
-							.put("mail.smtp.starttls.enable", "true");
-					email.setFrom(authuser, authuser);
-					email.setSmtpPort(portNumber);
-					StringBuilder subjectBuilder = new StringBuilder().append(" ")
-							.append("OBS App Crash Exception").append("  ");
-
-					email.setSubject(subjectBuilder.toString());
-
-					String sendToEmail = emailId;
-					 StringBuilder messageBuilder = new StringBuilder()
-				     .append(crashReportString);
-					email.addTo(sendToEmail, sendToEmail);
-					email.setMsg(messageBuilder.toString());
-					email.send();
-					return "Success";
-				} catch (Exception e) {
-					handleCodeDataIntegrityIssues(null, e);
-					return e.getMessage();
-				}
 	}
 }

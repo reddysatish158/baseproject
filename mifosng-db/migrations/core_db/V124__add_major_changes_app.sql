@@ -71,5 +71,24 @@ call addcode_value();
 
 Drop procedure IF EXISTS addcode_value;
 
+
+Drop procedure IF EXISTS addcode_value; 
+DELIMITER //
+create procedure addcolumntoconf() 
+Begin
+  IF NOT EXISTS (
+     SELECT * FROM information_schema.COLUMNS
+     WHERE COLUMN_NAME = 'value'
+     and TABLE_NAME = 'c_configuration'
+     and TABLE_SCHEMA = DATABASE())THEN
 alter table c_configuration modify column value varchar(150) default null;
-INSERT INTO `c_configuration` VALUES (null,'SMTP',0,'{\"mailId\":\"test@gmail.com\",\"password\":\"byMjk=\",\"hostName\":\"smtp.gmail.com\",\"port\":\"\"}');
+
+END IF;
+  
+END //
+DELIMITER ;
+call addcolumntoconf();
+
+Drop procedure IF EXISTS addcolumntoconf;
+
+INSERT ignore INTO `c_configuration` VALUES (null,'SMTP',0,'{\"mailId\":\"test@gmail.com\",\"password\":\"byMjk=\",\"hostName\":\"smtp.gmail.com\",\"port\":\"\"}');

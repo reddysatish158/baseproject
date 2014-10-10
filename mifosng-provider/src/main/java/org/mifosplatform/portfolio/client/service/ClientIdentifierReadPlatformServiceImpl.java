@@ -101,5 +101,5 @@ public class ClientIdentifierReadPlatformServiceImpl implements ClientIdentifier
         }
 
     }
-    
+
 }

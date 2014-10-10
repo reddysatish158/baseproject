@@ -58,7 +58,6 @@ public class SelfCareReadPlatformServiceImp implements SelfCareReadPlatformServi
 		}	
 		PasswordMapper mapper1 = new PasswordMapper();
 		return jdbcTemplate.queryForObject(sql,mapper1,new Object[]{userName,password});
-
 		}catch(EmptyResultDataAccessException ex){
 			return null;
 		}

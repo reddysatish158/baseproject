@@ -1,5 +1,19 @@
-Alter table m_code add code_description varchar(1000) DEFAULT NULL;
+Drop procedure IF EXISTS codeDescription;
+DELIMITER //
+create procedure codeDescription() 
+Begin
+  IF NOT EXISTS (
+     SELECT * FROM information_schema.COLUMNS
+     WHERE COLUMN_NAME = 'code_description'
+     and TABLE_NAME = 'm_code'
+     and TABLE_SCHEMA = DATABASE())THEN
+ALTER table m_code add `code_description` varchar(1000) DEFAULT NULL;
+END IF;
+END //
+DELIMITER ;
+call codeDescription();
 
+Drop procedure IF EXISTS codeDescription;
 Update m_code set code_description='Client Identites list can be added' where id=1;
 Update m_code set code_description='Depricated' where id=2;
 Update m_code set code_description='Depricated' where id=3;

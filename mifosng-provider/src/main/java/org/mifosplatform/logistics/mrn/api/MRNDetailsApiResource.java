@@ -27,7 +27,6 @@ import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSeriali
 import org.mifosplatform.infrastructure.core.serialization.ToApiJsonSerializer;
 import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.logistics.agent.service.ItemSaleReadPlatformService;
 import org.mifosplatform.logistics.mrn.data.InventoryTransactionHistoryData;
 import org.mifosplatform.logistics.mrn.data.MRNDetailsData;
 import org.mifosplatform.logistics.mrn.service.MRNDetailsReadPlatformService;
@@ -56,13 +55,13 @@ public class MRNDetailsApiResource {
 	final private ToApiJsonSerializer<MRNDetailsData> apiJsonSerializer;
 	final private ToApiJsonSerializer<InventoryTransactionHistoryData> apiJsonSerializerForData;
 	private final OfficeReadPlatformService officeReadPlatformService;
-	final private ItemSaleReadPlatformService agentReadPlatformService;
 	
 	@Autowired
 	public MRNDetailsApiResource(final PlatformSecurityContext context, final PortfolioCommandSourceWritePlatformService portfolioCommandSourceWritePlatformService
-			,final MRNDetailsReadPlatformService mrnDetailsReadPlatformService, final ApiRequestParameterHelper apiRequestParameterHelper,
-			final ToApiJsonSerializer<MRNDetailsData> apiJsonSerializer,final OfficeReadPlatformService officeReadPlatformService,
-			final ToApiJsonSerializer<InventoryTransactionHistoryData> apiJsonSerializerForData,final ItemSaleReadPlatformService agentReadPlatformService) {
+			,final MRNDetailsReadPlatformService mrnDetailsReadPlatformService, final ApiRequestParameterHelper apiRequestParameterHelper 
+			,final ToApiJsonSerializer<MRNDetailsData> apiJsonSerializer
+			,final OfficeReadPlatformService officeReadPlatformService
+			,final ToApiJsonSerializer<InventoryTransactionHistoryData> apiJsonSerializerForData) {
 		this.context = context;
 		this.portfolioCommandSourceWritePlatformService = portfolioCommandSourceWritePlatformService;
 		this.mrnDetailsReadPlatformService = mrnDetailsReadPlatformService;
@@ -70,7 +69,6 @@ public class MRNDetailsApiResource {
 		this.apiJsonSerializer =  apiJsonSerializer;
 		this.officeReadPlatformService = officeReadPlatformService;
 		this.apiJsonSerializerForData = apiJsonSerializerForData;
-		this.agentReadPlatformService=agentReadPlatformService;
 	}
 	
 	
@@ -117,7 +115,7 @@ public class MRNDetailsApiResource {
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_JSON})
-	public String retriveSerialNumbers(@Context final UriInfo uriInfo, @QueryParam("mrnId") final Long mrnId,@QueryParam("itemsaleId") final Long itemsaleId){
+	public String retriveSerialNumbers(@Context final UriInfo uriInfo, @QueryParam("mrnId") final Long mrnId){
 		context.authenticatedUser();
 		if(mrnId!=null && mrnId > 0){
 			final MRNDetailsData mrnDetails = mrnDetailsReadPlatformService.retriveFromAndToOffice(mrnId);
@@ -126,16 +124,8 @@ public class MRNDetailsApiResource {
 			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 			return apiJsonSerializer.serialize(settings,mrnDetailsData,RESPONSE_PARAMETERS);
 		}
-		if(itemsaleId!=null && itemsaleId > 0){
-			final MRNDetailsData itemsaleDetails = mrnDetailsReadPlatformService.retriveAgentId(itemsaleId);
-			final List<String> serialNumberForItems = mrnDetailsReadPlatformService.retriveSerialNumbersForItems(itemsaleDetails.getOfficeId(),itemsaleId,null);
-			final MRNDetailsData mrnDetailsData = new MRNDetailsData(serialNumberForItems);
-			final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-			return apiJsonSerializer.serialize(settings,mrnDetailsData,RESPONSE_PARAMETERS);
-		}
 		final Collection<MRNDetailsData> mrnIds = mrnDetailsReadPlatformService.retriveMrnIds();
-		final List<MRNDetailsData> itemsaleIds = agentReadPlatformService.retriveItemsaleIds();
-		final MRNDetailsData mrnDetailsData = new MRNDetailsData(mrnIds,itemsaleIds);
+		final MRNDetailsData mrnDetailsData = new MRNDetailsData(mrnIds);
 		final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 		return apiJsonSerializer.serialize(settings,mrnDetailsData,RESPONSE_PARAMETERS);
 	}
@@ -155,16 +145,6 @@ public class MRNDetailsApiResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	public String moveMRN(final String jsonRequestBody){
 		final CommandWrapper command = new CommandWrapperBuilder().moveMRN().withJson(jsonRequestBody).build();
-		final CommandProcessingResult result = portfolioCommandSourceWritePlatformService.logCommandSource(command);
-		return apiJsonSerializer.serialize(result);
-	}
-	
-	@Path("moveitemsale")
-	@POST
-	@Produces({MediaType.APPLICATION_JSON})
-	@Consumes({MediaType.APPLICATION_JSON})
-	public String moveitemsale(final String jsonRequestBody){
-		final CommandWrapper command = new CommandWrapperBuilder().moveItemSale().withJson(jsonRequestBody).build();
 		final CommandProcessingResult result = portfolioCommandSourceWritePlatformService.logCommandSource(command);
 		return apiJsonSerializer.serialize(result);
 	}

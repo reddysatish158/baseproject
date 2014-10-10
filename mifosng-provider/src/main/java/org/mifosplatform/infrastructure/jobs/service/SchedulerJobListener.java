@@ -97,16 +97,16 @@ public class SchedulerJobListener implements JobListener {
 
     }
 
-    private Throwable getCauseFromException(final Throwable exception) {    
-    	
-    	if (this.stackTraceLevel <= SchedulerServiceConstants.STACK_TRACE_LEVEL
-            && exception.getCause() != null
-            && (exception.getCause().toString().contains(SchedulerServiceConstants.SCHEDULER_EXCEPTION)
-                    || exception.getCause().toString().contains(SchedulerServiceConstants.JOB_EXECUTION_EXCEPTION) || exception
-                    .getCause().toString().contains(SchedulerServiceConstants.JOB_METHOD_INVOCATION_FAILED_EXCEPTION))) {
-        this.stackTraceLevel++;
-        return getCauseFromException(exception.getCause());
-    } else if (exception.getCause() != null) { return exception.getCause(); }
-    return exception;}
+    private Throwable getCauseFromException(final Throwable exception) {
+        if (stackTraceLevel <= SchedulerServiceConstants.STACK_TRACE_LEVEL
+                && exception.getCause() != null
+                && (exception.getCause().toString().contains(SchedulerServiceConstants.SCHEDULER_EXCEPTION)
+                        || exception.getCause().toString().contains(SchedulerServiceConstants.JOB_EXECUTION_EXCEPTION) || exception
+                        .getCause().toString().contains(SchedulerServiceConstants.JOB_METHOD_INVOCATION_FAILED_EXCEPTION))) {
+            stackTraceLevel++;
+            return getCauseFromException(exception.getCause());
+        } else if (exception.getCause() != null) { return exception.getCause(); }
+        return exception;
+    }
 
 }
